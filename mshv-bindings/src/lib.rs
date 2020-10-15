@@ -9,3 +9,11 @@
 
 pub mod bindings;
 pub use bindings::*;
+pub mod regs;
+pub use regs::*;
+
+#[cfg(feature = "with-serde")]
+extern crate serde;
+
+#[cfg(feature = "with-serde")]
+extern crate serde_derive;

@@ -3,3 +3,10 @@ name = "mshv-bindings"
 version = "0.1.0"
 authors = ["Microsoft Authors"]
 edition = "2018"
+
+[features]
+with-serde = ["serde", "serde_derive"]
+
+[dependencies]
+serde = { version = ">=1.0.27", optional = true }
+serde_derive = { version = ">=1.0.27", optional = true }
