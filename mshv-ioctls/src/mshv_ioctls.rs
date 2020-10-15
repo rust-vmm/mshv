@@ -3,13 +3,19 @@
 // SPDX-License-Identifier: Apache-2.0 OR BSD-3-Clause
 //
 use mshv_bindings::*;
-
+ioctl_iow_nr!(MSHV_REQUEST_VERSION, MSHV_IOCTL, 0x00, u32);
 ioctl_iow_nr!(MSHV_CREATE_VP, MSHV_IOCTL, 0x04, mshv_create_vp);
 ioctl_iowr_nr!(MSHV_GET_VP_REGISTERS, MSHV_IOCTL, 0x05, mshv_vp_registers);
 ioctl_iow_nr!(MSHV_SET_VP_REGISTERS, MSHV_IOCTL, 0x06, mshv_vp_registers);
 ioctl_ior_nr!(MSHV_RUN_VP, MSHV_IOCTL, 0x07, hv_message);
 ioctl_iowr_nr!(MSHV_GET_VP_STATE, MSHV_IOCTL, 0x0A, mshv_vp_state);
 ioctl_iowr_nr!(MSHV_SET_VP_STATE, MSHV_IOCTL, 0x0B, mshv_vp_state);
+ioctl_iow_nr!(
+    MSHV_CREATE_PARTITION,
+    MSHV_IOCTL,
+    0x01,
+    mshv_create_partition
+);
 ioctl_iow_nr!(
     HV_SET_PARTITION_PROPERTY,
     MSHV_IOCTL,

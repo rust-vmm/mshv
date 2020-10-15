@@ -10,8 +10,10 @@
 
 extern crate mshv_bindings;
 pub mod ioctls;
+pub use ioctls::system::Mshv;
 pub use ioctls::vcpu::VcpuFd;
 pub use ioctls::vm::VmFd;
+
 #[macro_use]
 pub mod mshv_ioctls;
 extern crate libc;
