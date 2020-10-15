@@ -10,3 +10,4 @@ with-serde = ["serde", "serde_derive"]
 [dependencies]
 serde = { version = ">=1.0.27", optional = true }
 serde_derive = { version = ">=1.0.27", optional = true }
+zerocopy = "0.3"
