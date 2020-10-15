@@ -777,3 +777,380 @@ impl VcpuFd {
         ret
     }
 }
+#[allow(dead_code)]
+#[cfg(test)]
+mod tests {
+    // Note this useful idiom: importing names from outer (for mod tests) scope.
+    use super::*;
+    use crate::ioctls::system::Mshv;
+
+    #[test]
+    fn test_set_get_regs() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        vcpu.set_reg(
+            &[
+                hv_register_name::HV_X64_REGISTER_RIP,
+                hv_register_name::HV_X64_REGISTER_RFLAGS,
+            ],
+            &[
+                hv_register_value { reg64: 0x1000 },
+                hv_register_value { reg64: 0x2 },
+            ],
+        )
+        .unwrap();
+
+        let get_reg_names: [hv_register_name; 2] = [
+            hv_register_name::HV_X64_REGISTER_RIP,
+            hv_register_name::HV_X64_REGISTER_RFLAGS,
+        ];
+
+        let reg_values = vcpu.get_reg(&get_reg_names).unwrap();
+
+        unsafe {
+            /* use returned regs */
+            assert!(reg_values[0].reg64 == 0x1000);
+            assert!(reg_values[1].reg64 == 0x2);
+            /* index into original array */
+            assert!(reg_values[0].reg64 == 0x1000);
+            assert!(reg_values[1].reg64 == 0x2);
+            /* access raw pointer as array */
+            assert!(reg_values[0].reg64 == 0x1000);
+            assert!(reg_values[1].reg64 == 0x2);
+        }
+    }
+
+    #[test]
+    fn test_set_get_sregs() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        let s_sregs = vcpu.get_sregs().unwrap();
+        vcpu.set_sregs(&s_sregs).unwrap();
+        let g_sregs = vcpu.get_sregs().unwrap();
+        assert!(g_sregs.cr0 == s_sregs.cr0);
+        assert!(g_sregs.cr2 == s_sregs.cr2);
+        assert!(g_sregs.cr3 == s_sregs.cr3);
+        assert!(g_sregs.cr4 == s_sregs.cr4);
+        assert!(g_sregs.cr8 == s_sregs.cr8);
+        assert!(g_sregs.cr8 == s_sregs.cr8);
+        assert!(g_sregs.apic_base == s_sregs.apic_base);
+        assert!(g_sregs.efer == s_sregs.efer);
+    }
+    #[test]
+    // fn test_set_get_standardregisters() {
+    //     let hv = Mshv::new().unwrap();
+    //     let vm = hv.create_vm().unwrap();
+    //     let vcpu = vm.create_vcpu(0).unwrap();
+
+    //     let s_regs = vcpu.get_regs().unwrap();
+    //     vcpu.set_regs(&s_regs).unwrap();
+    //     let g_regs = vcpu.get_regs().unwrap();
+    //     assert!(g_regs.rax == s_regs.rax);
+    //     assert!(g_regs.rbx == s_regs.rbx);
+    //     assert!(g_regs.rcx == s_regs.rcx);
+    //     assert!(g_regs.rdx == s_regs.rdx);
+    // }
+    #[test]
+    fn test_set_get_debug_gisters() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let s_regs = vcpu.get_debug_regs().unwrap();
+        vcpu.set_debug_regs(&s_regs).unwrap();
+        let g_regs = vcpu.get_debug_regs().unwrap();
+        assert!(g_regs.Dr0 == s_regs.Dr0);
+        assert!(g_regs.Dr1 == s_regs.Dr1);
+        assert!(g_regs.Dr2 == s_regs.Dr2);
+        assert!(g_regs.Dr3 == s_regs.Dr3);
+        assert!(g_regs.Dr6 == s_regs.Dr6);
+        assert!(g_regs.Dr7 == s_regs.Dr7);
+    }
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    fn test_set_get_fpu() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let s_regs = vcpu.get_fpu().unwrap();
+        vcpu.set_fpu(&s_regs).unwrap();
+        let g_regs = vcpu.get_fpu().unwrap();
+        for i in 0..16 {
+            for j in 0..16 {
+                assert!(g_regs.xmm[i][j] == s_regs.xmm[i][j]);
+            }
+        }
+        for i in 0..8 {
+            for j in 0..16 {
+                assert!(g_regs.fpr[i][j] == s_regs.fpr[i][j]);
+            }
+        }
+        assert!(g_regs.fcw == s_regs.fcw);
+        assert!(g_regs.fsw == s_regs.fsw);
+        assert!(g_regs.ftwx == s_regs.ftwx);
+        assert!(g_regs.last_opcode == s_regs.last_opcode);
+        assert!(g_regs.last_ip == s_regs.last_ip);
+        assert!(g_regs.last_dp == s_regs.last_dp);
+        assert!(g_regs.mxcsr == s_regs.mxcsr);
+    }
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    fn test_run_code() {
+        use super::*;
+        use crate::ioctls::system::Mshv;
+        use std::io::Write;
+
+        let mshv = Mshv::new().unwrap();
+        let vm = mshv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        // This example is based on https://lwn.net/Articles/658511/
+        #[rustfmt::skip]
+        let code:[u8;11] = [
+            0xba, 0xf8, 0x03,  /* mov $0x3f8, %dx */
+            0x00, 0xd8,         /* add %bl, %al */
+            0x04, b'0',         /* add $'0', %al */
+            0xee,               /* out %al, (%dx) */
+            /* send a 0 to indicate we're done */
+            0xb0, b'\0',        /* mov $'\0', %al */
+            0xee,               /* out %al, (%dx) */
+        ];
+
+        let mem_size = 0x4000;
+        let load_addr = unsafe {
+            libc::mmap(
+                std::ptr::null_mut(),
+                mem_size,
+                libc::PROT_READ | libc::PROT_WRITE,
+                libc::MAP_ANONYMOUS | libc::MAP_SHARED | libc::MAP_NORESERVE,
+                -1,
+                0,
+            )
+        } as *mut u8;
+        let mem_region = mshv_user_mem_region {
+            flags: HV_MAP_GPA_READABLE | HV_MAP_GPA_WRITABLE | HV_MAP_GPA_EXECUTABLE,
+            guest_pfn: 0x1,
+            size: 0x1000,
+            userspace_addr: load_addr as u64,
+        };
+
+        vm.map_user_memory(mem_region).unwrap();
+
+        unsafe {
+            // Get a mutable slice of `mem_size` from `load_addr`.
+            // This is safe because we mapped it before.
+            let mut slice = std::slice::from_raw_parts_mut(load_addr, mem_size);
+            slice.write_all(&code).unwrap();
+        }
+
+        //Get CS Register
+        let mut cs_reg_value = vcpu
+            .get_reg(&[hv_register_name::HV_X64_REGISTER_CS])
+            .unwrap()[0];
+        unsafe {
+            assert_ne!(cs_reg_value.segment.base, 0);
+            assert_ne!(cs_reg_value.segment.selector, 0);
+        };
+
+        cs_reg_value.segment.base = 0;
+        cs_reg_value.segment.selector = 0;
+
+        let _regs = vcpu
+            .set_reg(
+                &[
+                    hv_register_name::HV_X64_REGISTER_CS,
+                    hv_register_name::HV_X64_REGISTER_RAX,
+                    hv_register_name::HV_X64_REGISTER_RBX,
+                    hv_register_name::HV_X64_REGISTER_RIP,
+                    hv_register_name::HV_X64_REGISTER_RFLAGS,
+                ],
+                &[
+                    //unsafe because union element is accessed
+                    hv_register_value {
+                        segment: unsafe { cs_reg_value.segment },
+                    },
+                    hv_register_value { reg64: 2 },
+                    hv_register_value { reg64: 2 },
+                    hv_register_value { reg64: 0x1000 },
+                    hv_register_value { reg64: 0x2 },
+                ],
+            )
+            .unwrap();
+
+        let hv_message: hv_message = unsafe { std::mem::zeroed() };
+        let mut done = false;
+        loop {
+            let ret_hv_message: hv_message = vcpu.run(hv_message).unwrap();
+            match ret_hv_message.header.message_type {
+                hv_message_type_HVMSG_X64_HALT => {
+                    println!("VM Halted!");
+                    break;
+                }
+                hv_message_type_HVMSG_X64_IO_PORT_INTERCEPT => {
+                    let io_message = ret_hv_message.to_ioport_info();
+
+                    if !done {
+                        assert!(io_message.rax == b'4' as u64);
+                        assert!(io_message.port_number == 0x3f8);
+                        unsafe {
+                            assert!(io_message.access_info.__bindgen_anon_1.string_op() == 0);
+                            assert!(io_message.access_info.__bindgen_anon_1.access_size() == 1);
+                        }
+                        assert!(
+                            io_message.header.intercept_access_type == /*HV_INTERCEPT_ACCESS_WRITE*/ 1 as u8
+                        );
+                        done = true;
+                        /* Advance rip */
+                        vcpu.set_reg(
+                            &[hv_register_name::HV_X64_REGISTER_RIP],
+                            &[hv_register_value {
+                                reg64: io_message.header.rip + 1,
+                            }],
+                        )
+                        .unwrap();
+                    } else {
+                        assert!(io_message.rax == b'\0' as u64);
+                        assert!(io_message.port_number == 0x3f8);
+                        unsafe {
+                            assert!(io_message.access_info.__bindgen_anon_1.string_op() == 0);
+                            assert!(io_message.access_info.__bindgen_anon_1.access_size() == 1);
+                        }
+                        assert!(
+                            io_message.header.intercept_access_type == /*HV_INTERCEPT_ACCESS_WRITE*/ 1 as u8
+                        );
+                        break;
+                    }
+                }
+                _ => {
+                    panic!("Unexpected Exit Type");
+                }
+            };
+        }
+        assert!(done);
+    }
+    #[test]
+    fn test_set_get_msrs() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let s_regs = Msrs::from_entries(&[
+            msr_entry {
+                index: IA32_MSR_SYSENTER_CS,
+                data: 0x1,
+                ..Default::default()
+            },
+            msr_entry {
+                index: IA32_MSR_SYSENTER_ESP,
+                data: 0x2,
+                ..Default::default()
+            },
+        ]);
+        let mut g_regs = Msrs::from_entries(&[
+            msr_entry {
+                index: IA32_MSR_SYSENTER_CS,
+                ..Default::default()
+            },
+            msr_entry {
+                index: IA32_MSR_SYSENTER_ESP,
+                ..Default::default()
+            },
+        ]);
+        vcpu.set_msrs(&s_regs).unwrap();
+        vcpu.get_msrs(&mut g_regs).unwrap();
+        assert!(g_regs.as_fam_struct_ref().nmsrs == s_regs.as_fam_struct_ref().nmsrs);
+        assert!(g_regs.as_slice()[0].data == s_regs.as_slice()[0].data);
+        assert!(g_regs.as_slice()[1].data == s_regs.as_slice()[1].data);
+    }
+    #[test]
+    fn test_set_get_vcpu_events() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let s_regs = vcpu.get_vcpu_events().unwrap();
+        vcpu.set_vcpu_events(&s_regs).unwrap();
+        let g_regs = vcpu.get_vcpu_events().unwrap();
+        assert!(g_regs.pending_interruption == s_regs.pending_interruption);
+        assert!(g_regs.interrupt_state == s_regs.interrupt_state);
+        assert!(g_regs.internal_activity_state == s_regs.internal_activity_state);
+        for i in 0..16 {
+            assert!(g_regs.pending_event0[i] == s_regs.pending_event0[i]);
+            assert!(g_regs.pending_event1[i] == s_regs.pending_event1[i]);
+        }
+    }
+    #[test]
+    fn test_set_get_xcrs() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let s_regs = vcpu.get_xcrs().unwrap();
+        vcpu.set_xcrs(&s_regs).unwrap();
+        let g_regs = vcpu.get_xcrs().unwrap();
+        assert!(g_regs.xcr0 == s_regs.xcr0);
+    }
+    #[test]
+    fn test_set_get_lapic_ioctl() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let mut vp_state: mshv_vp_state = mshv_vp_state::default();
+        let state: LapicState = LapicState::default();
+        vp_state.type_ =
+            hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_LOCAL_INTERRUPT_CONTROLLER_STATE;
+        vp_state.buf.bytes = state.regs.as_ptr() as *mut u8;
+        vp_state.buf_size = 1024;
+        vcpu.get_vp_state_ioctl(&vp_state).unwrap();
+        vcpu.set_vp_state_ioctl(&vp_state).unwrap();
+    }
+    #[test]
+    fn test_set_get_lapic() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let state = vcpu.get_lapic().unwrap();
+        vcpu.set_lapic(&state).unwrap();
+        let g_state = vcpu.get_lapic().unwrap();
+        for i in 0..1024 {
+            assert!(state.regs[i] == g_state.regs[i]);
+        }
+    }
+    #[test]
+    fn test_set_registers_64() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        let arr_reg_name_value = [
+            (hv_register_name::HV_X64_REGISTER_RIP, 0x1000),
+            (hv_register_name::HV_X64_REGISTER_RFLAGS, 0x2),
+        ];
+        set_registers_64!(vcpu, &arr_reg_name_value).unwrap();
+        let get_reg_names: [hv_register_name; 2] = [
+            hv_register_name::HV_X64_REGISTER_RIP,
+            hv_register_name::HV_X64_REGISTER_RFLAGS,
+        ];
+
+        let reg_values = vcpu.get_reg(&get_reg_names).unwrap();
+
+        unsafe {
+            /* use returned regs */
+            assert!(reg_values[0].reg64 == 0x1000);
+            assert!(reg_values[1].reg64 == 0x2);
+        }
+    }
+    #[test]
+    fn test_get_set_xsave() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let state = vcpu.get_xsave().unwrap();
+        vcpu.set_xsave(state).unwrap();
+    }
+}

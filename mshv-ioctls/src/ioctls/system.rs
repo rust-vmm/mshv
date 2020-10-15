@@ -146,3 +146,48 @@ impl Mshv {
         ]))
     }
 }
+#[allow(dead_code)]
+#[cfg(test)]
+mod tests {
+    // Note this useful idiom: importing names from outer (for mod tests) scope.
+    use super::*;
+
+    #[test]
+    fn test_create_vm() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm();
+        assert!(vm.is_ok());
+    }
+    #[test]
+    fn test_get_msr_index_list() {
+        let hv = Mshv::new().unwrap();
+        let msr_list = hv.get_msr_index_list().unwrap();
+        assert!(msr_list.as_fam_struct_ref().nmsrs == 45);
+
+        let mut found = false;
+        for index in msr_list.as_slice() {
+            if *index == IA32_MSR_SYSENTER_CS {
+                found = true;
+                break;
+            }
+        }
+        assert!(found == true);
+
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        let set_msrs = Msrs::from_entries(&[msr_entry {
+            index: IA32_MSR_SYSENTER_CS,
+            data: 0x11,
+            ..Default::default()
+        }]);
+        let mut get_msrs = Msrs::from_entries(&[msr_entry {
+            index: IA32_MSR_SYSENTER_CS,
+            ..Default::default()
+        }]);
+        vcpu.set_msrs(&set_msrs).unwrap();
+        vcpu.get_msrs(&mut get_msrs).unwrap();
+        assert!(get_msrs.as_fam_struct_ref().nmsrs == set_msrs.as_fam_struct_ref().nmsrs);
+        assert!(get_msrs.as_slice()[0].index == set_msrs.as_slice()[0].index);
+        assert!(get_msrs.as_slice()[0].data == set_msrs.as_slice()[0].data);
+    }
+}
