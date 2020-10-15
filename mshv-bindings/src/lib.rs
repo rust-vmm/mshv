@@ -34,3 +34,9 @@ mod fam_wrappers;
 
 #[cfg(feature = "fam-wrappers")]
 pub use fam_wrappers::*;
+
+#[cfg(feature = "with-serde")]
+mod serializers;
+
+#[cfg(feature = "with-serde")]
+pub use serializers::*;
