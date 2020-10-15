@@ -26,6 +26,8 @@ extern crate serde;
 extern crate serde_derive;
 pub mod hvdef;
 pub use hvdef::*;
+mod unmarshal;
+pub use unmarshal::*;
 
 #[cfg(feature = "fam-wrappers")]
 mod fam_wrappers;
