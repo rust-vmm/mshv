@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR BSD-3-Clause
 //
 use vmm_sys_util::errno;
+pub mod system;
 pub mod vcpu;
 pub mod vm;
 /// A specialized `Result` type for MSHV ioctls.
