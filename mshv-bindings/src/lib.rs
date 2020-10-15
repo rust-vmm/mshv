@@ -7,6 +7,13 @@
 #![allow(non_camel_case_types)]
 #![cfg(target_arch = "x86_64")]
 
+#[macro_use]
+#[cfg(all(
+    feature = "fam-wrappers",
+    any(target_arch = "x86", target_arch = "x86_64")
+))]
+extern crate vmm_sys_util;
+
 pub mod bindings;
 pub use bindings::*;
 pub mod regs;
@@ -19,3 +26,9 @@ extern crate serde;
 extern crate serde_derive;
 pub mod hvdef;
 pub use hvdef::*;
+
+#[cfg(feature = "fam-wrappers")]
+mod fam_wrappers;
+
+#[cfg(feature = "fam-wrappers")]
+pub use fam_wrappers::*;
