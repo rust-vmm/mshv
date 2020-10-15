@@ -3,3 +3,8 @@ name = "mshv-ioctls"
 version = "0.1.0"
 authors = ["Microsoft Authors"]
 edition = "2018"
+
+[dependencies]
+libc = ">=0.2.39"
+mshv-bindings = {path = "../mshv-bindings", features = ["fam-wrappers"]}
+vmm-sys-util = ">=0.2.1"
