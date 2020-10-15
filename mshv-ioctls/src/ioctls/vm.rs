@@ -160,3 +160,102 @@ impl VmFd {
 pub fn new_vmfd(vm: File) -> VmFd {
     VmFd { vm }
 }
+#[cfg(test)]
+mod tests {
+    // Note this useful idiom: importing names from outer (for mod tests) scope.
+    use super::*;
+    use crate::ioctls::system::Mshv;
+
+    #[test]
+    fn test_user_memory() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let addr = unsafe {
+            libc::mmap(
+                std::ptr::null_mut(),
+                0x1000,
+                libc::PROT_READ | libc::PROT_WRITE,
+                libc::MAP_ANONYMOUS | libc::MAP_SHARED | libc::MAP_NORESERVE,
+                -1,
+                0,
+            )
+        };
+        let mem = mshv_user_mem_region {
+            flags: HV_MAP_GPA_READABLE | HV_MAP_GPA_WRITABLE | HV_MAP_GPA_EXECUTABLE,
+            guest_pfn: 0x1,
+            size: 0x1000,
+            userspace_addr: addr as u64,
+        };
+
+        vm.map_user_memory(mem).unwrap();
+
+        vm.umap_user_memory(mem).unwrap();
+    }
+    #[test]
+    fn test_create_vcpu() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0);
+        assert!(vcpu.is_ok());
+    }
+    #[test]
+    fn test_assert_virtual_interrupt() {
+        /* TODO better test with some code */
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        let state: LapicState = LapicState::default();
+        let vp_state: mshv_vp_state = mshv_vp_state::from(state);
+        vcpu.get_vp_state_ioctl(&vp_state).unwrap();
+        let lapic: hv_local_interrupt_controller_state = unsafe { *(vp_state.buf.lapic) };
+        vm.request_virtual_interrupt(
+            hv_interrupt_type_HV_X64_INTERRUPT_TYPE_EXTINT,
+            lapic.apic_id as u64,
+            0,
+            false,
+            false,
+            false,
+        )
+        .unwrap();
+    }
+    #[test]
+    fn test_install_intercept() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let intercept_args = mshv_install_intercept {
+            access_type_mask: HV_INTERCEPT_ACCESS_MASK_EXECUTE,
+            intercept_type: hv_intercept_type_HV_INTERCEPT_TYPE_X64_CPUID,
+            intercept_parameter: hv_intercept_parameters { cpuid_index: 0x100 },
+        };
+        vm.install_intercept(intercept_args).unwrap();
+    }
+    #[test]
+    fn test_get_set_property() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+
+        let mut val = vm
+            .get_partition_property(
+                hv_partition_property_code_HV_PARTITION_PROPERTY_MAX_XSAVE_DATA_SIZE,
+            )
+            .unwrap();
+        println!("Max xsave data size: {} bytes", val);
+        val = vm
+            .get_partition_property(
+                hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_XSAVE_FEATURES,
+            )
+            .unwrap();
+        println!("Xsave feature: {}", val);
+        val = vm
+            .get_partition_property(
+                hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_CLOCK_FREQUENCY,
+            )
+            .unwrap();
+        println!("Processor frequency: {}", val);
+        vm.set_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_PRIVILEGE_FLAGS,
+            0,
+        )
+        .unwrap();
+    }
+}
