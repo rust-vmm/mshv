@@ -4,6 +4,7 @@
 //
 use vmm_sys_util::errno;
 pub mod vcpu;
+pub mod vm;
 /// A specialized `Result` type for MSHV ioctls.
 ///
 /// This typedef is generally used to avoid writing out errno::Error directly and
