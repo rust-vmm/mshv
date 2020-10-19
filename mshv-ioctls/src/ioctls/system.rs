@@ -70,15 +70,53 @@ impl Mshv {
         // creates mshv objects.
         let creation_flags: u64 = HV_PARTITION_CREATION_FLAG_LAPIC_ENABLED as u64
             | HV_PARTITION_CREATION_FLAG_EXO_PARTITION as u64;
-        let pr = mshv_create_partition {
+        let mut pr = mshv_create_partition {
             partition_creation_properties: hv_partition_creation_properties {
                 disabled_processor_features: hv_partition_processor_features { as_uint64: [0; 2] },
                 disabled_processor_xsave_features: hv_partition_processor_xsave_features {
                     as_uint64: 0 as __u64,
                 },
             },
+            synthetic_processor_features: hv_partition_synthetic_processor_features {
+                as_uint64: [0; 1],
+            },
             flags: creation_flags,
         };
+        /* TODO pass in arg for this */
+        unsafe {
+            pr.synthetic_processor_features
+                .__bindgen_anon_1
+                .set_hypervisor_present(1);
+            pr.synthetic_processor_features.__bindgen_anon_1.set_hv1(1);
+            pr.synthetic_processor_features
+                .__bindgen_anon_1
+                .set_access_partition_reference_counter(1);
+            pr.synthetic_processor_features
+                .__bindgen_anon_1
+                .set_access_synic_regs(1);
+            pr.synthetic_processor_features
+                .__bindgen_anon_1
+                .set_access_synthetic_timer_regs(1);
+            pr.synthetic_processor_features
+                .__bindgen_anon_1
+                .set_access_partition_reference_tsc(1);
+            /* Need this for linux on CH, as there's no PIT or HPET */
+            pr.synthetic_processor_features
+                .__bindgen_anon_1
+                .set_access_frequency_regs(1);
+            /* Linux I'm using appears to require vp assist page... */
+            pr.synthetic_processor_features
+                .__bindgen_anon_1
+                .set_access_intr_ctrl_regs(1);
+            /* According to Hv#1 spec, these must be set also, but they aren't in KVM? */
+            pr.synthetic_processor_features
+                .__bindgen_anon_1
+                .set_access_vp_index(1);
+            pr.synthetic_processor_features
+                .__bindgen_anon_1
+                .set_access_hypercall_regs(1);
+        }
+
         let ret = unsafe { ioctl_with_ref(&self.hv, MSHV_CREATE_PARTITION(), &pr) };
         if ret >= 0 {
             // Safe because we verify the value of ret and we are the owners of the fd.
