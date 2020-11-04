@@ -68,8 +68,7 @@ impl Mshv {
     pub fn create_vm(&self) -> Result<VmFd> {
         // Safe because we know `self.hv` is a real MSHV fd as this module is the only one that
         // creates mshv objects.
-        let creation_flags: u64 = HV_PARTITION_CREATION_FLAG_LAPIC_ENABLED as u64
-            | HV_PARTITION_CREATION_FLAG_EXO_PARTITION as u64;
+        let creation_flags: u64 = HV_PARTITION_CREATION_FLAG_LAPIC_ENABLED as u64;
         let mut pr = mshv_create_partition {
             partition_creation_properties: hv_partition_creation_properties {
                 disabled_processor_features: hv_partition_processor_features { as_uint64: [0; 2] },
