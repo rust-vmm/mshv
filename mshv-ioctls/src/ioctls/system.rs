@@ -30,8 +30,18 @@ impl Mshv {
         let ret = unsafe { Self::new_with_fd_number(fd) };
         ret.request_version().map(|_| ret)
     }
+    ///
     /// Creates a new Mshv object assuming `fd` represents an existing open file descriptor
     /// associated with `/dev/mshv`.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe as the primitives currently returned have the contract that
+    /// they are the sole owner of the file descriptor they are wrapping. Usage of this function
+    /// could accidentally allow violating this contract which can cause memory unsafety in code
+    /// that relies on it being true.
+    ///
+    /// The caller of this method must make sure the fd is valid and nothing else uses it.
     ///
     pub unsafe fn new_with_fd_number(fd: RawFd) -> Self {
         Mshv {
@@ -171,7 +181,7 @@ mod tests {
                 break;
             }
         }
-        assert!(found == true);
+        assert!(found);
 
         let vm = hv.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
