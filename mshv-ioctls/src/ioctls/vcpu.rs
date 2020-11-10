@@ -255,7 +255,7 @@ impl VcpuFd {
             ret_regs.apic_base = reg_values[16].reg64;
             let pending_reg = reg_values[17].pending_interruption.as_uint64;
             if (pending_reg & 0x1) == 1 && // interruption pending
-                    ((pending_reg >> 1) & 0x7) == 0
+            (pending_reg >> 1).trailing_zeros() >= 3
             {
                 // interrupt type external
                 let interrupt_nr = pending_reg >> 16;
@@ -599,7 +599,7 @@ impl VcpuFd {
     ///
     pub fn run(&self, mut hv_message_input: hv_message) -> Result<hv_message> {
         // Safe because we know that our file is a vCPU fd and we verify the return result.
-        let ret = unsafe { ioctl_with_ref(self, MSHV_RUN_VP(), &mut hv_message_input) };
+        let ret = unsafe { ioctl_with_ref(self, MSHV_RUN_VP(), &hv_message_input) };
         if ret != 0 {
             return Err(errno::Error::last());
         }

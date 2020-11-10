@@ -109,7 +109,7 @@ impl VmFd {
                 as_uint64: interrupt_type as u64 | ((control_flags as u64) << 32),
             },
             dest_addr: apic_id,
-            vector: vector,
+            vector,
         };
         #[allow(clippy::cast_lossless)]
         let ret = unsafe { ioctl_with_ref(&self.vm, MSHV_ASSERT_INTERRUPT(), &interrupt_arg) };
