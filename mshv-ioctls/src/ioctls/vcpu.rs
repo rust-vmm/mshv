@@ -990,7 +990,7 @@ mod tests {
                     break;
                 }
                 hv_message_type_HVMSG_X64_IO_PORT_INTERCEPT => {
-                    let io_message = ret_hv_message.to_ioport_info();
+                    let io_message = ret_hv_message.to_ioport_info().unwrap();
 
                     if !done {
                         assert!(io_message.rax == b'4' as u64);
