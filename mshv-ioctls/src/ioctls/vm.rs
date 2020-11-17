@@ -12,6 +12,24 @@ use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 use vmm_sys_util::errno;
 use vmm_sys_util::ioctl::{ioctl_with_mut_ref, ioctl_with_ref};
 
+/// Structure for injecting interurpt
+/// This struct is passed to request_virtual_interrupt function as an argument
+/// Member variable
+///     interrupt_type: Type of the interrupt
+///     apic_id: Advanced Programmable Interrupt Controller Identification Number
+///     Vector: APIC Vector (entry of Interrupt Vector Table i.e IVT)
+///     level_triggered: True means level triggered, false means edge triggered
+///     logical_destination_mode: lTrue means the APIC ID is logical, false means physical
+///     long_mode: True means CPU is in long mode
+///
+pub struct InterruptReqeust {
+    pub interrupt_type: hv_interrupt_type,
+    pub apic_id: u64,
+    pub vector: u32,
+    pub level_triggered: bool,
+    pub logical_destination_mode: bool,
+    pub long_mode: bool,
+}
 /// Wrapper over Mshv VM ioctls.
 pub struct VmFd {
     vm: File,
@@ -84,32 +102,24 @@ impl VmFd {
     ///
     /// Inject an interrupt into the guest..
     ///
-    pub fn request_virtual_interrupt(
-        &self,
-        interrupt_type: hv_interrupt_type,
-        apic_id: u64,
-        vector: u32,
-        level_triggered: bool,
-        logical_destination_mode: bool,
-        long_mode: bool,
-    ) -> Result<()> {
+    pub fn request_virtual_interrupt(&self, request: &InterruptReqeust) -> Result<()> {
         let mut control_flags: u32 = 0;
-        if level_triggered {
+        if request.level_triggered {
             control_flags |= 0x1;
         }
-        if logical_destination_mode {
+        if request.logical_destination_mode {
             control_flags |= 0x2;
         }
-        if long_mode {
+        if request.long_mode {
             control_flags |= 1 << 30;
         }
 
         let interrupt_arg = mshv_assert_interrupt {
             control: hv_interrupt_control {
-                as_uint64: interrupt_type as u64 | ((control_flags as u64) << 32),
+                as_uint64: request.interrupt_type as u64 | ((control_flags as u64) << 32),
             },
-            dest_addr: apic_id,
-            vector,
+            dest_addr: request.apic_id,
+            vector: request.vector,
         };
         #[allow(clippy::cast_lossless)]
         let ret = unsafe { ioctl_with_ref(&self.vm, MSHV_ASSERT_INTERRUPT(), &interrupt_arg) };
@@ -208,15 +218,15 @@ mod tests {
         let vp_state: mshv_vp_state = mshv_vp_state::from(state);
         vcpu.get_vp_state_ioctl(&vp_state).unwrap();
         let lapic: hv_local_interrupt_controller_state = unsafe { *(vp_state.buf.lapic) };
-        vm.request_virtual_interrupt(
-            hv_interrupt_type_HV_X64_INTERRUPT_TYPE_EXTINT,
-            lapic.apic_id as u64,
-            0,
-            false,
-            false,
-            false,
-        )
-        .unwrap();
+        let cfg = InterruptReqeust {
+            interrupt_type: hv_interrupt_type_HV_X64_INTERRUPT_TYPE_EXTINT,
+            apic_id: lapic.apic_id as u64,
+            vector: 0,
+            level_triggered: false,
+            logical_destination_mode: false,
+            long_mode: false,
+        };
+        vm.request_virtual_interrupt(&cfg).unwrap();
     }
     #[test]
     fn test_install_intercept() {
