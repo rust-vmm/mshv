@@ -104,13 +104,13 @@ pub const HV_X64_REGISTER_CLASS_XMM: u32 = 2;
 pub const HV_X64_REGISTER_CLASS_SEGMENT: u32 = 3;
 pub const HV_X64_REGISTER_CLASS_FLAGS: u32 = 4;
 pub const HV_VP_REGISTER_PAGE_VERSION_1: u32 = 1;
+pub const HV_PARTITION_SYNTHETIC_PROCESSOR_FEATURES_BANKS: u32 = 1;
 pub const HV_MESSAGE_SIZE: u32 = 256;
 pub const HV_MESSAGE_PAYLOAD_BYTE_COUNT: u32 = 240;
 pub const HV_MESSAGE_PAYLOAD_QWORD_COUNT: u32 = 30;
 pub const HV_PARTITION_CREATION_FLAG_SMT_ENABLED_GUEST: u32 = 1;
 pub const HV_PARTITION_CREATION_FLAG_GPA_LARGE_PAGES_DISABLED: u32 = 8;
 pub const HV_PARTITION_CREATION_FLAG_GPA_SUPER_PAGES_ENABLED: u32 = 16;
-pub const HV_PARTITION_CREATION_FLAG_EXO_PARTITION: u32 = 256;
 pub const HV_PARTITION_CREATION_FLAG_LAPIC_ENABLED: u32 = 8192;
 pub const HV_MAP_GPA_PERMISSIONS_NONE: u32 = 0;
 pub const HV_MAP_GPA_READABLE: u32 = 1;
@@ -8979,6 +8979,613 @@ impl Default for hv_vp_register_page {
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
+pub union hv_partition_synthetic_processor_features {
+    pub as_uint64: [__u64; 1usize],
+    pub __bindgen_anon_1: hv_partition_synthetic_processor_features__bindgen_ty_1,
+    _bindgen_union_align: u64,
+}
+#[repr(C)]
+#[repr(align(8))]
+#[derive(Default, Copy, Clone)]
+pub struct hv_partition_synthetic_processor_features__bindgen_ty_1 {
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize], u64>,
+}
+#[test]
+fn bindgen_test_layout_hv_partition_synthetic_processor_features__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_partition_synthetic_processor_features__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_partition_synthetic_processor_features__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_partition_synthetic_processor_features__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_partition_synthetic_processor_features__bindgen_ty_1)
+        )
+    );
+}
+impl hv_partition_synthetic_processor_features__bindgen_ty_1 {
+    #[inline]
+    pub fn hypervisor_present(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_hypervisor_present(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn hv1(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_hv1(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn access_vp_run_time_reg(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(2usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_access_vp_run_time_reg(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(2usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn access_partition_reference_counter(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(3usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_access_partition_reference_counter(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(3usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn access_synic_regs(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(4usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_access_synic_regs(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(4usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn access_synthetic_timer_regs(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(5usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_access_synthetic_timer_regs(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(5usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn access_intr_ctrl_regs(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(6usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_access_intr_ctrl_regs(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(6usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn access_hypercall_regs(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(7usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_access_hypercall_regs(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(7usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn access_vp_index(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(8usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_access_vp_index(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(8usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn access_partition_reference_tsc(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(9usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_access_partition_reference_tsc(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(9usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn access_guest_idle_reg(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(10usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_access_guest_idle_reg(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(10usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn access_frequency_regs(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(11usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_access_frequency_regs(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(11usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved_z12(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(12usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved_z12(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(12usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved_z13(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(13usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved_z13(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(13usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved_z14(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(14usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved_z14(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(14usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn enable_extended_gva_ranges_for_flush_virtual_address_list(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(15usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_enable_extended_gva_ranges_for_flush_virtual_address_list(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(15usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved_z16(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(16usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved_z16(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(16usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved_z17(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(17usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved_z17(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(17usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn fast_hypercall_output(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(18usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_fast_hypercall_output(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(18usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved_z19(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(19usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved_z19(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(19usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn start_virtual_processor(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(20usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_start_virtual_processor(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(20usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved_z21(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(21usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved_z21(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(21usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn direct_synthetic_timers(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(22usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_direct_synthetic_timers(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(22usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved_z23(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(23usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved_z23(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(23usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn extended_processor_masks(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(24usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_extended_processor_masks(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(24usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn tb_flush_hypercalls(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(25usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_tb_flush_hypercalls(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(25usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn synthetic_cluster_ipi(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(26usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_synthetic_cluster_ipi(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(26usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn notify_long_spin_wait(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(27usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_notify_long_spin_wait(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(27usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn query_numa_distance(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(28usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_query_numa_distance(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(28usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn signal_events(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(29usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_signal_events(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(29usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn retarget_device_interrupt(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(30usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_retarget_device_interrupt(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(30usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(31usize, 33u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(31usize, 33u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        hypervisor_present: __u64,
+        hv1: __u64,
+        access_vp_run_time_reg: __u64,
+        access_partition_reference_counter: __u64,
+        access_synic_regs: __u64,
+        access_synthetic_timer_regs: __u64,
+        access_intr_ctrl_regs: __u64,
+        access_hypercall_regs: __u64,
+        access_vp_index: __u64,
+        access_partition_reference_tsc: __u64,
+        access_guest_idle_reg: __u64,
+        access_frequency_regs: __u64,
+        reserved_z12: __u64,
+        reserved_z13: __u64,
+        reserved_z14: __u64,
+        enable_extended_gva_ranges_for_flush_virtual_address_list: __u64,
+        reserved_z16: __u64,
+        reserved_z17: __u64,
+        fast_hypercall_output: __u64,
+        reserved_z19: __u64,
+        start_virtual_processor: __u64,
+        reserved_z21: __u64,
+        direct_synthetic_timers: __u64,
+        reserved_z23: __u64,
+        extended_processor_masks: __u64,
+        tb_flush_hypercalls: __u64,
+        synthetic_cluster_ipi: __u64,
+        notify_long_spin_wait: __u64,
+        query_numa_distance: __u64,
+        signal_events: __u64,
+        retarget_device_interrupt: __u64,
+        reserved: __u64,
+    ) -> __BindgenBitfieldUnit<[u8; 8usize], u64> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize], u64> =
+            Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let hypervisor_present: u64 = unsafe { ::std::mem::transmute(hypervisor_present) };
+            hypervisor_present as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 1u8, {
+            let hv1: u64 = unsafe { ::std::mem::transmute(hv1) };
+            hv1 as u64
+        });
+        __bindgen_bitfield_unit.set(2usize, 1u8, {
+            let access_vp_run_time_reg: u64 =
+                unsafe { ::std::mem::transmute(access_vp_run_time_reg) };
+            access_vp_run_time_reg as u64
+        });
+        __bindgen_bitfield_unit.set(3usize, 1u8, {
+            let access_partition_reference_counter: u64 =
+                unsafe { ::std::mem::transmute(access_partition_reference_counter) };
+            access_partition_reference_counter as u64
+        });
+        __bindgen_bitfield_unit.set(4usize, 1u8, {
+            let access_synic_regs: u64 = unsafe { ::std::mem::transmute(access_synic_regs) };
+            access_synic_regs as u64
+        });
+        __bindgen_bitfield_unit.set(5usize, 1u8, {
+            let access_synthetic_timer_regs: u64 =
+                unsafe { ::std::mem::transmute(access_synthetic_timer_regs) };
+            access_synthetic_timer_regs as u64
+        });
+        __bindgen_bitfield_unit.set(6usize, 1u8, {
+            let access_intr_ctrl_regs: u64 =
+                unsafe { ::std::mem::transmute(access_intr_ctrl_regs) };
+            access_intr_ctrl_regs as u64
+        });
+        __bindgen_bitfield_unit.set(7usize, 1u8, {
+            let access_hypercall_regs: u64 =
+                unsafe { ::std::mem::transmute(access_hypercall_regs) };
+            access_hypercall_regs as u64
+        });
+        __bindgen_bitfield_unit.set(8usize, 1u8, {
+            let access_vp_index: u64 = unsafe { ::std::mem::transmute(access_vp_index) };
+            access_vp_index as u64
+        });
+        __bindgen_bitfield_unit.set(9usize, 1u8, {
+            let access_partition_reference_tsc: u64 =
+                unsafe { ::std::mem::transmute(access_partition_reference_tsc) };
+            access_partition_reference_tsc as u64
+        });
+        __bindgen_bitfield_unit.set(10usize, 1u8, {
+            let access_guest_idle_reg: u64 =
+                unsafe { ::std::mem::transmute(access_guest_idle_reg) };
+            access_guest_idle_reg as u64
+        });
+        __bindgen_bitfield_unit.set(11usize, 1u8, {
+            let access_frequency_regs: u64 =
+                unsafe { ::std::mem::transmute(access_frequency_regs) };
+            access_frequency_regs as u64
+        });
+        __bindgen_bitfield_unit.set(12usize, 1u8, {
+            let reserved_z12: u64 = unsafe { ::std::mem::transmute(reserved_z12) };
+            reserved_z12 as u64
+        });
+        __bindgen_bitfield_unit.set(13usize, 1u8, {
+            let reserved_z13: u64 = unsafe { ::std::mem::transmute(reserved_z13) };
+            reserved_z13 as u64
+        });
+        __bindgen_bitfield_unit.set(14usize, 1u8, {
+            let reserved_z14: u64 = unsafe { ::std::mem::transmute(reserved_z14) };
+            reserved_z14 as u64
+        });
+        __bindgen_bitfield_unit.set(15usize, 1u8, {
+            let enable_extended_gva_ranges_for_flush_virtual_address_list: u64 = unsafe {
+                ::std::mem::transmute(enable_extended_gva_ranges_for_flush_virtual_address_list)
+            };
+            enable_extended_gva_ranges_for_flush_virtual_address_list as u64
+        });
+        __bindgen_bitfield_unit.set(16usize, 1u8, {
+            let reserved_z16: u64 = unsafe { ::std::mem::transmute(reserved_z16) };
+            reserved_z16 as u64
+        });
+        __bindgen_bitfield_unit.set(17usize, 1u8, {
+            let reserved_z17: u64 = unsafe { ::std::mem::transmute(reserved_z17) };
+            reserved_z17 as u64
+        });
+        __bindgen_bitfield_unit.set(18usize, 1u8, {
+            let fast_hypercall_output: u64 =
+                unsafe { ::std::mem::transmute(fast_hypercall_output) };
+            fast_hypercall_output as u64
+        });
+        __bindgen_bitfield_unit.set(19usize, 1u8, {
+            let reserved_z19: u64 = unsafe { ::std::mem::transmute(reserved_z19) };
+            reserved_z19 as u64
+        });
+        __bindgen_bitfield_unit.set(20usize, 1u8, {
+            let start_virtual_processor: u64 =
+                unsafe { ::std::mem::transmute(start_virtual_processor) };
+            start_virtual_processor as u64
+        });
+        __bindgen_bitfield_unit.set(21usize, 1u8, {
+            let reserved_z21: u64 = unsafe { ::std::mem::transmute(reserved_z21) };
+            reserved_z21 as u64
+        });
+        __bindgen_bitfield_unit.set(22usize, 1u8, {
+            let direct_synthetic_timers: u64 =
+                unsafe { ::std::mem::transmute(direct_synthetic_timers) };
+            direct_synthetic_timers as u64
+        });
+        __bindgen_bitfield_unit.set(23usize, 1u8, {
+            let reserved_z23: u64 = unsafe { ::std::mem::transmute(reserved_z23) };
+            reserved_z23 as u64
+        });
+        __bindgen_bitfield_unit.set(24usize, 1u8, {
+            let extended_processor_masks: u64 =
+                unsafe { ::std::mem::transmute(extended_processor_masks) };
+            extended_processor_masks as u64
+        });
+        __bindgen_bitfield_unit.set(25usize, 1u8, {
+            let tb_flush_hypercalls: u64 = unsafe { ::std::mem::transmute(tb_flush_hypercalls) };
+            tb_flush_hypercalls as u64
+        });
+        __bindgen_bitfield_unit.set(26usize, 1u8, {
+            let synthetic_cluster_ipi: u64 =
+                unsafe { ::std::mem::transmute(synthetic_cluster_ipi) };
+            synthetic_cluster_ipi as u64
+        });
+        __bindgen_bitfield_unit.set(27usize, 1u8, {
+            let notify_long_spin_wait: u64 =
+                unsafe { ::std::mem::transmute(notify_long_spin_wait) };
+            notify_long_spin_wait as u64
+        });
+        __bindgen_bitfield_unit.set(28usize, 1u8, {
+            let query_numa_distance: u64 = unsafe { ::std::mem::transmute(query_numa_distance) };
+            query_numa_distance as u64
+        });
+        __bindgen_bitfield_unit.set(29usize, 1u8, {
+            let signal_events: u64 = unsafe { ::std::mem::transmute(signal_events) };
+            signal_events as u64
+        });
+        __bindgen_bitfield_unit.set(30usize, 1u8, {
+            let retarget_device_interrupt: u64 =
+                unsafe { ::std::mem::transmute(retarget_device_interrupt) };
+            retarget_device_interrupt as u64
+        });
+        __bindgen_bitfield_unit.set(31usize, 33u8, {
+            let reserved: u64 = unsafe { ::std::mem::transmute(reserved) };
+            reserved as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[test]
+fn bindgen_test_layout_hv_partition_synthetic_processor_features() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_partition_synthetic_processor_features>(),
+        8usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_partition_synthetic_processor_features)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_partition_synthetic_processor_features>(),
+        8usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_partition_synthetic_processor_features)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<hv_partition_synthetic_processor_features>())).as_uint64
+                as *const _ as usize
+        },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_partition_synthetic_processor_features),
+            "::",
+            stringify!(as_uint64)
+        )
+    );
+}
+impl Default for hv_partition_synthetic_processor_features {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
 pub union hv_message_flags {
     pub asu8: __u8,
     pub __bindgen_anon_1: hv_message_flags__bindgen_ty_1,
@@ -9385,6 +9992,8 @@ pub const hv_vp_state_page_type_HV_VP_STATE_PAGE_COUNT: hv_vp_state_page_type = 
 pub type hv_vp_state_page_type = ::std::os::raw::c_uint;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_PRIVILEGE_FLAGS:
     hv_partition_property_code = 65536;
+pub const hv_partition_property_code_HV_PARTITION_PROPERTY_SYNTHETIC_PROC_FEATURES:
+    hv_partition_property_code = 65537;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_SUSPEND: hv_partition_property_code =
     131072;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_CPU_RESERVE: hv_partition_property_code =
@@ -9470,12 +10079,13 @@ pub type hv_partition_property_code = ::std::os::raw::c_uint;
 pub struct mshv_create_partition {
     pub flags: __u64,
     pub partition_creation_properties: hv_partition_creation_properties,
+    pub synthetic_processor_features: hv_partition_synthetic_processor_features,
 }
 #[test]
 fn bindgen_test_layout_mshv_create_partition() {
     assert_eq!(
         ::std::mem::size_of::<mshv_create_partition>(),
-        32usize,
+        40usize,
         concat!("Size of: ", stringify!(mshv_create_partition))
     );
     assert_eq!(
@@ -9504,6 +10114,19 @@ fn bindgen_test_layout_mshv_create_partition() {
             stringify!(mshv_create_partition),
             "::",
             stringify!(partition_creation_properties)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<mshv_create_partition>())).synthetic_processor_features
+                as *const _ as usize
+        },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_create_partition),
+            "::",
+            stringify!(synthetic_processor_features)
         )
     );
 }
