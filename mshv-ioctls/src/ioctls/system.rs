@@ -157,7 +157,6 @@ impl Mshv {
             IA32_MSR_LSTAR,
             IA32_MSR_CSTAR,
             IA32_MSR_SFMASK,
-            IA32_MSR_MTRR_CAP,
             IA32_MSR_MTRR_DEF_TYPE,
             IA32_MSR_MTRR_PHYSBASE0,
             IA32_MSR_MTRR_PHYSMASK0,
@@ -189,7 +188,6 @@ impl Mshv {
             IA32_MSR_TSC_AUX,
             IA32_MSR_BNDCFGS,
             IA32_MSR_DEBUG_CTL,
-            IA32_MSR_MISC_ENABLE,
         ]))
     }
 }
@@ -209,7 +207,7 @@ mod tests {
     fn test_get_msr_index_list() {
         let hv = Mshv::new().unwrap();
         let msr_list = hv.get_msr_index_list().unwrap();
-        assert!(msr_list.as_fam_struct_ref().nmsrs == 45);
+        assert!(msr_list.as_fam_struct_ref().nmsrs == 43);
 
         let mut found = false;
         for index in msr_list.as_slice() {
