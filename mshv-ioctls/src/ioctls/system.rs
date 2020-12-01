@@ -218,21 +218,26 @@ mod tests {
         }
         assert!(found);
 
+        /* Test all MSRs in the list individually and determine which can be get/set */
         let vm = hv.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
-        let set_msrs = Msrs::from_entries(&[msr_entry {
-            index: IA32_MSR_SYSENTER_CS,
-            data: 0x11,
-            ..Default::default()
-        }]);
-        let mut get_msrs = Msrs::from_entries(&[msr_entry {
-            index: IA32_MSR_SYSENTER_CS,
-            ..Default::default()
-        }]);
-        vcpu.set_msrs(&set_msrs).unwrap();
-        vcpu.get_msrs(&mut get_msrs).unwrap();
-        assert!(get_msrs.as_fam_struct_ref().nmsrs == set_msrs.as_fam_struct_ref().nmsrs);
-        assert!(get_msrs.as_slice()[0].index == set_msrs.as_slice()[0].index);
-        assert!(get_msrs.as_slice()[0].data == set_msrs.as_slice()[0].data);
+        let mut num_errors = 0;
+        for idx in hv.get_msr_index_list().unwrap().as_slice().iter() {
+            let mut get_set_msrs = Msrs::from_entries(&[msr_entry {
+                index: *idx,
+                ..Default::default()
+            }]);
+            vcpu.get_msrs(&mut get_set_msrs).unwrap_or_else(|_| {
+                println!("Error getting MSR: 0x{:x}", *idx);
+                num_errors += 1;
+                0
+            });
+            vcpu.set_msrs(&get_set_msrs).unwrap_or_else(|_| {
+                println!("Error setting MSR: 0x{:x}", *idx);
+                num_errors += 1;
+                0
+            });
+        }
+        assert!(num_errors == 0);
     }
 }
