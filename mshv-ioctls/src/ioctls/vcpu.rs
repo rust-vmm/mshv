@@ -749,7 +749,6 @@ impl VcpuFd {
         vp_state.buf_size = 4096;
         vp_state.type_ = hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_XSAVE;
         self.get_vp_state_ioctl(&vp_state).unwrap();
-        println!("Size: {}", vp_state.buf_size);
         let ret = XSave::from(vp_state);
         unsafe {
             std::alloc::dealloc(buf, layout);
