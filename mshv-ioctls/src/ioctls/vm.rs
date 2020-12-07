@@ -22,7 +22,7 @@ use vmm_sys_util::ioctl::{ioctl_with_mut_ref, ioctl_with_ref};
 ///     logical_destination_mode: lTrue means the APIC ID is logical, false means physical
 ///     long_mode: True means CPU is in long mode
 ///
-pub struct InterruptReqeust {
+pub struct InterruptRequest {
     pub interrupt_type: hv_interrupt_type,
     pub apic_id: u64,
     pub vector: u32,
@@ -102,7 +102,7 @@ impl VmFd {
     ///
     /// Inject an interrupt into the guest..
     ///
-    pub fn request_virtual_interrupt(&self, request: &InterruptReqeust) -> Result<()> {
+    pub fn request_virtual_interrupt(&self, request: &InterruptRequest) -> Result<()> {
         let mut control_flags: u32 = 0;
         if request.level_triggered {
             control_flags |= 0x1;
@@ -218,7 +218,7 @@ mod tests {
         let vp_state: mshv_vp_state = mshv_vp_state::from(state);
         vcpu.get_vp_state_ioctl(&vp_state).unwrap();
         let lapic: hv_local_interrupt_controller_state = unsafe { *(vp_state.buf.lapic) };
-        let cfg = InterruptReqeust {
+        let cfg = InterruptRequest {
             interrupt_type: hv_interrupt_type_HV_X64_INTERRUPT_TYPE_EXTINT,
             apic_id: lapic.apic_id as u64,
             vector: 0,
