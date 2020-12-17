@@ -10,6 +10,7 @@ use std::fs::File;
 
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 use vmm_sys_util::errno;
+use vmm_sys_util::eventfd::EventFd;
 use vmm_sys_util::ioctl::{ioctl_with_mut_ref, ioctl_with_ref};
 
 /// Structure for injecting interurpt
@@ -129,6 +130,115 @@ impl VmFd {
             Err(errno::Error::last())
         }
     }
+    ///
+    /// irqfd: Passes in an eventfd which is to be used for injecting
+    /// interrupts from userland.
+    ///
+    fn irqfd(
+        &self,
+        fd: RawFd,
+        gsi: u32,
+        request: Option<&InterruptRequest>,
+        flags: u32,
+    ) -> Result<()> {
+        let mut irqfd_arg = mshv_irqfd {
+            fd: fd as i32,
+            flags,
+            resamplefd: 0,
+            gsi,
+            vector: 0,
+            apic_id: 0,
+            interrupt_type: 0,
+            level_triggered: 0,
+            logical_dest_mode: 0,
+            ..Default::default()
+        };
+
+        if let Some(r) = request {
+            irqfd_arg.vector = r.vector;
+            irqfd_arg.apic_id = r.apic_id;
+            irqfd_arg.interrupt_type = r.interrupt_type as u32;
+            irqfd_arg.level_triggered = if r.level_triggered { 1 } else { 0 };
+            irqfd_arg.logical_dest_mode = if r.logical_destination_mode { 1 } else { 0 };
+        }
+
+        #[allow(clippy::cast_lossless)]
+        let ret = unsafe { ioctl_with_ref(&self.vm, MSHV_IRQFD(), &irqfd_arg) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
+    /// Registers an event that will, when signaled, trigger the `gsi` IRQ.
+    ///
+    /// # Arguments
+    ///
+    /// * `fd` - `EventFd` to be signaled.
+    /// * `gsi` - IRQ to be triggered.
+    /// * `req` - Interrupt Request
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate libc;
+    /// # extern crate vmm_sys_util;
+    /// # use libc::EFD_NONBLOCK;
+    /// # use vmm_sys_util::eventfd::EventFd;
+    /// # use crate::mshv_ioctls::*;
+    /// # use mshv_bindings::*;
+    /// let hv = Mshv::new().unwrap();
+    /// let vm = hv.create_vm().unwrap();
+    /// let req = InterruptRequest {
+    ///     interrupt_type: hv_interrupt_type_HV_X64_INTERRUPT_TYPE_FIXED,
+    ///     apic_id: 0,
+    ///     vector: 0,
+    ///     level_triggered: false,
+    ///     logical_destination_mode: false,
+    ///     long_mode: false,
+    /// };
+    /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
+    /// vm.register_irqfd(&evtfd, 0, &req).unwrap();
+    /// ```
+    ///
+    pub fn register_irqfd(&self, fd: &EventFd, gsi: u32, request: &InterruptRequest) -> Result<()> {
+        self.irqfd(fd.as_raw_fd(), gsi, Some(&request), 0)
+    }
+    /// Unregisters an event that will, when signaled, trigger the `gsi` IRQ.
+    ///
+    /// # Arguments
+    ///
+    /// * `fd` - `EventFd` to be signaled.
+    /// * `gsi` - IRQ to be triggered.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate libc;
+    /// # extern crate vmm_sys_util;
+    /// # use libc::EFD_NONBLOCK;
+    /// # use vmm_sys_util::eventfd::EventFd;
+    /// # use crate::mshv_ioctls::*;
+    /// # use mshv_bindings::*;
+    /// let hv = Mshv::new().unwrap();
+    /// let vm = hv.create_vm().unwrap();
+    /// let req = InterruptRequest {
+    ///     interrupt_type: hv_interrupt_type_HV_X64_INTERRUPT_TYPE_FIXED,
+    ///     apic_id: 0,
+    ///     vector: 0,
+    ///     level_triggered: false,
+    ///     logical_destination_mode: false,
+    ///     long_mode: false,
+    /// };
+    /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
+    /// vm.register_irqfd(&evtfd, 0, &req).unwrap();
+    /// vm.unregister_irqfd(&evtfd, 0).unwrap();
+    /// ```
+    ///
+    pub fn unregister_irqfd(&self, fd: &EventFd, gsi: u32) -> Result<()> {
+        self.irqfd(fd.as_raw_fd(), gsi, None, MSHV_IRQFD_FLAG_DEASSIGN)
+    }
+
     ///
     /// Get property of the VM partition: For example , CPU Frequency, Size of the Xsave state and more.
     /// For more of the codes, please see the hv_partition_property_code type definitions in the bindings.rs
@@ -269,5 +379,22 @@ mod tests {
             0,
         )
         .unwrap();
+    }
+    #[test]
+    fn test_irqfd() {
+        use libc::EFD_NONBLOCK;
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let req = InterruptRequest {
+            interrupt_type: hv_interrupt_type_HV_X64_INTERRUPT_TYPE_EXTINT,
+            apic_id: 0,
+            vector: 0,
+            level_triggered: false,
+            logical_destination_mode: false,
+            long_mode: false,
+        };
+        let efd = EventFd::new(EFD_NONBLOCK).unwrap();
+        vm.register_irqfd(&efd, 0, &req).unwrap();
+        vm.unregister_irqfd(&efd, 0).unwrap();
     }
 }
