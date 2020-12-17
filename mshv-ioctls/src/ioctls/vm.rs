@@ -13,6 +13,32 @@ use vmm_sys_util::errno;
 use vmm_sys_util::eventfd::EventFd;
 use vmm_sys_util::ioctl::{ioctl_with_mut_ref, ioctl_with_ref};
 
+/// An address either in programmable I/O space or in memory mapped I/O space.
+///
+/// The `IoEventAddress` is used for specifying the type when registering an event
+/// in [register_ioevent](struct.VmFd.html#method.register_ioevent).
+///
+#[derive(Eq, PartialEq, Hash, Clone, Debug, Copy)]
+pub enum IoEventAddress {
+    /// Representation of an programmable I/O address.
+    Pio(u64),
+    /// Representation of an memory mapped I/O address.
+    Mmio(u64),
+}
+
+/// Helper structure for disabling datamatch.
+///
+/// The structure can be used as a parameter to
+/// [`register_ioevent`](struct.VmFd.html#method.register_ioevent)
+/// to disable filtering of events based on the datamatch flag.
+///
+pub struct NoDatamatch;
+impl Into<u64> for NoDatamatch {
+    fn into(self) -> u64 {
+        0
+    }
+}
+
 /// Structure for injecting interurpt
 /// This struct is passed to request_virtual_interrupt function as an argument
 /// Member variable
@@ -240,6 +266,123 @@ impl VmFd {
     }
 
     ///
+    /// ioeventfd: Passes in an eventfd which the kernel would signal when
+    /// an mmio region is written into.
+    ///
+    fn ioeventfd<T: Into<u64>>(
+        &self,
+        fd: &EventFd,
+        addr: &IoEventAddress,
+        datamatch: T,
+        mut flags: u32,
+    ) -> Result<()> {
+        let mut mmio_addr: u64;
+
+        //
+        // mshv doesn't support PIO ioeventfds now.
+        //
+        mmio_addr = match addr {
+            IoEventAddress::Pio(_) => {
+                return Err(errno::Error::new(libc::ENOTSUP));
+            }
+            IoEventAddress::Mmio(ref m) => *m,
+        };
+
+        if std::mem::size_of::<T>() > 0 {
+            flags |= 1 << mshv_ioeventfd_flag_nr_datamatch
+        }
+
+        let ioeventfd = mshv_ioeventfd {
+            datamatch: datamatch.into(),
+            len: std::mem::size_of::<T>() as u32,
+            addr: mmio_addr,
+            fd: fd.as_raw_fd(),
+            flags,
+            ..Default::default()
+        };
+        // Safe because we know that our file is a VM fd, we know the kernel will only read the
+        // correct amount of memory from our pointer, and we verify the return result.
+        let ret = unsafe { ioctl_with_ref(self, MSHV_IOEVENTFD(), &ioeventfd) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
+    /// Registers an event to be signaled whenever a certain address is written to.
+    ///
+    /// # Arguments
+    ///
+    /// * `fd` - `EventFd` which will be signaled. When signaling, the usual `vmexit` to userspace
+    ///           is prevented.
+    /// * `addr` - Address being written to.
+    /// * `datamatch` - Limits signaling `fd` to only the cases where the value being written is
+    ///                 equal to this parameter. The size of `datamatch` is important and it must
+    ///                 match the expected size of the guest's write.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate libc;
+    /// # extern crate vmm_sys_util;
+    /// # use libc::EFD_NONBLOCK;
+    /// # use vmm_sys_util::eventfd::EventFd;
+    /// # use crate::mshv_ioctls::*;
+    /// # use mshv_bindings::*;
+    /// let hv = Mshv::new().unwrap();
+    /// let vm = hv.create_vm().unwrap();
+    /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
+    /// vm.register_ioevent(&evtfd, &IoEventAddress::Mmio(0x1000), NoDatamatch)
+    ///   .unwrap();
+    /// ```
+    ///
+    pub fn register_ioevent<T: Into<u64>>(
+        &self,
+        fd: &EventFd,
+        addr: &IoEventAddress,
+        datamatch: T,
+    ) -> Result<()> {
+        self.ioeventfd(fd, addr, datamatch, 0)
+    }
+    /// Unregisters an event from a certain address it has been previously registered to.
+    ///
+    /// # Arguments
+    ///
+    /// * `fd` - FD which will be unregistered.
+    /// * `addr` - Address being written to.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it relies on RawFd.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate libc;
+    /// # extern crate vmm_sys_util;
+    /// # use libc::EFD_NONBLOCK;
+    /// # use vmm_sys_util::eventfd::EventFd;
+    /// # use crate::mshv_ioctls::*;
+    /// # use mshv_bindings::*;
+    /// let hv = Mshv::new().unwrap();
+    /// let vm = hv.create_vm().unwrap();
+    /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
+    /// vm.register_ioevent(&evtfd, &IoEventAddress::Mmio(0x1000), NoDatamatch)
+    ///   .unwrap();
+    /// vm.unregister_ioevent(&evtfd, &IoEventAddress::Mmio(0x1000), NoDatamatch)
+    ///   .unwrap();
+    /// ```
+    ///
+    pub fn unregister_ioevent<T: Into<u64>>(
+        &self,
+        fd: &EventFd,
+        addr: &IoEventAddress,
+        datamatch: T,
+    ) -> Result<()> {
+        self.ioeventfd(fd, addr, datamatch, 1 << mshv_ioeventfd_flag_nr_deassign)
+    }
+
+    ///
     /// Get property of the VM partition: For example , CPU Frequency, Size of the Xsave state and more.
     /// For more of the codes, please see the hv_partition_property_code type definitions in the bindings.rs
     ///
@@ -396,5 +539,14 @@ mod tests {
         let efd = EventFd::new(EFD_NONBLOCK).unwrap();
         vm.register_irqfd(&efd, 0, &req).unwrap();
         vm.unregister_irqfd(&efd, 0).unwrap();
+    }
+    #[test]
+    fn test_ioeventfd() {
+        let efd = EventFd::new(0).unwrap();
+        let addr = IoEventAddress::Mmio(0xe7e85004);
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        vm.register_ioevent(&efd, &addr, NoDatamatch).unwrap();
+        vm.unregister_ioevent(&efd, &addr, NoDatamatch).unwrap();
     }
 }

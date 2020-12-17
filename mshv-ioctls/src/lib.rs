@@ -15,6 +15,8 @@ pub mod ioctls;
 pub use ioctls::system::Mshv;
 pub use ioctls::vcpu::VcpuFd;
 pub use ioctls::vm::InterruptRequest;
+pub use ioctls::vm::IoEventAddress;
+pub use ioctls::vm::NoDatamatch;
 pub use ioctls::vm::VmFd;
 
 #[macro_use]
