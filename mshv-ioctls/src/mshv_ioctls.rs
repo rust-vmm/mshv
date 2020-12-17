@@ -28,6 +28,7 @@ ioctl_iowr_nr!(
     0x0D,
     mshv_partition_property
 );
+ioctl_iow_nr!(MSHV_IRQFD, MSHV_IOCTL, 0x0E, mshv_irqfd);
 ioctl_iow_nr!(
     MSHV_MAP_GUEST_MEMORY,
     MSHV_IOCTL,
