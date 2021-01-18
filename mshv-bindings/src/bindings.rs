@@ -133,6 +133,13 @@ pub const MSHV_VERSION: u32 = 0;
 pub const MSHV_VP_MAX_REGISTERS: u32 = 128;
 pub const MSHV_IRQFD_FLAG_DEASSIGN: u32 = 1;
 pub const MSHV_IRQFD_FLAG_RESAMPLE: u32 = 2;
+pub const HV_TRANSLATE_GVA_VALIDATE_READ: u32 = 1;
+pub const HV_TRANSLATE_GVA_VALIDATE_WRITE: u32 = 2;
+pub const HV_TRANSLATE_GVA_VALIDATE_EXECUTE: u32 = 4;
+pub const HV_TRANSLATE_GVA_PRIVILEGE_EXCEMP: u32 = 8;
+pub const HV_TRANSLATE_GVA_SET_PAGE_TABLE_BITS: u32 = 16;
+pub const HV_TRANSLATE_GVA_TLB_FLUSH_INHIBIT: u32 = 32;
+pub const HV_TRANSLATE_GVA_CONTROL_MASK: u32 = 63;
 pub const MSHV_IOCTL: u32 = 184;
 pub type bool_ = bool;
 pub type __s8 = ::std::os::raw::c_schar;
@@ -1918,7 +1925,7 @@ impl Default for hv_partition_creation_properties {
     }
 }
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum hv_register_name {
     HV_REGISTER_EXPLICIT_SUSPEND = 0,
     HV_REGISTER_INTERCEPT_SUSPEND = 1,
@@ -4614,6 +4621,8 @@ pub const hv_message_type_HVMSG_INVALID_VP_REGISTER_VALUE: hv_message_type = 214
 pub const hv_message_type_HVMSG_UNRECOVERABLE_EXCEPTION: hv_message_type = 2147483681;
 pub const hv_message_type_HVMSG_UNSUPPORTED_FEATURE: hv_message_type = 2147483682;
 pub const hv_message_type_HVMSG_EVENTLOG_BUFFERCOMPLETE: hv_message_type = 2147483712;
+pub const hv_message_type_HVMSG_SYNIC_EVENT_INTERCEPT: hv_message_type = 2147483744;
+pub const hv_message_type_HVMSG_SYNIC_SINT_INTERCEPT: hv_message_type = 2147483745;
 pub const hv_message_type_HVMSG_X64_IO_PORT_INTERCEPT: hv_message_type = 2147549184;
 pub const hv_message_type_HVMSG_X64_MSR_INTERCEPT: hv_message_type = 2147549185;
 pub const hv_message_type_HVMSG_X64_CPUID_INTERCEPT: hv_message_type = 2147549186;
@@ -10893,6 +10902,161 @@ pub const hv_partition_property_code_HV_PARTITION_PROPERTY_GUEST_OS_ID: hv_parti
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_VIRTUALIZATION_FEATURES:
     hv_partition_property_code = 524288;
 pub type hv_partition_property_code = ::std::os::raw::c_uint;
+pub const hv_translate_gva_result_code_HvTranslateGvaSuccess: hv_translate_gva_result_code = 0;
+pub const hv_translate_gva_result_code_HvTranslateGvaPageNotPresent: hv_translate_gva_result_code =
+    1;
+pub const hv_translate_gva_result_code_HvTranslateGvaPrivilegeViolation:
+    hv_translate_gva_result_code = 2;
+pub const hv_translate_gva_result_code_HvTranslateGvaInvalidePageTableFlags:
+    hv_translate_gva_result_code = 3;
+pub const hv_translate_gva_result_code_HvTranslateGvaGpaUnmapped: hv_translate_gva_result_code = 4;
+pub const hv_translate_gva_result_code_HvTranslateGvaGpaNoReadAccess: hv_translate_gva_result_code =
+    5;
+pub const hv_translate_gva_result_code_HvTranslateGvaGpaNoWriteAccess:
+    hv_translate_gva_result_code = 6;
+pub const hv_translate_gva_result_code_HvTranslateGvaGpaIllegalOverlayAccess:
+    hv_translate_gva_result_code = 7;
+pub const hv_translate_gva_result_code_HvTranslateGvaIntercept: hv_translate_gva_result_code = 8;
+pub const hv_translate_gva_result_code_HvTranslateGvaGpaUnaccepted: hv_translate_gva_result_code =
+    9;
+pub type hv_translate_gva_result_code = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union hv_translate_gva_result {
+    pub as_uint64: __u64,
+    pub __bindgen_anon_1: hv_translate_gva_result__bindgen_ty_1,
+    _bindgen_union_align: u64,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct hv_translate_gva_result__bindgen_ty_1 {
+    pub result_code: hv_translate_gva_result_code,
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 4usize], u32>,
+}
+#[test]
+fn bindgen_test_layout_hv_translate_gva_result__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_translate_gva_result__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_translate_gva_result__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_translate_gva_result__bindgen_ty_1>(),
+        4usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_translate_gva_result__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<hv_translate_gva_result__bindgen_ty_1>())).result_code
+                as *const _ as usize
+        },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_translate_gva_result__bindgen_ty_1),
+            "::",
+            stringify!(result_code)
+        )
+    );
+}
+impl Default for hv_translate_gva_result__bindgen_ty_1 {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
+}
+impl hv_translate_gva_result__bindgen_ty_1 {
+    #[inline]
+    pub fn cache_type(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 8u8) as u32) }
+    }
+    #[inline]
+    pub fn set_cache_type(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 8u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn overlay_page(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(8usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_overlay_page(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(8usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(9usize, 23u8) as u32) }
+    }
+    #[inline]
+    pub fn set_reserved(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(9usize, 23u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        cache_type: __u32,
+        overlay_page: __u32,
+        reserved: __u32,
+    ) -> __BindgenBitfieldUnit<[u8; 4usize], u32> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 4usize], u32> =
+            Default::default();
+        __bindgen_bitfield_unit.set(0usize, 8u8, {
+            let cache_type: u32 = unsafe { ::std::mem::transmute(cache_type) };
+            cache_type as u64
+        });
+        __bindgen_bitfield_unit.set(8usize, 1u8, {
+            let overlay_page: u32 = unsafe { ::std::mem::transmute(overlay_page) };
+            overlay_page as u64
+        });
+        __bindgen_bitfield_unit.set(9usize, 23u8, {
+            let reserved: u32 = unsafe { ::std::mem::transmute(reserved) };
+            reserved as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[test]
+fn bindgen_test_layout_hv_translate_gva_result() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_translate_gva_result>(),
+        8usize,
+        concat!("Size of: ", stringify!(hv_translate_gva_result))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_translate_gva_result>(),
+        8usize,
+        concat!("Alignment of ", stringify!(hv_translate_gva_result))
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<hv_translate_gva_result>())).as_uint64 as *const _ as usize
+        },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_translate_gva_result),
+            "::",
+            stringify!(as_uint64)
+        )
+    );
+}
+impl Default for hv_translate_gva_result {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
+}
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct mshv_create_partition {
@@ -11596,223 +11760,68 @@ fn bindgen_test_layout_mshv_ioeventfd() {
     );
 }
 #[repr(C)]
-#[derive(Default, Copy, Clone)]
-pub struct mshv_p_irqfd {
-    pub part_id: __u64,
-    pub apic_id: __u64,
-    pub fd: __s32,
-    pub resamplefd: __s32,
-    pub gsi: __u32,
-    pub flags: __u32,
-    pub interrupt_type: __u32,
-    pub level_triggered: __u8,
-    pub logical_dest_mode: __u8,
-    pub pad: [__u8; 2usize],
+#[derive(Copy, Clone)]
+pub struct mshv_vp_translate_gva {
+    pub gva: __u64,
+    pub flags: __u64,
+    pub result: *mut hv_translate_gva_result,
+    pub gpa: *mut __u64,
 }
 #[test]
-fn bindgen_test_layout_mshv_p_irqfd() {
+fn bindgen_test_layout_mshv_vp_translate_gva() {
     assert_eq!(
-        ::std::mem::size_of::<mshv_p_irqfd>(),
-        40usize,
-        concat!("Size of: ", stringify!(mshv_p_irqfd))
+        ::std::mem::size_of::<mshv_vp_translate_gva>(),
+        32usize,
+        concat!("Size of: ", stringify!(mshv_vp_translate_gva))
     );
     assert_eq!(
-        ::std::mem::align_of::<mshv_p_irqfd>(),
+        ::std::mem::align_of::<mshv_vp_translate_gva>(),
         8usize,
-        concat!("Alignment of ", stringify!(mshv_p_irqfd))
+        concat!("Alignment of ", stringify!(mshv_vp_translate_gva))
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_p_irqfd>())).part_id as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<mshv_vp_translate_gva>())).gva as *const _ as usize },
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(mshv_p_irqfd),
+            stringify!(mshv_vp_translate_gva),
             "::",
-            stringify!(part_id)
+            stringify!(gva)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_p_irqfd>())).apic_id as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<mshv_vp_translate_gva>())).flags as *const _ as usize },
         8usize,
         concat!(
             "Offset of field: ",
-            stringify!(mshv_p_irqfd),
-            "::",
-            stringify!(apic_id)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_p_irqfd>())).fd as *const _ as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_p_irqfd),
-            "::",
-            stringify!(fd)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_p_irqfd>())).resamplefd as *const _ as usize },
-        20usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_p_irqfd),
-            "::",
-            stringify!(resamplefd)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_p_irqfd>())).gsi as *const _ as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_p_irqfd),
-            "::",
-            stringify!(gsi)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_p_irqfd>())).flags as *const _ as usize },
-        28usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_p_irqfd),
+            stringify!(mshv_vp_translate_gva),
             "::",
             stringify!(flags)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_p_irqfd>())).interrupt_type as *const _ as usize },
-        32usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_p_irqfd),
-            "::",
-            stringify!(interrupt_type)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_p_irqfd>())).level_triggered as *const _ as usize },
-        36usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_p_irqfd),
-            "::",
-            stringify!(level_triggered)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_p_irqfd>())).logical_dest_mode as *const _ as usize },
-        37usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_p_irqfd),
-            "::",
-            stringify!(logical_dest_mode)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_p_irqfd>())).pad as *const _ as usize },
-        38usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_p_irqfd),
-            "::",
-            stringify!(pad)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Default, Copy, Clone)]
-pub struct mshv_p_ioeventfd {
-    pub part_id: __u64,
-    pub datamatch: __u64,
-    pub addr: __u64,
-    pub len: __u32,
-    pub fd: __s32,
-    pub flags: __u32,
-    pub pad: [__u8; 4usize],
-}
-#[test]
-fn bindgen_test_layout_mshv_p_ioeventfd() {
-    assert_eq!(
-        ::std::mem::size_of::<mshv_p_ioeventfd>(),
-        40usize,
-        concat!("Size of: ", stringify!(mshv_p_ioeventfd))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<mshv_p_ioeventfd>(),
-        8usize,
-        concat!("Alignment of ", stringify!(mshv_p_ioeventfd))
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_p_ioeventfd>())).part_id as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_p_ioeventfd),
-            "::",
-            stringify!(part_id)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_p_ioeventfd>())).datamatch as *const _ as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_p_ioeventfd),
-            "::",
-            stringify!(datamatch)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_p_ioeventfd>())).addr as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<mshv_vp_translate_gva>())).result as *const _ as usize },
         16usize,
         concat!(
             "Offset of field: ",
-            stringify!(mshv_p_ioeventfd),
+            stringify!(mshv_vp_translate_gva),
             "::",
-            stringify!(addr)
+            stringify!(result)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_p_ioeventfd>())).len as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<mshv_vp_translate_gva>())).gpa as *const _ as usize },
         24usize,
         concat!(
             "Offset of field: ",
-            stringify!(mshv_p_ioeventfd),
+            stringify!(mshv_vp_translate_gva),
             "::",
-            stringify!(len)
+            stringify!(gpa)
         )
     );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_p_ioeventfd>())).fd as *const _ as usize },
-        28usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_p_ioeventfd),
-            "::",
-            stringify!(fd)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_p_ioeventfd>())).flags as *const _ as usize },
-        32usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_p_ioeventfd),
-            "::",
-            stringify!(flags)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_p_ioeventfd>())).pad as *const _ as usize },
-        36usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_p_ioeventfd),
-            "::",
-            stringify!(pad)
-        )
-    );
+}
+impl Default for mshv_vp_translate_gva {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
 }
