@@ -776,6 +776,27 @@ impl VcpuFd {
         }
         ret
     }
+    ///
+    /// Translate guest virtual address to guest physical address
+    ///
+    pub fn translate_gva(&self, gva: u64, flags: u64) -> Result<(u64, hv_translate_gva_result)> {
+        let gpa: u64 = 0;
+        let result = hv_translate_gva_result { as_uint64: 0 };
+
+        let mut args = mshv_vp_translate_gva {
+            gva,
+            flags,
+            gpa: &gpa as *const _ as *mut u64,
+            result: &result as *const _ as *mut hv_translate_gva_result,
+        };
+        // Safe because we know that our file is a vCPU fd, we know the kernel honours its ABI.
+        let ret = unsafe { ioctl_with_mut_ref(self, MSHV_VP_TRANSLATE_GVA(), &mut args) };
+        if ret != 0 {
+            return Err(errno::Error::last());
+        }
+
+        Ok((gpa, result))
+    }
 }
 #[allow(dead_code)]
 #[cfg(test)]
