@@ -134,8 +134,10 @@ impl VmFd {
     /// For more of the codes, please see the hv_partition_property_code type definitions in the bindings.rs
     ///
     pub fn get_partition_property(&self, code: u32) -> Result<u64> {
-        let mut property: mshv_partition_property = mshv_partition_property::default();
-        property.property_code = code;
+        let mut property = mshv_partition_property {
+            property_code: code,
+            ..Default::default()
+        };
         #[allow(clippy::cast_lossless)]
         let ret =
             unsafe { ioctl_with_mut_ref(&self.vm, HV_GET_PARTITION_PROPERTY(), &mut property) };
