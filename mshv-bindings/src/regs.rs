@@ -125,8 +125,8 @@ impl From<hv_x64_segment_register> for SegmentRegister {
                 l: ((reg.__bindgen_anon_1.attributes >> 13) & 0x1) as u8,
                 g: ((reg.__bindgen_anon_1.attributes >> 15) & 0x1) as u8,
                 avl: ((reg.__bindgen_anon_1.attributes >> 12) & 0x1) as u8,
-                unusable: 0 as __u8,
-                padding: 0 as __u8,
+                unusable: 0_u8,
+                padding: 0_u8,
             }
         }
     }
@@ -462,9 +462,11 @@ impl Default for XSave {
 }
 impl From<mshv_vp_state> for XSave {
     fn from(reg: mshv_vp_state) -> Self {
-        let mut ret: XSave = XSave::default();
-        ret.flags = reg.xsave.flags;
-        ret.data_size = reg.buf_size;
+        let mut ret = XSave {
+            flags: reg.xsave.flags,
+            data_size: reg.buf_size,
+            ..Default::default()
+        };
         unsafe { ret.states = reg.xsave.states.as_uint64 };
         let min: usize = cmp::min(4096, reg.buf_size as u32) as usize;
         unsafe { ptr::copy(reg.buf.bytes, ret.data_buffer.as_ptr() as *mut u8, min) };
@@ -474,10 +476,12 @@ impl From<mshv_vp_state> for XSave {
 
 impl From<XSave> for mshv_vp_state {
     fn from(reg: XSave) -> Self {
-        let mut ret: mshv_vp_state = mshv_vp_state::default();
-        ret.type_ = hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_XSAVE;
+        let mut ret = mshv_vp_state {
+            type_: hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_XSAVE,
+            buf_size: reg.data_size,
+            ..Default::default()
+        };
         ret.xsave.flags = reg.flags;
-        ret.buf_size = reg.data_size;
         ret.xsave.states.as_uint64 = reg.states;
         ret.buf.bytes = reg.data_buffer.as_ptr() as *mut u8;
         ret
