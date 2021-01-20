@@ -73,7 +73,7 @@ impl Mshv {
             partition_creation_properties: hv_partition_creation_properties {
                 disabled_processor_features: hv_partition_processor_features { as_uint64: [0; 2] },
                 disabled_processor_xsave_features: hv_partition_processor_xsave_features {
-                    as_uint64: 0 as __u64,
+                    as_uint64: 0_u64,
                 },
             },
             synthetic_processor_features: hv_partition_synthetic_processor_features {

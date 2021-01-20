@@ -592,7 +592,7 @@ impl VcpuFd {
         }
 
         self.set_reg(&reg_names, &reg_values)?;
-        Ok(0 as usize)
+        Ok(0_usize)
     }
     ///
     ///  Triggers the running of the current virtual CPU returning an exit reason.
@@ -700,9 +700,10 @@ impl VcpuFd {
     /// Returns the state of the LAPIC (Local Advanced Programmable Interrupt Controller).
     ///
     pub fn get_lapic_ioctl(&self) -> Result<hv_local_interrupt_controller_state> {
-        let mut vp_state: mshv_vp_state = mshv_vp_state::default();
-        vp_state.type_ =
-            hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_LOCAL_INTERRUPT_CONTROLLER_STATE;
+        let mut vp_state = mshv_vp_state {
+            type_: hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_LOCAL_INTERRUPT_CONTROLLER_STATE,
+            ..Default::default()
+        };
         // Safe because we know that our file is a vCPU fd and we verify the return result.
         self.get_vp_state_ioctl(&vp_state).unwrap();
         let state: hv_local_interrupt_controller_state = unsafe { *vp_state.buf.lapic };
@@ -999,7 +1000,7 @@ mod tests {
                             assert!(io_message.access_info.__bindgen_anon_1.access_size() == 1);
                         }
                         assert!(
-                            io_message.header.intercept_access_type == /*HV_INTERCEPT_ACCESS_WRITE*/ 1 as u8
+                            io_message.header.intercept_access_type == /*HV_INTERCEPT_ACCESS_WRITE*/ 1_u8
                         );
                         done = true;
                         /* Advance rip */
@@ -1018,7 +1019,7 @@ mod tests {
                             assert!(io_message.access_info.__bindgen_anon_1.access_size() == 1);
                         }
                         assert!(
-                            io_message.header.intercept_access_type == /*HV_INTERCEPT_ACCESS_WRITE*/ 1 as u8
+                            io_message.header.intercept_access_type == /*HV_INTERCEPT_ACCESS_WRITE*/ 1_u8
                         );
                         break;
                     }
