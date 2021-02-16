@@ -114,6 +114,10 @@ impl Mshv {
             pr.synthetic_processor_features
                 .__bindgen_anon_1
                 .set_access_hypercall_regs(1);
+            /* Windows requires this */
+            pr.synthetic_processor_features
+                .__bindgen_anon_1
+                .set_access_guest_idle_reg(1);
         }
 
         let ret = unsafe { ioctl_with_ref(&self.hv, MSHV_CREATE_PARTITION(), &pr) };
