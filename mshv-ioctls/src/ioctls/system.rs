@@ -188,7 +188,7 @@ impl Mshv {
             IA32_MSR_TSC_AUX,
             IA32_MSR_BNDCFGS,
             IA32_MSR_DEBUG_CTL,
-        ]))
+        ]).unwrap())
     }
 }
 #[allow(dead_code)]
