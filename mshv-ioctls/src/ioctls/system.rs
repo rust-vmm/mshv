@@ -188,7 +188,8 @@ impl Mshv {
             IA32_MSR_TSC_AUX,
             IA32_MSR_BNDCFGS,
             IA32_MSR_DEBUG_CTL,
-        ]).unwrap())
+        ])
+        .unwrap())
     }
 }
 #[allow(dead_code)]
@@ -226,7 +227,8 @@ mod tests {
             let mut get_set_msrs = Msrs::from_entries(&[msr_entry {
                 index: *idx,
                 ..Default::default()
-            }]);
+            }])
+            .unwrap();
             vcpu.get_msrs(&mut get_set_msrs).unwrap_or_else(|_| {
                 println!("Error getting MSR: 0x{:x}", *idx);
                 num_errors += 1;

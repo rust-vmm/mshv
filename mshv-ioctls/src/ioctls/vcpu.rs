@@ -1048,7 +1048,8 @@ mod tests {
                 data: 0x2,
                 ..Default::default()
             },
-        ]);
+        ])
+        .unwrap();
         let mut g_regs = Msrs::from_entries(&[
             msr_entry {
                 index: IA32_MSR_SYSENTER_CS,
@@ -1058,7 +1059,8 @@ mod tests {
                 index: IA32_MSR_SYSENTER_ESP,
                 ..Default::default()
             },
-        ]);
+        ])
+        .unwrap();
         vcpu.set_msrs(&s_regs).unwrap();
         vcpu.get_msrs(&mut g_regs).unwrap();
         assert!(g_regs.as_fam_struct_ref().nmsrs == s_regs.as_fam_struct_ref().nmsrs);
