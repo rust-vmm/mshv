@@ -4,6 +4,7 @@
  * include/asm-generic/hyperv-tlfs.h
  * include/linux/mshv.h
  */
+#![allow(clippy::missing_safety_doc)]
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -84,6 +85,36 @@ where
             };
             self.set_bit(index + bit_offset, val_bit_is_set);
         }
+    }
+}
+#[repr(C)]
+#[derive(Default)]
+pub struct __IncompleteArrayField<T>(::std::marker::PhantomData<T>, [T; 0]);
+impl<T> __IncompleteArrayField<T> {
+    #[inline]
+    pub const fn new() -> Self {
+        __IncompleteArrayField(::std::marker::PhantomData, [])
+    }
+    #[inline]
+    pub fn as_ptr(&self) -> *const T {
+        self as *const _ as *const T
+    }
+    #[inline]
+    pub fn as_mut_ptr(&mut self) -> *mut T {
+        self as *mut _ as *mut T
+    }
+    #[inline]
+    pub unsafe fn as_slice(&self, len: usize) -> &[T] {
+        ::std::slice::from_raw_parts(self.as_ptr(), len)
+    }
+    #[inline]
+    pub unsafe fn as_mut_slice(&mut self, len: usize) -> &mut [T] {
+        ::std::slice::from_raw_parts_mut(self.as_mut_ptr(), len)
+    }
+}
+impl<T> ::std::fmt::Debug for __IncompleteArrayField<T> {
+    fn fmt(&self, fmt: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        fmt.write_str("__IncompleteArrayField")
     }
 }
 pub const __BITS_PER_LONG: u32 = 64;
@@ -11547,42 +11578,26 @@ impl Default for mshv_partition_property {
 #[repr(C)]
 #[derive(Default, Copy, Clone)]
 pub struct mshv_irqfd {
-    pub apic_id: __u64,
     pub fd: __s32,
     pub resamplefd: __s32,
     pub gsi: __u32,
-    pub vector: __u32,
-    pub interrupt_type: __u32,
     pub flags: __u32,
-    pub level_triggered: __u8,
-    pub logical_dest_mode: __u8,
-    pub pad: [__u8; 6usize],
 }
 #[test]
 fn bindgen_test_layout_mshv_irqfd() {
     assert_eq!(
         ::std::mem::size_of::<mshv_irqfd>(),
-        40usize,
+        16usize,
         concat!("Size of: ", stringify!(mshv_irqfd))
     );
     assert_eq!(
         ::std::mem::align_of::<mshv_irqfd>(),
-        8usize,
+        4usize,
         concat!("Alignment of ", stringify!(mshv_irqfd))
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_irqfd>())).apic_id as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_irqfd),
-            "::",
-            stringify!(apic_id)
-        )
-    );
-    assert_eq!(
         unsafe { &(*(::std::ptr::null::<mshv_irqfd>())).fd as *const _ as usize },
-        8usize,
+        0usize,
         concat!(
             "Offset of field: ",
             stringify!(mshv_irqfd),
@@ -11592,7 +11607,7 @@ fn bindgen_test_layout_mshv_irqfd() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<mshv_irqfd>())).resamplefd as *const _ as usize },
-        12usize,
+        4usize,
         concat!(
             "Offset of field: ",
             stringify!(mshv_irqfd),
@@ -11602,7 +11617,7 @@ fn bindgen_test_layout_mshv_irqfd() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<mshv_irqfd>())).gsi as *const _ as usize },
-        16usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(mshv_irqfd),
@@ -11611,63 +11626,13 @@ fn bindgen_test_layout_mshv_irqfd() {
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_irqfd>())).vector as *const _ as usize },
-        20usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_irqfd),
-            "::",
-            stringify!(vector)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_irqfd>())).interrupt_type as *const _ as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_irqfd),
-            "::",
-            stringify!(interrupt_type)
-        )
-    );
-    assert_eq!(
         unsafe { &(*(::std::ptr::null::<mshv_irqfd>())).flags as *const _ as usize },
-        28usize,
+        12usize,
         concat!(
             "Offset of field: ",
             stringify!(mshv_irqfd),
             "::",
             stringify!(flags)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_irqfd>())).level_triggered as *const _ as usize },
-        32usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_irqfd),
-            "::",
-            stringify!(level_triggered)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_irqfd>())).logical_dest_mode as *const _ as usize },
-        33usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_irqfd),
-            "::",
-            stringify!(logical_dest_mode)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_irqfd>())).pad as *const _ as usize },
-        34usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_irqfd),
-            "::",
-            stringify!(pad)
         )
     );
 }
@@ -11824,4 +11789,119 @@ impl Default for mshv_vp_translate_gva {
     fn default() -> Self {
         unsafe { ::std::mem::zeroed() }
     }
+}
+#[repr(C)]
+#[derive(Default, Copy, Clone)]
+pub struct mshv_msi_routing_entry {
+    pub gsi: __u32,
+    pub address_lo: __u32,
+    pub address_hi: __u32,
+    pub data: __u32,
+}
+#[test]
+fn bindgen_test_layout_mshv_msi_routing_entry() {
+    assert_eq!(
+        ::std::mem::size_of::<mshv_msi_routing_entry>(),
+        16usize,
+        concat!("Size of: ", stringify!(mshv_msi_routing_entry))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<mshv_msi_routing_entry>(),
+        4usize,
+        concat!("Alignment of ", stringify!(mshv_msi_routing_entry))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<mshv_msi_routing_entry>())).gsi as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_msi_routing_entry),
+            "::",
+            stringify!(gsi)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<mshv_msi_routing_entry>())).address_lo as *const _ as usize
+        },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_msi_routing_entry),
+            "::",
+            stringify!(address_lo)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<mshv_msi_routing_entry>())).address_hi as *const _ as usize
+        },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_msi_routing_entry),
+            "::",
+            stringify!(address_hi)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<mshv_msi_routing_entry>())).data as *const _ as usize },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_msi_routing_entry),
+            "::",
+            stringify!(data)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Default)]
+pub struct mshv_msi_routing {
+    pub nr: __u32,
+    pub pad: __u32,
+    pub entries: __IncompleteArrayField<mshv_msi_routing_entry>,
+}
+#[test]
+fn bindgen_test_layout_mshv_msi_routing() {
+    assert_eq!(
+        ::std::mem::size_of::<mshv_msi_routing>(),
+        8usize,
+        concat!("Size of: ", stringify!(mshv_msi_routing))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<mshv_msi_routing>(),
+        4usize,
+        concat!("Alignment of ", stringify!(mshv_msi_routing))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<mshv_msi_routing>())).nr as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_msi_routing),
+            "::",
+            stringify!(nr)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<mshv_msi_routing>())).pad as *const _ as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_msi_routing),
+            "::",
+            stringify!(pad)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<mshv_msi_routing>())).entries as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_msi_routing),
+            "::",
+            stringify!(entries)
+        )
+    );
 }
