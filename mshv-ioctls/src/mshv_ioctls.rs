@@ -30,6 +30,7 @@ ioctl_iowr_nr!(
 );
 ioctl_iow_nr!(MSHV_IRQFD, MSHV_IOCTL, 0x0E, mshv_irqfd);
 ioctl_iow_nr!(MSHV_IOEVENTFD, MSHV_IOCTL, 0xF, mshv_ioeventfd);
+ioctl_iow_nr!(MSHV_SET_MSI_ROUTING, MSHV_IOCTL, 0x11, mshv_msi_routing);
 ioctl_iow_nr!(
     MSHV_MAP_GUEST_MEMORY,
     MSHV_IOCTL,

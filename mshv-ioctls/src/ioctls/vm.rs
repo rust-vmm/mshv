@@ -160,33 +160,13 @@ impl VmFd {
     /// irqfd: Passes in an eventfd which is to be used for injecting
     /// interrupts from userland.
     ///
-    fn irqfd(
-        &self,
-        fd: RawFd,
-        gsi: u32,
-        request: Option<&InterruptRequest>,
-        flags: u32,
-    ) -> Result<()> {
+    fn irqfd(&self, fd: RawFd, gsi: u32, flags: u32) -> Result<()> {
         let mut irqfd_arg = mshv_irqfd {
             fd: fd as i32,
             flags,
             resamplefd: 0,
             gsi,
-            vector: 0,
-            apic_id: 0,
-            interrupt_type: 0,
-            level_triggered: 0,
-            logical_dest_mode: 0,
-            ..Default::default()
         };
-
-        if let Some(r) = request {
-            irqfd_arg.vector = r.vector;
-            irqfd_arg.apic_id = r.apic_id;
-            irqfd_arg.interrupt_type = r.interrupt_type as u32;
-            irqfd_arg.level_triggered = if r.level_triggered { 1 } else { 0 };
-            irqfd_arg.logical_dest_mode = if r.logical_destination_mode { 1 } else { 0 };
-        }
 
         #[allow(clippy::cast_lossless)]
         let ret = unsafe { ioctl_with_ref(&self.vm, MSHV_IRQFD(), &irqfd_arg) };
@@ -215,20 +195,12 @@ impl VmFd {
     /// # use mshv_bindings::*;
     /// let hv = Mshv::new().unwrap();
     /// let vm = hv.create_vm().unwrap();
-    /// let req = InterruptRequest {
-    ///     interrupt_type: hv_interrupt_type_HV_X64_INTERRUPT_TYPE_FIXED,
-    ///     apic_id: 0,
-    ///     vector: 0,
-    ///     level_triggered: false,
-    ///     logical_destination_mode: false,
-    ///     long_mode: false,
-    /// };
     /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
-    /// vm.register_irqfd(&evtfd, 0, &req).unwrap();
+    /// vm.register_irqfd(&evtfd, 30).unwrap();
     /// ```
     ///
-    pub fn register_irqfd(&self, fd: &EventFd, gsi: u32, request: &InterruptRequest) -> Result<()> {
-        self.irqfd(fd.as_raw_fd(), gsi, Some(&request), 0)
+    pub fn register_irqfd(&self, fd: &EventFd, gsi: u32) -> Result<()> {
+        self.irqfd(fd.as_raw_fd(), gsi, 0)
     }
     /// Unregisters an event that will, when signaled, trigger the `gsi` IRQ.
     ///
@@ -248,21 +220,49 @@ impl VmFd {
     /// # use mshv_bindings::*;
     /// let hv = Mshv::new().unwrap();
     /// let vm = hv.create_vm().unwrap();
-    /// let req = InterruptRequest {
-    ///     interrupt_type: hv_interrupt_type_HV_X64_INTERRUPT_TYPE_FIXED,
-    ///     apic_id: 0,
-    ///     vector: 0,
-    ///     level_triggered: false,
-    ///     logical_destination_mode: false,
-    ///     long_mode: false,
-    /// };
     /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
-    /// vm.register_irqfd(&evtfd, 0, &req).unwrap();
-    /// vm.unregister_irqfd(&evtfd, 0).unwrap();
+    /// vm.register_irqfd(&evtfd, 30).unwrap();
+    /// vm.unregister_irqfd(&evtfd, 30).unwrap();
     /// ```
     ///
     pub fn unregister_irqfd(&self, fd: &EventFd, gsi: u32) -> Result<()> {
-        self.irqfd(fd.as_raw_fd(), gsi, None, MSHV_IRQFD_FLAG_DEASSIGN)
+        self.irqfd(fd.as_raw_fd(), gsi, MSHV_IRQFD_FLAG_DEASSIGN)
+    }
+
+    /// Sets the MSI routing table entries, overwriting any previously set
+    /// entries, as per the `MSHV_SET_MSI_ROUTING` ioctl.
+    ///
+    /// Returns an io::Error when the table could not be updated.
+    ///
+    /// # Arguments
+    ///
+    /// * mshv_msi_routing - MSI routing configuration.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate libc;
+    /// # extern crate vmm_sys_util;
+    /// # use libc::EFD_NONBLOCK;
+    /// # use vmm_sys_util::eventfd::EventFd;
+    /// # use crate::mshv_ioctls::*;
+    /// # use mshv_bindings::*;
+    /// let hv = Mshv::new().unwrap();
+    /// let vm = hv.create_vm().unwrap();
+    ///
+    /// let msi_routing = mshv_msi_routing::default();
+    /// vm.set_msi_routing(&msi_routing).unwrap();
+    /// ```
+    ///
+    pub fn set_msi_routing(&self, msi_routing: &mshv_msi_routing) -> Result<()> {
+        // Safe because we allocated the structure and we know the kernel
+        // will read exactly the size of the structure.
+        let ret = unsafe { ioctl_with_ref(self, MSHV_SET_MSI_ROUTING(), msi_routing) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
     }
 
     ///
@@ -528,17 +528,9 @@ mod tests {
         use libc::EFD_NONBLOCK;
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
-        let req = InterruptRequest {
-            interrupt_type: hv_interrupt_type_HV_X64_INTERRUPT_TYPE_EXTINT,
-            apic_id: 0,
-            vector: 0,
-            level_triggered: false,
-            logical_destination_mode: false,
-            long_mode: false,
-        };
         let efd = EventFd::new(EFD_NONBLOCK).unwrap();
-        vm.register_irqfd(&efd, 0, &req).unwrap();
-        vm.unregister_irqfd(&efd, 0).unwrap();
+        vm.register_irqfd(&efd, 30).unwrap();
+        vm.unregister_irqfd(&efd, 30).unwrap();
     }
     #[test]
     fn test_ioeventfd() {
@@ -548,5 +540,12 @@ mod tests {
         let vm = hv.create_vm().unwrap();
         vm.register_ioevent(&efd, &addr, NoDatamatch).unwrap();
         vm.unregister_ioevent(&efd, &addr, NoDatamatch).unwrap();
+    }
+    #[test]
+    fn test_set_msi_routing() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let msi_routing = mshv_msi_routing::default();
+        assert!(vm.set_msi_routing(&msi_routing).is_ok());
     }
 }
