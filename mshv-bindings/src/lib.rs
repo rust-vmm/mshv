@@ -6,7 +6,11 @@
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
 #![cfg(target_arch = "x86_64")]
-#![allow(clippy::too_many_arguments)]
+#![allow(
+    clippy::too_many_arguments,
+    clippy::missing_safety_doc,
+    clippy::upper_case_acronyms
+)]
 
 #[macro_use]
 #[cfg(all(
