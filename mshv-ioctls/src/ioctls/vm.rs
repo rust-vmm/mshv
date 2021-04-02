@@ -33,8 +33,9 @@ pub enum IoEventAddress {
 /// to disable filtering of events based on the datamatch flag.
 ///
 pub struct NoDatamatch;
-impl Into<u64> for NoDatamatch {
-    fn into(self) -> u64 {
+
+impl From<NoDatamatch> for u64 {
+    fn from(s: NoDatamatch) -> u64 {
         0
     }
 }

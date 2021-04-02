@@ -4,7 +4,6 @@
  * include/asm-generic/hyperv-tlfs.h
  * include/linux/mshv.h
  */
-#![allow(clippy::missing_safety_doc)]
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
