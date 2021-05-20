@@ -7,6 +7,7 @@ use crate::bindings::*;
 #[cfg(feature = "with-serde")]
 use serde_derive::{Deserialize, Serialize};
 use std::cmp;
+use std::fmt;
 use std::ptr;
 
 #[repr(C)]
@@ -657,5 +658,57 @@ impl From<LapicState> for mshv_vp_state {
             vp_state.buf.lapic = Box::into_raw(boxed_obj);
         }
         vp_state
+    }
+}
+// implement `Display` for `XSave`
+impl fmt::Display for XSave {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "flags: {}, states: {}, buffer_size: {}, buffer: {:?}",
+            self.flags(),
+            self.states(),
+            self.data_size(),
+            self.data_buffer(),
+        )
+    }
+}
+// Implement XSave to retrieve each field from the buffer
+impl XSave {
+    pub fn flags(&self) -> u64 {
+        let array: [u8; 8] = [0, 0, 0, 0, 0, 0, 0, 0];
+        unsafe {
+            ptr::copy(
+                self.buffer.as_ptr().offset(0) as *mut u8,
+                array.as_ptr() as *mut u8,
+                8,
+            )
+        };
+        u64::from_le_bytes(array)
+    }
+    pub fn states(&self) -> u64 {
+        let array: [u8; 8] = [0, 0, 0, 0, 0, 0, 0, 0];
+        unsafe {
+            ptr::copy(
+                self.buffer.as_ptr().offset(8) as *mut u8,
+                array.as_ptr() as *mut u8,
+                8,
+            )
+        };
+        u64::from_le_bytes(array)
+    }
+    pub fn data_size(&self) -> u64 {
+        let array: [u8; 8] = [0, 0, 0, 0, 0, 0, 0, 0];
+        unsafe {
+            ptr::copy(
+                self.buffer.as_ptr().offset(16) as *mut u8,
+                array.as_ptr() as *mut u8,
+                8,
+            )
+        };
+        u64::from_le_bytes(array)
+    }
+    pub fn data_buffer(&self) -> *const u8 {
+        unsafe { self.buffer.as_ptr().offset(24) as *mut u8 }
     }
 }
