@@ -39,7 +39,7 @@ impl<'de> Deserialize<'de> for XSave {
         let data_buffer: Vec<::std::os::raw::c_char> = Vec::deserialize(deserializer)?;
         let mut val = XSave::default();
         // This panics if the source and destination have different lengths.
-        val.data_buffer.copy_from_slice(&data_buffer[..]);
+        val.buffer.copy_from_slice(&data_buffer[..]);
         Ok(val)
     }
 }
@@ -49,7 +49,7 @@ impl Serialize for XSave {
     where
         S: Serializer,
     {
-        let data_buffer = &self.data_buffer[..];
+        let data_buffer = &self.buffer[..];
         data_buffer.serialize(serializer)
     }
 }

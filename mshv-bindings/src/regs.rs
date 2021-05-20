@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 OR BSD-3-Clause
 //
+
 use crate::bindings::*;
 #[cfg(feature = "with-serde")]
 use serde_derive::{Deserialize, Serialize};
@@ -450,40 +451,91 @@ impl Default for hv_register_value {
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct XSave {
-    pub flags: u64,
-    pub states: u64,
-    pub data_size: u64,
-    pub data_buffer: [::std::os::raw::c_char; 4096usize],
+    pub buffer: [::std::os::raw::c_char; 4120usize],
 }
+
 impl Default for XSave {
     fn default() -> Self {
         unsafe { ::std::mem::zeroed() }
     }
 }
+
 impl From<mshv_vp_state> for XSave {
     fn from(reg: mshv_vp_state) -> Self {
-        let mut ret = XSave {
-            flags: reg.xsave.flags,
-            data_size: reg.buf_size,
+        let ret = XSave {
             ..Default::default()
         };
-        unsafe { ret.states = reg.xsave.states.as_uint64 };
+        let mut bs = reg.xsave.flags.to_le_bytes();
+        unsafe {
+            ptr::copy(
+                bs.as_ptr() as *mut u8,
+                ret.buffer.as_ptr().offset(0) as *mut u8,
+                8,
+            )
+        };
+        bs = unsafe { reg.xsave.states.as_uint64.to_le_bytes() };
+        unsafe {
+            ptr::copy(
+                bs.as_ptr() as *mut u8,
+                ret.buffer.as_ptr().offset(8) as *mut u8,
+                8,
+            )
+        };
+        bs = reg.buf_size.to_le_bytes();
+        unsafe {
+            ptr::copy(
+                bs.as_ptr() as *mut u8,
+                ret.buffer.as_ptr().offset(16) as *mut u8,
+                8,
+            )
+        };
         let min: usize = cmp::min(4096, reg.buf_size as u32) as usize;
-        unsafe { ptr::copy(reg.buf.bytes, ret.data_buffer.as_ptr() as *mut u8, min) };
+        unsafe {
+            ptr::copy(
+                reg.buf.bytes,
+                ret.buffer.as_ptr().offset(24) as *mut u8,
+                min,
+            )
+        };
         ret
     }
 }
 
 impl From<XSave> for mshv_vp_state {
     fn from(reg: XSave) -> Self {
+        let array: [u8; 8] = [0, 0, 0, 0, 0, 0, 0, 0];
+        unsafe {
+            ptr::copy(
+                reg.buffer.as_ptr().offset(0) as *mut u8,
+                array.as_ptr() as *mut u8,
+                8,
+            )
+        };
+        let flags = u64::from_le_bytes(array);
+        unsafe {
+            ptr::copy(
+                reg.buffer.as_ptr().offset(8) as *mut u8,
+                array.as_ptr() as *mut u8,
+                8,
+            )
+        };
+        let states = u64::from_le_bytes(array);
+        unsafe {
+            ptr::copy(
+                reg.buffer.as_ptr().offset(16) as *mut u8,
+                array.as_ptr() as *mut u8,
+                8,
+            )
+        };
+        let buffer_size = u64::from_le_bytes(array);
         let mut ret = mshv_vp_state {
             type_: hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_XSAVE,
-            buf_size: reg.data_size,
+            buf_size: buffer_size,
             ..Default::default()
         };
-        ret.xsave.flags = reg.flags;
-        ret.xsave.states.as_uint64 = reg.states;
-        ret.buf.bytes = reg.data_buffer.as_ptr() as *mut u8;
+        ret.xsave.flags = flags;
+        ret.xsave.states.as_uint64 = states;
+        unsafe { ret.buf.bytes = reg.buffer.as_ptr().offset(24) as *mut u8 };
         ret
     }
 }

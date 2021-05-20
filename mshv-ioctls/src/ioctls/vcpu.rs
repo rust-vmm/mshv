@@ -759,15 +759,15 @@ impl VcpuFd {
     ///
     /// Set the xsave data
     ///
-    pub fn set_xsave(&self, data: XSave) -> Result<()> {
-        let mut vp_state: mshv_vp_state = mshv_vp_state::from(data);
+    pub fn set_xsave(&self, data: &XSave) -> Result<()> {
+        let mut vp_state: mshv_vp_state = mshv_vp_state::from(*data);
         let layout = std::alloc::Layout::from_size_align(0x1000, 0x1000).unwrap();
         let buf = unsafe { std::alloc::alloc(layout) };
         if buf.is_null() {
             return Err(errno::Error::new(libc::ENOMEM));
         }
-        let min: usize = cmp::min(4096, data.data_size as u32) as usize;
-        unsafe { ptr::copy(data.data_buffer.as_ptr() as *mut u8, buf, min) };
+        let min: usize = cmp::min(4096, vp_state.buf_size as u32) as usize;
+        unsafe { ptr::copy(data.buffer.as_ptr().offset(24) as *mut u8, buf, min) };
         vp_state.buf_size = 4096;
         vp_state.buf.bytes = buf;
         let ret = self.set_vp_state_ioctl(&vp_state);
@@ -1174,6 +1174,7 @@ mod tests {
         let vcpu = vm.create_vcpu(0).unwrap();
 
         let state = vcpu.get_xsave().unwrap();
-        vcpu.set_xsave(state).unwrap();
+
+        vcpu.set_xsave(&state).unwrap();
     }
 }
