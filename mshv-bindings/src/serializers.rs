@@ -58,6 +58,23 @@ mod tests {
     use super::*;
     use random_number::random;
     use std::ptr;
+
+    #[test]
+    fn test_lapic_state_serialization_deserialization() {
+        let mut state = LapicState::default();
+        let mut n1: u8 = random!();
+        for i in 0..1024 {
+            state.regs[i] = n1 as ::std::os::raw::c_char;
+            n1 = random!();
+        }
+        let serialized = serde_json::to_string(&state).expect("err ser");
+        let d_state: LapicState = serde_json::from_str(&serialized).expect("err unser");
+        assert!(state
+            .regs
+            .iter()
+            .zip(d_state.regs.iter())
+            .all(|(a, b)| a == b));
+    }
     #[test]
     fn test_xsave_serialization_deserialization() {
         let mut xsave = XSave {
