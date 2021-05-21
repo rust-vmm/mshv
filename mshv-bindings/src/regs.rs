@@ -450,6 +450,17 @@ impl Default for hv_register_value {
 } */
 #[repr(C)]
 #[derive(Copy, Clone)]
+///
+/// This struct normalizes the actual mhsv XSave structure
+/// XSave only used in save and restore functionalities, serilization and
+/// deserialization are needed. Putting all the fields into a single buffer makes
+/// it easier to serialize and deserialize
+/// Total buffer size: 4120
+/// flags: 8 bytes
+/// states: 8 bytes
+/// data_size: 8 bytes
+/// Actual xsave buffer: 4096 bytes
+///
 pub struct XSave {
     pub buffer: [::std::os::raw::c_char; 4120usize],
 }
