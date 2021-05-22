@@ -515,31 +515,9 @@ impl From<mshv_vp_state> for XSave {
 
 impl From<XSave> for mshv_vp_state {
     fn from(reg: XSave) -> Self {
-        let array: [u8; 8] = [0, 0, 0, 0, 0, 0, 0, 0];
-        unsafe {
-            ptr::copy(
-                reg.buffer.as_ptr().offset(0) as *mut u8,
-                array.as_ptr() as *mut u8,
-                8,
-            )
-        };
-        let flags = u64::from_le_bytes(array);
-        unsafe {
-            ptr::copy(
-                reg.buffer.as_ptr().offset(8) as *mut u8,
-                array.as_ptr() as *mut u8,
-                8,
-            )
-        };
-        let states = u64::from_le_bytes(array);
-        unsafe {
-            ptr::copy(
-                reg.buffer.as_ptr().offset(16) as *mut u8,
-                array.as_ptr() as *mut u8,
-                8,
-            )
-        };
-        let buffer_size = u64::from_le_bytes(array);
+        let flags = reg.flags();
+        let states = reg.states();
+        let buffer_size = reg.data_size();
         let mut ret = mshv_vp_state {
             type_: hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_XSAVE,
             buf_size: buffer_size,
@@ -547,7 +525,7 @@ impl From<XSave> for mshv_vp_state {
         };
         ret.xsave.flags = flags;
         ret.xsave.states.as_uint64 = states;
-        unsafe { ret.buf.bytes = reg.buffer.as_ptr().offset(24) as *mut u8 };
+        ret.buf.bytes = reg.data_buffer() as *mut u8;
         ret
     }
 }
