@@ -28,7 +28,7 @@ impl Mshv {
         let fd = Self::open_with_cloexec(true)?;
         // Safe because we verify that ret is valid and we own the fd.
         let ret = unsafe { Self::new_with_fd_number(fd) };
-        ret.request_version().map(|_| ret)
+        Ok(ret)
     }
     ///
     /// Creates a new Mshv object assuming `fd` represents an existing open file descriptor
@@ -130,17 +130,17 @@ impl Mshv {
         }
     }
     ///
-    /// Validate the MSHV version
+    /// Check if MSHV API is stable
     ///
-    pub fn request_version(&self) -> Result<()> {
+    pub fn check_stable(&self) -> Result<bool> {
         // Safe because we know `self.hv` is a real MSHV fd as this module is the only one that
         // creates mshv objects.
-        let version: u32 = MSHV_VERSION;
-        let ret = unsafe { ioctl_with_ref(&self.hv, MSHV_REQUEST_VERSION(), &version) };
-        if ret == 0 {
-            Ok(())
-        } else {
-            Err(errno::Error::last())
+        let cap: u32 = MSHV_CAP_CORE_API_STABLE;
+        let ret = unsafe { ioctl_with_ref(&self.hv, MSHV_CHECK_EXTENSION(), &cap) };
+        match ret {
+            0 => Ok(false),
+            r if r > 0 => Ok(true),
+            _ => Err(errno::Error::last()),
         }
     }
     ///
