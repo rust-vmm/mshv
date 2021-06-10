@@ -434,7 +434,7 @@ pub const LOCAL_APIC_OFFSET_DIVIDER: isize = 0x3e0; // Divide configuration Regi
 pub const LOCAL_X2APIC_OFFSET_SELF_IPI: isize = 0x3f0; // Self IPI register, only present in x2APIC.
 
 #[repr(C)]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct LapicState {
     pub regs: [::std::os::raw::c_char; 1024usize],
 }
@@ -450,7 +450,7 @@ impl Default for hv_register_value {
     }
 } */
 #[repr(C)]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 ///
 /// This struct normalizes the actual mhsv XSave structure
 /// XSave only used in save and restore functionalities, serilization and
@@ -643,11 +643,12 @@ impl fmt::Display for XSave {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "flags: {}, states: {}, buffer_size: {}, buffer: {:?}",
+            "flags: {}, states: {}, buffer_size: {}, buffer: {:?}\n data: {:02X?}",
             self.flags(),
             self.states(),
             self.data_size(),
             self.data_buffer(),
+            self.buffer,
         )
     }
 }
