@@ -5,7 +5,6 @@
  * include/linux/mshv.h
  */
 
-
 #[repr(C)]
 #[derive(Copy, Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct __BindgenBitfieldUnit<Storage> {

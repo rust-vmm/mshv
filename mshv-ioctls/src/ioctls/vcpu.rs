@@ -9,10 +9,10 @@ use std::cmp;
 use std::fs::File;
 use std::os::unix::io::{AsRawFd, RawFd};
 use std::ptr;
-use vmm_sys_util::errno;
-use vmm_sys_util::ioctl::{ioctl_with_mut_ref, ioctl_with_ref};
 #[cfg(test)]
 use std::slice;
+use vmm_sys_util::errno;
+use vmm_sys_util::ioctl::{ioctl_with_mut_ref, ioctl_with_ref};
 
 // Macro for setting up multiple 64 bit registers together
 // Arguments:
@@ -26,8 +26,12 @@ macro_rules! set_registers_64 {
         let len = $arr_t.len();
         // Initialize with zero which is itself a enum value(HV_REGISTER_EXPLICIT_SUSPEND = 0).
         // This value does not have any effect as this is being overwritten anyway.
-        let mut assocs: Vec<hv_register_assoc> =
-            vec![hv_register_assoc { ..Default::default() }; len];
+        let mut assocs: Vec<hv_register_assoc> = vec![
+            hv_register_assoc {
+                ..Default::default()
+            };
+            len
+        ];
         for (i, x) in $arr_t.iter().enumerate() {
             let (a, b) = x;
             assocs[i].name = *a as u32;
@@ -88,10 +92,7 @@ impl VcpuFd {
     /// * `reg_value` - register value.
     ///
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
-    pub fn set_reg(
-        &self,
-        regs: &[hv_register_assoc],
-    ) -> Result<()> {
+    pub fn set_reg(&self, regs: &[hv_register_assoc]) -> Result<()> {
         let hv_vp_register_args = mshv_vp_registers {
             count: regs.len() as i32,
             regs: regs.as_ptr() as *mut hv_register_assoc,
@@ -197,7 +198,7 @@ impl VcpuFd {
                 name: hv_register_name::HV_X64_REGISTER_RFLAGS as u32,
                 value: hv_register_value { reg64: regs.rflags },
                 ..Default::default()
-            }
+            },
         ];
         self.set_reg(&reg_assocs)?;
         Ok(())
@@ -228,11 +229,13 @@ impl VcpuFd {
             hv_register_name::HV_X64_REGISTER_RIP,
             hv_register_name::HV_X64_REGISTER_RFLAGS,
         ];
-        let mut reg_assocs: Vec<hv_register_assoc> = reg_names.iter()
-                .map(|name| hv_register_assoc {
-                        name: *name as u32,
-                        ..Default::default() })
-                .collect();
+        let mut reg_assocs: Vec<hv_register_assoc> = reg_names
+            .iter()
+            .map(|name| hv_register_assoc {
+                name: *name as u32,
+                ..Default::default()
+            })
+            .collect();
         self.get_reg(&mut reg_assocs)?;
         let mut ret_regs = StandardRegisters::default();
         unsafe {
@@ -283,11 +286,13 @@ impl VcpuFd {
             hv_register_name::HV_X64_REGISTER_APIC_BASE,
             hv_register_name::HV_REGISTER_PENDING_INTERRUPTION,
         ];
-        let mut reg_assocs: Vec<hv_register_assoc> = reg_names.iter()
-                .map(|name| hv_register_assoc {
-                        name: *name as u32,
-                        ..Default::default() })
-                .collect();
+        let mut reg_assocs: Vec<hv_register_assoc> = reg_names
+            .iter()
+            .map(|name| hv_register_assoc {
+                name: *name as u32,
+                ..Default::default()
+            })
+            .collect();
         self.get_reg(&mut reg_assocs)?;
         let mut ret_regs = SpecialRegisters::default();
         unsafe {
@@ -402,12 +407,15 @@ impl VcpuFd {
             }
         }
 
-        let reg_assocs: Vec<hv_register_assoc> = reg_names.iter().zip(reg_values.iter())
-                .map(|t| hv_register_assoc {
-                        name: *t.0 as u32,
-                        value: *t.1,
-                        ..Default::default() })
-                .collect();
+        let reg_assocs: Vec<hv_register_assoc> = reg_names
+            .iter()
+            .zip(reg_values.iter())
+            .map(|t| hv_register_assoc {
+                name: *t.0 as u32,
+                value: *t.1,
+                ..Default::default()
+            })
+            .collect();
         self.set_reg(&reg_assocs)?;
         Ok(())
     }
@@ -490,12 +498,16 @@ impl VcpuFd {
             },
         };
 
-        let reg_assocs: Vec<hv_register_assoc> = reg_names.iter().zip(reg_values.iter())
-                .map(|t| hv_register_assoc {
-                        name: *t.0 as u32,
-                        value: *t.1,
-                        ..Default::default() })
-                .collect();
+        let reg_assocs: Vec<hv_register_assoc> = reg_names
+            .iter()
+            .zip(reg_values.iter())
+            .map(|t| hv_register_assoc {
+                name: *t.0 as u32,
+                value: *t.1,
+                ..Default::default()
+            })
+            .collect();
+
         self.set_reg(&reg_assocs)?;
         Ok(())
     }
@@ -533,11 +545,13 @@ impl VcpuFd {
             hv_register_name::HV_X64_REGISTER_XMM_CONTROL_STATUS,
         ];
 
-        let mut reg_assocs: Vec<hv_register_assoc> = reg_names.iter()
-                .map(|name| hv_register_assoc {
-                        name: *name as u32,
-                        ..Default::default() })
-                .collect();
+        let mut reg_assocs: Vec<hv_register_assoc> = reg_names
+            .iter()
+            .map(|name| hv_register_assoc {
+                name: *name as u32,
+                ..Default::default()
+            })
+            .collect();
         self.get_reg(&mut reg_assocs)?;
 
         let fp_control_status: hv_x64_fp_control_status_register__bindgen_ty_1 =
@@ -568,8 +582,9 @@ impl VcpuFd {
         }
         for i in 0..8 {
             unsafe {
-                ret_regs.fpr[i] =
-                    std::mem::transmute::<hv_u128, [u8; 16usize]>(reg_assocs[i].value.fp.as_uint128);
+                ret_regs.fpr[i] = std::mem::transmute::<hv_u128, [u8; 16usize]>(
+                    reg_assocs[i].value.fp.as_uint128,
+                );
             }
         }
 
@@ -588,11 +603,14 @@ impl VcpuFd {
             hv_register_name::HV_X64_REGISTER_DR7,
         ];
 
-        let mut reg_assocs: Vec<hv_register_assoc> = reg_names.iter()
-                .map(|name| hv_register_assoc {
-                        name: *name as u32,
-                        ..Default::default() })
-                .collect();
+        let mut reg_assocs: Vec<hv_register_assoc> = reg_names
+            .iter()
+            .map(|name| hv_register_assoc {
+                name: *name as u32,
+                ..Default::default()
+            })
+            .collect();
+
         self.get_reg(&mut reg_assocs)?;
 
         let ret_regs = unsafe {
@@ -629,12 +647,16 @@ impl VcpuFd {
             hv_register_value { reg64: d_regs.Dr7 },
         ];
 
-        let reg_assocs: Vec<hv_register_assoc> = reg_names.iter().zip(reg_values.iter())
-                .map(|t| hv_register_assoc {
-                        name: *t.0 as u32,
-                        value: *t.1,
-                        ..Default::default() })
-                .collect();
+        let reg_assocs: Vec<hv_register_assoc> = reg_names
+            .iter()
+            .zip(reg_values.iter())
+            .map(|t| hv_register_assoc {
+                name: *t.0 as u32,
+                value: *t.1,
+                ..Default::default()
+            })
+            .collect();
+
         self.set_reg(&reg_assocs)?;
         Ok(())
     }
@@ -646,12 +668,10 @@ impl VcpuFd {
         let mut reg_assocs: Vec<hv_register_assoc> = Vec::with_capacity(nmsrs);
 
         for i in 0..nmsrs {
-            reg_assocs.push(
-                hv_register_assoc {
-                    name: msr_to_hv_reg_name(msrs.as_slice()[i].index).unwrap() as u32,
-                    ..Default::default()
-                }
-            );
+            reg_assocs.push(hv_register_assoc {
+                name: msr_to_hv_reg_name(msrs.as_slice()[i].index).unwrap() as u32,
+                ..Default::default()
+            });
         }
 
         self.get_reg(&mut reg_assocs)?;
@@ -673,13 +693,13 @@ impl VcpuFd {
         let mut reg_assocs: Vec<hv_register_assoc> = Vec::with_capacity(nmsrs);
 
         for i in 0..nmsrs {
-            reg_assocs.push(
-                hv_register_assoc {
-                    name: msr_to_hv_reg_name(msrs.as_slice()[i].index).unwrap() as u32,
-                    value: hv_register_value { reg64: msrs.as_slice()[i].data },
-                    ..Default::default()
-                }
-            );
+            reg_assocs.push(hv_register_assoc {
+                name: msr_to_hv_reg_name(msrs.as_slice()[i].index).unwrap() as u32,
+                value: hv_register_value {
+                    reg64: msrs.as_slice()[i].data,
+                },
+                ..Default::default()
+            });
         }
 
         self.set_reg(&reg_assocs)?;
@@ -708,11 +728,13 @@ impl VcpuFd {
             hv_register_name::HV_REGISTER_PENDING_EVENT0,
             hv_register_name::HV_REGISTER_PENDING_EVENT1,
         ];
-        let mut reg_assocs: Vec<hv_register_assoc> = reg_names.iter()
-                .map(|name| hv_register_assoc {
-                        name: *name as u32,
-                        ..Default::default() })
-                .collect();
+        let mut reg_assocs: Vec<hv_register_assoc> = reg_names
+            .iter()
+            .map(|name| hv_register_assoc {
+                name: *name as u32,
+                ..Default::default()
+            })
+            .collect();
         self.get_reg(&mut reg_assocs)?;
         let mut ret_regs = VcpuEvents::default();
         unsafe {
@@ -757,12 +779,15 @@ impl VcpuFd {
             ]
         };
 
-        let reg_assocs: Vec<hv_register_assoc> = reg_names.iter().zip(reg_values.iter())
-                .map(|t| hv_register_assoc {
-                        name: *t.0 as u32,
-                        value: *t.1,
-                        ..Default::default() })
-                .collect();
+        let reg_assocs: Vec<hv_register_assoc> = reg_names
+            .iter()
+            .zip(reg_values.iter())
+            .map(|t| hv_register_assoc {
+                name: *t.0 as u32,
+                value: *t.1,
+                ..Default::default()
+            })
+            .collect();
         self.set_reg(&reg_assocs)?;
         Ok(())
     }
@@ -770,12 +795,10 @@ impl VcpuFd {
     /// X86 specific call that returns the vcpu's current "xcrs".
     ///
     pub fn get_xcrs(&self) -> Result<Xcrs> {
-        let mut reg_assocs: [hv_register_assoc; 1] = [
-            hv_register_assoc {
-                name: hv_register_name::HV_X64_REGISTER_XFEM as u32,
-                ..Default::default()
-            }
-        ];
+        let mut reg_assocs: [hv_register_assoc; 1] = [hv_register_assoc {
+            name: hv_register_name::HV_X64_REGISTER_XFEM as u32,
+            ..Default::default()
+        }];
         self.get_reg(&mut reg_assocs)?;
 
         let ret_regs = unsafe {
@@ -787,15 +810,11 @@ impl VcpuFd {
         Ok(ret_regs)
     }
     pub fn set_xcrs(&self, xcrs: &Xcrs) -> Result<()> {
-        self.set_reg(
-            &[
-                hv_register_assoc {
-                    name: hv_register_name::HV_X64_REGISTER_XFEM as u32,
-                    value: hv_register_value { reg64: xcrs.xcr0 },
-                    ..Default::default()
-                }
-            ]
-        )
+        self.set_reg(&[hv_register_assoc {
+            name: hv_register_name::HV_X64_REGISTER_XFEM as u32,
+            value: hv_register_value { reg64: xcrs.xcr0 },
+            ..Default::default()
+        }])
     }
     ///
     /// Returns the VCpu state. This IOCTLs can be used to get XSave and LAPIC state.
@@ -923,20 +942,18 @@ mod tests {
         let vm = hv.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
-        vcpu.set_reg(
-            &[
-                hv_register_assoc {
-                    name: hv_register_name::HV_X64_REGISTER_RIP as u32,
-                    value: hv_register_value { reg64: 0x1000 },
-                    ..Default::default()
-                },
-                hv_register_assoc {
-                    name: hv_register_name::HV_X64_REGISTER_RFLAGS as u32,
-                    value: hv_register_value { reg64: 0x2 },
-                    ..Default::default()
-                }
-            ],
-        )
+        vcpu.set_reg(&[
+            hv_register_assoc {
+                name: hv_register_name::HV_X64_REGISTER_RIP as u32,
+                value: hv_register_value { reg64: 0x1000 },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name::HV_X64_REGISTER_RFLAGS as u32,
+                value: hv_register_value { reg64: 0x2 },
+                ..Default::default()
+            },
+        ])
         .unwrap();
 
         let mut get_regs: [hv_register_assoc; 2] = [
@@ -1084,43 +1101,43 @@ mod tests {
 
         //Get CS Register
         let mut cs_reg = hv_register_assoc {
-                name: hv_register_name::HV_X64_REGISTER_CS as u32,
-                ..Default::default()
-            };
+            name: hv_register_name::HV_X64_REGISTER_CS as u32,
+            ..Default::default()
+        };
         vcpu.get_reg(slice::from_mut(&mut cs_reg)).unwrap();
 
         unsafe {
-            assert_ne!(cs_reg.value.segment.base, 0);
-            assert_ne!(cs_reg.value.segment.selector, 0);
+            assert_ne!({ cs_reg.value.segment.base }, 0);
+            assert_ne!({ cs_reg.value.segment.selector }, 0);
         };
 
         cs_reg.value.segment.base = 0;
         cs_reg.value.segment.selector = 0;
 
         vcpu.set_reg(&[
-                cs_reg,
-                hv_register_assoc {
-                    name: hv_register_name::HV_X64_REGISTER_RAX as u32,
-                    value: hv_register_value { reg64: 2 },
-                    ..Default::default()
-                },
-                hv_register_assoc {
-                    name: hv_register_name::HV_X64_REGISTER_RBX as u32,
-                    value: hv_register_value { reg64: 2 },
-                    ..Default::default()
-                },
-                hv_register_assoc {
-                    name: hv_register_name::HV_X64_REGISTER_RIP as u32,
-                    value: hv_register_value { reg64: 0x1000 },
-                    ..Default::default()
-                },
-                hv_register_assoc {
-                    name: hv_register_name::HV_X64_REGISTER_RFLAGS as u32,
-                    value: hv_register_value { reg64: 0x2 },
-                    ..Default::default()
-                },
-            ])
-            .unwrap();
+            cs_reg,
+            hv_register_assoc {
+                name: hv_register_name::HV_X64_REGISTER_RAX as u32,
+                value: hv_register_value { reg64: 2 },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name::HV_X64_REGISTER_RBX as u32,
+                value: hv_register_value { reg64: 2 },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name::HV_X64_REGISTER_RIP as u32,
+                value: hv_register_value { reg64: 0x1000 },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name::HV_X64_REGISTER_RFLAGS as u32,
+                value: hv_register_value { reg64: 0x2 },
+                ..Default::default()
+            },
+        ])
+        .unwrap();
 
         let hv_message: hv_message = unsafe { std::mem::zeroed() };
         let mut done = false;
@@ -1146,15 +1163,13 @@ mod tests {
                         );
                         done = true;
                         /* Advance rip */
-                        vcpu.set_reg(
-                            &[
-                                hv_register_assoc {
-                                    name: hv_register_name::HV_X64_REGISTER_RIP as u32,
-                                    value: hv_register_value { reg64: io_message.header.rip + 1 },
-                                    ..Default::default()
-                                }
-                            ]
-                        )
+                        vcpu.set_reg(&[hv_register_assoc {
+                            name: hv_register_name::HV_X64_REGISTER_RIP as u32,
+                            value: hv_register_value {
+                                reg64: io_message.header.rip + 1,
+                            },
+                            ..Default::default()
+                        }])
                         .unwrap();
                     } else {
                         assert!(io_message.rax == b'\0' as u64);
@@ -1170,9 +1185,9 @@ mod tests {
                     }
                 }
                 _ => {
-                    unsafe {
-                        println!("Message type: 0x{:x?}", ret_hv_message.header.message_type);
-                    }
+                    println!("Message type: 0x{:x?}", {
+                        ret_hv_message.header.message_type
+                    });
                     panic!("Unexpected Exit Type");
                 }
             };
