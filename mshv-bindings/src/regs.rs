@@ -691,3 +691,11 @@ impl XSave {
         unsafe { self.buffer.as_ptr().offset(24) as *mut u8 }
     }
 }
+
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
+pub struct SuspendRegisters {
+    pub explicit_register: u64,
+    pub intercept_register: u64,
+}
