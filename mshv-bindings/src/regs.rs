@@ -280,6 +280,8 @@ pub const IA32_MSR_MTRR_FIX4K_f8000: u32 = 0x026F;
 pub const IA32_MSR_TSC_AUX: u32 = 0xC0000103;
 pub const IA32_MSR_BNDCFGS: u32 = 0x00000d90;
 pub const IA32_MSR_DEBUG_CTL: u32 = 0x1D9;
+pub const IA32_MSR_SPEC_CTRL: u32 = 0x00000048;
+pub const IA32_MSR_TSC_ADJUST: u32 = 0x0000003b;
 
 pub const IA32_MSR_MISC_ENABLE: u32 = 0x000001a0;
 
@@ -333,6 +335,8 @@ pub fn msr_to_hv_reg_name(msr: u32) -> Result<hv_register_name, &'static str> {
         IA32_MSR_TSC_AUX => Ok(hv_register_name::HV_X64_REGISTER_TSC_AUX),
         IA32_MSR_BNDCFGS => Ok(hv_register_name::HV_X64_REGISTER_BNDCFGS),
         IA32_MSR_DEBUG_CTL => Ok(hv_register_name::HV_X64_REGISTER_DEBUG_CTL),
+        IA32_MSR_TSC_ADJUST => Ok(hv_register_name::HV_X64_REGISTER_TSC_ADJUST),
+        IA32_MSR_SPEC_CTRL => Ok(hv_register_name::HV_X64_REGISTER_SPEC_CTRL),
 
         IA32_MSR_MISC_ENABLE => Ok(hv_register_name::HV_X64_REGISTER_MSR_IA32_MISC_ENABLE),
         _ => Err("Not a supported hv_register_name msr"),
