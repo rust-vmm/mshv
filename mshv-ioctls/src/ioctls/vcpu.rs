@@ -752,24 +752,24 @@ impl VcpuFd {
     /// Sets pending exceptions, interrupts, and NMIs as well as related states of the vcpu.
     ///
     pub fn set_vcpu_events(&self, events: &VcpuEvents) -> Result<()> {
-        let reg_names: [hv_register_name; 4] = [
+        let reg_names: [hv_register_name; 5] = [
             hv_register_name::HV_REGISTER_PENDING_INTERRUPTION,
             hv_register_name::HV_REGISTER_INTERRUPT_STATE,
-            /*hv_register_name::HV_REGISTER_internal_activity_state,*/ // Not allowed
+            hv_register_name::HV_REGISTER_INTERNAL_ACTIVITY_STATE,
             hv_register_name::HV_REGISTER_PENDING_EVENT0,
             hv_register_name::HV_REGISTER_PENDING_EVENT1,
         ];
-        let reg_values: [hv_register_value; 4] = unsafe {
+        let reg_values: [hv_register_value; 5] = unsafe {
             [
                 hv_register_value {
                     reg64: events.pending_interruption,
                 },
                 hv_register_value {
                     reg64: events.interrupt_state,
-                }, /*
-                   hv_register_value {
-                       reg64: d_regs.internal_activity_state,
-                   },*/
+                },
+                hv_register_value {
+                    reg64: events.internal_activity_state,
+                },
                 hv_register_value {
                     reg128: std::mem::transmute::<[u8; 16usize], hv_u128>(events.pending_event0),
                 },
