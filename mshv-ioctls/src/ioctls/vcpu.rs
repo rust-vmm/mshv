@@ -1354,4 +1354,15 @@ mod tests {
 
         vcpu.set_xsave(&state).unwrap();
     }
+    #[test]
+    fn test_get_suspend_regs() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let regs = vcpu.get_suspend_regs().unwrap();
+        // Verify the returned values
+        assert!(regs.explicit_register == 0x1);
+        assert!(regs.intercept_register == 0x0);
+    }
 }
