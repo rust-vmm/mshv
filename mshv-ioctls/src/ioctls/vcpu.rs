@@ -928,7 +928,36 @@ impl VcpuFd {
 
         Ok((gpa, result))
     }
+    ///
+    /// X86 specific call that returns the vcpu's current "suspend registers".
+    ///
+    pub fn get_suspend_regs(&self) -> Result<SuspendRegisters> {
+        let reg_names: [hv_register_name; 2] = [
+            hv_register_name::HV_REGISTER_EXPLICIT_SUSPEND,
+            hv_register_name::HV_REGISTER_INTERCEPT_SUSPEND,
+        ];
+
+        let mut reg_assocs: Vec<hv_register_assoc> = reg_names
+            .iter()
+            .map(|name| hv_register_assoc {
+                name: *name as u32,
+                ..Default::default()
+            })
+            .collect();
+
+        self.get_reg(&mut reg_assocs)?;
+
+        let ret_regs = unsafe {
+            SuspendRegisters {
+                explicit_register: reg_assocs[0].value.reg64,
+                intercept_register: reg_assocs[1].value.reg64,
+            }
+        };
+
+        Ok(ret_regs)
+    }
 }
+
 #[allow(dead_code)]
 #[cfg(test)]
 mod tests {
