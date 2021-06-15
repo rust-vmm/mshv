@@ -192,6 +192,8 @@ impl Mshv {
             IA32_MSR_TSC_AUX,
             IA32_MSR_BNDCFGS,
             IA32_MSR_DEBUG_CTL,
+            IA32_MSR_SPEC_CTRL,
+            //IA32_MSR_TSC_ADJUST, // Current hypervisor version does not allow to get this MSR, need to check later
         ])
         .unwrap())
     }
@@ -212,7 +214,7 @@ mod tests {
     fn test_get_msr_index_list() {
         let hv = Mshv::new().unwrap();
         let msr_list = hv.get_msr_index_list().unwrap();
-        assert!(msr_list.as_fam_struct_ref().nmsrs == 43);
+        assert!(msr_list.as_fam_struct_ref().nmsrs == 44);
 
         let mut found = false;
         for index in msr_list.as_slice() {
