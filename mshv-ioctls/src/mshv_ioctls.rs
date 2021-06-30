@@ -56,3 +56,9 @@ ioctl_iow_nr!(
     mshv_assert_interrupt
 );
 ioctl_iowr_nr!(MSHV_VP_TRANSLATE_GVA, MSHV_IOCTL, 0x0E, mshv_translate_gva);
+ioctl_iowr_nr!(
+    MSHV_GET_GPA_ACCESS_STATES,
+    MSHV_IOCTL,
+    0x12,
+    mshv_get_gpa_pages_access_state
+);
