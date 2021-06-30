@@ -55,9 +55,4 @@ ioctl_iow_nr!(
     0x09,
     mshv_assert_interrupt
 );
-ioctl_iowr_nr!(
-    MSHV_VP_TRANSLATE_GVA,
-    MSHV_IOCTL,
-    0x0E,
-    mshv_vp_translate_gva
-);
+ioctl_iowr_nr!(MSHV_VP_TRANSLATE_GVA, MSHV_IOCTL, 0x0E, mshv_translate_gva);
