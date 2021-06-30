@@ -6,12 +6,16 @@ use crate::ioctls::vcpu::{new_vcpu, VcpuFd};
 use crate::ioctls::Result;
 use crate::mshv_ioctls::*;
 use mshv_bindings::*;
+
+use std::cmp;
 use std::fs::File;
 
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 use vmm_sys_util::errno;
 use vmm_sys_util::eventfd::EventFd;
 use vmm_sys_util::ioctl::{ioctl_with_mut_ref, ioctl_with_ref};
+
+const PAGE_ACCESS_STATES_BATCH_SIZE: u32 = 0x10000;
 
 /// An address either in programmable I/O space or in memory mapped I/O space.
 ///
@@ -390,7 +394,7 @@ impl VmFd {
         };
         #[allow(clippy::cast_lossless)]
         let ret =
-            unsafe { ioctl_with_mut_ref(&self.vm, HV_GET_PARTITION_PROPERTY(), &mut property) };
+            unsafe { ioctl_with_mut_ref(&self.vm, MSHV_GET_PARTITION_PROPERTY(), &mut property) };
         if ret == 0 {
             Ok(property.property_value)
         } else {
@@ -406,7 +410,7 @@ impl VmFd {
             property_value: value,
         };
         #[allow(clippy::cast_lossless)]
-        let ret = unsafe { ioctl_with_ref(&self.vm, HV_SET_PARTITION_PROPERTY(), &property) };
+        let ret = unsafe { ioctl_with_ref(&self.vm, MSHV_SET_PARTITION_PROPERTY(), &property) };
         if ret == 0 {
             Ok(())
         } else {
@@ -481,6 +485,62 @@ impl VmFd {
             Err(errno::Error::last())
         }
     }
+    ///
+    /// Gets the bitmap of pages dirtied since the last call of this function
+    ///
+    /// Flags:
+    ///         bit 1: ClearAccessed
+    ///         bit 2: SetAccessed
+    ///         bit 3: ClearDirty
+    ///         bit 4: SetDirty
+    ///         Number of bits reserved: 60
+    ///
+    pub fn get_dirty_log(&self, base_pfn: u64, memory_size: usize, flags: u64) -> Result<Vec<u64>> {
+        // Compute the length of the bitmap needed for all dirty pages in one memory slot.
+        // One memory page is `page_size` bytes and `KVM_GET_DIRTY_LOG` returns one dirty bit for
+        // each page.
+        let page_size = match unsafe { libc::sysconf(libc::_SC_PAGESIZE) } {
+            -1 => return Err(errno::Error::last()),
+            ps => ps as usize,
+        };
+
+        // For ease of access we are saving the bitmap in a u64 vector. We are using ceil to
+        // make sure we count all dirty pages even when `memory_size` is not a multiple of
+        // `page_size * 64`.
+        let div_ceil = |dividend, divisor| (dividend + divisor - 1) / divisor;
+        let bitmap_size = div_ceil(memory_size, page_size * 64);
+        let mut bitmap = vec![0u64; bitmap_size];
+
+        let mut processed: usize = 0;
+        let mut mask;
+        let mut state: u8;
+        let mut current_size;
+        let mut remaining = (memory_size / page_size) as u32;
+        let mut bit_index = 0;
+        let mut bitmap_index = 0;
+
+        while remaining != 0 {
+            current_size = cmp::min(PAGE_ACCESS_STATES_BATCH_SIZE, remaining);
+            let page_states =
+                self.get_gpa_access_state(base_pfn + processed as u64, current_size, flags)?;
+            let slices: &[hv_gpa_page_access_state] = unsafe {
+                std::slice::from_raw_parts(page_states.states, page_states.count as usize)
+            };
+            for (pos, item) in slices.iter().enumerate() {
+                let mut bits = &mut bitmap[bitmap_index];
+                mask = 1 << bit_index;
+                state = unsafe { item.__bindgen_anon_1.dirty() };
+                if state == 1 {
+                    *bits |= mask;
+                }
+                processed += 1;
+                bitmap_index = processed / 64;
+                bit_index = processed % 64;
+            }
+            remaining -= page_states.count;
+        }
+        Ok(bitmap)
+    }
 }
 /// Helper function to create a new `VmFd`.
 ///
@@ -492,6 +552,8 @@ pub fn new_vmfd(vm: File) -> VmFd {
 }
 #[cfg(test)]
 mod tests {
+    use libc::c_void;
+
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
     use crate::ioctls::system::Mshv;
@@ -620,5 +682,39 @@ mod tests {
         let vm = hv.create_vm().unwrap();
         let msi_routing = mshv_msi_routing::default();
         assert!(vm.set_msi_routing(&msi_routing).is_ok());
+    }
+    #[test]
+    #[ignore]
+    fn test_get_gpa_access_states() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        // Try to allocate 32 MB memory
+        let mem_size = 32 * 1024 * 1024;
+        let load_addr = unsafe {
+            libc::mmap(
+                std::ptr::null_mut(),
+                mem_size,
+                libc::PROT_READ | libc::PROT_WRITE,
+                libc::MAP_ANONYMOUS | libc::MAP_SHARED | libc::MAP_NORESERVE,
+                -1,
+                0,
+            )
+        } as *mut u8;
+        let mem_region = mshv_user_mem_region {
+            flags: HV_MAP_GPA_READABLE | HV_MAP_GPA_WRITABLE | HV_MAP_GPA_EXECUTABLE,
+            guest_pfn: 0x0_u64,
+            size: mem_size as u64,
+            userspace_addr: load_addr as u64,
+        };
+        // TODO need more real time testing: validating data,
+        // number of bits returned etc.
+        vm.map_user_memory(mem_region).unwrap();
+        vm.enable_dirty_page_tracking().unwrap();
+        let bitmaps_1: Vec<u64> = vm.get_dirty_log(0, mem_size, 0x4).unwrap();
+        let bitmaps_2: Vec<u64> = vm.get_dirty_log(0, mem_size, 0x8).unwrap();
+        vm.disable_dirty_page_tracking().unwrap();
+        assert!(bitmaps_1.len() == bitmaps_2.len());
+        vm.unmap_user_memory(mem_region).unwrap();
+        unsafe { libc::munmap(load_addr as *mut c_void, mem_size) };
     }
 }
