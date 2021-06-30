@@ -413,6 +413,34 @@ impl VmFd {
             Err(errno::Error::last())
         }
     }
+    ///
+    /// Enable dirty page tracking by hypervisor
+    /// Flags:
+    ///         bit 1: Enabled
+    ///         bit 2: Granularity
+    ///
+    pub fn enable_dirty_page_tracking(&self) -> Result<()> {
+        let flag: u64 = 0x1;
+        self.set_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_GPA_PAGE_ACCESS_TRACKING,
+            flag,
+        )
+    }
+    ///
+    /// Disable dirty page tracking by hypervisor
+    /// Prerequisite: It is required to set the dirty bits if cleared
+    /// previously, otherwise this hypercall will be failed.
+    /// Flags:
+    ///         bit 1: Enabled
+    ///         bit 2: Granularity
+    ///
+    pub fn disable_dirty_page_tracking(&self) -> Result<()> {
+        let flag: u64 = 0x0;
+        self.set_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_GPA_PAGE_ACCESS_TRACKING,
+            flag,
+        )
+    }
 }
 /// Helper function to create a new `VmFd`.
 ///
