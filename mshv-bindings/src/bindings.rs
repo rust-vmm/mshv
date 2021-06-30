@@ -9807,403 +9807,6 @@ impl Default for hv_port_id {
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
-pub struct hv_port_info {
-    pub port_type: hv_port_type,
-    pub padding: __u32,
-    pub __bindgen_anon_1: hv_port_info__bindgen_ty_1,
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union hv_port_info__bindgen_ty_1 {
-    pub message_port_info: hv_port_info__bindgen_ty_1__bindgen_ty_1,
-    pub event_port_info: hv_port_info__bindgen_ty_1__bindgen_ty_2,
-    pub monitor_port_info: hv_port_info__bindgen_ty_1__bindgen_ty_3,
-    pub doorbell_port_info: hv_port_info__bindgen_ty_1__bindgen_ty_4,
-}
-#[repr(C)]
-#[derive(Default, Copy, Clone)]
-pub struct hv_port_info__bindgen_ty_1__bindgen_ty_1 {
-    pub target_sint: __u32,
-    pub target_vp: __u32,
-    pub rsvdz: __u64,
-}
-#[test]
-fn bindgen_test_layout_hv_port_info__bindgen_ty_1__bindgen_ty_1() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_port_info__bindgen_ty_1__bindgen_ty_1>(),
-        16usize,
-        concat!(
-            "Size of: ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_port_info__bindgen_ty_1__bindgen_ty_1>(),
-        8usize,
-        concat!(
-            "Alignment of ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_port_info__bindgen_ty_1__bindgen_ty_1>())).target_sint
-                as *const _ as usize
-        },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(target_sint)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_port_info__bindgen_ty_1__bindgen_ty_1>())).target_vp
-                as *const _ as usize
-        },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(target_vp)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_port_info__bindgen_ty_1__bindgen_ty_1>())).rsvdz as *const _
-                as usize
-        },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(rsvdz)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Default, Copy, Clone)]
-pub struct hv_port_info__bindgen_ty_1__bindgen_ty_2 {
-    pub target_sint: __u32,
-    pub target_vp: __u32,
-    pub base_flag_number: __u16,
-    pub flag_count: __u16,
-    pub rsvdz: __u32,
-}
-#[test]
-fn bindgen_test_layout_hv_port_info__bindgen_ty_1__bindgen_ty_2() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_port_info__bindgen_ty_1__bindgen_ty_2>(),
-        16usize,
-        concat!(
-            "Size of: ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_2)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_port_info__bindgen_ty_1__bindgen_ty_2>(),
-        4usize,
-        concat!(
-            "Alignment of ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_2)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_port_info__bindgen_ty_1__bindgen_ty_2>())).target_sint
-                as *const _ as usize
-        },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_2),
-            "::",
-            stringify!(target_sint)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_port_info__bindgen_ty_1__bindgen_ty_2>())).target_vp
-                as *const _ as usize
-        },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_2),
-            "::",
-            stringify!(target_vp)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_port_info__bindgen_ty_1__bindgen_ty_2>())).base_flag_number
-                as *const _ as usize
-        },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_2),
-            "::",
-            stringify!(base_flag_number)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_port_info__bindgen_ty_1__bindgen_ty_2>())).flag_count
-                as *const _ as usize
-        },
-        10usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_2),
-            "::",
-            stringify!(flag_count)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_port_info__bindgen_ty_1__bindgen_ty_2>())).rsvdz as *const _
-                as usize
-        },
-        12usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_2),
-            "::",
-            stringify!(rsvdz)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Default, Copy, Clone)]
-pub struct hv_port_info__bindgen_ty_1__bindgen_ty_3 {
-    pub monitor_address: __u64,
-    pub rsvdz: __u64,
-}
-#[test]
-fn bindgen_test_layout_hv_port_info__bindgen_ty_1__bindgen_ty_3() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_port_info__bindgen_ty_1__bindgen_ty_3>(),
-        16usize,
-        concat!(
-            "Size of: ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_3)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_port_info__bindgen_ty_1__bindgen_ty_3>(),
-        8usize,
-        concat!(
-            "Alignment of ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_3)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_port_info__bindgen_ty_1__bindgen_ty_3>())).monitor_address
-                as *const _ as usize
-        },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_3),
-            "::",
-            stringify!(monitor_address)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_port_info__bindgen_ty_1__bindgen_ty_3>())).rsvdz as *const _
-                as usize
-        },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_3),
-            "::",
-            stringify!(rsvdz)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Default, Copy, Clone)]
-pub struct hv_port_info__bindgen_ty_1__bindgen_ty_4 {
-    pub target_sint: __u32,
-    pub target_vp: __u32,
-    pub rsvdz: __u64,
-}
-#[test]
-fn bindgen_test_layout_hv_port_info__bindgen_ty_1__bindgen_ty_4() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_port_info__bindgen_ty_1__bindgen_ty_4>(),
-        16usize,
-        concat!(
-            "Size of: ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_4)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_port_info__bindgen_ty_1__bindgen_ty_4>(),
-        8usize,
-        concat!(
-            "Alignment of ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_4)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_port_info__bindgen_ty_1__bindgen_ty_4>())).target_sint
-                as *const _ as usize
-        },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_4),
-            "::",
-            stringify!(target_sint)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_port_info__bindgen_ty_1__bindgen_ty_4>())).target_vp
-                as *const _ as usize
-        },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_4),
-            "::",
-            stringify!(target_vp)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_port_info__bindgen_ty_1__bindgen_ty_4>())).rsvdz as *const _
-                as usize
-        },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_port_info__bindgen_ty_1__bindgen_ty_4),
-            "::",
-            stringify!(rsvdz)
-        )
-    );
-}
-#[test]
-fn bindgen_test_layout_hv_port_info__bindgen_ty_1() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_port_info__bindgen_ty_1>(),
-        16usize,
-        concat!("Size of: ", stringify!(hv_port_info__bindgen_ty_1))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_port_info__bindgen_ty_1>(),
-        8usize,
-        concat!("Alignment of ", stringify!(hv_port_info__bindgen_ty_1))
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_port_info__bindgen_ty_1>())).message_port_info as *const _
-                as usize
-        },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_port_info__bindgen_ty_1),
-            "::",
-            stringify!(message_port_info)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_port_info__bindgen_ty_1>())).event_port_info as *const _
-                as usize
-        },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_port_info__bindgen_ty_1),
-            "::",
-            stringify!(event_port_info)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_port_info__bindgen_ty_1>())).monitor_port_info as *const _
-                as usize
-        },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_port_info__bindgen_ty_1),
-            "::",
-            stringify!(monitor_port_info)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_port_info__bindgen_ty_1>())).doorbell_port_info as *const _
-                as usize
-        },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_port_info__bindgen_ty_1),
-            "::",
-            stringify!(doorbell_port_info)
-        )
-    );
-}
-impl Default for hv_port_info__bindgen_ty_1 {
-    fn default() -> Self {
-        unsafe { ::std::mem::zeroed() }
-    }
-}
-#[test]
-fn bindgen_test_layout_hv_port_info() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_port_info>(),
-        24usize,
-        concat!("Size of: ", stringify!(hv_port_info))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_port_info>(),
-        8usize,
-        concat!("Alignment of ", stringify!(hv_port_info))
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<hv_port_info>())).port_type as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_port_info),
-            "::",
-            stringify!(port_type)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<hv_port_info>())).padding as *const _ as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_port_info),
-            "::",
-            stringify!(padding)
-        )
-    );
-}
-impl Default for hv_port_info {
-    fn default() -> Self {
-        unsafe { ::std::mem::zeroed() }
-    }
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
 pub union hv_connection_id {
     pub asu32: __u32,
     pub u: hv_connection_id__bindgen_ty_1,
@@ -10299,308 +9902,6 @@ fn bindgen_test_layout_hv_connection_id() {
     );
 }
 impl Default for hv_connection_id {
-    fn default() -> Self {
-        unsafe { ::std::mem::zeroed() }
-    }
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct hv_connection_info {
-    pub port_type: hv_port_type,
-    pub padding: __u32,
-    pub __bindgen_anon_1: hv_connection_info__bindgen_ty_1,
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union hv_connection_info__bindgen_ty_1 {
-    pub message_connection_info: hv_connection_info__bindgen_ty_1__bindgen_ty_1,
-    pub event_connection_info: hv_connection_info__bindgen_ty_1__bindgen_ty_2,
-    pub monitor_connection_info: hv_connection_info__bindgen_ty_1__bindgen_ty_3,
-    pub doorbell_connection_info: hv_connection_info__bindgen_ty_1__bindgen_ty_4,
-}
-#[repr(C)]
-#[derive(Default, Copy, Clone)]
-pub struct hv_connection_info__bindgen_ty_1__bindgen_ty_1 {
-    pub rsvdz: __u64,
-}
-#[test]
-fn bindgen_test_layout_hv_connection_info__bindgen_ty_1__bindgen_ty_1() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_connection_info__bindgen_ty_1__bindgen_ty_1>(),
-        8usize,
-        concat!(
-            "Size of: ",
-            stringify!(hv_connection_info__bindgen_ty_1__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_connection_info__bindgen_ty_1__bindgen_ty_1>(),
-        8usize,
-        concat!(
-            "Alignment of ",
-            stringify!(hv_connection_info__bindgen_ty_1__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_connection_info__bindgen_ty_1__bindgen_ty_1>())).rsvdz
-                as *const _ as usize
-        },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_connection_info__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(rsvdz)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Default, Copy, Clone)]
-pub struct hv_connection_info__bindgen_ty_1__bindgen_ty_2 {
-    pub rsvdz: __u64,
-}
-#[test]
-fn bindgen_test_layout_hv_connection_info__bindgen_ty_1__bindgen_ty_2() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_connection_info__bindgen_ty_1__bindgen_ty_2>(),
-        8usize,
-        concat!(
-            "Size of: ",
-            stringify!(hv_connection_info__bindgen_ty_1__bindgen_ty_2)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_connection_info__bindgen_ty_1__bindgen_ty_2>(),
-        8usize,
-        concat!(
-            "Alignment of ",
-            stringify!(hv_connection_info__bindgen_ty_1__bindgen_ty_2)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_connection_info__bindgen_ty_1__bindgen_ty_2>())).rsvdz
-                as *const _ as usize
-        },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_connection_info__bindgen_ty_1__bindgen_ty_2),
-            "::",
-            stringify!(rsvdz)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Default, Copy, Clone)]
-pub struct hv_connection_info__bindgen_ty_1__bindgen_ty_3 {
-    pub monitor_address: __u64,
-}
-#[test]
-fn bindgen_test_layout_hv_connection_info__bindgen_ty_1__bindgen_ty_3() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_connection_info__bindgen_ty_1__bindgen_ty_3>(),
-        8usize,
-        concat!(
-            "Size of: ",
-            stringify!(hv_connection_info__bindgen_ty_1__bindgen_ty_3)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_connection_info__bindgen_ty_1__bindgen_ty_3>(),
-        8usize,
-        concat!(
-            "Alignment of ",
-            stringify!(hv_connection_info__bindgen_ty_1__bindgen_ty_3)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_connection_info__bindgen_ty_1__bindgen_ty_3>()))
-                .monitor_address as *const _ as usize
-        },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_connection_info__bindgen_ty_1__bindgen_ty_3),
-            "::",
-            stringify!(monitor_address)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Default, Copy, Clone)]
-pub struct hv_connection_info__bindgen_ty_1__bindgen_ty_4 {
-    pub gpa: __u64,
-    pub trigger_value: __u64,
-    pub flags: __u64,
-}
-#[test]
-fn bindgen_test_layout_hv_connection_info__bindgen_ty_1__bindgen_ty_4() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_connection_info__bindgen_ty_1__bindgen_ty_4>(),
-        24usize,
-        concat!(
-            "Size of: ",
-            stringify!(hv_connection_info__bindgen_ty_1__bindgen_ty_4)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_connection_info__bindgen_ty_1__bindgen_ty_4>(),
-        8usize,
-        concat!(
-            "Alignment of ",
-            stringify!(hv_connection_info__bindgen_ty_1__bindgen_ty_4)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_connection_info__bindgen_ty_1__bindgen_ty_4>())).gpa
-                as *const _ as usize
-        },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_connection_info__bindgen_ty_1__bindgen_ty_4),
-            "::",
-            stringify!(gpa)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_connection_info__bindgen_ty_1__bindgen_ty_4>())).trigger_value
-                as *const _ as usize
-        },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_connection_info__bindgen_ty_1__bindgen_ty_4),
-            "::",
-            stringify!(trigger_value)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_connection_info__bindgen_ty_1__bindgen_ty_4>())).flags
-                as *const _ as usize
-        },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_connection_info__bindgen_ty_1__bindgen_ty_4),
-            "::",
-            stringify!(flags)
-        )
-    );
-}
-#[test]
-fn bindgen_test_layout_hv_connection_info__bindgen_ty_1() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_connection_info__bindgen_ty_1>(),
-        24usize,
-        concat!("Size of: ", stringify!(hv_connection_info__bindgen_ty_1))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_connection_info__bindgen_ty_1>(),
-        8usize,
-        concat!(
-            "Alignment of ",
-            stringify!(hv_connection_info__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_connection_info__bindgen_ty_1>())).message_connection_info
-                as *const _ as usize
-        },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_connection_info__bindgen_ty_1),
-            "::",
-            stringify!(message_connection_info)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_connection_info__bindgen_ty_1>())).event_connection_info
-                as *const _ as usize
-        },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_connection_info__bindgen_ty_1),
-            "::",
-            stringify!(event_connection_info)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_connection_info__bindgen_ty_1>())).monitor_connection_info
-                as *const _ as usize
-        },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_connection_info__bindgen_ty_1),
-            "::",
-            stringify!(monitor_connection_info)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<hv_connection_info__bindgen_ty_1>())).doorbell_connection_info
-                as *const _ as usize
-        },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_connection_info__bindgen_ty_1),
-            "::",
-            stringify!(doorbell_connection_info)
-        )
-    );
-}
-impl Default for hv_connection_info__bindgen_ty_1 {
-    fn default() -> Self {
-        unsafe { ::std::mem::zeroed() }
-    }
-}
-#[test]
-fn bindgen_test_layout_hv_connection_info() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_connection_info>(),
-        32usize,
-        concat!("Size of: ", stringify!(hv_connection_info))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_connection_info>(),
-        8usize,
-        concat!("Alignment of ", stringify!(hv_connection_info))
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<hv_connection_info>())).port_type as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_connection_info),
-            "::",
-            stringify!(port_type)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<hv_connection_info>())).padding as *const _ as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_connection_info),
-            "::",
-            stringify!(padding)
-        )
-    );
-}
-impl Default for hv_connection_info {
     fn default() -> Self {
         unsafe { ::std::mem::zeroed() }
     }
@@ -11113,6 +10414,467 @@ impl Default for hv_translate_gva_result {
         unsafe { ::std::mem::zeroed() }
     }
 }
+#[repr(C, packed)]
+#[derive(Copy, Clone)]
+pub union hv_gpa_page_access_state_flags {
+    pub __bindgen_anon_1: hv_gpa_page_access_state_flags__bindgen_ty_1,
+    pub as_uint64: __u64,
+}
+#[repr(C)]
+#[derive(Default, Copy, Clone)]
+pub struct hv_gpa_page_access_state_flags__bindgen_ty_1 {
+    pub _bitfield_align_1: [u64; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
+}
+#[test]
+fn bindgen_test_layout_hv_gpa_page_access_state_flags__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_gpa_page_access_state_flags__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_gpa_page_access_state_flags__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_gpa_page_access_state_flags__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_gpa_page_access_state_flags__bindgen_ty_1)
+        )
+    );
+}
+impl hv_gpa_page_access_state_flags__bindgen_ty_1 {
+    #[inline]
+    pub fn clear_accessed(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_clear_accessed(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn set_access(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_set_access(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn clear_dirty(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(2usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_clear_dirty(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(2usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn set_dirty(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(3usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_set_dirty(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(3usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(4usize, 60u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(4usize, 60u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        clear_accessed: __u64,
+        set_access: __u64,
+        clear_dirty: __u64,
+        set_dirty: __u64,
+        reserved: __u64,
+    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let clear_accessed: u64 = unsafe { ::std::mem::transmute(clear_accessed) };
+            clear_accessed as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 1u8, {
+            let set_access: u64 = unsafe { ::std::mem::transmute(set_access) };
+            set_access as u64
+        });
+        __bindgen_bitfield_unit.set(2usize, 1u8, {
+            let clear_dirty: u64 = unsafe { ::std::mem::transmute(clear_dirty) };
+            clear_dirty as u64
+        });
+        __bindgen_bitfield_unit.set(3usize, 1u8, {
+            let set_dirty: u64 = unsafe { ::std::mem::transmute(set_dirty) };
+            set_dirty as u64
+        });
+        __bindgen_bitfield_unit.set(4usize, 60u8, {
+            let reserved: u64 = unsafe { ::std::mem::transmute(reserved) };
+            reserved as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[test]
+fn bindgen_test_layout_hv_gpa_page_access_state_flags() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_gpa_page_access_state_flags>(),
+        8usize,
+        concat!("Size of: ", stringify!(hv_gpa_page_access_state_flags))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_gpa_page_access_state_flags>(),
+        1usize,
+        concat!("Alignment of ", stringify!(hv_gpa_page_access_state_flags))
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<hv_gpa_page_access_state_flags>())).as_uint64 as *const _
+                as usize
+        },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_gpa_page_access_state_flags),
+            "::",
+            stringify!(as_uint64)
+        )
+    );
+}
+impl Default for hv_gpa_page_access_state_flags {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
+}
+#[repr(C, packed)]
+#[derive(Copy, Clone)]
+pub struct hv_input_get_gpa_pages_access_state {
+    pub partition_id: __u64,
+    pub flags: hv_gpa_page_access_state_flags,
+    pub hv_gpa_page_number: __u64,
+}
+#[test]
+fn bindgen_test_layout_hv_input_get_gpa_pages_access_state() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_input_get_gpa_pages_access_state>(),
+        24usize,
+        concat!("Size of: ", stringify!(hv_input_get_gpa_pages_access_state))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_input_get_gpa_pages_access_state>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_input_get_gpa_pages_access_state)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<hv_input_get_gpa_pages_access_state>())).partition_id as *const _
+                as usize
+        },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_input_get_gpa_pages_access_state),
+            "::",
+            stringify!(partition_id)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<hv_input_get_gpa_pages_access_state>())).flags as *const _
+                as usize
+        },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_input_get_gpa_pages_access_state),
+            "::",
+            stringify!(flags)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<hv_input_get_gpa_pages_access_state>())).hv_gpa_page_number
+                as *const _ as usize
+        },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_input_get_gpa_pages_access_state),
+            "::",
+            stringify!(hv_gpa_page_number)
+        )
+    );
+}
+impl Default for hv_input_get_gpa_pages_access_state {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
+}
+#[repr(C, packed)]
+#[derive(Copy, Clone)]
+pub union hv_gpa_page_access_state {
+    pub __bindgen_anon_1: hv_gpa_page_access_state__bindgen_ty_1,
+    pub as_uint8: __u8,
+}
+#[repr(C, packed)]
+#[derive(Default, Copy, Clone)]
+pub struct hv_gpa_page_access_state__bindgen_ty_1 {
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 1usize]>,
+}
+#[test]
+fn bindgen_test_layout_hv_gpa_page_access_state__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_gpa_page_access_state__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_gpa_page_access_state__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_gpa_page_access_state__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_gpa_page_access_state__bindgen_ty_1)
+        )
+    );
+}
+impl hv_gpa_page_access_state__bindgen_ty_1 {
+    #[inline]
+    pub fn accessed(&self) -> __u8 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u8) }
+    }
+    #[inline]
+    pub fn set_accessed(&mut self, val: __u8) {
+        unsafe {
+            let val: u8 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn dirty(&self) -> __u8 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 1u8) as u8) }
+    }
+    #[inline]
+    pub fn set_dirty(&mut self, val: __u8) {
+        unsafe {
+            let val: u8 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved(&self) -> __u8 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(2usize, 6u8) as u8) }
+    }
+    #[inline]
+    pub fn set_reserved(&mut self, val: __u8) {
+        unsafe {
+            let val: u8 = ::std::mem::transmute(val);
+            self._bitfield_1.set(2usize, 6u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        accessed: __u8,
+        dirty: __u8,
+        reserved: __u8,
+    ) -> __BindgenBitfieldUnit<[u8; 1usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 1usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let accessed: u8 = unsafe { ::std::mem::transmute(accessed) };
+            accessed as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 1u8, {
+            let dirty: u8 = unsafe { ::std::mem::transmute(dirty) };
+            dirty as u64
+        });
+        __bindgen_bitfield_unit.set(2usize, 6u8, {
+            let reserved: u8 = unsafe { ::std::mem::transmute(reserved) };
+            reserved as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[test]
+fn bindgen_test_layout_hv_gpa_page_access_state() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_gpa_page_access_state>(),
+        1usize,
+        concat!("Size of: ", stringify!(hv_gpa_page_access_state))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_gpa_page_access_state>(),
+        1usize,
+        concat!("Alignment of ", stringify!(hv_gpa_page_access_state))
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<hv_gpa_page_access_state>())).as_uint8 as *const _ as usize
+        },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_gpa_page_access_state),
+            "::",
+            stringify!(as_uint8)
+        )
+    );
+}
+impl Default for hv_gpa_page_access_state {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
+}
+#[repr(C, packed)]
+#[derive(Copy, Clone)]
+pub union hv_partition_property_page_access_tracking_config {
+    pub __bindgen_anon_1: hv_partition_property_page_access_tracking_config__bindgen_ty_1,
+    pub as_uint64: __u64,
+}
+#[repr(C)]
+#[derive(Default, Copy, Clone)]
+pub struct hv_partition_property_page_access_tracking_config__bindgen_ty_1 {
+    pub _bitfield_align_1: [u64; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
+}
+#[test]
+fn bindgen_test_layout_hv_partition_property_page_access_tracking_config__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_partition_property_page_access_tracking_config__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_partition_property_page_access_tracking_config__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_partition_property_page_access_tracking_config__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_partition_property_page_access_tracking_config__bindgen_ty_1)
+        )
+    );
+}
+impl hv_partition_property_page_access_tracking_config__bindgen_ty_1 {
+    #[inline]
+    pub fn enabled(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_enabled(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn granularity(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_granularity(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(2usize, 62u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(2usize, 62u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        enabled: __u64,
+        granularity: __u64,
+        reserved: __u64,
+    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let enabled: u64 = unsafe { ::std::mem::transmute(enabled) };
+            enabled as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 1u8, {
+            let granularity: u64 = unsafe { ::std::mem::transmute(granularity) };
+            granularity as u64
+        });
+        __bindgen_bitfield_unit.set(2usize, 62u8, {
+            let reserved: u64 = unsafe { ::std::mem::transmute(reserved) };
+            reserved as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[test]
+fn bindgen_test_layout_hv_partition_property_page_access_tracking_config() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_partition_property_page_access_tracking_config>(),
+        8usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_partition_property_page_access_tracking_config)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_partition_property_page_access_tracking_config>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_partition_property_page_access_tracking_config)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<hv_partition_property_page_access_tracking_config>())).as_uint64
+                as *const _ as usize
+        },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_partition_property_page_access_tracking_config),
+            "::",
+            stringify!(as_uint64)
+        )
+    );
+}
+impl Default for hv_partition_property_page_access_tracking_config {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
+}
+pub const MSHV_PAGE_ACCESS_TRACKING_GRANULARITY_SMALL_PAGES: ::std::os::raw::c_uint = 0;
+pub const MSHV_PAGE_ACCESS_TRACKING_GRANULARITY_LARGE_PAGES: ::std::os::raw::c_uint = 1;
+pub type _bindgen_ty_1 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct mshv_create_partition {
@@ -11590,66 +11352,66 @@ impl Default for mshv_partition_property {
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
-pub struct mshv_vp_translate_gva {
+pub struct mshv_translate_gva {
     pub gva: __u64,
     pub flags: __u64,
     pub result: *mut hv_translate_gva_result,
     pub gpa: *mut __u64,
 }
 #[test]
-fn bindgen_test_layout_mshv_vp_translate_gva() {
+fn bindgen_test_layout_mshv_translate_gva() {
     assert_eq!(
-        ::std::mem::size_of::<mshv_vp_translate_gva>(),
+        ::std::mem::size_of::<mshv_translate_gva>(),
         32usize,
-        concat!("Size of: ", stringify!(mshv_vp_translate_gva))
+        concat!("Size of: ", stringify!(mshv_translate_gva))
     );
     assert_eq!(
-        ::std::mem::align_of::<mshv_vp_translate_gva>(),
+        ::std::mem::align_of::<mshv_translate_gva>(),
         8usize,
-        concat!("Alignment of ", stringify!(mshv_vp_translate_gva))
+        concat!("Alignment of ", stringify!(mshv_translate_gva))
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_vp_translate_gva>())).gva as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<mshv_translate_gva>())).gva as *const _ as usize },
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(mshv_vp_translate_gva),
+            stringify!(mshv_translate_gva),
             "::",
             stringify!(gva)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_vp_translate_gva>())).flags as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<mshv_translate_gva>())).flags as *const _ as usize },
         8usize,
         concat!(
             "Offset of field: ",
-            stringify!(mshv_vp_translate_gva),
+            stringify!(mshv_translate_gva),
             "::",
             stringify!(flags)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_vp_translate_gva>())).result as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<mshv_translate_gva>())).result as *const _ as usize },
         16usize,
         concat!(
             "Offset of field: ",
-            stringify!(mshv_vp_translate_gva),
+            stringify!(mshv_translate_gva),
             "::",
             stringify!(result)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<mshv_vp_translate_gva>())).gpa as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<mshv_translate_gva>())).gpa as *const _ as usize },
         24usize,
         concat!(
             "Offset of field: ",
-            stringify!(mshv_vp_translate_gva),
+            stringify!(mshv_translate_gva),
             "::",
             stringify!(gpa)
         )
     );
 }
-impl Default for mshv_vp_translate_gva {
+impl Default for mshv_translate_gva {
     fn default() -> Self {
         unsafe { ::std::mem::zeroed() }
     }
@@ -11719,7 +11481,7 @@ pub const mshv_ioeventfd_flag_nr_datamatch: ::std::os::raw::c_uint = 0;
 pub const mshv_ioeventfd_flag_nr_pio: ::std::os::raw::c_uint = 1;
 pub const mshv_ioeventfd_flag_nr_deassign: ::std::os::raw::c_uint = 2;
 pub const mshv_ioeventfd_flag_nr_max: ::std::os::raw::c_uint = 3;
-pub type _bindgen_ty_1 = ::std::os::raw::c_uint;
+pub type _bindgen_ty_2 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Default, Copy, Clone)]
 pub struct mshv_ioeventfd {
@@ -11917,4 +11679,79 @@ fn bindgen_test_layout_mshv_msi_routing() {
             stringify!(entries)
         )
     );
+}
+#[repr(C, packed)]
+#[derive(Copy, Clone)]
+pub struct mshv_get_gpa_pages_access_state {
+    pub count: __u32,
+    pub flags: __u64,
+    pub hv_gpa_page_number: __u64,
+    pub states: *mut hv_gpa_page_access_state,
+}
+#[test]
+fn bindgen_test_layout_mshv_get_gpa_pages_access_state() {
+    assert_eq!(
+        ::std::mem::size_of::<mshv_get_gpa_pages_access_state>(),
+        28usize,
+        concat!("Size of: ", stringify!(mshv_get_gpa_pages_access_state))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<mshv_get_gpa_pages_access_state>(),
+        1usize,
+        concat!("Alignment of ", stringify!(mshv_get_gpa_pages_access_state))
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<mshv_get_gpa_pages_access_state>())).count as *const _ as usize
+        },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_get_gpa_pages_access_state),
+            "::",
+            stringify!(count)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<mshv_get_gpa_pages_access_state>())).flags as *const _ as usize
+        },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_get_gpa_pages_access_state),
+            "::",
+            stringify!(flags)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<mshv_get_gpa_pages_access_state>())).hv_gpa_page_number
+                as *const _ as usize
+        },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_get_gpa_pages_access_state),
+            "::",
+            stringify!(hv_gpa_page_number)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<mshv_get_gpa_pages_access_state>())).states as *const _ as usize
+        },
+        20usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_get_gpa_pages_access_state),
+            "::",
+            stringify!(states)
+        )
+    );
+}
+impl Default for mshv_get_gpa_pages_access_state {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
 }

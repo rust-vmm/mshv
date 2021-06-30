@@ -914,7 +914,7 @@ impl VcpuFd {
         let gpa: u64 = 0;
         let result = hv_translate_gva_result { as_uint64: 0 };
 
-        let mut args = mshv_vp_translate_gva {
+        let mut args = mshv_translate_gva {
             gva,
             flags,
             gpa: &gpa as *const _ as *mut u64,
