@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 OR BSD-3-Clause
 //
+use crate::ioctls::device::{new_device, DeviceFd};
 use crate::ioctls::vcpu::{new_vcpu, VcpuFd};
 use crate::ioctls::Result;
 use crate::mshv_ioctls::*;
@@ -540,6 +541,18 @@ impl VmFd {
             remaining -= page_states.count;
         }
         Ok(bitmap)
+    }
+    /// Create an in-kernel device
+    ///
+    /// See the documentation for `MSHV_CREATE_DEVICE`.
+    ///
+    pub fn create_device(&self, device: &mut mshv_create_device) -> Result<DeviceFd> {
+        let ret = unsafe { ioctl_with_ref(self, MSHV_CREATE_DEVICE(), device) };
+        if ret == 0 {
+            Ok(new_device(unsafe { File::from_raw_fd(device.fd as i32) }))
+        } else {
+            Err(errno::Error::last())
+        }
     }
 }
 /// Helper function to create a new `VmFd`.

@@ -62,3 +62,8 @@ ioctl_iowr_nr!(
     0x12,
     mshv_get_gpa_pages_access_state
 );
+
+ioctl_iowr_nr!(MSHV_CREATE_DEVICE, MSHV_IOCTL, 0x13, mshv_create_device);
+ioctl_iow_nr!(MSHV_SET_DEVICE_ATTR, MSHV_IOCTL, 0x14, mshv_device_attr);
+ioctl_iow_nr!(MSHV_GET_DEVICE_ATTR, MSHV_IOCTL, 0x15, mshv_device_attr);
+ioctl_iow_nr!(MSHV_HAS_DEVICE_ATTR, MSHV_IOCTL, 0x16, mshv_device_attr);
