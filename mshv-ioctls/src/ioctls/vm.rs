@@ -441,6 +441,46 @@ impl VmFd {
             flag,
         )
     }
+    ///
+    /// Get page access state
+    /// The data provides each page's access state whether it is dirty or accessed
+    /// Prerequisite: Need to enable page_acess_tracking
+    /// Flags:
+    ///         bit 1: ClearAccessed
+    ///         bit 2: SetAccessed
+    ///         bit 3: ClearDirty
+    ///         bit 4: SetDirty
+    ///         Number of bits reserved: 60
+    ///
+    pub fn get_gpa_access_state(
+        &self,
+        base_pfn: u64,
+        nr_pfns: u32,
+        flags: u64,
+    ) -> Result<mshv_get_gpa_pages_access_state> {
+        let mut states: Vec<hv_gpa_page_access_state> =
+            vec![hv_gpa_page_access_state { as_uint8: 0 }; nr_pfns as usize];
+        let mut gpa_pages_access_state: mshv_get_gpa_pages_access_state =
+            mshv_get_gpa_pages_access_state {
+                count: nr_pfns as u32,
+                hv_gpa_page_number: base_pfn,
+                flags,
+                states: states.as_mut_ptr(),
+            };
+
+        let ret = unsafe {
+            ioctl_with_mut_ref(
+                self,
+                MSHV_GET_GPA_ACCESS_STATES(),
+                &mut gpa_pages_access_state,
+            )
+        };
+        if ret == 0 {
+            Ok(gpa_pages_access_state)
+        } else {
+            Err(errno::Error::last())
+        }
+    }
 }
 /// Helper function to create a new `VmFd`.
 ///
