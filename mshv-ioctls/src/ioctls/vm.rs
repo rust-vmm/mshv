@@ -98,7 +98,7 @@ impl VmFd {
     ///
     /// Unmap a guest physical memory.
     ///
-    pub fn umap_user_memory(&self, user_memory_region: mshv_user_mem_region) -> Result<()> {
+    pub fn unmap_user_memory(&self, user_memory_region: mshv_user_mem_region) -> Result<()> {
         #[allow(clippy::cast_lossless)]
         let ret = unsafe { ioctl_with_ref(self, MSHV_UNMAP_GUEST_MEMORY(), &user_memory_region) };
         if ret == 0 {
@@ -452,7 +452,7 @@ mod tests {
 
         vm.map_user_memory(mem).unwrap();
 
-        vm.umap_user_memory(mem).unwrap();
+        vm.unmap_user_memory(mem).unwrap();
     }
     #[test]
     #[ignore]
