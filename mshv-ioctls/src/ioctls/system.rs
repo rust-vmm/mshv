@@ -205,12 +205,14 @@ mod tests {
     use super::*;
 
     #[test]
+    #[ignore]
     fn test_create_vm() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm();
         assert!(vm.is_ok());
     }
     #[test]
+    #[ignore]
     fn test_get_msr_index_list() {
         let hv = Mshv::new().unwrap();
         let msr_list = hv.get_msr_index_list().unwrap();

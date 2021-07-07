@@ -186,8 +186,7 @@ impl VmFd {
     /// * `req` - Interrupt Request
     ///
     /// # Example
-    ///
-    /// ```rust
+    /// ```no_run
     /// # extern crate libc;
     /// # extern crate vmm_sys_util;
     /// # use libc::EFD_NONBLOCK;
@@ -211,8 +210,7 @@ impl VmFd {
     /// * `gsi` - IRQ to be triggered.
     ///
     /// # Example
-    ///
-    /// ```rust
+    /// ```no_run
     /// # extern crate libc;
     /// # extern crate vmm_sys_util;
     /// # use libc::EFD_NONBLOCK;
@@ -240,8 +238,7 @@ impl VmFd {
     /// * mshv_msi_routing - MSI routing configuration.
     ///
     /// # Example
-    ///
-    /// ```rust
+    /// ```no_run
     /// # extern crate libc;
     /// # extern crate vmm_sys_util;
     /// # use libc::EFD_NONBLOCK;
@@ -322,8 +319,7 @@ impl VmFd {
     ///                 match the expected size of the guest's write.
     ///
     /// # Example
-    ///
-    /// ```rust
+    /// ```no_run
     /// # extern crate libc;
     /// # extern crate vmm_sys_util;
     /// # use libc::EFD_NONBLOCK;
@@ -358,7 +354,7 @@ impl VmFd {
     ///
     /// # Example
     ///
-    /// ```rust
+    /// ```no_run
     /// # extern crate libc;
     /// # extern crate vmm_sys_util;
     /// # use libc::EFD_NONBLOCK;
@@ -433,6 +429,7 @@ mod tests {
     use crate::ioctls::system::Mshv;
 
     #[test]
+    #[ignore]
     fn test_user_memory() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -458,6 +455,7 @@ mod tests {
         vm.umap_user_memory(mem).unwrap();
     }
     #[test]
+    #[ignore]
     fn test_create_vcpu() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -465,6 +463,7 @@ mod tests {
         assert!(vcpu.is_ok());
     }
     #[test]
+    #[ignore]
     fn test_assert_virtual_interrupt() {
         /* TODO better test with some code */
         let hv = Mshv::new().unwrap();
@@ -485,6 +484,7 @@ mod tests {
         vm.request_virtual_interrupt(&cfg).unwrap();
     }
     #[test]
+    #[ignore]
     fn test_install_intercept() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -496,6 +496,7 @@ mod tests {
         vm.install_intercept(intercept_args).unwrap();
     }
     #[test]
+    #[ignore]
     fn test_get_set_property() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -525,6 +526,7 @@ mod tests {
         .unwrap();
     }
     #[test]
+    #[ignore]
     fn test_irqfd() {
         use libc::EFD_NONBLOCK;
         let hv = Mshv::new().unwrap();
@@ -534,6 +536,7 @@ mod tests {
         vm.unregister_irqfd(&efd, 30).unwrap();
     }
     #[test]
+    #[ignore]
     fn test_ioeventfd() {
         let efd = EventFd::new(0).unwrap();
         let addr = IoEventAddress::Mmio(0xe7e85004);
@@ -543,6 +546,7 @@ mod tests {
         vm.unregister_ioevent(&efd, &addr, NoDatamatch).unwrap();
     }
     #[test]
+    #[ignore]
     fn test_set_msi_routing() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
