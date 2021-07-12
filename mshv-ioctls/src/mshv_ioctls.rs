@@ -17,13 +17,13 @@ ioctl_iow_nr!(
     mshv_create_partition
 );
 ioctl_iow_nr!(
-    HV_SET_PARTITION_PROPERTY,
+    MSHV_SET_PARTITION_PROPERTY,
     MSHV_IOCTL,
     0x0C,
     mshv_partition_property
 );
 ioctl_iowr_nr!(
-    HV_GET_PARTITION_PROPERTY,
+    MSHV_GET_PARTITION_PROPERTY,
     MSHV_IOCTL,
     0x0D,
     mshv_partition_property
