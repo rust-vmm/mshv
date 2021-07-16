@@ -1087,6 +1087,8 @@ mod tests {
     #[test]
     #[ignore]
     fn test_run_code() {
+        use libc::c_void;
+
         use super::*;
         use crate::ioctls::system::Mshv;
         use std::io::Write;
@@ -1227,6 +1229,8 @@ mod tests {
             };
         }
         assert!(done);
+        vm.unmap_user_memory(mem_region).unwrap();
+        unsafe { libc::munmap(load_addr as *mut c_void, mem_size) };
     }
     #[test]
     #[ignore]
