@@ -15,7 +15,7 @@ serde = { version = ">=1.0.27", optional = true }
 serde_derive = { version = ">=1.0.27", optional = true }
 vmm-sys-util = ">=0.2.1"
 
-zerocopy = "0.3"
+zerocopy = "0.5"
 
 [dev-dependencies]
 random-number = "0.1.6"
