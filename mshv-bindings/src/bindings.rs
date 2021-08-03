@@ -180,6 +180,10 @@ pub const MSHV_VP_MAX_REGISTERS: u32 = 128;
 pub const MSHV_IRQFD_FLAG_DEASSIGN: u32 = 1;
 pub const MSHV_IRQFD_FLAG_RESAMPLE: u32 = 2;
 pub const MSHV_IOCTL: u32 = 184;
+pub const MSHV_CREATE_DEVICE_TEST: u32 = 1;
+pub const MSHV_DEV_VFIO_GROUP: u32 = 1;
+pub const MSHV_DEV_VFIO_GROUP_ADD: u32 = 1;
+pub const MSHV_DEV_VFIO_GROUP_DEL: u32 = 2;
 pub type bool_ = bool;
 pub type __s8 = ::std::os::raw::c_schar;
 pub type __u8 = ::std::os::raw::c_uchar;
@@ -11754,4 +11758,109 @@ impl Default for mshv_get_gpa_pages_access_state {
     fn default() -> Self {
         unsafe { ::std::mem::zeroed() }
     }
+}
+
+#[repr(C)]
+#[derive(Default, Copy, Clone)]
+pub struct mshv_create_device {
+    pub type_: __u32,
+    pub fd: __u32,
+    pub flags: __u32,
+}
+#[test]
+fn bindgen_test_layout_mshv_create_device() {
+    assert_eq!(
+        ::std::mem::size_of::<mshv_create_device>(),
+        12usize,
+        concat!("Size of: ", stringify!(mshv_create_device))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<mshv_create_device>(),
+        4usize,
+        concat!("Alignment of ", stringify!(mshv_create_device))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<mshv_create_device>())).type_ as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_create_device),
+            "::",
+            stringify!(type_)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<mshv_create_device>())).fd as *const _ as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_create_device),
+            "::",
+            stringify!(fd)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<mshv_create_device>())).flags as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_create_device),
+            "::",
+            stringify!(flags)
+        )
+    );
+}
+pub const mshv_device_type_MSHV_DEV_TYPE_VFIO: mshv_device_type = 0;
+pub const mshv_device_type_MSHV_DEV_TYPE_MAX: mshv_device_type = 1;
+pub type mshv_device_type = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Default, Copy, Clone)]
+pub struct mshv_device_attr {
+    pub flags: __u32,
+    pub group: __u32,
+    pub attr: __u64,
+    pub addr: __u64,
+}
+#[test]
+fn bindgen_test_layout_mshv_device_attr() {
+    assert_eq!(
+        ::std::mem::size_of::<mshv_device_attr>(),
+        24usize,
+        concat!("Size of: ", stringify!(mshv_device_attr))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<mshv_device_attr>(),
+        8usize,
+        concat!("Alignment of ", stringify!(mshv_device_attr))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<mshv_device_attr>())).flags as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_device_attr),
+            "::",
+            stringify!(flags)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<mshv_device_attr>())).group as *const _ as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_device_attr),
+            "::",
+            stringify!(group)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<mshv_device_attr>())).addr as *const _ as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_device_attr),
+            "::",
+            stringify!(addr)
+        )
+    );
 }
