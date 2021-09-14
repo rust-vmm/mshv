@@ -947,6 +947,47 @@ impl VcpuFd {
 
         Ok(ret_regs)
     }
+    ///
+    /// Extend CPUID values delivered by hypervisor.
+    ///
+    #[cfg(target_arch = "x86_64")]
+    pub fn register_intercept_result_cpuid(&self, cpuid: &CpuId) -> Result<()> {
+        let skip_fn = vec![0, 0x4000_0000, 0x4000_0001, 0x4000_0002];
+        for entry in cpuid.as_slice().iter() {
+            if skip_fn.contains(&entry.function) {
+                continue;
+            }
+            let mut mshv_cpuid = hv_register_x64_cpuid_result_parameters {
+                input: hv_register_x64_cpuid_result_parameters__bindgen_ty_1 {
+                    eax: entry.function,
+                    ecx: 0,
+                    subleaf_specific: 0,
+                    always_override: 1,
+                    padding: 0,
+                },
+                result: hv_register_x64_cpuid_result_parameters__bindgen_ty_2 {
+                    eax: entry.eax,
+                    eax_mask: entry.eax,
+                    ebx: entry.ebx,
+                    ebx_mask: entry.ebx,
+                    ecx: entry.ecx,
+                    ecx_mask: entry.ecx,
+                    edx: entry.edx,
+                    edx_mask: entry.edx,
+                },
+            };
+            let args = mshv_register_intercept_result {
+                intercept_type: hv_intercept_type_HV_INTERCEPT_TYPE_X64_CPUID,
+                parameters: hv_register_intercept_result_parameters { cpuid: mshv_cpuid },
+            };
+            let ret = unsafe { ioctl_with_ref(self, MSHV_VP_REGISTER_INTERCEPT_RESULT(), &args) };
+            if ret != 0 {
+                return Err(errno::Error::last());
+            }
+        }
+
+        Ok(())
+    }
 }
 
 #[allow(dead_code)]
