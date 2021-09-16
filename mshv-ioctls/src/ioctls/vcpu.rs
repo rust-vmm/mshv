@@ -947,12 +947,9 @@ impl VcpuFd {
 
         Ok(ret_regs)
     }
-    #[cfg(target_arch = "x86_64")]
-    ///
     /// Register override CPUID values for one leaf.
-    ///
     pub fn register_intercept_result_cpuid_entry(&self, entry: &hv_cpuid_entry) -> Result<()> {
-        let mut mshv_cpuid = hv_register_x64_cpuid_result_parameters {
+        let mshv_cpuid = hv_register_x64_cpuid_result_parameters {
             input: hv_register_x64_cpuid_result_parameters__bindgen_ty_1 {
                 eax: entry.function,
                 ecx: 0,
@@ -982,23 +979,14 @@ impl VcpuFd {
 
         Ok(())
     }
-    ///
     /// Extend CPUID values delivered by hypervisor.
-    ///
-    #[cfg(target_arch = "x86_64")]
     pub fn register_intercept_result_cpuid(&self, cpuid: &CpuId) -> Result<()> {
         let mut ret = Ok(());
 
         for entry in cpuid.as_slice().iter() {
-            let eret = self.register_intercept_result_cpuid_entry(&entry);
-            if !eret.is_ok() {
-                if ret.is_ok() {
-                    ret = eret;
-                }
-                eprintln!(
-                    "register_intercept_result_cpuid: Failed for leaf {:#x} with exit code {:?}",
-                    entry.function, eret
-                );
+            let eret = self.register_intercept_result_cpuid_entry(entry);
+            if eret.is_err() && ret.is_ok() {
+                ret = eret;
             }
         }
 
