@@ -1,5 +1,5 @@
 {
-  "coverage_score": 22.70,
+  "coverage_score": 23.30,
   "exclude_path": "",
   "crate_features": "with-serde,fam-wrappers"
 }
