@@ -783,6 +783,32 @@ impl VcpuFd {
             ..Default::default()
         }])
     }
+    /// X86 specific call that returns the vcpu's current "misc registers".
+    pub fn get_misc_regs(&self) -> Result<MiscRegs> {
+        let mut reg_assocs: [hv_register_assoc; 1] = [hv_register_assoc {
+            name: hv_register_name::HV_X64_REGISTER_HYPERCALL as u32,
+            ..Default::default()
+        }];
+        self.get_reg(&mut reg_assocs)?;
+
+        let ret_regs = unsafe {
+            MiscRegs {
+                hypercall: reg_assocs[0].value.reg64,
+            }
+        };
+
+        Ok(ret_regs)
+    }
+    /// X86 specific call that sets the vcpu's current "misc registers".
+    pub fn set_misc_regs(&self, misc: &MiscRegs) -> Result<()> {
+        self.set_reg(&[hv_register_assoc {
+            name: hv_register_name::HV_X64_REGISTER_HYPERCALL as u32,
+            value: hv_register_value {
+                reg64: misc.hypercall,
+            },
+            ..Default::default()
+        }])
+    }
     /// Returns the VCpu state. This IOCTLs can be used to get XSave and LAPIC state.
     pub fn get_vp_state_ioctl(&self, state: &mshv_vp_state) -> Result<()> {
         // Safe because we know that our file is a vCPU fd and we verify the return result.
