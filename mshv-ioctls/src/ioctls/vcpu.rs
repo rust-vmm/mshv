@@ -1357,4 +1357,16 @@ mod tests {
         assert!(regs.explicit_register == 0x1);
         assert!(regs.intercept_register == 0x0);
     }
+    #[test]
+    #[ignore]
+    fn test_set_get_misc_regs() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let s_regs = vcpu.get_misc_regs().unwrap();
+        vcpu.set_misc_regs(&s_regs).unwrap();
+        let g_regs = vcpu.get_misc_regs().unwrap();
+        assert!(g_regs.hypercall == s_regs.hypercall);
+    }
 }
