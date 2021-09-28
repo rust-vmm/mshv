@@ -693,3 +693,9 @@ pub struct SuspendRegisters {
     pub explicit_register: u64,
     pub intercept_register: u64,
 }
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
+pub struct MiscRegs {
+    pub hypercall: u64,
+}
