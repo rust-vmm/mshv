@@ -4,6 +4,7 @@
 //
 
 use crate::bindings::*;
+use crate::hvdef::HV_X64_MSR_GUEST_OS_ID;
 #[cfg(feature = "with-serde")]
 use serde_derive::{Deserialize, Serialize};
 use std::cmp;
@@ -329,6 +330,7 @@ pub fn msr_to_hv_reg_name(msr: u32) -> Result<hv_register_name, &'static str> {
         IA32_MSR_DEBUG_CTL => Ok(hv_register_name::HV_X64_REGISTER_DEBUG_CTL),
         IA32_MSR_TSC_ADJUST => Ok(hv_register_name::HV_X64_REGISTER_TSC_ADJUST),
         IA32_MSR_SPEC_CTRL => Ok(hv_register_name::HV_X64_REGISTER_SPEC_CTRL),
+        HV_X64_MSR_GUEST_OS_ID => Ok(hv_register_name::HV_REGISTER_GUEST_OS_ID),
 
         IA32_MSR_MISC_ENABLE => Ok(hv_register_name::HV_X64_REGISTER_MSR_IA32_MISC_ENABLE),
         _ => Err("Not a supported hv_register_name msr"),
