@@ -110,6 +110,14 @@ impl Mshv {
             pr.synthetic_processor_features
                 .__bindgen_anon_1
                 .set_access_guest_idle_reg(1);
+            /* Enable TLB flush hypercalls */
+            pr.synthetic_processor_features
+                .__bindgen_anon_1
+                .set_tb_flush_hypercalls(1);
+            /* Enable synthetic cluster ipi */
+            pr.synthetic_processor_features
+                .__bindgen_anon_1
+                .set_synthetic_cluster_ipi(1);
         }
 
         let ret = unsafe { ioctl_with_ref(&self.hv, MSHV_CREATE_PARTITION(), &pr) };
