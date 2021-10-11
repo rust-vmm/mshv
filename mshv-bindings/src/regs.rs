@@ -20,38 +20,30 @@ impl<T> __IncompleteArrayField<T> {
     }
 
     #[inline]
-    ///
     /// # Safety
     /// Safe Beacuse we know the size of the field.
     /// Caller needs to make sure lossless conversion
-    ///
     pub unsafe fn as_ptr(&self) -> *const T {
         ::std::mem::transmute(self)
     }
     #[inline]
-    ///
     /// # Safety
     /// Safe Beacuse we know the size of the field.
     /// Caller needs to make sure lossless conversion
-    ///
     pub unsafe fn as_mut_ptr(&mut self) -> *mut T {
         ::std::mem::transmute(self)
     }
     #[inline]
-    ///
     /// # Safety
     /// Safe Beacuse we know the size of the field.
     /// Caller needs to make sure lossless conversion
-    ///
     pub unsafe fn as_slice(&self, len: usize) -> &[T] {
         ::std::slice::from_raw_parts(self.as_ptr(), len)
     }
     #[inline]
-    ///
     /// # Safety
     /// Safe Beacuse we know the size of the field.
     /// Caller needs to make sure lossless conversion
-    ///
     pub unsafe fn as_mut_slice(&mut self, len: usize) -> &mut [T] {
         ::std::slice::from_raw_parts_mut(self.as_mut_ptr(), len)
     }
@@ -103,7 +95,7 @@ pub struct SegmentRegister {
     pub type_: u8,   /* type, writeable etc: 4 */
     pub present: u8, /* if not present, exception generated: 1 */
     pub dpl: u8,     /* descriptor privilege level (ring): 2 */
-    pub db: u8,      /* default/big (16 or 32 bit size offset): 1*/
+    pub db: u8,      /* default/big (16 or 32 bit size offset): 1 */
     pub s: u8,       /* non-system segment */
     pub l: u8,       /* long (64 bit): 1 */
     pub g: u8,       /* granularity (bytes or 4096 byte pages): 1 */
@@ -455,7 +447,6 @@ impl Default for hv_register_value {
 } */
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
-///
 /// This struct normalizes the actual mhsv XSave structure
 /// XSave only used in save and restore functionalities, serilization and
 /// deserialization are needed. Putting all the fields into a single buffer makes
@@ -465,7 +456,6 @@ impl Default for hv_register_value {
 /// states: 8 bytes
 /// data_size: 8 bytes
 /// Actual xsave buffer: 4096 bytes
-///
 pub struct XSave {
     pub buffer: [::std::os::raw::c_char; 4120usize],
 }
