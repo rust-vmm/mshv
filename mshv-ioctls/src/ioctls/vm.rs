@@ -22,7 +22,6 @@ const PAGE_ACCESS_STATES_BATCH_SIZE: u32 = 0x10000;
 ///
 /// The `IoEventAddress` is used for specifying the type when registering an event
 /// in [register_ioevent](struct.VmFd.html#method.register_ioevent).
-///
 #[derive(Eq, PartialEq, Hash, Clone, Debug, Copy)]
 pub enum IoEventAddress {
     /// Representation of an programmable I/O address.
@@ -36,7 +35,6 @@ pub enum IoEventAddress {
 /// The structure can be used as a parameter to
 /// [`register_ioevent`](struct.VmFd.html#method.register_ioevent)
 /// to disable filtering of events based on the datamatch flag.
-///
 pub struct NoDatamatch;
 
 impl From<NoDatamatch> for u64 {
@@ -54,7 +52,6 @@ impl From<NoDatamatch> for u64 {
 ///     level_triggered: True means level triggered, false means edge triggered
 ///     logical_destination_mode: lTrue means the APIC ID is logical, false means physical
 ///     long_mode: True means CPU is in long mode
-///
 pub struct InterruptRequest {
     pub interrupt_type: hv_interrupt_type,
     pub apic_id: u64,
@@ -75,9 +72,7 @@ impl AsRawFd for VmFd {
 }
 
 impl VmFd {
-    ///
     /// Install intercept to enable some VM exits like MSR, CPUId etc
-    ///
     pub fn install_intercept(&self, install_intercept_args: mshv_install_intercept) -> Result<()> {
         #[allow(clippy::cast_lossless)]
         let ret =
@@ -88,9 +83,7 @@ impl VmFd {
             Err(errno::Error::last())
         }
     }
-    ///
     /// Creates/modifies a guest physical memory.
-    ///
     pub fn map_user_memory(&self, user_memory_region: mshv_user_mem_region) -> Result<()> {
         #[allow(clippy::cast_lossless)]
         let ret = unsafe { ioctl_with_ref(self, MSHV_MAP_GUEST_MEMORY(), &user_memory_region) };
@@ -100,9 +93,7 @@ impl VmFd {
             Err(errno::Error::last())
         }
     }
-    ///
     /// Unmap a guest physical memory.
-    ///
     pub fn unmap_user_memory(&self, user_memory_region: mshv_user_mem_region) -> Result<()> {
         #[allow(clippy::cast_lossless)]
         let ret = unsafe { ioctl_with_ref(self, MSHV_UNMAP_GUEST_MEMORY(), &user_memory_region) };
@@ -112,9 +103,7 @@ impl VmFd {
             Err(errno::Error::last())
         }
     }
-    ///
     /// Creates a new MSHV vCPU file descriptor
-    ///
     pub fn create_vcpu(&self, id: u8) -> Result<VcpuFd> {
         let vp_arg = mshv_create_vp {
             vp_index: id as __u32,
@@ -132,9 +121,7 @@ impl VmFd {
 
         Ok(new_vcpu(vcpu))
     }
-    ///
     /// Inject an interrupt into the guest..
-    ///
     pub fn request_virtual_interrupt(&self, request: &InterruptRequest) -> Result<()> {
         let mut control_flags: u32 = 0;
         if request.level_triggered {
@@ -162,10 +149,8 @@ impl VmFd {
             Err(errno::Error::last())
         }
     }
-    ///
     /// irqfd: Passes in an eventfd which is to be used for injecting
     /// interrupts from userland.
-    ///
     fn irqfd(&self, fd: RawFd, gsi: u32, flags: u32) -> Result<()> {
         let mut irqfd_arg = mshv_irqfd {
             fd: fd as i32,
@@ -203,7 +188,6 @@ impl VmFd {
     /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
     /// vm.register_irqfd(&evtfd, 30).unwrap();
     /// ```
-    ///
     pub fn register_irqfd(&self, fd: &EventFd, gsi: u32) -> Result<()> {
         self.irqfd(fd.as_raw_fd(), gsi, 0)
     }
@@ -228,7 +212,6 @@ impl VmFd {
     /// vm.register_irqfd(&evtfd, 30).unwrap();
     /// vm.unregister_irqfd(&evtfd, 30).unwrap();
     /// ```
-    ///
     pub fn unregister_irqfd(&self, fd: &EventFd, gsi: u32) -> Result<()> {
         self.irqfd(fd.as_raw_fd(), gsi, MSHV_IRQFD_FLAG_DEASSIGN)
     }
@@ -256,7 +239,6 @@ impl VmFd {
     /// let msi_routing = mshv_msi_routing::default();
     /// vm.set_msi_routing(&msi_routing).unwrap();
     /// ```
-    ///
     pub fn set_msi_routing(&self, msi_routing: &mshv_msi_routing) -> Result<()> {
         // Safe because we allocated the structure and we know the kernel
         // will read exactly the size of the structure.
@@ -268,10 +250,8 @@ impl VmFd {
         }
     }
 
-    ///
     /// ioeventfd: Passes in an eventfd which the kernel would signal when
     /// an mmio region is written into.
-    ///
     fn ioeventfd<T: Into<u64>>(
         &self,
         fd: &EventFd,
@@ -335,9 +315,8 @@ impl VmFd {
     /// let vm = hv.create_vm().unwrap();
     /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
     /// vm.register_ioevent(&evtfd, &IoEventAddress::Mmio(0x1000), NoDatamatch)
-    ///   .unwrap();
+    ///     .unwrap();
     /// ```
-    ///
     pub fn register_ioevent<T: Into<u64>>(
         &self,
         fd: &EventFd,
@@ -370,11 +349,10 @@ impl VmFd {
     /// let vm = hv.create_vm().unwrap();
     /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
     /// vm.register_ioevent(&evtfd, &IoEventAddress::Mmio(0x1000), NoDatamatch)
-    ///   .unwrap();
+    ///     .unwrap();
     /// vm.unregister_ioevent(&evtfd, &IoEventAddress::Mmio(0x1000), NoDatamatch)
-    ///   .unwrap();
+    ///     .unwrap();
     /// ```
-    ///
     pub fn unregister_ioevent<T: Into<u64>>(
         &self,
         fd: &EventFd,
@@ -384,10 +362,8 @@ impl VmFd {
         self.ioeventfd(fd, addr, datamatch, 1 << mshv_ioeventfd_flag_nr_deassign)
     }
 
-    ///
     /// Get property of the VM partition: For example , CPU Frequency, Size of the Xsave state and more.
     /// For more of the codes, please see the hv_partition_property_code type definitions in the bindings.rs
-    ///
     pub fn get_partition_property(&self, code: u32) -> Result<u64> {
         let mut property = mshv_partition_property {
             property_code: code,
@@ -402,9 +378,7 @@ impl VmFd {
             Err(errno::Error::last())
         }
     }
-    ///
     /// Sets a partion property
-    ///
     pub fn set_partition_property(&self, code: u32, value: u64) -> Result<()> {
         let property: mshv_partition_property = mshv_partition_property {
             property_code: code,
@@ -418,12 +392,10 @@ impl VmFd {
             Err(errno::Error::last())
         }
     }
-    ///
     /// Enable dirty page tracking by hypervisor
     /// Flags:
     ///         bit 1: Enabled
     ///         bit 2: Granularity
-    ///
     pub fn enable_dirty_page_tracking(&self) -> Result<()> {
         let flag: u64 = 0x1;
         self.set_partition_property(
@@ -431,14 +403,12 @@ impl VmFd {
             flag,
         )
     }
-    ///
     /// Disable dirty page tracking by hypervisor
     /// Prerequisite: It is required to set the dirty bits if cleared
     /// previously, otherwise this hypercall will be failed.
     /// Flags:
     ///         bit 1: Enabled
     ///         bit 2: Granularity
-    ///
     pub fn disable_dirty_page_tracking(&self) -> Result<()> {
         let flag: u64 = 0x0;
         self.set_partition_property(
@@ -446,7 +416,6 @@ impl VmFd {
             flag,
         )
     }
-    ///
     /// Get page access state
     /// The data provides each page's access state whether it is dirty or accessed
     /// Prerequisite: Need to enable page_acess_tracking
@@ -456,7 +425,6 @@ impl VmFd {
     ///         bit 3: ClearDirty
     ///         bit 4: SetDirty
     ///         Number of bits reserved: 60
-    ///
     pub fn get_gpa_access_state(
         &self,
         base_pfn: u64,
@@ -486,7 +454,6 @@ impl VmFd {
             Err(errno::Error::last())
         }
     }
-    ///
     /// Gets the bitmap of pages dirtied since the last call of this function
     ///
     /// Flags:
@@ -495,7 +462,6 @@ impl VmFd {
     ///         bit 3: ClearDirty
     ///         bit 4: SetDirty
     ///         Number of bits reserved: 60
-    ///
     pub fn get_dirty_log(&self, base_pfn: u64, memory_size: usize, flags: u64) -> Result<Vec<u64>> {
         // Compute the length of the bitmap needed for all dirty pages in one memory slot.
         // One memory page is `page_size` bytes and `KVM_GET_DIRTY_LOG` returns one dirty bit for
@@ -545,7 +511,6 @@ impl VmFd {
     /// Create an in-kernel device
     ///
     /// See the documentation for `MSHV_CREATE_DEVICE`.
-    ///
     pub fn create_device(&self, device: &mut mshv_create_device) -> Result<DeviceFd> {
         let ret = unsafe { ioctl_with_ref(self, MSHV_CREATE_DEVICE(), device) };
         if ret == 0 {

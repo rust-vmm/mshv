@@ -18,7 +18,6 @@ use vmm_sys_util::ioctl::{ioctl_with_mut_ref, ioctl_with_ref};
 // Arguments:
 ///             1. vcpud fd
 ///             2. Array of Tuples of Register name and reguster value Example [(n1, v1), (n2,v2) ....]
-///
 #[allow(unused_macros)]
 #[macro_export]
 macro_rules! set_registers_64 {
@@ -63,9 +62,7 @@ impl AsRawFd for VcpuFd {
 }
 
 impl VcpuFd {
-    ///
     /// Get the register values by providing an array of register names
-    ///
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     pub fn get_reg(&self, reg_names: &mut [hv_register_assoc]) -> Result<()> {
         //TODO: Error if input register len is zero
@@ -83,14 +80,12 @@ impl VcpuFd {
         }
         Ok(())
     }
-    ///
     /// Sets a vCPU register to input value.
     ///
     /// # Arguments
     ///
     /// * `reg_name` - general purpose register name.
     /// * `reg_value` - register value.
-    ///
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     pub fn set_reg(&self, regs: &[hv_register_assoc]) -> Result<()> {
         let hv_vp_register_args = mshv_vp_registers {
@@ -103,9 +98,7 @@ impl VcpuFd {
         }
         Ok(())
     }
-    ///
     /// Sets the vCPU general purpose registers
-    ///
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     pub fn set_regs(&self, regs: &StandardRegisters) -> Result<()> {
         let reg_assocs = [
@@ -204,9 +197,7 @@ impl VcpuFd {
         Ok(())
     }
 
-    ///
     /// Returns the vCPU general purpose registers.
-    ///
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     pub fn get_regs(&self) -> Result<StandardRegisters> {
         let reg_names = [
@@ -261,9 +252,7 @@ impl VcpuFd {
 
         Ok(ret_regs)
     }
-    ///
     /// Returns the vCPU special registers.
-    ///
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     pub fn get_sregs(&self) -> Result<SpecialRegisters> {
         let reg_names: [hv_register_name; 18] = [
@@ -333,9 +322,7 @@ impl VcpuFd {
 
         Ok(ret_regs)
     }
-    ///
     /// Sets the vCPU special registers
-    ///
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     pub fn set_sregs(&self, sregs: &SpecialRegisters) -> Result<()> {
         let reg_names: [hv_register_name; 17] = [
@@ -419,9 +406,7 @@ impl VcpuFd {
         self.set_reg(&reg_assocs)?;
         Ok(())
     }
-    ///
     /// Sets the vCPU floating point registers
-    ///
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     pub fn set_fpu(&self, fpu: &FloatingPointUnit) -> Result<()> {
         let reg_names: [hv_register_name; 26] = [
@@ -511,9 +496,7 @@ impl VcpuFd {
         self.set_reg(&reg_assocs)?;
         Ok(())
     }
-    ///
     /// Returns the floating point state (FPU) from the vCPU.
-    ///
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     pub fn get_fpu(&self) -> Result<FloatingPointUnit> {
         let reg_names: [hv_register_name; 26] = [
@@ -590,9 +573,7 @@ impl VcpuFd {
 
         Ok(ret_regs)
     }
-    ///
     /// X86 specific call that returns the vcpu's current "debug registers".
-    ///
     pub fn get_debug_regs(&self) -> Result<DebugRegisters> {
         let reg_names: [hv_register_name; 6] = [
             hv_register_name::HV_X64_REGISTER_DR0,
@@ -626,9 +607,7 @@ impl VcpuFd {
 
         Ok(ret_regs)
     }
-    ///
     /// X86 specific call that sets the vcpu's current "debug registers".
-    ///
     pub fn set_debug_regs(&self, d_regs: &DebugRegisters) -> Result<()> {
         let reg_names = [
             hv_register_name::HV_X64_REGISTER_DR0,
@@ -660,9 +639,7 @@ impl VcpuFd {
         self.set_reg(&reg_assocs)?;
         Ok(())
     }
-    ///
     /// Returns the machine-specific registers (MSR) for this vCPU.
-    ///
     pub fn get_msrs(&self, msrs: &mut Msrs) -> Result<usize> {
         let nmsrs = msrs.as_fam_struct_ref().nmsrs as usize;
         let mut reg_assocs: Vec<hv_register_assoc> = Vec::with_capacity(nmsrs);
@@ -684,10 +661,8 @@ impl VcpuFd {
 
         Ok(nmsrs)
     }
-    ///
     /// Setup the model-specific registers (MSR) for this vCPU.
     /// Returns the number of MSR entries actually written.
-    ///
     pub fn set_msrs(&self, msrs: &Msrs) -> Result<usize> {
         let nmsrs = msrs.as_fam_struct_ref().nmsrs as usize;
         let mut reg_assocs: Vec<hv_register_assoc> = Vec::with_capacity(nmsrs);
@@ -705,9 +680,7 @@ impl VcpuFd {
         self.set_reg(&reg_assocs)?;
         Ok(0_usize)
     }
-    ///
     ///  Triggers the running of the current virtual CPU returning an exit reason.
-    ///
     pub fn run(&self, mut hv_message_input: hv_message) -> Result<hv_message> {
         // Safe because we know that our file is a vCPU fd and we verify the return result.
         let ret = unsafe { ioctl_with_ref(self, MSHV_RUN_VP(), &hv_message_input) };
@@ -716,10 +689,8 @@ impl VcpuFd {
         }
         Ok(hv_message_input)
     }
-    ///
     /// Returns currently pending exceptions, interrupts, and NMIs as well as related
     /// states of the vcpu.
-    ///
     pub fn get_vcpu_events(&self) -> Result<VcpuEvents> {
         let reg_names: [hv_register_name; 5] = [
             hv_register_name::HV_REGISTER_PENDING_INTERRUPTION,
@@ -748,9 +719,7 @@ impl VcpuFd {
         }
         Ok(ret_regs)
     }
-    ///
     /// Sets pending exceptions, interrupts, and NMIs as well as related states of the vcpu.
-    ///
     pub fn set_vcpu_events(&self, events: &VcpuEvents) -> Result<()> {
         let reg_names: [hv_register_name; 5] = [
             hv_register_name::HV_REGISTER_PENDING_INTERRUPTION,
@@ -791,9 +760,7 @@ impl VcpuFd {
         self.set_reg(&reg_assocs)?;
         Ok(())
     }
-    ///
     /// X86 specific call that returns the vcpu's current "xcrs".
-    ///
     pub fn get_xcrs(&self) -> Result<Xcrs> {
         let mut reg_assocs: [hv_register_assoc; 1] = [hv_register_assoc {
             name: hv_register_name::HV_X64_REGISTER_XFEM as u32,
@@ -816,9 +783,7 @@ impl VcpuFd {
             ..Default::default()
         }])
     }
-    ///
     /// Returns the VCpu state. This IOCTLs can be used to get XSave and LAPIC state.
-    ///
     pub fn get_vp_state_ioctl(&self, state: &mshv_vp_state) -> Result<()> {
         // Safe because we know that our file is a vCPU fd and we verify the return result.
         let ret = unsafe { ioctl_with_ref(self, MSHV_GET_VP_STATE(), state) };
@@ -827,9 +792,7 @@ impl VcpuFd {
         }
         Ok(())
     }
-    ///
     /// Returns the state of the LAPIC (Local Advanced Programmable Interrupt Controller).
-    ///
     pub fn get_lapic_ioctl(&self) -> Result<hv_local_interrupt_controller_state> {
         let mut vp_state = mshv_vp_state {
             type_: hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_LOCAL_INTERRUPT_CONTROLLER_STATE,
@@ -840,10 +803,8 @@ impl VcpuFd {
         let state: hv_local_interrupt_controller_state = unsafe { *vp_state.buf.lapic };
         Ok(state)
     }
-    ///
     /// Set vp states (LAPIC, XSave etc)
     /// Test code already covered by get/set_lapic/xsave
-    ///
     pub fn set_vp_state_ioctl(&self, state: &mshv_vp_state) -> Result<()> {
         let ret = unsafe { ioctl_with_ref(self, MSHV_SET_VP_STATE(), state) };
         if ret != 0 {
@@ -851,25 +812,19 @@ impl VcpuFd {
         }
         Ok(())
     }
-    ///
     /// Get the state of the LAPIC (Local Advanced Programmable Interrupt Controller).
-    ///
     pub fn get_lapic(&self) -> Result<LapicState> {
         let state = LapicState::default();
         let vp_state: mshv_vp_state = mshv_vp_state::from(state);
         self.get_vp_state_ioctl(&vp_state)?;
         Ok(LapicState::from(vp_state))
     }
-    ///
     /// Sets the state of the LAPIC (Local Advanced Programmable Interrupt Controller).
-    ///
     pub fn set_lapic(&self, lapic_state: &LapicState) -> Result<()> {
         let vp_state: mshv_vp_state = mshv_vp_state::from(*lapic_state);
         self.set_vp_state_ioctl(&vp_state)
     }
-    ///
     /// Returns the xsave data
-    ///
     pub fn get_xsave(&self) -> Result<XSave> {
         let layout = std::alloc::Layout::from_size_align(0x1000, 0x1000).unwrap();
         let buf = unsafe { std::alloc::alloc(layout) };
@@ -887,9 +842,7 @@ impl VcpuFd {
         }
         Ok(ret)
     }
-    ///
     /// Set the xsave data
-    ///
     pub fn set_xsave(&self, data: &XSave) -> Result<()> {
         let mut vp_state: mshv_vp_state = mshv_vp_state::from(*data);
         let layout = std::alloc::Layout::from_size_align(0x1000, 0x1000).unwrap();
@@ -907,9 +860,7 @@ impl VcpuFd {
         }
         ret
     }
-    ///
     /// Translate guest virtual address to guest physical address
-    ///
     pub fn translate_gva(&self, gva: u64, flags: u64) -> Result<(u64, hv_translate_gva_result)> {
         let gpa: u64 = 0;
         let result = hv_translate_gva_result { as_uint64: 0 };
@@ -928,9 +879,7 @@ impl VcpuFd {
 
         Ok((gpa, result))
     }
-    ///
     /// X86 specific call that returns the vcpu's current "suspend registers".
-    ///
     pub fn get_suspend_regs(&self) -> Result<SuspendRegisters> {
         let reg_names: [hv_register_name; 2] = [
             hv_register_name::HV_REGISTER_EXPLICIT_SUSPEND,

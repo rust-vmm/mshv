@@ -19,9 +19,7 @@ pub struct Mshv {
 }
 
 impl Mshv {
-    ///
     /// Opens `/dev/mshv` and returns a `Mshv` object on success.
-    ///
     #[allow(clippy::new_ret_no_self)]
     pub fn new() -> Result<Self> {
         // Open `/dev/mshv` using `O_CLOEXEC` flag.
@@ -30,7 +28,6 @@ impl Mshv {
         let ret = unsafe { Self::new_with_fd_number(fd) };
         Ok(ret)
     }
-    ///
     /// Creates a new Mshv object assuming `fd` represents an existing open file descriptor
     /// associated with `/dev/mshv`.
     ///
@@ -42,16 +39,13 @@ impl Mshv {
     /// that relies on it being true.
     ///
     /// The caller of this method must make sure the fd is valid and nothing else uses it.
-    ///
     pub unsafe fn new_with_fd_number(fd: RawFd) -> Self {
         Mshv {
             hv: File::from_raw_fd(fd),
         }
     }
 
-    ///
     /// Opens `/dev/mshv` and returns the fd number on success.
-    ///
     pub fn open_with_cloexec(close_on_exec: bool) -> Result<RawFd> {
         let open_flags = O_NONBLOCK | if close_on_exec { O_CLOEXEC } else { 0 };
         // Safe because we give a constant nul-terminated string and verify the result.
@@ -62,9 +56,7 @@ impl Mshv {
             Ok(ret)
         }
     }
-    ///
     /// Creates a VM fd using the MSHV fd.
-    ///
     pub fn create_vm(&self) -> Result<VmFd> {
         // Safe because we know `self.hv` is a real MSHV fd as this module is the only one that
         // creates mshv objects.
@@ -129,9 +121,7 @@ impl Mshv {
             Err(errno::Error::last())
         }
     }
-    ///
     /// Check if MSHV API is stable
-    ///
     pub fn check_stable(&self) -> Result<bool> {
         // Safe because we know `self.hv` is a real MSHV fd as this module is the only one that
         // creates mshv objects.
@@ -143,9 +133,7 @@ impl Mshv {
             _ => Err(errno::Error::last()),
         }
     }
-    ///
     /// X86 specific call to get list of supported MSRS
-    ///
     pub fn get_msr_index_list(&self) -> Result<MsrList> {
         /* return all the MSRs we currently support */
         Ok(MsrList::from_entries(&[

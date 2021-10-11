@@ -22,7 +22,6 @@ impl DeviceFd {
     /// # Arguments
     ///
     /// * `device_attr` - The device attribute to be tested. `addr` field is ignored.
-    ///
     pub fn has_device_attr(&self, device_attr: &mshv_device_attr) -> Result<()> {
         let ret = unsafe { ioctl_with_ref(self, MSHV_HAS_DEVICE_ATTR(), device_attr) };
         if ret != 0 {
@@ -72,7 +71,6 @@ impl DeviceFd {
     ///     device_fd.set_device_attr(&dist_attr).unwrap();
     /// }
     /// ```
-    ///
     pub fn set_device_attr(&self, device_attr: &mshv_device_attr) -> Result<()> {
         let ret = unsafe { ioctl_with_ref(self, MSHV_SET_DEVICE_ATTR(), device_attr) };
         if ret != 0 {
@@ -100,7 +98,6 @@ impl DeviceFd {
     /// * Returns the last occured `errno` wrapped in an `Err`.
     /// * `device_attr` - The `addr` field of the `device_attr` structure will point to
     ///                   the device attribute data.
-    ///
     pub fn get_device_attr(&self, device_attr: &mut mshv_device_attr) -> Result<()> {
         let ret = unsafe { ioctl_with_mut_ref(self, MSHV_GET_DEVICE_ATTR(), device_attr) };
         if ret != 0 {
