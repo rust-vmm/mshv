@@ -438,17 +438,19 @@ impl VcpuFd {
             hv_register_name::HV_X64_REGISTER_XMM_CONTROL_STATUS,
         ];
         let mut reg_values: [hv_register_value; 26] = [hv_register_value { reg64: 0 }; 26];
-        for i in 0..16 {
+        // First 16 registers are XMM registers.
+        for (i, reg) in reg_values.iter_mut().enumerate().take(16) {
             unsafe {
-                reg_values[i] = hv_register_value {
+                *reg = hv_register_value {
                     reg128: std::mem::transmute::<[u8; 16usize], hv_u128>(fpu.xmm[i]),
                 };
             }
         }
-        for i in 16..24 {
+        // The next 8 registers are FP registers.
+        for (i, reg) in reg_values.iter_mut().enumerate().take(24).skip(16) {
             let fp_i = i - 16;
             unsafe {
-                reg_values[i] = hv_register_value {
+                *reg = hv_register_value {
                     fp: hv_x64_fp_register {
                         as_uint128: std::mem::transmute::<[u8; 16usize], hv_u128>(fpu.fpr[fp_i]),
                     },
@@ -557,17 +559,17 @@ impl VcpuFd {
             }
         };
 
-        for i in 0..16 {
+        // First 16 registers are XMM registers.
+        for (i, reg) in reg_assocs.iter().enumerate().take(16) {
             unsafe {
-                ret_regs.xmm[i] =
-                    std::mem::transmute::<hv_u128, [u8; 16usize]>(reg_assocs[i].value.reg128);
+                ret_regs.xmm[i] = std::mem::transmute::<hv_u128, [u8; 16usize]>(reg.value.reg128);
             }
         }
-        for i in 0..8 {
+        // The next 8 registers are FP registers.
+        for (i, reg) in reg_assocs.iter().enumerate().take(24).skip(16) {
             unsafe {
-                ret_regs.fpr[i] = std::mem::transmute::<hv_u128, [u8; 16usize]>(
-                    reg_assocs[i].value.fp.as_uint128,
-                );
+                ret_regs.fpr[i] =
+                    std::mem::transmute::<hv_u128, [u8; 16usize]>(reg.value.fp.as_uint128);
             }
         }
 
@@ -654,8 +656,8 @@ impl VcpuFd {
         self.get_reg(&mut reg_assocs)?;
 
         unsafe {
-            for i in 0..nmsrs {
-                msrs.as_mut_slice()[i].data = reg_assocs[i].value.reg64;
+            for (i, reg) in reg_assocs.iter().enumerate().take(nmsrs) {
+                msrs.as_mut_slice()[i].data = reg.value.reg64;
             }
         }
 
