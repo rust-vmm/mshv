@@ -578,8 +578,8 @@ mod tests {
         let vm = hv.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
         let state: LapicState = LapicState::default();
-        let vp_state: mshv_vp_state = mshv_vp_state::from(state);
-        vcpu.get_vp_state_ioctl(&vp_state).unwrap();
+        let mut vp_state: mshv_vp_state = mshv_vp_state::from(state);
+        vcpu.get_vp_state_ioctl(&mut vp_state).unwrap();
         let lapic: hv_local_interrupt_controller_state = unsafe { *(vp_state.buf.lapic) };
         let cfg = InterruptRequest {
             interrupt_type: hv_interrupt_type_HV_X64_INTERRUPT_TYPE_EXTINT,

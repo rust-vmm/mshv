@@ -810,9 +810,9 @@ impl VcpuFd {
         }])
     }
     /// Returns the VCpu state. This IOCTLs can be used to get XSave and LAPIC state.
-    pub fn get_vp_state_ioctl(&self, state: &mshv_vp_state) -> Result<()> {
+    pub fn get_vp_state_ioctl(&self, state: &mut mshv_vp_state) -> Result<()> {
         // Safe because we know that our file is a vCPU fd and we verify the return result.
-        let ret = unsafe { ioctl_with_ref(self, MSHV_GET_VP_STATE(), state) };
+        let ret = unsafe { ioctl_with_mut_ref(self, MSHV_GET_VP_STATE(), state) };
         if ret != 0 {
             return Err(errno::Error::last());
         }
@@ -825,7 +825,7 @@ impl VcpuFd {
             ..Default::default()
         };
         // Safe because we know that our file is a vCPU fd and we verify the return result.
-        self.get_vp_state_ioctl(&vp_state).unwrap();
+        self.get_vp_state_ioctl(&mut vp_state).unwrap();
         let state: hv_local_interrupt_controller_state = unsafe { *vp_state.buf.lapic };
         Ok(state)
     }
@@ -841,8 +841,8 @@ impl VcpuFd {
     /// Get the state of the LAPIC (Local Advanced Programmable Interrupt Controller).
     pub fn get_lapic(&self) -> Result<LapicState> {
         let state = LapicState::default();
-        let vp_state: mshv_vp_state = mshv_vp_state::from(state);
-        self.get_vp_state_ioctl(&vp_state)?;
+        let mut vp_state: mshv_vp_state = mshv_vp_state::from(state);
+        self.get_vp_state_ioctl(&mut vp_state)?;
         Ok(LapicState::from(vp_state))
     }
     /// Sets the state of the LAPIC (Local Advanced Programmable Interrupt Controller).
@@ -861,7 +861,7 @@ impl VcpuFd {
         vp_state.buf.bytes = buf;
         vp_state.buf_size = 4096;
         vp_state.type_ = hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_XSAVE;
-        self.get_vp_state_ioctl(&vp_state).unwrap();
+        self.get_vp_state_ioctl(&mut vp_state).unwrap();
         let ret = XSave::from(vp_state);
         unsafe {
             std::alloc::dealloc(buf, layout);
@@ -1287,7 +1287,7 @@ mod tests {
             hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_LOCAL_INTERRUPT_CONTROLLER_STATE;
         vp_state.buf.bytes = state.regs.as_ptr() as *mut u8;
         vp_state.buf_size = 1024;
-        vcpu.get_vp_state_ioctl(&vp_state).unwrap();
+        vcpu.get_vp_state_ioctl(&mut vp_state).unwrap();
         vcpu.set_vp_state_ioctl(&vp_state).unwrap();
     }
     #[test]
