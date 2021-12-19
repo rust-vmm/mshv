@@ -152,7 +152,7 @@ impl VmFd {
     /// irqfd: Passes in an eventfd which is to be used for injecting
     /// interrupts from userland.
     fn irqfd(&self, fd: RawFd, gsi: u32, flags: u32) -> Result<()> {
-        let mut irqfd_arg = mshv_irqfd {
+        let irqfd_arg = mshv_irqfd {
             fd: fd as i32,
             flags,
             resamplefd: 0,
@@ -259,12 +259,10 @@ impl VmFd {
         datamatch: T,
         mut flags: u32,
     ) -> Result<()> {
-        let mut mmio_addr: u64;
-
         //
         // mshv doesn't support PIO ioeventfds now.
         //
-        mmio_addr = match addr {
+        let mmio_addr = match addr {
             IoEventAddress::Pio(_) => {
                 return Err(errno::Error::new(libc::ENOTSUP));
             }
@@ -494,7 +492,7 @@ impl VmFd {
                 std::slice::from_raw_parts(page_states.states, page_states.count as usize)
             };
             for item in slices.iter() {
-                let mut bits = &mut bitmap[bitmap_index];
+                let bits = &mut bitmap[bitmap_index];
                 mask = 1 << bit_index;
                 state = unsafe { item.__bindgen_anon_1.dirty() };
                 if state == 1 {
