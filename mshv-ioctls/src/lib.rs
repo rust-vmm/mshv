@@ -2,12 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0 OR BSD-3-Clause
 //
-#![allow(unused_variables, unused_mut)]
+#![cfg(target_arch = "x86_64")]
 #![allow(non_snake_case)]
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
-#![cfg(target_arch = "x86_64")]
-#![allow(clippy::too_many_arguments)]
 #![allow(clippy::needless_range_loop)]
 
 //! A safe wrapper around the kernel's MSHV interface.
