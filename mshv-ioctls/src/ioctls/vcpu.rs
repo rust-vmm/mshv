@@ -683,7 +683,7 @@ impl VcpuFd {
     ///  Triggers the running of the current virtual CPU returning an exit reason.
     pub fn run(&self, mut hv_message_input: hv_message) -> Result<hv_message> {
         // Safe because we know that our file is a vCPU fd and we verify the return result.
-        let ret = unsafe { ioctl_with_ref(self, MSHV_RUN_VP(), &hv_message_input) };
+        let ret = unsafe { ioctl_with_mut_ref(self, MSHV_RUN_VP(), &mut hv_message_input) };
         if ret != 0 {
             return Err(errno::Error::last());
         }
