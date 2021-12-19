@@ -406,10 +406,10 @@ impl VcpuFd {
         self.set_reg(&reg_assocs)?;
         Ok(())
     }
-    /// Sets the vCPU floating point registers
+
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
-    pub fn set_fpu(&self, fpu: &FloatingPointUnit) -> Result<()> {
-        let reg_names: [hv_register_name; 26] = [
+    fn fpu_registers() -> [hv_register_name; 26] {
+        [
             hv_register_name::HV_X64_REGISTER_XMM0,
             hv_register_name::HV_X64_REGISTER_XMM1,
             hv_register_name::HV_X64_REGISTER_XMM2,
@@ -436,7 +436,13 @@ impl VcpuFd {
             hv_register_name::HV_X64_REGISTER_FP_MMX7,
             hv_register_name::HV_X64_REGISTER_FP_CONTROL_STATUS,
             hv_register_name::HV_X64_REGISTER_XMM_CONTROL_STATUS,
-        ];
+        ]
+    }
+
+    /// Sets the vCPU floating point registers
+    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    pub fn set_fpu(&self, fpu: &FloatingPointUnit) -> Result<()> {
+        let reg_names = Self::fpu_registers();
         let mut reg_values: [hv_register_value; 26] = [hv_register_value { reg64: 0 }; 26];
         // First 16 registers are XMM registers.
         for (i, reg) in reg_values.iter_mut().enumerate().take(16) {
@@ -501,35 +507,7 @@ impl VcpuFd {
     /// Returns the floating point state (FPU) from the vCPU.
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     pub fn get_fpu(&self) -> Result<FloatingPointUnit> {
-        let reg_names: [hv_register_name; 26] = [
-            hv_register_name::HV_X64_REGISTER_XMM0,
-            hv_register_name::HV_X64_REGISTER_XMM1,
-            hv_register_name::HV_X64_REGISTER_XMM2,
-            hv_register_name::HV_X64_REGISTER_XMM3,
-            hv_register_name::HV_X64_REGISTER_XMM4,
-            hv_register_name::HV_X64_REGISTER_XMM5,
-            hv_register_name::HV_X64_REGISTER_XMM6,
-            hv_register_name::HV_X64_REGISTER_XMM7,
-            hv_register_name::HV_X64_REGISTER_XMM8,
-            hv_register_name::HV_X64_REGISTER_XMM9,
-            hv_register_name::HV_X64_REGISTER_XMM10,
-            hv_register_name::HV_X64_REGISTER_XMM11,
-            hv_register_name::HV_X64_REGISTER_XMM12,
-            hv_register_name::HV_X64_REGISTER_XMM13,
-            hv_register_name::HV_X64_REGISTER_XMM14,
-            hv_register_name::HV_X64_REGISTER_XMM15,
-            hv_register_name::HV_X64_REGISTER_FP_MMX0,
-            hv_register_name::HV_X64_REGISTER_FP_MMX1,
-            hv_register_name::HV_X64_REGISTER_FP_MMX2,
-            hv_register_name::HV_X64_REGISTER_FP_MMX3,
-            hv_register_name::HV_X64_REGISTER_FP_MMX4,
-            hv_register_name::HV_X64_REGISTER_FP_MMX5,
-            hv_register_name::HV_X64_REGISTER_FP_MMX6,
-            hv_register_name::HV_X64_REGISTER_FP_MMX7,
-            hv_register_name::HV_X64_REGISTER_FP_CONTROL_STATUS,
-            hv_register_name::HV_X64_REGISTER_XMM_CONTROL_STATUS,
-        ];
-
+        let reg_names = Self::fpu_registers();
         let mut reg_assocs: Vec<hv_register_assoc> = reg_names
             .iter()
             .map(|name| hv_register_assoc {
