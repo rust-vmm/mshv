@@ -38,7 +38,7 @@ pub enum IoEventAddress {
 pub struct NoDatamatch;
 
 impl From<NoDatamatch> for u64 {
-    fn from(s: NoDatamatch) -> u64 {
+    fn from(_s: NoDatamatch) -> u64 {
         0
     }
 }
@@ -493,7 +493,7 @@ impl VmFd {
             let slices: &[hv_gpa_page_access_state] = unsafe {
                 std::slice::from_raw_parts(page_states.states, page_states.count as usize)
             };
-            for (pos, item) in slices.iter().enumerate() {
+            for item in slices.iter() {
                 let mut bits = &mut bitmap[bitmap_index];
                 mask = 1 << bit_index;
                 state = unsafe { item.__bindgen_anon_1.dirty() };
