@@ -193,7 +193,7 @@
 //! ```
 
 extern crate mshv_bindings;
-pub mod ioctls;
+mod ioctls;
 pub use ioctls::device::DeviceFd;
 pub use ioctls::system::Mshv;
 pub use ioctls::vcpu::VcpuFd;
@@ -203,7 +203,7 @@ pub use ioctls::vm::NoDatamatch;
 pub use ioctls::vm::VmFd;
 
 #[macro_use]
-pub mod mshv_ioctls;
+mod mshv_ioctls;
 extern crate libc;
 #[macro_use]
 extern crate vmm_sys_util;
