@@ -756,6 +756,7 @@ impl VcpuFd {
 
         Ok(ret_regs)
     }
+    /// X86 specific call to set XCRs
     pub fn set_xcrs(&self, xcrs: &Xcrs) -> Result<()> {
         self.set_reg(&[hv_register_assoc {
             name: hv_register_name::HV_X64_REGISTER_XFEM as u32,
