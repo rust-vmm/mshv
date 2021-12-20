@@ -68,6 +68,7 @@
 //!     ];
 //!
 //!     let mem_size = 0x4000;
+//!     // SAFETY: FFI call.
 //!     let load_addr = unsafe {
 //!         libc::mmap(
 //!             std::ptr::null_mut(),
@@ -87,9 +88,9 @@
 //!
 //!     vm.map_user_memory(mem_region).unwrap();
 //!
+//!     // SAFETY: load_addr is a valid pointer from mmap. Its length is mem_size.
 //!     unsafe {
 //!         // Get a mutable slice of `mem_size` from `load_addr`.
-//!         // This is safe because we mapped it before.
 //!         let mut slice = slice::from_raw_parts_mut(load_addr, mem_size);
 //!         slice.write_all(&code).unwrap();
 //!     }
@@ -101,6 +102,7 @@
 //!     };
 //!     vcpu.get_reg(slice::from_mut(&mut cs_reg)).unwrap();
 //!
+//!     // SAFETY: access union fields
 //!     unsafe {
 //!         assert_ne!({ cs_reg.value.segment.base }, 0);
 //!         assert_ne!({ cs_reg.value.segment.selector }, 0);
@@ -134,7 +136,7 @@
 //!     ])
 //!     .unwrap();
 //!
-//!     let hv_message: hv_message = unsafe { std::mem::zeroed() };
+//!     let hv_message: hv_message = Default::default();
 //!     let mut done = false;
 //!     loop {
 //!         let ret_hv_message: hv_message = vcpu.run(hv_message).unwrap();
@@ -149,6 +151,7 @@
 //!                 if !done {
 //!                     assert!(io_message.rax == b'4' as u64);
 //!                     assert!(io_message.port_number == 0x3f8);
+//!                     // SAFETY: access union fields.
 //!                     unsafe {
 //!                         assert!(io_message.access_info.__bindgen_anon_1.string_op() == 0);
 //!                         assert!(io_message.access_info.__bindgen_anon_1.access_size() == 1);
@@ -169,6 +172,7 @@
 //!                 } else {
 //!                     assert!(io_message.rax == b'\0' as u64);
 //!                     assert!(io_message.port_number == 0x3f8);
+//!                     // SAFETY: access union fields.
 //!                     unsafe {
 //!                         assert!(io_message.access_info.__bindgen_anon_1.string_op() == 0);
 //!                         assert!(io_message.access_info.__bindgen_anon_1.access_size() == 1);
@@ -189,6 +193,7 @@
 //!     }
 //!     assert!(done);
 //!     vm.unmap_user_memory(mem_region).unwrap();
+//!     // SAFETY: FFI call. We're sure load_addr and mem_size are correct.
 //!     unsafe { libc::munmap(load_addr as *mut c_void, mem_size) };
 //! }
 //! ```
