@@ -16,6 +16,7 @@ use vmm_sys_util::errno;
 use vmm_sys_util::eventfd::EventFd;
 use vmm_sys_util::ioctl::{ioctl_with_mut_ref, ioctl_with_ref};
 
+/// Batch size for processing page access states
 const PAGE_ACCESS_STATES_BATCH_SIZE: u32 = 0x10000;
 
 /// An address either in programmable I/O space or in memory mapped I/O space.
@@ -44,20 +45,20 @@ impl From<NoDatamatch> for u64 {
 }
 
 /// Structure for injecting interurpt
+///
 /// This struct is passed to request_virtual_interrupt function as an argument
-/// Member variable
-///     interrupt_type: Type of the interrupt
-///     apic_id: Advanced Programmable Interrupt Controller Identification Number
-///     Vector: APIC Vector (entry of Interrupt Vector Table i.e IVT)
-///     level_triggered: True means level triggered, false means edge triggered
-///     logical_destination_mode: lTrue means the APIC ID is logical, false means physical
-///     long_mode: True means CPU is in long mode
 pub struct InterruptRequest {
+    /// Type of interrupt
     pub interrupt_type: hv_interrupt_type,
+    /// Advanced Programmable Interrupt Controller Identification Number
     pub apic_id: u64,
+    /// APIC Vector (entry of Interrupt Vector Table i.e IVT)
     pub vector: u32,
+    /// True means level triggered, false means edge triggered
     pub level_triggered: bool,
+    /// True means the APIC ID is logical, false means physical
     pub logical_destination_mode: bool,
+    /// True means CPU is in long mode
     pub long_mode: bool,
 }
 /// Wrapper over Mshv VM ioctls.
