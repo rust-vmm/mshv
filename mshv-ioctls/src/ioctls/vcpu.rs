@@ -70,7 +70,7 @@ impl VcpuFd {
             count: reg_names.len() as i32,
             regs: reg_names.as_mut_ptr(),
         };
-        // Safe because we know that our file is a vCPU fd, we know the kernel will only read the
+        // SAFETY: we know that our file is a vCPU fd, we know the kernel will only read the
         // correct amount of memory from our pointer, and we verify the return result.
         let ret = unsafe {
             ioctl_with_mut_ref(self, MSHV_GET_VP_REGISTERS(), &mut mshv_vp_register_args)
@@ -92,6 +92,7 @@ impl VcpuFd {
             count: regs.len() as i32,
             regs: regs.as_ptr() as *mut hv_register_assoc,
         };
+        // SAFETY: IOCTL call with correct types.
         let ret = unsafe { ioctl_with_ref(self, MSHV_SET_VP_REGISTERS(), &hv_vp_register_args) };
         if ret != 0 {
             return Err(errno::Error::last());
@@ -229,6 +230,7 @@ impl VcpuFd {
             .collect();
         self.get_reg(&mut reg_assocs)?;
         let mut ret_regs = StandardRegisters::default();
+        // SAFETY: access union fields
         unsafe {
             ret_regs.rax = reg_assocs[0].value.reg64;
             ret_regs.rbx = reg_assocs[1].value.reg64;
@@ -284,6 +286,7 @@ impl VcpuFd {
             .collect();
         self.get_reg(&mut reg_assocs)?;
         let mut ret_regs = SpecialRegisters::default();
+        // SAFETY: access union fields
         unsafe {
             ret_regs.cs = SegmentRegister::from(reg_assocs[0].value.segment);
             ret_regs.ds = SegmentRegister::from(reg_assocs[1].value.segment);
@@ -446,6 +449,7 @@ impl VcpuFd {
         let mut reg_values: [hv_register_value; 26] = [hv_register_value { reg64: 0 }; 26];
         // First 16 registers are XMM registers.
         for (i, reg) in reg_values.iter_mut().enumerate().take(16) {
+            // SAFETY: we're sure the underlying bit pattern is valid
             unsafe {
                 *reg = hv_register_value {
                     reg128: std::mem::transmute::<[u8; 16usize], hv_u128>(fpu.xmm[i]),
@@ -455,6 +459,7 @@ impl VcpuFd {
         // The next 8 registers are FP registers.
         for (i, reg) in reg_values.iter_mut().enumerate().take(24).skip(16) {
             let fp_i = i - 16;
+            // SAFETY: we're sure the underlying bit pattern is valid
             unsafe {
                 *reg = hv_register_value {
                     fp: hv_x64_fp_register {
@@ -517,6 +522,7 @@ impl VcpuFd {
             .collect();
         self.get_reg(&mut reg_assocs)?;
 
+        // SAFETY: access union fields
         let fp_control_status: hv_x64_fp_control_status_register__bindgen_ty_1 =
             unsafe { reg_assocs[24].value.fp_control_status.__bindgen_anon_1 };
         let xmm_control_status: hv_x64_xmm_control_status_register__bindgen_ty_1 =
@@ -539,12 +545,14 @@ impl VcpuFd {
 
         // First 16 registers are XMM registers.
         for (i, reg) in reg_assocs.iter().enumerate().take(16) {
+            // SAFETY: we trust the hypervisor returns the expected data type.
             unsafe {
                 ret_regs.xmm[i] = std::mem::transmute::<hv_u128, [u8; 16usize]>(reg.value.reg128);
             }
         }
         // The next 8 registers are FP registers.
         for (i, reg) in reg_assocs.iter().enumerate().take(24).skip(16) {
+            // SAFETY: we trust the hypervisor returns the expected data type.
             unsafe {
                 ret_regs.fpr[i] =
                     std::mem::transmute::<hv_u128, [u8; 16usize]>(reg.value.fp.as_uint128);
@@ -633,8 +641,10 @@ impl VcpuFd {
 
         self.get_reg(&mut reg_assocs)?;
 
-        unsafe {
-            for (i, reg) in reg_assocs.iter().enumerate().take(nmsrs) {
+        for (i, reg) in reg_assocs.iter().enumerate().take(nmsrs) {
+            // SAFETY: access union fields requires unsafe. The values are initialized by get_reg
+            // call.
+            unsafe {
                 msrs.as_mut_slice()[i].data = reg.value.reg64;
             }
         }
@@ -662,7 +672,7 @@ impl VcpuFd {
     }
     ///  Triggers the running of the current virtual CPU returning an exit reason.
     pub fn run(&self, mut hv_message_input: hv_message) -> Result<hv_message> {
-        // Safe because we know that our file is a vCPU fd and we verify the return result.
+        // SAFETY: we know that our file is a vCPU fd and we verify the return result.
         let ret = unsafe { ioctl_with_mut_ref(self, MSHV_RUN_VP(), &mut hv_message_input) };
         if ret != 0 {
             return Err(errno::Error::last());
@@ -688,6 +698,7 @@ impl VcpuFd {
             .collect();
         self.get_reg(&mut reg_assocs)?;
         let mut ret_regs = VcpuEvents::default();
+        // SAFETY: access union fields
         unsafe {
             ret_regs.pending_interruption = reg_assocs[0].value.reg64;
             ret_regs.interrupt_state = reg_assocs[1].value.reg64;
@@ -708,6 +719,8 @@ impl VcpuFd {
             hv_register_name::HV_REGISTER_PENDING_EVENT0,
             hv_register_name::HV_REGISTER_PENDING_EVENT1,
         ];
+        // SAFETY: access union fields requires unsafe. For transmuting values we're sure
+        // the types and bit patterns are correct.
         let reg_values: [hv_register_value; 5] = unsafe {
             [
                 hv_register_value {
@@ -748,6 +761,7 @@ impl VcpuFd {
         }];
         self.get_reg(&mut reg_assocs)?;
 
+        // SAFETY: access union fields
         let ret_regs = unsafe {
             Xcrs {
                 xcr0: reg_assocs[0].value.reg64,
@@ -772,6 +786,7 @@ impl VcpuFd {
         }];
         self.get_reg(&mut reg_assocs)?;
 
+        // SAFETY: access union fields
         let ret_regs = unsafe {
             MiscRegs {
                 hypercall: reg_assocs[0].value.reg64,
@@ -792,7 +807,7 @@ impl VcpuFd {
     }
     /// Returns the VCpu state. This IOCTLs can be used to get XSave and LAPIC state.
     pub fn get_vp_state_ioctl(&self, state: &mut mshv_vp_state) -> Result<()> {
-        // Safe because we know that our file is a vCPU fd and we verify the return result.
+        // SAFETY: we know that our file is a vCPU fd and we verify the return result.
         let ret = unsafe { ioctl_with_mut_ref(self, MSHV_GET_VP_STATE(), state) };
         if ret != 0 {
             return Err(errno::Error::last());
@@ -807,12 +822,14 @@ impl VcpuFd {
         };
         // Safe because we know that our file is a vCPU fd and we verify the return result.
         self.get_vp_state_ioctl(&mut vp_state).unwrap();
+        // SAFETY: access union fields
         let state: hv_local_interrupt_controller_state = unsafe { *vp_state.buf.lapic };
         Ok(state)
     }
     /// Set vp states (LAPIC, XSave etc)
     /// Test code already covered by get/set_lapic/xsave
     pub fn set_vp_state_ioctl(&self, state: &mshv_vp_state) -> Result<()> {
+        // SAFETY: IOCTL call with correct types
         let ret = unsafe { ioctl_with_ref(self, MSHV_SET_VP_STATE(), state) };
         if ret != 0 {
             return Err(errno::Error::last());
@@ -834,6 +851,7 @@ impl VcpuFd {
     /// Returns the xsave data
     pub fn get_xsave(&self) -> Result<XSave> {
         let layout = std::alloc::Layout::from_size_align(0x1000, 0x1000).unwrap();
+        // SAFETY: layout is valid
         let buf = unsafe { std::alloc::alloc(layout) };
         if buf.is_null() {
             return Err(errno::Error::new(libc::ENOMEM));
@@ -844,6 +862,7 @@ impl VcpuFd {
         vp_state.type_ = hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_XSAVE;
         self.get_vp_state_ioctl(&mut vp_state).unwrap();
         let ret = XSave::from(vp_state);
+        // SAFETY: buf was allocated with layout
         unsafe {
             std::alloc::dealloc(buf, layout);
         }
@@ -853,15 +872,18 @@ impl VcpuFd {
     pub fn set_xsave(&self, data: &XSave) -> Result<()> {
         let mut vp_state: mshv_vp_state = mshv_vp_state::from(*data);
         let layout = std::alloc::Layout::from_size_align(0x1000, 0x1000).unwrap();
+        // SAFETY: layout is valid
         let buf = unsafe { std::alloc::alloc(layout) };
         if buf.is_null() {
             return Err(errno::Error::new(libc::ENOMEM));
         }
         let min: usize = cmp::min(4096, vp_state.buf_size as u32) as usize;
+        // SAFETY: src and dest are valid and properly aligned
         unsafe { ptr::copy(data.buffer.as_ptr().offset(24) as *mut u8, buf, min) };
         vp_state.buf_size = 4096;
         vp_state.buf.bytes = buf;
         let ret = self.set_vp_state_ioctl(&vp_state);
+        // SAFETY: buf was allocated with layout
         unsafe {
             std::alloc::dealloc(buf, layout);
         }
@@ -878,7 +900,7 @@ impl VcpuFd {
             gpa: &gpa as *const _ as *mut u64,
             result: &result as *const _ as *mut hv_translate_gva_result,
         };
-        // Safe because we know that our file is a vCPU fd, we know the kernel honours its ABI.
+        // SAFETY: we know that our file is a vCPU fd, we know the kernel honours its ABI.
         let ret = unsafe { ioctl_with_mut_ref(self, MSHV_VP_TRANSLATE_GVA(), &mut args) };
         if ret != 0 {
             return Err(errno::Error::last());
@@ -903,6 +925,7 @@ impl VcpuFd {
 
         self.get_reg(&mut reg_assocs)?;
 
+        // SAFETY: access union fields
         let ret_regs = unsafe {
             SuspendRegisters {
                 explicit_register: reg_assocs[0].value.reg64,
@@ -955,6 +978,7 @@ mod tests {
 
         vcpu.get_reg(&mut get_regs).unwrap();
 
+        // SAFETY: access union fields
         unsafe {
             assert!(get_regs[0].value.reg64 == 0x1000);
             assert!(get_regs[1].value.reg64 == 0x2);
