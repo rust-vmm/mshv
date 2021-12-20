@@ -75,6 +75,7 @@ impl AsRawFd for VmFd {
 impl VmFd {
     /// Install intercept to enable some VM exits like MSR, CPUId etc
     pub fn install_intercept(&self, install_intercept_args: mshv_install_intercept) -> Result<()> {
+        // SAFETY: IOCTL with correct types
         #[allow(clippy::cast_lossless)]
         let ret =
             unsafe { ioctl_with_ref(self, MSHV_INSTALL_INTERCEPT(), &install_intercept_args) };
@@ -86,6 +87,7 @@ impl VmFd {
     }
     /// Creates/modifies a guest physical memory.
     pub fn map_user_memory(&self, user_memory_region: mshv_user_mem_region) -> Result<()> {
+        // SAFETY: IOCTL with correct types
         #[allow(clippy::cast_lossless)]
         let ret = unsafe { ioctl_with_ref(self, MSHV_MAP_GUEST_MEMORY(), &user_memory_region) };
         if ret == 0 {
@@ -96,6 +98,7 @@ impl VmFd {
     }
     /// Unmap a guest physical memory.
     pub fn unmap_user_memory(&self, user_memory_region: mshv_user_mem_region) -> Result<()> {
+        // SAFETY: IOCTL with correct types
         #[allow(clippy::cast_lossless)]
         let ret = unsafe { ioctl_with_ref(self, MSHV_UNMAP_GUEST_MEMORY(), &user_memory_region) };
         if ret == 0 {
@@ -109,7 +112,7 @@ impl VmFd {
         let vp_arg = mshv_create_vp {
             vp_index: id as __u32,
         };
-        // Safe because we know that vm is a VM fd and we verify the return result.
+        // SAFETY: IOCTL with correct types
         #[allow(clippy::cast_lossless)]
         let vcpu_fd = unsafe { ioctl_with_ref(&self.vm, MSHV_CREATE_VP(), &vp_arg) };
         if vcpu_fd < 0 {
@@ -118,6 +121,7 @@ impl VmFd {
 
         // Wrap the vCPU now in case the following ? returns early. This is safe because we verified
         // the value of the fd and we own the fd.
+        // SAFETY: we're sure vcpu_fd is valid.
         let vcpu = unsafe { File::from_raw_fd(vcpu_fd) };
 
         Ok(new_vcpu(vcpu))
@@ -142,6 +146,7 @@ impl VmFd {
             dest_addr: request.apic_id,
             vector: request.vector,
         };
+        // SAFETY: IOCTL with correct types
         #[allow(clippy::cast_lossless)]
         let ret = unsafe { ioctl_with_ref(&self.vm, MSHV_ASSERT_INTERRUPT(), &interrupt_arg) };
         if ret == 0 {
@@ -160,6 +165,7 @@ impl VmFd {
             gsi,
         };
 
+        // SAFETY: IOCTL with correct types
         #[allow(clippy::cast_lossless)]
         let ret = unsafe { ioctl_with_ref(&self.vm, MSHV_IRQFD(), &irqfd_arg) };
         if ret == 0 {
@@ -241,7 +247,7 @@ impl VmFd {
     /// vm.set_msi_routing(&msi_routing).unwrap();
     /// ```
     pub fn set_msi_routing(&self, msi_routing: &mshv_msi_routing) -> Result<()> {
-        // Safe because we allocated the structure and we know the kernel
+        // SAFETY: we allocated the structure and we know the kernel
         // will read exactly the size of the structure.
         let ret = unsafe { ioctl_with_ref(self, MSHV_SET_MSI_ROUTING(), msi_routing) };
         if ret == 0 {
@@ -282,7 +288,7 @@ impl VmFd {
             flags,
             ..Default::default()
         };
-        // Safe because we know that our file is a VM fd, we know the kernel will only read the
+        // SAFETY: we know that our file is a VM fd, we know the kernel will only read the
         // correct amount of memory from our pointer, and we verify the return result.
         let ret = unsafe { ioctl_with_ref(self, MSHV_IOEVENTFD(), &ioeventfd) };
         if ret == 0 {
@@ -368,6 +374,7 @@ impl VmFd {
             property_code: code,
             ..Default::default()
         };
+        // SAFETY: IOCTL with correct types
         #[allow(clippy::cast_lossless)]
         let ret =
             unsafe { ioctl_with_mut_ref(&self.vm, MSHV_GET_PARTITION_PROPERTY(), &mut property) };
@@ -383,6 +390,7 @@ impl VmFd {
             property_code: code,
             property_value: value,
         };
+        // SAFETY: IOCTL with correct types
         #[allow(clippy::cast_lossless)]
         let ret = unsafe { ioctl_with_ref(&self.vm, MSHV_SET_PARTITION_PROPERTY(), &property) };
         if ret == 0 {
@@ -440,6 +448,7 @@ impl VmFd {
                 states: states.as_mut_ptr(),
             };
 
+        // SAFETY: IOCTL with correct types
         let ret = unsafe {
             ioctl_with_mut_ref(
                 self,
@@ -465,6 +474,7 @@ impl VmFd {
         // Compute the length of the bitmap needed for all dirty pages in one memory slot.
         // One memory page is `page_size` bytes and `KVM_GET_DIRTY_LOG` returns one dirty bit for
         // each page.
+        // SAFETY: FFI call to libc
         let page_size = match unsafe { libc::sysconf(libc::_SC_PAGESIZE) } {
             -1 => return Err(errno::Error::last()),
             ps => ps as usize,
@@ -489,12 +499,14 @@ impl VmFd {
             current_size = cmp::min(PAGE_ACCESS_STATES_BATCH_SIZE, remaining);
             let page_states =
                 self.get_gpa_access_state(base_pfn + processed as u64, current_size, flags)?;
+            // SAFETY: we're sure states and count meet the requirements for from_raw_parts
             let slices: &[hv_gpa_page_access_state] = unsafe {
                 std::slice::from_raw_parts(page_states.states, page_states.count as usize)
             };
             for item in slices.iter() {
                 let bits = &mut bitmap[bitmap_index];
                 mask = 1 << bit_index;
+                // SAFETY: access union field
                 state = unsafe { item.__bindgen_anon_1.dirty() };
                 if state == 1 {
                     *bits |= mask;
@@ -511,8 +523,10 @@ impl VmFd {
     ///
     /// See the documentation for `MSHV_CREATE_DEVICE`.
     pub fn create_device(&self, device: &mut mshv_create_device) -> Result<DeviceFd> {
+        // SAFETY: IOCTL with correct types
         let ret = unsafe { ioctl_with_ref(self, MSHV_CREATE_DEVICE(), device) };
         if ret == 0 {
+            // SAFETY: fd is valid
             Ok(new_device(unsafe { File::from_raw_fd(device.fd as i32) }))
         } else {
             Err(errno::Error::last())
