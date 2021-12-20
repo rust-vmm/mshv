@@ -23,6 +23,8 @@ impl DeviceFd {
     ///
     /// * `device_attr` - The device attribute to be tested. `addr` field is ignored.
     pub fn has_device_attr(&self, device_attr: &mshv_device_attr) -> Result<()> {
+        // SAFETY: IOCTL. We're sure parameters are of the correct types and meet safety
+        // requirements.
         let ret = unsafe { ioctl_with_ref(self, MSHV_HAS_DEVICE_ATTR(), device_attr) };
         if ret != 0 {
             return Err(errno::Error::last());
@@ -72,6 +74,8 @@ impl DeviceFd {
     /// }
     /// ```
     pub fn set_device_attr(&self, device_attr: &mshv_device_attr) -> Result<()> {
+        // SAFETY: IOCTL. We're sure parameters are of the correct types and meet safety
+        // requirements.
         let ret = unsafe { ioctl_with_ref(self, MSHV_SET_DEVICE_ATTR(), device_attr) };
         if ret != 0 {
             return Err(errno::Error::last());
@@ -99,6 +103,8 @@ impl DeviceFd {
     /// * `device_attr` - The `addr` field of the `device_attr` structure will point to
     ///                   the device attribute data.
     pub fn get_device_attr(&self, device_attr: &mut mshv_device_attr) -> Result<()> {
+        // SAFETY: IOCTL. We're sure parameters are of the correct types and meet safety
+        // requirements.
         let ret = unsafe { ioctl_with_mut_ref(self, MSHV_GET_DEVICE_ATTR(), device_attr) };
         if ret != 0 {
             return Err(errno::Error::last());
@@ -157,8 +163,10 @@ mod tests {
 
         // Following lines to re-construct device_fd are used to test
         // DeviceFd::from_raw_fd() and DeviceFd::as_raw_fd().
+        // SAFETY: FFI call to dup(2).
         let raw_fd = unsafe { libc::dup(device.as_raw_fd()) };
         assert!(raw_fd >= 0);
+        // SAFETY: raw_fd was created by create_device and checked to be valid.
         let device = unsafe { DeviceFd::from_raw_fd(raw_fd) };
 
         let dist_attr = mshv_bindings::mshv_device_attr {
