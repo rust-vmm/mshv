@@ -76,7 +76,6 @@ impl VmFd {
     /// Install intercept to enable some VM exits like MSR, CPUId etc
     pub fn install_intercept(&self, install_intercept_args: mshv_install_intercept) -> Result<()> {
         // SAFETY: IOCTL with correct types
-        #[allow(clippy::cast_lossless)]
         let ret =
             unsafe { ioctl_with_ref(self, MSHV_INSTALL_INTERCEPT(), &install_intercept_args) };
         if ret == 0 {
@@ -88,7 +87,6 @@ impl VmFd {
     /// Creates/modifies a guest physical memory.
     pub fn map_user_memory(&self, user_memory_region: mshv_user_mem_region) -> Result<()> {
         // SAFETY: IOCTL with correct types
-        #[allow(clippy::cast_lossless)]
         let ret = unsafe { ioctl_with_ref(self, MSHV_MAP_GUEST_MEMORY(), &user_memory_region) };
         if ret == 0 {
             Ok(())
@@ -99,7 +97,6 @@ impl VmFd {
     /// Unmap a guest physical memory.
     pub fn unmap_user_memory(&self, user_memory_region: mshv_user_mem_region) -> Result<()> {
         // SAFETY: IOCTL with correct types
-        #[allow(clippy::cast_lossless)]
         let ret = unsafe { ioctl_with_ref(self, MSHV_UNMAP_GUEST_MEMORY(), &user_memory_region) };
         if ret == 0 {
             Ok(())
@@ -113,7 +110,6 @@ impl VmFd {
             vp_index: id as __u32,
         };
         // SAFETY: IOCTL with correct types
-        #[allow(clippy::cast_lossless)]
         let vcpu_fd = unsafe { ioctl_with_ref(&self.vm, MSHV_CREATE_VP(), &vp_arg) };
         if vcpu_fd < 0 {
             return Err(errno::Error::last());
@@ -147,7 +143,6 @@ impl VmFd {
             vector: request.vector,
         };
         // SAFETY: IOCTL with correct types
-        #[allow(clippy::cast_lossless)]
         let ret = unsafe { ioctl_with_ref(&self.vm, MSHV_ASSERT_INTERRUPT(), &interrupt_arg) };
         if ret == 0 {
             Ok(())
@@ -166,7 +161,6 @@ impl VmFd {
         };
 
         // SAFETY: IOCTL with correct types
-        #[allow(clippy::cast_lossless)]
         let ret = unsafe { ioctl_with_ref(&self.vm, MSHV_IRQFD(), &irqfd_arg) };
         if ret == 0 {
             Ok(())
@@ -375,7 +369,6 @@ impl VmFd {
             ..Default::default()
         };
         // SAFETY: IOCTL with correct types
-        #[allow(clippy::cast_lossless)]
         let ret =
             unsafe { ioctl_with_mut_ref(&self.vm, MSHV_GET_PARTITION_PROPERTY(), &mut property) };
         if ret == 0 {
@@ -391,7 +384,6 @@ impl VmFd {
             property_value: value,
         };
         // SAFETY: IOCTL with correct types
-        #[allow(clippy::cast_lossless)]
         let ret = unsafe { ioctl_with_ref(&self.vm, MSHV_SET_PARTITION_PROPERTY(), &property) };
         if ret == 0 {
             Ok(())
