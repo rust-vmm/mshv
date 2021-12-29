@@ -633,8 +633,12 @@ impl VcpuFd {
         let mut reg_assocs: Vec<hv_register_assoc> = Vec::with_capacity(nmsrs);
 
         for i in 0..nmsrs {
+            let name = match msr_to_hv_reg_name(msrs.as_slice()[i].index) {
+                Ok(n) => n as u32,
+                Err(_) => return Err(errno::Error::new(libc::EINVAL)),
+            };
             reg_assocs.push(hv_register_assoc {
-                name: msr_to_hv_reg_name(msrs.as_slice()[i].index).unwrap() as u32,
+                name,
                 ..Default::default()
             });
         }
@@ -658,8 +662,12 @@ impl VcpuFd {
         let mut reg_assocs: Vec<hv_register_assoc> = Vec::with_capacity(nmsrs);
 
         for i in 0..nmsrs {
+            let name = match msr_to_hv_reg_name(msrs.as_slice()[i].index) {
+                Ok(n) => n as u32,
+                Err(_) => return Err(errno::Error::new(libc::EINVAL)),
+            };
             reg_assocs.push(hv_register_assoc {
-                name: msr_to_hv_reg_name(msrs.as_slice()[i].index).unwrap() as u32,
+                name,
                 value: hv_register_value {
                     reg64: msrs.as_slice()[i].data,
                 },
@@ -821,7 +829,7 @@ impl VcpuFd {
             ..Default::default()
         };
         // Safe because we know that our file is a vCPU fd and we verify the return result.
-        self.get_vp_state_ioctl(&mut vp_state).unwrap();
+        self.get_vp_state_ioctl(&mut vp_state)?;
         // SAFETY: access union fields
         let state: hv_local_interrupt_controller_state = unsafe { *vp_state.buf.lapic };
         Ok(state)
@@ -850,6 +858,7 @@ impl VcpuFd {
     }
     /// Returns the xsave data
     pub fn get_xsave(&self) -> Result<XSave> {
+        // Unwrapping here is fine -- parameters to from_size_align are hardcoded.
         let layout = std::alloc::Layout::from_size_align(0x1000, 0x1000).unwrap();
         // SAFETY: layout is valid
         let buf = unsafe { std::alloc::alloc(layout) };
@@ -860,7 +869,7 @@ impl VcpuFd {
         vp_state.buf.bytes = buf;
         vp_state.buf_size = 4096;
         vp_state.type_ = hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_XSAVE;
-        self.get_vp_state_ioctl(&mut vp_state).unwrap();
+        self.get_vp_state_ioctl(&mut vp_state)?;
         let ret = XSave::from(vp_state);
         // SAFETY: buf was allocated with layout
         unsafe {
@@ -871,6 +880,7 @@ impl VcpuFd {
     /// Set the xsave data
     pub fn set_xsave(&self, data: &XSave) -> Result<()> {
         let mut vp_state: mshv_vp_state = mshv_vp_state::from(*data);
+        // Unwrapping here is fine -- parameters to from_size_align are hardcoded.
         let layout = std::alloc::Layout::from_size_align(0x1000, 0x1000).unwrap();
         // SAFETY: layout is valid
         let buf = unsafe { std::alloc::alloc(layout) };
