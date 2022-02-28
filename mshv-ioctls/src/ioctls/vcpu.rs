@@ -1014,19 +1014,20 @@ mod tests {
         assert!(g_sregs.efer == s_sregs.efer);
     }
     #[test]
-    // fn test_set_get_standardregisters() {
-    //     let hv = Mshv::new().unwrap();
-    //     let vm = hv.create_vm().unwrap();
-    //     let vcpu = vm.create_vcpu(0).unwrap();
+    #[ignore]
+    fn test_set_get_standardregisters() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
 
-    //     let s_regs = vcpu.get_regs().unwrap();
-    //     vcpu.set_regs(&s_regs).unwrap();
-    //     let g_regs = vcpu.get_regs().unwrap();
-    //     assert!(g_regs.rax == s_regs.rax);
-    //     assert!(g_regs.rbx == s_regs.rbx);
-    //     assert!(g_regs.rcx == s_regs.rcx);
-    //     assert!(g_regs.rdx == s_regs.rdx);
-    // }
+        let s_regs = vcpu.get_regs().unwrap();
+        vcpu.set_regs(&s_regs).unwrap();
+        let g_regs = vcpu.get_regs().unwrap();
+        assert!(g_regs.rax == s_regs.rax);
+        assert!(g_regs.rbx == s_regs.rbx);
+        assert!(g_regs.rcx == s_regs.rcx);
+        assert!(g_regs.rdx == s_regs.rdx);
+    }
     #[test]
     #[ignore]
     fn test_set_get_debug_gisters() {
