@@ -636,7 +636,7 @@ impl From<LapicState> for mshv_vp_state {
 }
 // implement `Display` for `XSave`
 impl fmt::Display for XSave {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
             "flags: {}, states: {}, buffer_size: {}, buffer: {:?}\n data: {:02X?}",
