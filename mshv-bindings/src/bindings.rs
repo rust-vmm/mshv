@@ -2293,8 +2293,8 @@ pub enum hv_register_name {
 #[repr(C, packed)]
 #[derive(Default, Copy, Clone)]
 pub struct hv_u128 {
-    pub high_part: __u64,
     pub low_part: __u64,
+    pub high_part: __u64,
 }
 #[test]
 fn bindgen_test_layout_hv_u128() {
@@ -2310,7 +2310,7 @@ fn bindgen_test_layout_hv_u128() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<hv_u128>())).high_part as *const _ as usize },
-        0usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(hv_u128),
@@ -2320,7 +2320,7 @@ fn bindgen_test_layout_hv_u128() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<hv_u128>())).low_part as *const _ as usize },
-        8usize,
+        0usize,
         concat!(
             "Offset of field: ",
             stringify!(hv_u128),
