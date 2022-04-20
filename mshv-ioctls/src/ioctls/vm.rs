@@ -36,6 +36,7 @@ pub enum IoEventAddress {
 /// The structure can be used as a parameter to
 /// [`register_ioevent`](struct.VmFd.html#method.register_ioevent)
 /// to disable filtering of events based on the datamatch flag.
+#[derive(Debug)]
 pub struct NoDatamatch;
 
 impl From<NoDatamatch> for u64 {
@@ -47,6 +48,7 @@ impl From<NoDatamatch> for u64 {
 /// Structure for injecting interurpt
 ///
 /// This struct is passed to request_virtual_interrupt function as an argument
+#[derive(Debug)]
 pub struct InterruptRequest {
     /// Type of interrupt
     pub interrupt_type: hv_interrupt_type,
@@ -62,6 +64,7 @@ pub struct InterruptRequest {
     pub long_mode: bool,
 }
 /// Wrapper over Mshv VM ioctls.
+#[derive(Debug)]
 pub struct VmFd {
     vm: File,
 }

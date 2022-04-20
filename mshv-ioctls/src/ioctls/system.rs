@@ -14,6 +14,7 @@ use vmm_sys_util::errno;
 use vmm_sys_util::ioctl::ioctl_with_ref;
 
 /// Wrapper over MSHV system ioctls.
+#[derive(Debug)]
 pub struct Mshv {
     hv: File,
 }
