@@ -10941,7 +10941,7 @@ impl Default for mshv_create_partition {
     }
 }
 #[repr(C)]
-#[derive(Default, Copy, Clone)]
+#[derive(Default, Copy, Debug, Clone)]
 pub struct mshv_user_mem_region {
     pub size: __u64,
     pub guest_pfn: __u64,
