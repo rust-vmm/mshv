@@ -41,6 +41,7 @@ macro_rules! set_registers_64 {
     }};
 }
 
+#[derive(Debug)]
 /// Wrapper over Mshv vCPU ioctls.
 pub struct VcpuFd {
     vcpu: File,

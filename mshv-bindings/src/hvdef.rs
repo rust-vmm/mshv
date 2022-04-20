@@ -212,7 +212,7 @@ pub enum HvError {
 pub type HvResult<T> = Result<T, HvError>;
 
 #[repr(C)]
-#[derive(Copy, Clone, AsBytes, FromBytes)]
+#[derive(Copy, Clone, AsBytes, Debug, FromBytes)]
 pub struct HvMessageHeader {
     pub typ: u32,
     pub len: u8,
@@ -224,14 +224,14 @@ pub struct HvMessageHeader {
 pub const MESSAGE_TYPE_TIMER_EXPIRED: u32 = 0x80000010;
 
 #[repr(C)]
-#[derive(Copy, Clone, AsBytes, FromBytes)]
+#[derive(Copy, Clone, AsBytes, Debug, FromBytes)]
 pub struct HvMessage {
     pub header: HvMessageHeader,
     pub payload: [[u8; 24]; 10],
 }
 
 #[repr(C)]
-#[derive(Copy, Clone, AsBytes, FromBytes)]
+#[derive(Copy, Clone, AsBytes, Debug, FromBytes)]
 pub struct TimerMessagePayload {
     pub timer_index: u32,
     pub reserved: u32,
