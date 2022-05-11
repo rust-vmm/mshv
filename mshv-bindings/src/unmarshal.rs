@@ -121,4 +121,28 @@ impl hv_message {
         let ret: hv_x64_apic_eoi_message = unsafe { std::ptr::read(p as *const _) };
         Ok(ret)
     }
+    #[inline]
+    pub fn to_hypercall_intercept_info(&self) -> Result<hv_x64_hypercall_intercept_message> {
+        if self.header.message_type != hv_message_type_HVMSG_HYPERCALL_INTERCEPT {
+            return Err(errno::Error::new(libc::EINVAL));
+        }
+        let p: *const [u8; std::mem::size_of::<hv_x64_hypercall_intercept_message>()] = unsafe {
+            self.u.payload.as_ptr()
+                as *const [u8; std::mem::size_of::<hv_x64_hypercall_intercept_message>()]
+        };
+        let ret: hv_x64_hypercall_intercept_message = unsafe { std::ptr::read(p as *const _) };
+        Ok(ret)
+    }
+    #[inline]
+    pub fn to_sint_deliverable_info(&self) -> Result<hv_x64_sint_deliverable_message> {
+        if self.header.message_type != hv_message_type_HVMSG_SYNIC_SINT_DELIVERABLE {
+            return Err(errno::Error::new(libc::EINVAL));
+        }
+        let p: *const [u8; std::mem::size_of::<hv_x64_sint_deliverable_message>()] = unsafe {
+            self.u.payload.as_ptr()
+                as *const [u8; std::mem::size_of::<hv_x64_sint_deliverable_message>()]
+        };
+        let ret: hv_x64_sint_deliverable_message = unsafe { std::ptr::read(p as *const _) };
+        Ok(ret)
+    }
 }
