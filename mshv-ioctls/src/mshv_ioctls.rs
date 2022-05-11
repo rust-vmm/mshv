@@ -74,3 +74,28 @@ ioctl_iow_nr!(
     0x17,
     mshv_register_intercept_result
 );
+
+ioctl_iowr_nr!(
+    MSHV_SIGNAL_EVENT_DIRECT,
+    MSHV_IOCTL,
+    0x18,
+    mshv_signal_event_direct
+);
+ioctl_iow_nr!(
+    MSHV_POST_MESSAGE_DIRECT,
+    MSHV_IOCTL,
+    0x19,
+    mshv_post_message_direct
+);
+ioctl_iow_nr!(
+    MSHV_REGISTER_DELIVERABILITY_NOTIFICATIONS,
+    MSHV_IOCTL,
+    0x1A,
+    mshv_register_deliverabilty_notifications
+);
+ioctl_iowr_nr!(
+    MSHV_GET_VP_CPUID_VALUES,
+    MSHV_IOCTL,
+    0x1B,
+    mshv_get_vp_cpuid_values
+);

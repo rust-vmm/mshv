@@ -9,6 +9,7 @@ use crate::mshv_ioctls::*;
 use mshv_bindings::*;
 
 use std::cmp;
+use std::convert::TryFrom;
 use std::fs::File;
 
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
@@ -147,6 +148,65 @@ impl VmFd {
         };
         // SAFETY: IOCTL with correct types
         let ret = unsafe { ioctl_with_ref(&self.vm, MSHV_ASSERT_INTERRUPT(), &interrupt_arg) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
+    ///
+    /// signal_event_direct: Send a sint signal event to the vp.
+    pub fn signal_event_direct(&self, vp: u32, sint: u8, flag: u16) -> Result<bool> {
+        let mut event_info = mshv_signal_event_direct {
+            vp,
+            vtl: 0,
+            sint,
+            flag,
+            ..Default::default()
+        };
+
+        let ret = unsafe { ioctl_with_mut_ref(self, MSHV_SIGNAL_EVENT_DIRECT(), &mut event_info) };
+        if ret == 0 {
+            Ok(event_info.newly_signaled != 0)
+        } else {
+            Err(errno::Error::last())
+        }
+    }
+    ///
+    /// post_message_direct: Post a message to the vp using a given sint.
+    pub fn post_message_direct(&self, vp: u32, sint: u8, msg: &[u8]) -> Result<()> {
+        let message_info = mshv_post_message_direct {
+            vp,
+            vtl: 0,
+            sint,
+            length: u16::try_from(msg.len()).expect("failed to convert message length"),
+            message: msg.as_ptr(),
+        };
+
+        let ret = unsafe { ioctl_with_ref(self, MSHV_POST_MESSAGE_DIRECT(), &message_info) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
+    ///
+    /// register_deliverabilty_notifications: Register for a notification when
+    /// hypervisor is ready to process more post_message_direct(s).
+    pub fn register_deliverabilty_notifications(&self, vp: u32, flag: u64) -> Result<()> {
+        let notifications_info = mshv_register_deliverabilty_notifications {
+            vp,
+            flag,
+            ..Default::default()
+        };
+        let ret = unsafe {
+            ioctl_with_ref(
+                self,
+                MSHV_REGISTER_DELIVERABILITY_NOTIFICATIONS(),
+                &notifications_info,
+            )
+        };
+
         if ret == 0 {
             Ok(())
         } else {
@@ -582,6 +642,8 @@ mod tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
     use crate::ioctls::system::Mshv;
+    use std::mem;
+    use vmm_sys_util::errno::Error;
 
     #[test]
     fn test_user_memory() {
@@ -745,5 +807,38 @@ mod tests {
         assert!(bitmaps_1.len() == bitmaps_2.len());
         vm.unmap_user_memory(mem_region).unwrap();
         unsafe { libc::munmap(load_addr as *mut c_void, mem_size) };
+    }
+    #[test]
+    #[ignore]
+    fn test_signal_event_direct() {
+        // TODO this is used by MSHV synic.
+        // Enable the test once synic is implemented.
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let _vcpu = vm.create_vcpu(0).unwrap();
+        vm.signal_event_direct(0, 0, 1).unwrap();
+    }
+    #[test]
+    #[ignore]
+    fn test_post_message_direct() {
+        // TODO this is used by MSHV synic.
+        // Enable the test once synic is implemented.
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let _vcpu = vm.create_vcpu(0).unwrap();
+        let hv_message: [u8; mem::size_of::<HvMessage>()] = [0; mem::size_of::<HvMessage>()];
+        vm.post_message_direct(0, 0, &hv_message).unwrap();
+    }
+    #[test]
+    fn test_register_deliverabilty_notifications() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let _vcpu = vm.create_vcpu(0).unwrap();
+        vm.register_deliverabilty_notifications(0, 0).unwrap();
+        let res = vm.register_deliverabilty_notifications(0, 1);
+        assert!(res.is_err());
+        if let Err(e) = res {
+            assert!(e == Error::new(libc::EINVAL));
+        }
     }
 }
