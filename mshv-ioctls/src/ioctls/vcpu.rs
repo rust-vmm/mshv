@@ -553,9 +553,10 @@ impl VcpuFd {
         }
         // The next 8 registers are FP registers.
         for (i, reg) in reg_assocs.iter().enumerate().take(24).skip(16) {
+            let fp_i = i - 16;
             // SAFETY: we trust the hypervisor returns the expected data type.
             unsafe {
-                ret_regs.fpr[i] =
+                ret_regs.fpr[fp_i] =
                     std::mem::transmute::<hv_u128, [u8; 16usize]>(reg.value.fp.as_uint128);
             }
         }
