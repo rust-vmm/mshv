@@ -1765,6 +1765,13 @@ fn bindgen_test_layout_hv_partition_processor_features() {
         )
     );
 }
+pub const hv_unimplemented_msr_action_HV_UNIMPLEMENTED_MSR_ACTION_FAULT:
+    hv_unimplemented_msr_action = 0;
+pub const hv_unimplemented_msr_action_HV_UNIMPLEMENTED_MSR_ACTION_IGNORE_WRITE_READ_ZERO:
+    hv_unimplemented_msr_action = 1;
+pub const hv_unimplemented_msr_action_HV_UNIMPLEMENTED_MSR_ACTION_COUNT:
+    hv_unimplemented_msr_action = 2;
+pub type hv_unimplemented_msr_action = ::std::os::raw::c_uint;
 impl Default for hv_partition_processor_features {
     fn default() -> Self {
         unsafe { ::std::mem::zeroed() }
@@ -10239,6 +10246,8 @@ pub const hv_partition_property_code_HV_PARTITION_PROPERTY_NON_ARCHITECTURAL_COR
     hv_partition_property_code = 327697;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_HYPERCALL_DOORBELL_PAGE:
     hv_partition_property_code = 327698;
+pub const hv_partition_property_code_HV_PARTITION_PROPERTY_UNIMPLEMENTED_MSR_ACTION:
+    hv_partition_property_code = 327703;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_VENDOR:
     hv_partition_property_code = 393216;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES_DEPRECATED:
