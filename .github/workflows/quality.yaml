@@ -18,11 +18,11 @@ jobs:
       - name: Install Rust toolchain (${{ matrix.rust }})
         uses: actions-rs/toolchain@v1
         with:
-            toolchain: ${{ matrix.rust }}
-            target: ${{ matrix.target }}
-            override: true
-            components: rustfmt, clippy
-      
+          toolchain: ${{ matrix.rust }}
+          target: ${{ matrix.target }}
+          override: true
+          components: rustfmt, clippy
+
       - name: Formatting (rustfmt)
         run: cargo fmt -- --check
 
@@ -31,3 +31,9 @@ jobs:
 
       - name: Unit Test(mshv-bindings)
         run: cargo test --workspace --exclude mshv-ioctls  --all-targets
+
+      - name: Lint with flake8
+        run: |
+          pip3 install flake8
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
