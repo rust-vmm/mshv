@@ -296,7 +296,7 @@ impl VcpuFd {
             ret_regs.gs = SegmentRegister::from(reg_assocs[4].value.segment);
             ret_regs.ss = SegmentRegister::from(reg_assocs[5].value.segment);
             ret_regs.tr = SegmentRegister::from(reg_assocs[6].value.segment);
-            ret_regs.ldt = TableRegister::from(reg_assocs[7].value.table);
+            ret_regs.ldt = SegmentRegister::from(reg_assocs[7].value.segment);
             ret_regs.gdt = TableRegister::from(reg_assocs[8].value.table);
             ret_regs.idt = TableRegister::from(reg_assocs[9].value.table);
             ret_regs.cr0 = reg_assocs[10].value.reg64;
@@ -371,7 +371,7 @@ impl VcpuFd {
                 segment: sregs.tr.into(),
             },
             hv_register_value {
-                table: sregs.ldt.into(),
+                segment: sregs.ldt.into(),
             },
             hv_register_value {
                 table: sregs.gdt.into(),
