@@ -184,7 +184,7 @@ pub struct SpecialRegisters {
     pub gs: SegmentRegister,
     pub ss: SegmentRegister,
     pub tr: SegmentRegister,
-    pub ldt: TableRegister,
+    pub ldt: SegmentRegister,
     pub gdt: TableRegister,
     pub idt: TableRegister,
     pub cr0: u64,
