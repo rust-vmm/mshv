@@ -1,0 +1,12 @@
+steps:
+- label: MSHV_CARGO_BUILD
+  command: cargo build
+  retry:
+    automatic: false
+  agents:
+    hypervisor: mshv 
+  plugins:
+  - docker#v3.8.0:
+      image: rustvmm/dev:v15
+      always-pull: true
+  timeout_in_minutes: 5
