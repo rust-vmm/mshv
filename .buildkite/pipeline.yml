@@ -1,12 +1,108 @@
 steps:
-- label: MSHV_CARGO_BUILD
-  command: cargo build
-  retry:
-    automatic: false
-  agents:
-    hypervisor: mshv 
-  plugins:
-  - docker#v3.8.0:
-      image: rustvmm/dev:v15
-      always-pull: true
-  timeout_in_minutes: 5
+  - label:  "build-gnu"
+    command: "RUSTFLAGS=\"-D warnings\" cargo build"
+    retry:
+      automatic: false
+    agents:
+      hypervisor: mshv
+    plugins:
+    - docker#v3.8.0:
+        image: rustvmm/dev:v15
+        always-pull: true
+    timeout_in_minutes: 5
+
+  - label:  "build-musl"
+    command:  "RUSTFLAGS=\"-D warnings\" cargo build --target x86_64-unknown-linux-musl"
+    retry:
+      automatic: false
+    agents:
+      hypervisor: mshv
+    plugins:
+    - docker#v3.8.0:
+        image: rustvmm/dev:v15
+        always-pull: true
+    timeout_in_minutes: 5
+
+  - label:  "style"
+    command:  "cargo fmt --all -- --check --config format_code_in_doc_comments=true"
+    retry:
+      automatic: false
+    agents:
+      hypervisor: mshv
+    plugins:
+    - docker#v3.8.0:
+        image: rustvmm/dev:v15
+        always-pull: true
+    timeout_in_minutes: 5
+
+  - label:  "unittests"
+    command:  "cargo test --all-features --workspace"
+    retry:
+      automatic: false
+    agents:
+      hypervisor: mshv
+    plugins:
+    - docker#v3.8.0:
+        image: rustvmm/dev:v15
+        always-pull: true
+    timeout_in_minutes: 5
+
+  - label:  "unittests-musl"
+    command:  "cargo test --all-features --workspace --target x86_64-unknown-linux-musl"
+    retry:
+      automatic: false
+    agents:
+      hypervisor: mshv
+    plugins:
+    - docker#v3.8.0:
+        image: rustvmm/dev:v15
+        always-pull: true
+    timeout_in_minutes: 5
+
+  - label:  "clippy"
+    command:  "cargo clippy --workspace --bins --examples --benches --all-features --all-targets -- -D warnings"
+    retry:
+      automatic: false
+    agents:
+      hypervisor: mshv
+    plugins:
+    - docker#v3.8.0:
+        image: rustvmm/dev:v15
+        always-pull: true
+    timeout_in_minutes: 5
+
+  - label:  "check-warnings"
+    command:  "RUSTFLAGS=\"-D warnings\" cargo check --all-targets --all-features --workspace"
+    retry:
+      automatic: false
+    agents:
+      hypervisor: mshv
+    plugins:
+    - docker#v3.8.0:
+        image: rustvmm/dev:v15
+        always-pull: true
+    timeout_in_minutes: 5
+
+  - label:  "commit-format"
+    command:  "pytest $(find . -type f -name \"test_commit_format.py\")"
+    retry:
+      automatic: false
+    agents:
+      hypervisor: mshv
+    plugins:
+    - docker#v3.8.0:
+        image: rustvmm/dev:v15
+        always-pull: true
+    timeout_in_minutes: 5
+
+  - label:  "cargo-audit"
+    command:  "cargo audit -q --deny warnings"
+    retry:
+      automatic: false
+    agents:
+      hypervisor: mshv
+    plugins:
+    - docker#v3.8.0:
+        image: rustvmm/dev:v15
+        always-pull: true
+    timeout_in_minutes: 5
