@@ -545,7 +545,6 @@ mod tests {
     use crate::ioctls::system::Mshv;
 
     #[test]
-    #[ignore]
     fn test_user_memory() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -571,7 +570,6 @@ mod tests {
         vm.unmap_user_memory(mem).unwrap();
     }
     #[test]
-    #[ignore]
     fn test_create_vcpu() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -579,7 +577,6 @@ mod tests {
         assert!(vcpu.is_ok());
     }
     #[test]
-    #[ignore]
     fn test_assert_virtual_interrupt() {
         /* TODO better test with some code */
         let hv = Mshv::new().unwrap();
@@ -600,7 +597,6 @@ mod tests {
         vm.request_virtual_interrupt(&cfg).unwrap();
     }
     #[test]
-    #[ignore]
     fn test_install_intercept() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -612,7 +608,6 @@ mod tests {
         vm.install_intercept(intercept_args).unwrap();
     }
     #[test]
-    #[ignore]
     fn test_get_set_property() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -656,7 +651,6 @@ mod tests {
         );
     }
     #[test]
-    #[ignore]
     fn test_irqfd() {
         use libc::EFD_NONBLOCK;
         let hv = Mshv::new().unwrap();
@@ -666,7 +660,6 @@ mod tests {
         vm.unregister_irqfd(&efd, 30).unwrap();
     }
     #[test]
-    #[ignore]
     fn test_ioeventfd() {
         let efd = EventFd::new(0).unwrap();
         let addr = IoEventAddress::Mmio(0xe7e85004);
@@ -676,7 +669,6 @@ mod tests {
         vm.unregister_ioevent(&efd, &addr, NoDatamatch).unwrap();
     }
     #[test]
-    #[ignore]
     fn test_set_msi_routing() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -684,7 +676,6 @@ mod tests {
         assert!(vm.set_msi_routing(&msi_routing).is_ok());
     }
     #[test]
-    #[ignore]
     fn test_get_gpa_access_states() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
