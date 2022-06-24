@@ -1002,7 +1002,6 @@ mod tests {
     use crate::ioctls::system::Mshv;
 
     #[test]
-    #[ignore]
     fn test_set_get_regs() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -1043,7 +1042,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_set_get_sregs() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -1061,7 +1059,6 @@ mod tests {
         assert!(g_sregs.efer == s_sregs.efer);
     }
     #[test]
-    #[ignore]
     fn test_set_get_standardregisters() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -1076,7 +1073,6 @@ mod tests {
         assert!(g_regs.rdx == s_regs.rdx);
     }
     #[test]
-    #[ignore]
     fn test_set_get_debug_gisters() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -1094,7 +1090,6 @@ mod tests {
     }
     #[cfg(target_arch = "x86_64")]
     #[test]
-    #[ignore]
     fn test_set_get_fpu() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -1123,7 +1118,6 @@ mod tests {
     }
     #[cfg(target_arch = "x86_64")]
     #[test]
-    #[ignore]
     fn test_run_code() {
         use libc::c_void;
 
@@ -1271,7 +1265,6 @@ mod tests {
         unsafe { libc::munmap(load_addr as *mut c_void, mem_size) };
     }
     #[test]
-    #[ignore]
     fn test_set_get_msrs() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -1308,7 +1301,6 @@ mod tests {
         assert!(g_regs.as_slice()[1].data == s_regs.as_slice()[1].data);
     }
     #[test]
-    #[ignore]
     fn test_set_get_vcpu_events() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -1326,7 +1318,6 @@ mod tests {
         }
     }
     #[test]
-    #[ignore]
     fn test_set_get_xcrs() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -1338,7 +1329,6 @@ mod tests {
         assert!(g_regs.xcr0 == s_regs.xcr0);
     }
     #[test]
-    #[ignore]
     fn test_set_get_lapic_ioctl() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -1354,7 +1344,6 @@ mod tests {
         vcpu.set_vp_state_ioctl(&vp_state).unwrap();
     }
     #[test]
-    #[ignore]
     fn test_set_get_lapic() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -1368,7 +1357,6 @@ mod tests {
         }
     }
     #[test]
-    #[ignore]
     fn test_set_registers_64() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -1398,7 +1386,6 @@ mod tests {
         }
     }
     #[test]
-    #[ignore]
     fn test_get_set_xsave() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -1409,7 +1396,6 @@ mod tests {
         vcpu.set_xsave(&state).unwrap();
     }
     #[test]
-    #[ignore]
     fn test_get_suspend_regs() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -1421,7 +1407,6 @@ mod tests {
         assert!(regs.intercept_register == 0x0);
     }
     #[test]
-    #[ignore]
     fn test_set_get_misc_regs() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();

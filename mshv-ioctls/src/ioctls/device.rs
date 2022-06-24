@@ -42,7 +42,7 @@ impl DeviceFd {
     ///
     /// # Example
     ///
-    /// ```ignore
+    /// ```rust
     /// # extern crate mshv_ioctls;
     /// # extern crate mshv_bindings;
     /// # use mshv_ioctls::Mshv;
@@ -147,7 +147,6 @@ mod tests {
     };
 
     #[test]
-    #[ignore]
     #[cfg(target_arch = "x86_64")]
     fn test_create_device() {
         let mshv = Mshv::new().unwrap();
