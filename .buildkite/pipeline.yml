@@ -45,6 +45,8 @@ steps:
     - docker#v3.8.0:
         image: rustvmm/dev:v15
         always-pull: true
+        devices:
+          - "/dev/mshv"
     timeout_in_minutes: 5
 
   - label:  "unittests-musl"
@@ -57,6 +59,8 @@ steps:
     - docker#v3.8.0:
         image: rustvmm/dev:v15
         always-pull: true
+        devices:
+          - "/dev/mshv"
     timeout_in_minutes: 5
 
   - label:  "clippy"
