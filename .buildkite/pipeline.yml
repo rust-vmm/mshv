@@ -110,3 +110,17 @@ steps:
         image: rustvmm/dev:v15
         always-pull: true
     timeout_in_minutes: 5
+  - label:  "coverage"
+    command:  "pytest $(find . -type f -name \"test_coverage.py\")"
+    retry:
+      automatic: false
+    agents:
+      hypervisor: mshv
+    plugins:
+    - docker#v3.8.0:
+        image: rustvmm/dev:v15
+        always-pull: true
+        devices:
+          - "/dev/mshv"
+        privileged: true
+    timeout_in_minutes: 5
