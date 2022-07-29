@@ -10,6 +10,7 @@ use serde_derive::{Deserialize, Serialize};
 use std::cmp;
 use std::fmt;
 use std::ptr;
+use vmm_sys_util::errno;
 
 #[repr(C)]
 #[derive(Default)]
@@ -430,6 +431,46 @@ pub const LOCAL_APIC_OFFSET_INITIAL_COUNT: isize = 0x380; // Initial count Regis
 pub const LOCAL_APIC_OFFSET_CURRENT_COUNT: isize = 0x390; // R/O Current count Register.
 pub const LOCAL_APIC_OFFSET_DIVIDER: isize = 0x3e0; // Divide configuration Register.
 pub const LOCAL_X2APIC_OFFSET_SELF_IPI: isize = 0x3f0; // Self IPI register, only present in x2APIC.
+
+pub struct Buffer {
+    pub layout: std::alloc::Layout,
+    pub buf: *mut u8,
+}
+
+impl Buffer {
+    pub fn new(size: usize, align: usize) -> Result<Buffer, errno::Error> {
+        let layout = std::alloc::Layout::from_size_align(size, align).unwrap();
+        // SAFETY: layout is valid
+        let buf = unsafe { std::alloc::alloc(layout) };
+        if buf.is_null() {
+            return Err(errno::Error::new(libc::ENOMEM));
+        }
+
+        let buf = Buffer { layout, buf };
+
+        Ok(buf)
+    }
+
+    pub fn dealloc(self) {
+        // SAFETY: buf was allocated with layout
+        unsafe {
+            std::alloc::dealloc(self.buf, self.layout);
+        }
+    }
+
+    pub fn size(&self) -> usize {
+        self.layout.size()
+    }
+}
+
+impl Drop for Buffer {
+    fn drop(&mut self) {
+        // SAFETY: buf was allocated with layout
+        unsafe {
+            std::alloc::dealloc(self.buf, self.layout);
+        }
+    }
+}
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
