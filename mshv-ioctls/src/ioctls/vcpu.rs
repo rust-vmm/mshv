@@ -836,90 +836,48 @@ impl VcpuFd {
     }
     /// Get the state of the LAPIC (Local Advanced Programmable Interrupt Controller).
     pub fn get_lapic(&self) -> Result<LapicState> {
-        // Unwrapping here is fine -- parameters to from_size_align are hardcoded.
-        let layout = std::alloc::Layout::from_size_align(0x1000, 0x1000).unwrap();
-        // SAFETY: layout is valid
-        let buf = unsafe { std::alloc::alloc(layout) };
-        if buf.is_null() {
-            return Err(errno::Error::new(libc::ENOMEM));
-        }
+        let buffer = Buffer::new(0x1000, 0x1000)?;
         let mut vp_state: mshv_vp_state = mshv_vp_state::default();
-        vp_state.buf.bytes = buf;
-        vp_state.buf_size = 4096;
+        vp_state.buf.bytes = buffer.buf;
+        vp_state.buf_size = buffer.size() as u64;
         vp_state.type_ =
             hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_LOCAL_INTERRUPT_CONTROLLER_STATE;
 
         self.get_vp_state_ioctl(&mut vp_state)?;
-        // SAFETY: buf was allocated with layout
-        unsafe {
-            std::alloc::dealloc(buf, layout);
-        }
         Ok(LapicState::from(vp_state))
     }
     /// Sets the state of the LAPIC (Local Advanced Programmable Interrupt Controller).
     pub fn set_lapic(&self, lapic_state: &LapicState) -> Result<()> {
         let mut vp_state: mshv_vp_state = mshv_vp_state::from(*lapic_state);
-        // Unwrapping here is fine -- parameters to from_size_align are hardcoded.
-        let layout = std::alloc::Layout::from_size_align(0x1000, 0x1000).unwrap();
-        // SAFETY: layout is valid
-        let buf = unsafe { std::alloc::alloc(layout) };
-        if buf.is_null() {
-            return Err(errno::Error::new(libc::ENOMEM));
-        }
-        let min: usize = cmp::min(4096, vp_state.buf_size as u32) as usize;
+        let buffer = Buffer::new(0x1000, 0x1000)?;
+        let min: usize = cmp::min(buffer.size(), vp_state.buf_size as usize) as usize;
         // SAFETY: src and dest are valid and properly aligned
-        unsafe { ptr::copy(vp_state.buf.bytes, buf, min) };
-        vp_state.buf_size = 4096;
-        vp_state.buf.bytes = buf;
-        let ret = self.set_vp_state_ioctl(&vp_state);
-        // SAFETY: buf was allocated with layout
-        unsafe {
-            std::alloc::dealloc(buf, layout);
-        }
-        ret
+        unsafe { ptr::copy(vp_state.buf.bytes, buffer.buf, min) };
+        vp_state.buf_size = buffer.size() as u64;
+        vp_state.buf.bytes = buffer.buf;
+        self.set_vp_state_ioctl(&vp_state)
     }
     /// Returns the xsave data
     pub fn get_xsave(&self) -> Result<XSave> {
-        // Unwrapping here is fine -- parameters to from_size_align are hardcoded.
-        let layout = std::alloc::Layout::from_size_align(0x1000, 0x1000).unwrap();
-        // SAFETY: layout is valid
-        let buf = unsafe { std::alloc::alloc(layout) };
-        if buf.is_null() {
-            return Err(errno::Error::new(libc::ENOMEM));
-        }
+        let buffer = Buffer::new(0x1000, 0x1000)?;
         let mut vp_state: mshv_vp_state = mshv_vp_state::default();
-        vp_state.buf.bytes = buf;
-        vp_state.buf_size = 4096;
+        vp_state.buf.bytes = buffer.buf;
+        vp_state.buf_size = buffer.size() as u64;
         vp_state.type_ = hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_XSAVE;
         self.get_vp_state_ioctl(&mut vp_state)?;
         let ret = XSave::from(vp_state);
-        // SAFETY: buf was allocated with layout
-        unsafe {
-            std::alloc::dealloc(buf, layout);
-        }
         Ok(ret)
     }
     /// Set the xsave data
     pub fn set_xsave(&self, data: &XSave) -> Result<()> {
         let mut vp_state: mshv_vp_state = mshv_vp_state::from(*data);
-        // Unwrapping here is fine -- parameters to from_size_align are hardcoded.
-        let layout = std::alloc::Layout::from_size_align(0x1000, 0x1000).unwrap();
-        // SAFETY: layout is valid
-        let buf = unsafe { std::alloc::alloc(layout) };
-        if buf.is_null() {
-            return Err(errno::Error::new(libc::ENOMEM));
-        }
-        let min: usize = cmp::min(4096, vp_state.buf_size as u32) as usize;
+        let buffer = Buffer::new(0x1000, 0x1000)?;
+        let min: usize = cmp::min(buffer.size(), vp_state.buf_size as usize) as usize;
         // SAFETY: src and dest are valid and properly aligned
-        unsafe { ptr::copy(data.buffer.as_ptr().offset(24) as *mut u8, buf, min) };
-        vp_state.buf_size = 4096;
-        vp_state.buf.bytes = buf;
-        let ret = self.set_vp_state_ioctl(&vp_state);
-        // SAFETY: buf was allocated with layout
-        unsafe {
-            std::alloc::dealloc(buf, layout);
-        }
-        ret
+        unsafe { ptr::copy(data.buffer.as_ptr().offset(24) as *mut u8, buffer.buf, min) };
+        vp_state.buf_size = buffer.size() as u64;
+        vp_state.buf.bytes = buffer.buf;
+        self.set_vp_state_ioctl(&vp_state)
     }
     /// Translate guest virtual address to guest physical address
     pub fn translate_gva(&self, gva: u64, flags: u64) -> Result<(u64, hv_translate_gva_result)> {
