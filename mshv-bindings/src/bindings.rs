@@ -10806,7 +10806,7 @@ impl Default for hv_register_assoc {
     }
 }
 pub const hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_LOCAL_INTERRUPT_CONTROLLER_STATE:
-    hv_get_set_vp_state_type = 0;
+    hv_get_set_vp_state_type = -2147483648;
 pub const hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_XSAVE: hv_get_set_vp_state_type =
     -2147483647;
 pub const hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_SIM_PAGE: hv_get_set_vp_state_type =
