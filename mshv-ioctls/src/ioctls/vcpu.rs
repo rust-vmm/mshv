@@ -824,18 +824,6 @@ impl VcpuFd {
         }
         Ok(())
     }
-    /// Returns the state of the LAPIC (Local Advanced Programmable Interrupt Controller).
-    pub fn get_lapic_ioctl(&self) -> Result<hv_local_interrupt_controller_state> {
-        let mut vp_state = mshv_vp_state {
-            type_: hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_LOCAL_INTERRUPT_CONTROLLER_STATE,
-            ..Default::default()
-        };
-        // Safe because we know that our file is a vCPU fd and we verify the return result.
-        self.get_vp_state_ioctl(&mut vp_state)?;
-        // SAFETY: access union fields
-        let state: hv_local_interrupt_controller_state = unsafe { *vp_state.buf.lapic };
-        Ok(state)
-    }
     /// Set vp states (LAPIC, XSave etc)
     /// Test code already covered by get/set_lapic/xsave
     pub fn set_vp_state_ioctl(&self, state: &mshv_vp_state) -> Result<()> {
@@ -848,15 +836,47 @@ impl VcpuFd {
     }
     /// Get the state of the LAPIC (Local Advanced Programmable Interrupt Controller).
     pub fn get_lapic(&self) -> Result<LapicState> {
-        let state = LapicState::default();
-        let mut vp_state: mshv_vp_state = mshv_vp_state::from(state);
+        // Unwrapping here is fine -- parameters to from_size_align are hardcoded.
+        let layout = std::alloc::Layout::from_size_align(0x1000, 0x1000).unwrap();
+        // SAFETY: layout is valid
+        let buf = unsafe { std::alloc::alloc(layout) };
+        if buf.is_null() {
+            return Err(errno::Error::new(libc::ENOMEM));
+        }
+        let mut vp_state: mshv_vp_state = mshv_vp_state::default();
+        vp_state.buf.bytes = buf;
+        vp_state.buf_size = 4096;
+        vp_state.type_ =
+            hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_LOCAL_INTERRUPT_CONTROLLER_STATE;
+
         self.get_vp_state_ioctl(&mut vp_state)?;
+        // SAFETY: buf was allocated with layout
+        unsafe {
+            std::alloc::dealloc(buf, layout);
+        }
         Ok(LapicState::from(vp_state))
     }
     /// Sets the state of the LAPIC (Local Advanced Programmable Interrupt Controller).
     pub fn set_lapic(&self, lapic_state: &LapicState) -> Result<()> {
-        let vp_state: mshv_vp_state = mshv_vp_state::from(*lapic_state);
-        self.set_vp_state_ioctl(&vp_state)
+        let mut vp_state: mshv_vp_state = mshv_vp_state::from(*lapic_state);
+        // Unwrapping here is fine -- parameters to from_size_align are hardcoded.
+        let layout = std::alloc::Layout::from_size_align(0x1000, 0x1000).unwrap();
+        // SAFETY: layout is valid
+        let buf = unsafe { std::alloc::alloc(layout) };
+        if buf.is_null() {
+            return Err(errno::Error::new(libc::ENOMEM));
+        }
+        let min: usize = cmp::min(4096, vp_state.buf_size as u32) as usize;
+        // SAFETY: src and dest are valid and properly aligned
+        unsafe { ptr::copy(vp_state.buf.bytes, buf, min) };
+        vp_state.buf_size = 4096;
+        vp_state.buf.bytes = buf;
+        let ret = self.set_vp_state_ioctl(&vp_state);
+        // SAFETY: buf was allocated with layout
+        unsafe {
+            std::alloc::dealloc(buf, layout);
+        }
+        ret
     }
     /// Returns the xsave data
     pub fn get_xsave(&self) -> Result<XSave> {
@@ -1327,21 +1347,6 @@ mod tests {
         vcpu.set_xcrs(&s_regs).unwrap();
         let g_regs = vcpu.get_xcrs().unwrap();
         assert!(g_regs.xcr0 == s_regs.xcr0);
-    }
-    #[test]
-    fn test_set_get_lapic_ioctl() {
-        let hv = Mshv::new().unwrap();
-        let vm = hv.create_vm().unwrap();
-        let vcpu = vm.create_vcpu(0).unwrap();
-
-        let mut vp_state: mshv_vp_state = mshv_vp_state::default();
-        let state: LapicState = LapicState::default();
-        vp_state.type_ =
-            hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_LOCAL_INTERRUPT_CONTROLLER_STATE;
-        vp_state.buf.bytes = state.regs.as_ptr() as *mut u8;
-        vp_state.buf_size = 1024;
-        vcpu.get_vp_state_ioctl(&mut vp_state).unwrap();
-        vcpu.set_vp_state_ioctl(&vp_state).unwrap();
     }
     #[test]
     fn test_set_get_lapic() {
