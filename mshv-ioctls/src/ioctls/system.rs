@@ -20,28 +20,44 @@ pub struct Mshv {
 }
 
 /// Builder for MSHV Partition
+#[derive(Default)]
 pub struct MshvPartitionBuilder {
-    pub mshv_partition: mshv_create_partition,
+    mshv_partition: mshv_create_partition,
 }
 
 #[derive(Debug)]
+///
 pub enum SyntheticProcessorFeature {
+    /// Report a hypervisor is present.
     HypervisorPresent,
+    /// Report support for Hv1.
     Hv1,
+    /// Access to HV_X64_MSR_TIME_REF_COUNT.Corresponds to access_partition_reference_counter privilege.
     AccessPartitionReferenceCounter,
+    /// Access to SINT-related registers (HV_X64_MSR_SCONTROL through HV_X64_MSR_EOM and HV_X64_MSR_SINT0 through HV_X64_MSR_SINT15). Corresponds to access_synic_regs privilege.
     AccessSynicRegs,
+    /// Access to synthetic timers and associated MSRs (HV_X64_MSR_STIMER0_CONFIG through HV_X64_MSR_STIMER3_COUNT).Corresponds to access_synthetic_timer_regs privilege.
     AccessSyntheticTimerRegs,
+    /// Access to the reference TSC. Corresponds to access_partition_reference_tsc privilege.
     AccessPartitionReferenceTsc,
+    /// Partition has access to frequency regs. corresponds to access_frequency_regs privilege.
     AccessFrequencyRegs,
+    /// Access to APIC MSRs (HV_X64_MSR_EOI, HV_X64_MSR_ICR and HV_X64_MSR_TPR) as well as the VP assist page. Corresponds to access_intr_ctrl_regs privilege.
     AccessIntrCtrlRegs,
+    /// VP index can be queried. corresponds to access_vp_index privilege.
     AccessVpIndex,
+    /// Access to registers associated with hypercalls (HV_X64_MSR_GUEST_OS_ID and HV_X64_MSR_HYPERCALL).Corresponds to access_hypercall_msrs privilege.
     AccessHypercallRegs,
+    /// Partition has access to the guest idle reg. Corresponds to access_guest_idle_reg privilege.
     AccessGuestIdleReg,
+    ///  HvCallFlushVirtualAddressSpace / HvCallFlushVirtualAddressList are supported.
     TbFlushHypercalls,
+    /// HvCallSendSyntheticClusterIpi is supported.
     SyntheticClusterIpi,
 }
 
 impl MshvPartitionBuilder {
+    /// Creates a new MshvPartitionBuilder
     pub fn new() -> MshvPartitionBuilder {
         MshvPartitionBuilder {
             mshv_partition: mshv_create_partition {
@@ -61,11 +77,13 @@ impl MshvPartitionBuilder {
         }
     }
 
+    /// Updates partition flags
     pub fn set_partiton_creation_flag(mut self, flag: u64) -> MshvPartitionBuilder {
         self.mshv_partition.flags |= flag;
         self
     }
 
+    /// Sets a synthetic_processor_feature for the partition
     pub fn set_synthetic_processor_feature(
         mut self,
         feature: SyntheticProcessorFeature,
@@ -160,7 +178,7 @@ impl MshvPartitionBuilder {
         }
         self
     }
-
+    /// Builds the partition
     pub fn build(&self) -> mshv_create_partition {
         self.mshv_partition
     }
@@ -321,6 +339,14 @@ mod tests {
     fn test_create_vm() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm();
+        assert!(vm.is_ok());
+    }
+    #[test]
+    #[ignore]
+    fn test_create_vm_with_default_config() {
+        let pr: mshv_create_partition = Default::default();
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm_with_config(&pr);
         assert!(vm.is_ok());
     }
     #[test]
