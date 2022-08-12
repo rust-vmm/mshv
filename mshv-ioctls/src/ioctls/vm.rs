@@ -155,11 +155,11 @@ impl VmFd {
     }
     /// irqfd: Passes in an eventfd which is to be used for injecting
     /// interrupts from userland.
-    fn irqfd(&self, fd: RawFd, gsi: u32, flags: u32) -> Result<()> {
+    fn irqfd(&self, fd: RawFd, resamplefd: RawFd, gsi: u32, flags: u32) -> Result<()> {
         let irqfd_arg = mshv_irqfd {
             fd: fd as i32,
             flags,
-            resamplefd: 0,
+            resamplefd: resamplefd as i32,
             gsi,
         };
 
@@ -193,7 +193,45 @@ impl VmFd {
     /// vm.register_irqfd(&evtfd, 30).unwrap();
     /// ```
     pub fn register_irqfd(&self, fd: &EventFd, gsi: u32) -> Result<()> {
-        self.irqfd(fd.as_raw_fd(), gsi, 0)
+        self.irqfd(fd.as_raw_fd(), 0, gsi, 0)
+    }
+    /// Registers an event that will, when signaled, assert the `gsi` IRQ.
+    /// If the irqchip is resampled by the guest, the IRQ is de-asserted,
+    /// and `resamplefd` is notified.
+    ///
+    /// # Arguments
+    ///
+    /// * `fd` - `EventFd` to be signaled.
+    /// * `resamplefd` - `Eventfd` to be notified on resample.
+    /// * `gsi` - IRQ to be triggered.
+    /// * `req` - Interrupt Request
+    ///
+    /// # Example
+    /// ```no_run
+    /// # extern crate libc;
+    /// # extern crate vmm_sys_util;
+    /// # use libc::EFD_NONBLOCK;
+    /// # use vmm_sys_util::eventfd::EventFd;
+    /// # use crate::mshv_ioctls::*;
+    /// # use mshv_bindings::*;
+    /// let hv = Mshv::new().unwrap();
+    /// let vm = hv.create_vm().unwrap();
+    /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
+    /// let resamplefd = EventFd::new(EFD_NONBLOCK).unwrap();
+    /// vm.register_irqfd_with_resample(&evtfd, &resamplefd, 30).unwrap();
+    /// ```
+    pub fn register_irqfd_with_resample(
+        &self,
+        fd: &EventFd,
+        resamplefd: &EventFd,
+        gsi: u32,
+    ) -> Result<()> {
+        self.irqfd(
+            fd.as_raw_fd(),
+            resamplefd.as_raw_fd(),
+            gsi,
+            MSHV_IRQFD_FLAG_RESAMPLE,
+        )
     }
     /// Unregisters an event that will, when signaled, trigger the `gsi` IRQ.
     ///
@@ -217,7 +255,7 @@ impl VmFd {
     /// vm.unregister_irqfd(&evtfd, 30).unwrap();
     /// ```
     pub fn unregister_irqfd(&self, fd: &EventFd, gsi: u32) -> Result<()> {
-        self.irqfd(fd.as_raw_fd(), gsi, MSHV_IRQFD_FLAG_DEASSIGN)
+        self.irqfd(fd.as_raw_fd(), 0, gsi, MSHV_IRQFD_FLAG_DEASSIGN)
     }
 
     /// Sets the MSI routing table entries, overwriting any previously set
@@ -655,7 +693,11 @@ mod tests {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
         let efd = EventFd::new(EFD_NONBLOCK).unwrap();
+        let resamplefd = EventFd::new(EFD_NONBLOCK).unwrap();
         vm.register_irqfd(&efd, 30).unwrap();
+        vm.unregister_irqfd(&efd, 30).unwrap();
+        vm.register_irqfd_with_resample(&efd, &resamplefd, 30)
+            .unwrap();
         vm.unregister_irqfd(&efd, 30).unwrap();
     }
     #[test]
