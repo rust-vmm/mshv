@@ -12,6 +12,10 @@
     clippy::upper_case_acronyms
 )]
 #![allow(unknown_lints)]
+//TODO Remove later
+#![allow(clippy::useless_transmute)]
+//TODO Remove later
+#![allow(clippy::derive_partial_eq_without_eq)]
 #![allow(deref_nullptr)]
 #![allow(unaligned_references)]
 #![allow(clippy::wrong_self_convention)]
