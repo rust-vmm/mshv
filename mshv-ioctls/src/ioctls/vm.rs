@@ -218,7 +218,8 @@ impl VmFd {
     /// let vm = hv.create_vm().unwrap();
     /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
     /// let resamplefd = EventFd::new(EFD_NONBLOCK).unwrap();
-    /// vm.register_irqfd_with_resample(&evtfd, &resamplefd, 30).unwrap();
+    /// vm.register_irqfd_with_resample(&evtfd, &resamplefd, 30)
+    ///     .unwrap();
     /// ```
     pub fn register_irqfd_with_resample(
         &self,
@@ -693,11 +694,7 @@ mod tests {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
         let efd = EventFd::new(EFD_NONBLOCK).unwrap();
-        let resamplefd = EventFd::new(EFD_NONBLOCK).unwrap();
         vm.register_irqfd(&efd, 30).unwrap();
-        vm.unregister_irqfd(&efd, 30).unwrap();
-        vm.register_irqfd_with_resample(&efd, &resamplefd, 30)
-            .unwrap();
         vm.unregister_irqfd(&efd, 30).unwrap();
     }
     #[test]
