@@ -63,7 +63,7 @@ impl<T> ::std::clone::Clone for __IncompleteArrayField<T> {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct StandardRegisters {
     pub rax: u64,
@@ -199,7 +199,7 @@ pub struct SpecialRegisters {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct DebugRegisters {
     pub Dr0: u64,
@@ -211,7 +211,7 @@ pub struct DebugRegisters {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct FloatingPointUnit {
     pub fpr: [[u8; 16usize]; 8usize],
@@ -339,7 +339,7 @@ pub fn msr_to_hv_reg_name(msr: u32) -> Result<hv_register_name, &'static str> {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct msr_entry {
     pub index: u32,
@@ -366,7 +366,7 @@ pub struct msr_list {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct VcpuEvents {
     pub pending_interruption: u64,
@@ -376,14 +376,14 @@ pub struct VcpuEvents {
     pub pending_event1: [u8; 16usize],
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct Xcrs {
     pub xcr0: u64,
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq)]
 pub struct hv_cpuid_entry {
     pub function: __u32,
     pub index: __u32,
@@ -730,14 +730,14 @@ impl XSave {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct SuspendRegisters {
     pub explicit_register: u64,
     pub intercept_register: u64,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct MiscRegs {
     pub hypercall: u64,
