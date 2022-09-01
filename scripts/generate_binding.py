@@ -55,17 +55,13 @@ def generate_unified_mshv_headers(kernel_hdr_path):
     logging.debug("Done generating unified header file")
 
 
-def run_bindgen(kernel_hdr_path, output_dir, bindgen_debug):
-    logging.debug("Running bindgen")
-    derive_debug = "--no-derive-debug"
-
-    if bindgen_debug:
-        derive_debug = "--with-derive-debug"
-
+def run_bindgen(kernel_hdr_path, output_dir, default_bindgen_args):
     cmd = f"""
-    bindgen --no-doc-comments --with-derive-default {derive_debug} --rustified-enum hv_register_name \
+    bindgen {default_bindgen_args} --rustified-enum hv_register_name \
     {kernel_hdr_path}/combined_mshv.h -- -I {kernel_hdr_path}/include > {output_dir}/bindings.rs
     """
+    logging.debug("Running bindgen: %s", cmd)
+
     subprocess.check_call(cmd, shell=True)
     logging.debug("Cleaning up installed header files")
     rmtree(kernel_hdr_path)
@@ -84,7 +80,12 @@ def main(args):
 
     kernel_hdr_path = install_kernel_headers(args.kernel_src_path)
     generate_unified_mshv_headers(kernel_hdr_path)
-    run_bindgen(kernel_hdr_path, args.output, args.bindgen_debug)
+
+    default_bindgen_args = "--no-doc-comments --with-derive-default "
+
+    default_bindgen_args += args.bindgen_args
+
+    run_bindgen(kernel_hdr_path, args.output, default_bindgen_args)
 
     return 0
 
@@ -112,13 +113,14 @@ if __name__ == "__main__":
         help="Directory to store bindgen.rs",
     )
 
-    parser.add_argument("--bingen-debug", dest="bindgen_debug", action="store_true")
-
     parser.add_argument(
-        "--no-bindgen-debug", dest="bindgen_debug", action="store_false"
+        "--bindgen",
+        "-b",
+        type=str,
+        dest="bindgen_args",
+        default="",
+        help="Additional bindgen arguments",
     )
-
-    parser.set_defaults(bindgen_debug=False)
 
     parser.add_argument(
         "--log-level",
