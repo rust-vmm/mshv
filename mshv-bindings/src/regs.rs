@@ -26,14 +26,14 @@ impl<T> __IncompleteArrayField<T> {
     /// Safe Beacuse we know the size of the field.
     /// Caller needs to make sure lossless conversion
     pub unsafe fn as_ptr(&self) -> *const T {
-        ::std::mem::transmute(self)
+        self as *const __IncompleteArrayField<T> as *const T
     }
     #[inline]
     /// # Safety
     /// Safe Beacuse we know the size of the field.
     /// Caller needs to make sure lossless conversion
     pub unsafe fn as_mut_ptr(&mut self) -> *mut T {
-        ::std::mem::transmute(self)
+        self as *const __IncompleteArrayField<T> as *mut T
     }
     #[inline]
     /// # Safety
