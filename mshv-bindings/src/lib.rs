@@ -2,16 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0 OR BSD-3-Clause
 //
-#![allow(non_snake_case)]
-#![allow(non_upper_case_globals)]
-#![allow(non_camel_case_types)]
-#![cfg(target_arch = "x86_64")]
-#![allow(
-    clippy::too_many_arguments,
-    clippy::missing_safety_doc,
-    clippy::upper_case_acronyms,
-    clippy::useless_transmute
-)]
 
 #[macro_use]
 #[cfg(all(
@@ -20,8 +10,17 @@
 ))]
 extern crate vmm_sys_util;
 
+#[allow(
+    clippy::too_many_arguments,
+    clippy::missing_safety_doc,
+    clippy::useless_transmute,
+    non_camel_case_types,
+    non_snake_case,
+    non_upper_case_globals
+)]
 pub mod bindings;
 pub use bindings::*;
+#[allow(non_snake_case, non_upper_case_globals)]
 pub mod regs;
 pub use regs::*;
 
