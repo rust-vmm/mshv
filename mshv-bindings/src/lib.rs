@@ -12,9 +12,6 @@
     clippy::upper_case_acronyms,
     clippy::useless_transmute
 )]
-#![allow(unknown_lints)]
-#![allow(deref_nullptr)]
-#![allow(clippy::wrong_self_convention)]
 
 #[macro_use]
 #[cfg(all(
