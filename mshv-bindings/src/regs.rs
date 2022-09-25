@@ -202,12 +202,12 @@ pub struct SpecialRegisters {
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct DebugRegisters {
-    pub Dr0: u64,
-    pub Dr1: u64,
-    pub Dr2: u64,
-    pub Dr3: u64,
-    pub Dr6: u64,
-    pub Dr7: u64,
+    pub dr0: u64,
+    pub dr1: u64,
+    pub dr2: u64,
+    pub dr3: u64,
+    pub dr6: u64,
+    pub dr7: u64,
 }
 
 #[repr(C)]
@@ -261,15 +261,15 @@ pub const IA32_MSR_MTRR_PHYSMASK7: u32 = 0x020F;
 
 pub const IA32_MSR_MTRR_FIX64K_00000: u32 = 0x0250;
 pub const IA32_MSR_MTRR_FIX16K_80000: u32 = 0x0258;
-pub const IA32_MSR_MTRR_FIX16K_a0000: u32 = 0x0259;
-pub const IA32_MSR_MTRR_FIX4K_c0000: u32 = 0x0268;
-pub const IA32_MSR_MTRR_FIX4K_c8000: u32 = 0x0269;
-pub const IA32_MSR_MTRR_FIX4K_d0000: u32 = 0x026A;
-pub const IA32_MSR_MTRR_FIX4K_d8000: u32 = 0x026B;
-pub const IA32_MSR_MTRR_FIX4K_e0000: u32 = 0x026C;
-pub const IA32_MSR_MTRR_FIX4K_e8000: u32 = 0x026D;
-pub const IA32_MSR_MTRR_FIX4K_f0000: u32 = 0x026E;
-pub const IA32_MSR_MTRR_FIX4K_f8000: u32 = 0x026F;
+pub const IA32_MSR_MTRR_FIX16K_A0000: u32 = 0x0259;
+pub const IA32_MSR_MTRR_FIX4K_C0000: u32 = 0x0268;
+pub const IA32_MSR_MTRR_FIX4K_C8000: u32 = 0x0269;
+pub const IA32_MSR_MTRR_FIX4K_D0000: u32 = 0x026A;
+pub const IA32_MSR_MTRR_FIX4K_D8000: u32 = 0x026B;
+pub const IA32_MSR_MTRR_FIX4K_E0000: u32 = 0x026C;
+pub const IA32_MSR_MTRR_FIX4K_E8000: u32 = 0x026D;
+pub const IA32_MSR_MTRR_FIX4K_F0000: u32 = 0x026E;
+pub const IA32_MSR_MTRR_FIX4K_F8000: u32 = 0x026F;
 
 pub const IA32_MSR_TSC_AUX: u32 = 0xC0000103;
 pub const IA32_MSR_BNDCFGS: u32 = 0x00000d90;
@@ -316,15 +316,15 @@ pub fn msr_to_hv_reg_name(msr: u32) -> Result<hv_register_name, &'static str> {
 
         IA32_MSR_MTRR_FIX64K_00000 => Ok(hv_register_name::HV_X64_REGISTER_MSR_MTRR_FIX64K00000),
         IA32_MSR_MTRR_FIX16K_80000 => Ok(hv_register_name::HV_X64_REGISTER_MSR_MTRR_FIX16K80000),
-        IA32_MSR_MTRR_FIX16K_a0000 => Ok(hv_register_name::HV_X64_REGISTER_MSR_MTRR_FIX16KA0000),
-        IA32_MSR_MTRR_FIX4K_c0000 => Ok(hv_register_name::HV_X64_REGISTER_MSR_MTRR_FIX4KC0000),
-        IA32_MSR_MTRR_FIX4K_c8000 => Ok(hv_register_name::HV_X64_REGISTER_MSR_MTRR_FIX4KC8000),
-        IA32_MSR_MTRR_FIX4K_d0000 => Ok(hv_register_name::HV_X64_REGISTER_MSR_MTRR_FIX4KD0000),
-        IA32_MSR_MTRR_FIX4K_d8000 => Ok(hv_register_name::HV_X64_REGISTER_MSR_MTRR_FIX4KD8000),
-        IA32_MSR_MTRR_FIX4K_e0000 => Ok(hv_register_name::HV_X64_REGISTER_MSR_MTRR_FIX4KE0000),
-        IA32_MSR_MTRR_FIX4K_e8000 => Ok(hv_register_name::HV_X64_REGISTER_MSR_MTRR_FIX4KE8000),
-        IA32_MSR_MTRR_FIX4K_f0000 => Ok(hv_register_name::HV_X64_REGISTER_MSR_MTRR_FIX4KF0000),
-        IA32_MSR_MTRR_FIX4K_f8000 => Ok(hv_register_name::HV_X64_REGISTER_MSR_MTRR_FIX4KF8000),
+        IA32_MSR_MTRR_FIX16K_A0000 => Ok(hv_register_name::HV_X64_REGISTER_MSR_MTRR_FIX16KA0000),
+        IA32_MSR_MTRR_FIX4K_C0000 => Ok(hv_register_name::HV_X64_REGISTER_MSR_MTRR_FIX4KC0000),
+        IA32_MSR_MTRR_FIX4K_C8000 => Ok(hv_register_name::HV_X64_REGISTER_MSR_MTRR_FIX4KC8000),
+        IA32_MSR_MTRR_FIX4K_D0000 => Ok(hv_register_name::HV_X64_REGISTER_MSR_MTRR_FIX4KD0000),
+        IA32_MSR_MTRR_FIX4K_D8000 => Ok(hv_register_name::HV_X64_REGISTER_MSR_MTRR_FIX4KD8000),
+        IA32_MSR_MTRR_FIX4K_E0000 => Ok(hv_register_name::HV_X64_REGISTER_MSR_MTRR_FIX4KE0000),
+        IA32_MSR_MTRR_FIX4K_E8000 => Ok(hv_register_name::HV_X64_REGISTER_MSR_MTRR_FIX4KE8000),
+        IA32_MSR_MTRR_FIX4K_F0000 => Ok(hv_register_name::HV_X64_REGISTER_MSR_MTRR_FIX4KF0000),
+        IA32_MSR_MTRR_FIX4K_F8000 => Ok(hv_register_name::HV_X64_REGISTER_MSR_MTRR_FIX4KF8000),
 
         IA32_MSR_TSC_AUX => Ok(hv_register_name::HV_X64_REGISTER_TSC_AUX),
         IA32_MSR_BNDCFGS => Ok(hv_register_name::HV_X64_REGISTER_BNDCFGS),

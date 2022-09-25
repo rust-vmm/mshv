@@ -20,7 +20,6 @@ extern crate vmm_sys_util;
 )]
 pub mod bindings;
 pub use bindings::*;
-#[allow(non_snake_case, non_upper_case_globals)]
 pub mod regs;
 pub use regs::*;
 
