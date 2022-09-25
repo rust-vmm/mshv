@@ -586,12 +586,12 @@ impl VcpuFd {
 
         let ret_regs = unsafe {
             DebugRegisters {
-                Dr0: reg_assocs[0].value.reg64,
-                Dr1: reg_assocs[1].value.reg64,
-                Dr2: reg_assocs[2].value.reg64,
-                Dr3: reg_assocs[3].value.reg64,
-                Dr6: reg_assocs[4].value.reg64,
-                Dr7: reg_assocs[5].value.reg64,
+                dr0: reg_assocs[0].value.reg64,
+                dr1: reg_assocs[1].value.reg64,
+                dr2: reg_assocs[2].value.reg64,
+                dr3: reg_assocs[3].value.reg64,
+                dr6: reg_assocs[4].value.reg64,
+                dr7: reg_assocs[5].value.reg64,
             }
         };
 
@@ -608,12 +608,12 @@ impl VcpuFd {
             hv_register_name::HV_X64_REGISTER_DR7,
         ];
         let reg_values = [
-            hv_register_value { reg64: d_regs.Dr0 },
-            hv_register_value { reg64: d_regs.Dr1 },
-            hv_register_value { reg64: d_regs.Dr2 },
-            hv_register_value { reg64: d_regs.Dr3 },
-            hv_register_value { reg64: d_regs.Dr6 },
-            hv_register_value { reg64: d_regs.Dr7 },
+            hv_register_value { reg64: d_regs.dr0 },
+            hv_register_value { reg64: d_regs.dr1 },
+            hv_register_value { reg64: d_regs.dr2 },
+            hv_register_value { reg64: d_regs.dr3 },
+            hv_register_value { reg64: d_regs.dr6 },
+            hv_register_value { reg64: d_regs.dr7 },
         ];
 
         let reg_assocs: Vec<hv_register_assoc> = reg_names
@@ -1076,12 +1076,12 @@ mod tests {
         let s_regs = vcpu.get_debug_regs().unwrap();
         vcpu.set_debug_regs(&s_regs).unwrap();
         let g_regs = vcpu.get_debug_regs().unwrap();
-        assert!(g_regs.Dr0 == s_regs.Dr0);
-        assert!(g_regs.Dr1 == s_regs.Dr1);
-        assert!(g_regs.Dr2 == s_regs.Dr2);
-        assert!(g_regs.Dr3 == s_regs.Dr3);
-        assert!(g_regs.Dr6 == s_regs.Dr6);
-        assert!(g_regs.Dr7 == s_regs.Dr7);
+        assert!(g_regs.dr0 == s_regs.dr0);
+        assert!(g_regs.dr1 == s_regs.dr1);
+        assert!(g_regs.dr2 == s_regs.dr2);
+        assert!(g_regs.dr3 == s_regs.dr3);
+        assert!(g_regs.dr6 == s_regs.dr6);
+        assert!(g_regs.dr7 == s_regs.dr7);
     }
     #[cfg(target_arch = "x86_64")]
     #[test]
