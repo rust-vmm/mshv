@@ -14,7 +14,6 @@
 )]
 #![allow(unknown_lints)]
 #![allow(deref_nullptr)]
-#![allow(unaligned_references)]
 #![allow(clippy::wrong_self_convention)]
 
 #[macro_use]
