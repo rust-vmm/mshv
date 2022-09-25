@@ -13,11 +13,11 @@ impl hv_message {
         if self.header.message_type != hv_message_type_HVMSG_X64_CPUID_INTERCEPT {
             return Err(errno::Error::new(libc::EINVAL));
         }
-        let p: *const [u8; std::mem::size_of::<hv_x64_cpuid_intercept_message>()] = unsafe {
-            self.u.payload.as_ptr()
-                as *const [u8; std::mem::size_of::<hv_x64_cpuid_intercept_message>()]
-        };
-        let ret: hv_x64_cpuid_intercept_message = unsafe { std::ptr::read(p as *const _) };
+        // SAFETY: We know at this point the payload is of the correct type. The payload field is
+        // unaligned. We use addr_of! to safely create a pointer, then call read_unaligned for
+        // copying its content out.
+        let ret =
+            unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
     #[inline]
@@ -27,11 +27,11 @@ impl hv_message {
         {
             return Err(errno::Error::new(libc::EINVAL));
         }
-        let p: *const [u8; std::mem::size_of::<hv_x64_memory_intercept_message>()] = unsafe {
-            self.u.payload.as_ptr()
-                as *const [u8; std::mem::size_of::<hv_x64_memory_intercept_message>()]
-        };
-        let ret: hv_x64_memory_intercept_message = unsafe { std::ptr::read(p as *const _) };
+        // SAFETY: We know at this point the payload is of the correct type. The payload field is
+        // unaligned. We use addr_of! to safely create a pointer, then call read_unaligned for
+        // copying its content out.
+        let ret =
+            unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
     #[inline]
@@ -39,11 +39,11 @@ impl hv_message {
         if self.header.message_type != hv_message_type_HVMSG_X64_IO_PORT_INTERCEPT {
             return Err(errno::Error::new(libc::EINVAL));
         }
-        let p: *const [u8; std::mem::size_of::<hv_x64_io_port_intercept_message>()] = unsafe {
-            self.u.payload.as_ptr()
-                as *const [u8; std::mem::size_of::<hv_x64_io_port_intercept_message>()]
-        };
-        let ret: hv_x64_io_port_intercept_message = unsafe { std::ptr::read(p as *const _) };
+        // SAFETY: We know at this point the payload is of the correct type. The payload field is
+        // unaligned. We use addr_of! to safely create a pointer, then call read_unaligned for
+        // copying its content out.
+        let ret =
+            unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
     #[inline]
@@ -51,11 +51,11 @@ impl hv_message {
         if self.header.message_type != hv_message_type_HVMSG_X64_MSR_INTERCEPT {
             return Err(errno::Error::new(libc::EINVAL));
         }
-        let p: *const [u8; std::mem::size_of::<hv_x64_msr_intercept_message>()] = unsafe {
-            self.u.payload.as_ptr()
-                as *const [u8; std::mem::size_of::<hv_x64_msr_intercept_message>()]
-        };
-        let ret: hv_x64_msr_intercept_message = unsafe { std::ptr::read(p as *const _) };
+        // SAFETY: We know at this point the payload is of the correct type. The payload field is
+        // unaligned. We use addr_of! to safely create a pointer, then call read_unaligned for
+        // copying its content out.
+        let ret =
+            unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
     #[inline]
@@ -63,11 +63,11 @@ impl hv_message {
         if self.header.message_type != hv_message_type_HVMSG_X64_EXCEPTION_INTERCEPT {
             return Err(errno::Error::new(libc::EINVAL));
         }
-        let p: *const [u8; std::mem::size_of::<hv_x64_exception_intercept_message>()] = unsafe {
-            self.u.payload.as_ptr()
-                as *const [u8; std::mem::size_of::<hv_x64_exception_intercept_message>()]
-        };
-        let ret: hv_x64_exception_intercept_message = unsafe { std::ptr::read(p as *const _) };
+        // SAFETY: We know at this point the payload is of the correct type. The payload field is
+        // unaligned. We use addr_of! to safely create a pointer, then call read_unaligned for
+        // copying its content out.
+        let ret =
+            unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
     #[inline]
@@ -75,11 +75,11 @@ impl hv_message {
         if self.header.message_type != hv_message_type_HVMSG_INVALID_VP_REGISTER_VALUE {
             return Err(errno::Error::new(libc::EINVAL));
         }
-        let p: *const [u8; std::mem::size_of::<hv_x64_invalid_vp_register_message>()] = unsafe {
-            self.u.payload.as_ptr()
-                as *const [u8; std::mem::size_of::<hv_x64_invalid_vp_register_message>()]
-        };
-        let ret: hv_x64_invalid_vp_register_message = unsafe { std::ptr::read(p as *const _) };
+        // SAFETY: We know at this point the payload is of the correct type. The payload field is
+        // unaligned. We use addr_of! to safely create a pointer, then call read_unaligned for
+        // copying its content out.
+        let ret =
+            unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
     #[inline]
@@ -89,11 +89,11 @@ impl hv_message {
         if self.header.message_type != hv_message_type_HVMSG_UNRECOVERABLE_EXCEPTION {
             return Err(errno::Error::new(libc::EINVAL));
         }
-        let p: *const [u8; std::mem::size_of::<hv_x64_unrecoverable_exception_message>()] = unsafe {
-            self.u.payload.as_ptr()
-                as *const [u8; std::mem::size_of::<hv_x64_unrecoverable_exception_message>()]
-        };
-        let ret: hv_x64_unrecoverable_exception_message = unsafe { std::ptr::read(p as *const _) };
+        // SAFETY: We know at this point the payload is of the correct type. The payload field is
+        // unaligned. We use addr_of! to safely create a pointer, then call read_unaligned for
+        // copying its content out.
+        let ret =
+            unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
     #[inline]
@@ -103,11 +103,11 @@ impl hv_message {
         if self.header.message_type != hv_message_type_HVMSG_X64_INTERRUPTION_DELIVERABLE {
             return Err(errno::Error::new(libc::EINVAL));
         }
-        let p: *const [u8; std::mem::size_of::<hv_x64_interruption_deliverable_message>()] = unsafe {
-            self.u.payload.as_ptr()
-                as *const [u8; std::mem::size_of::<hv_x64_interruption_deliverable_message>()]
-        };
-        let ret: hv_x64_interruption_deliverable_message = unsafe { std::ptr::read(p as *const _) };
+        // SAFETY: We know at this point the payload is of the correct type. The payload field is
+        // unaligned. We use addr_of! to safely create a pointer, then call read_unaligned for
+        // copying its content out.
+        let ret =
+            unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
     #[inline]
@@ -115,10 +115,11 @@ impl hv_message {
         if self.header.message_type != hv_message_type_HVMSG_X64_APIC_EOI {
             return Err(errno::Error::new(libc::EINVAL));
         }
-        let p: *const [u8; std::mem::size_of::<hv_x64_apic_eoi_message>()] = unsafe {
-            self.u.payload.as_ptr() as *const [u8; std::mem::size_of::<hv_x64_apic_eoi_message>()]
-        };
-        let ret: hv_x64_apic_eoi_message = unsafe { std::ptr::read(p as *const _) };
+        // SAFETY: We know at this point the payload is of the correct type. The payload field is
+        // unaligned. We use addr_of! to safely create a pointer, then call read_unaligned for
+        // copying its content out.
+        let ret =
+            unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
     #[inline]
@@ -126,11 +127,11 @@ impl hv_message {
         if self.header.message_type != hv_message_type_HVMSG_HYPERCALL_INTERCEPT {
             return Err(errno::Error::new(libc::EINVAL));
         }
-        let p: *const [u8; std::mem::size_of::<hv_x64_hypercall_intercept_message>()] = unsafe {
-            self.u.payload.as_ptr()
-                as *const [u8; std::mem::size_of::<hv_x64_hypercall_intercept_message>()]
-        };
-        let ret: hv_x64_hypercall_intercept_message = unsafe { std::ptr::read(p as *const _) };
+        // SAFETY: We know at this point the payload is of the correct type. The payload field is
+        // unaligned. We use addr_of! to safely create a pointer, then call read_unaligned for
+        // copying its content out.
+        let ret =
+            unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
     #[inline]
@@ -138,11 +139,11 @@ impl hv_message {
         if self.header.message_type != hv_message_type_HVMSG_SYNIC_SINT_DELIVERABLE {
             return Err(errno::Error::new(libc::EINVAL));
         }
-        let p: *const [u8; std::mem::size_of::<hv_x64_sint_deliverable_message>()] = unsafe {
-            self.u.payload.as_ptr()
-                as *const [u8; std::mem::size_of::<hv_x64_sint_deliverable_message>()]
-        };
-        let ret: hv_x64_sint_deliverable_message = unsafe { std::ptr::read(p as *const _) };
+        // SAFETY: We know at this point the payload is of the correct type. The payload field is
+        // unaligned. We use addr_of! to safely create a pointer, then call read_unaligned for
+        // copying its content out.
+        let ret =
+            unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
 }
