@@ -708,6 +708,19 @@ mod tests {
         vm.install_intercept(intercept_args).unwrap();
     }
     #[test]
+    fn test_setting_immutable_partition_property() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let res = vm.set_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_PRIVILEGE_FLAGS,
+            0,
+        );
+
+        // We should get an error, because we are trying to change an immutable
+        // partition property.
+        assert!(res.is_err())
+    }
+    #[test]
     fn test_get_set_property() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -730,11 +743,6 @@ mod tests {
             )
             .unwrap();
         println!("Processor frequency: {}", val);
-        vm.set_partition_property(
-            hv_partition_property_code_HV_PARTITION_PROPERTY_PRIVILEGE_FLAGS,
-            0,
-        )
-        .unwrap();
         vm.set_partition_property(
             hv_partition_property_code_HV_PARTITION_PROPERTY_UNIMPLEMENTED_MSR_ACTION,
             hv_unimplemented_msr_action_HV_UNIMPLEMENTED_MSR_ACTION_IGNORE_WRITE_READ_ZERO as u64,
