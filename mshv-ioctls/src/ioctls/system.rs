@@ -68,6 +68,7 @@ impl MshvPartitionBuilder {
                     disabled_processor_xsave_features: hv_partition_processor_xsave_features {
                         as_uint64: 0_u64,
                     },
+                    isolation_properties: hv_partition_isolation_properties { as_uint64: 0_u64 },
                 },
                 synthetic_processor_features: hv_partition_synthetic_processor_features {
                     as_uint64: [0; 1],
