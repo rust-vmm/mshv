@@ -7,7 +7,7 @@ steps:
       hypervisor: mshv
     plugins:
     - docker#v3.8.0:
-        image: rustvmm/dev:v15
+        image: rustvmm/dev:v16
         always-pull: true
     timeout_in_minutes: 5
 
@@ -19,7 +19,7 @@ steps:
       hypervisor: mshv
     plugins:
     - docker#v3.8.0:
-        image: rustvmm/dev:v15
+        image: rustvmm/dev:v16
         always-pull: true
     timeout_in_minutes: 5
 
@@ -31,7 +31,7 @@ steps:
       hypervisor: mshv
     plugins:
     - docker#v3.8.0:
-        image: rustvmm/dev:v15
+        image: rustvmm/dev:v16
         always-pull: true
     timeout_in_minutes: 5
 
@@ -43,7 +43,7 @@ steps:
       hypervisor: mshv
     plugins:
     - docker#v3.8.0:
-        image: rustvmm/dev:v15
+        image: rustvmm/dev:v16
         always-pull: true
         devices:
           - "/dev/mshv"
@@ -57,7 +57,7 @@ steps:
       hypervisor: mshv
     plugins:
     - docker#v3.8.0:
-        image: rustvmm/dev:v15
+        image: rustvmm/dev:v16
         always-pull: true
         devices:
           - "/dev/mshv"
@@ -71,7 +71,7 @@ steps:
       hypervisor: mshv
     plugins:
     - docker#v3.8.0:
-        image: rustvmm/dev:v15
+        image: rustvmm/dev:v16
         always-pull: true
     timeout_in_minutes: 5
 
@@ -83,7 +83,7 @@ steps:
       hypervisor: mshv
     plugins:
     - docker#v3.8.0:
-        image: rustvmm/dev:v15
+        image: rustvmm/dev:v16
         always-pull: true
     timeout_in_minutes: 5
 
@@ -95,7 +95,7 @@ steps:
       hypervisor: mshv
     plugins:
     - docker#v3.8.0:
-        image: rustvmm/dev:v15
+        image: rustvmm/dev:v16
         always-pull: true
     timeout_in_minutes: 5
 
@@ -107,7 +107,7 @@ steps:
       hypervisor: mshv
     plugins:
     - docker#v3.8.0:
-        image: rustvmm/dev:v15
+        image: rustvmm/dev:v16
         always-pull: true
     timeout_in_minutes: 5
   - label:  "coverage"
@@ -118,7 +118,7 @@ steps:
       hypervisor: mshv
     plugins:
     - docker#v3.8.0:
-        image: rustvmm/dev:v15
+        image: rustvmm/dev:v16
         always-pull: true
         devices:
           - "/dev/mshv"
