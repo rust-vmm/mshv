@@ -9,7 +9,7 @@ steps:
     - docker#v3.8.0:
         image: rustvmm/dev:v16
         always-pull: true
-    timeout_in_minutes: 5
+    timeout_in_minutes: 10
 
   - label:  "build-musl"
     command:  "RUSTFLAGS=\"-D warnings\" cargo build --target x86_64-unknown-linux-musl"
@@ -21,7 +21,7 @@ steps:
     - docker#v3.8.0:
         image: rustvmm/dev:v16
         always-pull: true
-    timeout_in_minutes: 5
+    timeout_in_minutes: 10
 
   - label:  "style"
     command:  "cargo fmt --all -- --check --config format_code_in_doc_comments=true"
@@ -33,7 +33,7 @@ steps:
     - docker#v3.8.0:
         image: rustvmm/dev:v16
         always-pull: true
-    timeout_in_minutes: 5
+    timeout_in_minutes: 10
 
   - label:  "unittests"
     command:  "cargo test --all-features --workspace"
@@ -47,7 +47,7 @@ steps:
         always-pull: true
         devices:
           - "/dev/mshv"
-    timeout_in_minutes: 5
+    timeout_in_minutes: 10
 
   - label:  "unittests-musl"
     command:  "cargo test --all-features --workspace --target x86_64-unknown-linux-musl"
@@ -61,7 +61,7 @@ steps:
         always-pull: true
         devices:
           - "/dev/mshv"
-    timeout_in_minutes: 5
+    timeout_in_minutes: 10
 
   - label:  "clippy"
     command:  "cargo clippy --workspace --bins --examples --benches --all-features --all-targets -- -D warnings"
@@ -73,7 +73,7 @@ steps:
     - docker#v3.8.0:
         image: rustvmm/dev:v16
         always-pull: true
-    timeout_in_minutes: 5
+    timeout_in_minutes: 10
 
   - label:  "check-warnings"
     command:  "RUSTFLAGS=\"-D warnings\" cargo check --all-targets --all-features --workspace"
@@ -85,7 +85,7 @@ steps:
     - docker#v3.8.0:
         image: rustvmm/dev:v16
         always-pull: true
-    timeout_in_minutes: 5
+    timeout_in_minutes: 10
 
   - label:  "commit-format"
     command:  "pytest $(find . -type f -name \"test_commit_format.py\")"
@@ -97,7 +97,7 @@ steps:
     - docker#v3.8.0:
         image: rustvmm/dev:v16
         always-pull: true
-    timeout_in_minutes: 5
+    timeout_in_minutes: 10
 
   - label:  "cargo-audit"
     command:  "cargo audit -q --deny warnings"
@@ -109,7 +109,7 @@ steps:
     - docker#v3.8.0:
         image: rustvmm/dev:v16
         always-pull: true
-    timeout_in_minutes: 5
+    timeout_in_minutes: 10
   - label:  "coverage"
     command:  "pytest $(find . -type f -name \"test_coverage.py\")"
     retry:
@@ -123,4 +123,4 @@ steps:
         devices:
           - "/dev/mshv"
         privileged: true
-    timeout_in_minutes: 5
+    timeout_in_minutes: 10
