@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 OR BSD-3-Clause
 //
+#![allow(clippy::undocumented_unsafe_blocks)]
 use crate::ioctls::vm::{new_vmfd, VmFd};
 use crate::ioctls::Result;
 use crate::mshv_ioctls::*;

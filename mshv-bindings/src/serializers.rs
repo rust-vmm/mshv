@@ -90,6 +90,7 @@ mod tests {
             n1 = random!();
         }
         let mut _bs = flags.to_le_bytes();
+        // SAFETY: We construct the buffer same way as we retrieve it
         unsafe {
             ptr::copy(
                 _bs.as_ptr() as *mut u8,
@@ -98,6 +99,7 @@ mod tests {
             )
         };
         _bs = states.to_le_bytes();
+        // SAFETY: We construct the buffer same way as we retrieve it
         unsafe {
             ptr::copy(
                 _bs.as_ptr() as *mut u8,
@@ -106,6 +108,7 @@ mod tests {
             )
         };
         _bs = data_size.to_le_bytes();
+        // SAFETY: We construct the buffer same way as we retrieve it
         unsafe {
             ptr::copy(
                 _bs.as_ptr() as *mut u8,

@@ -109,6 +109,7 @@ pub struct SegmentRegister {
 
 impl From<hv_x64_segment_register> for SegmentRegister {
     fn from(reg: hv_x64_segment_register) -> Self {
+        // SAFETY: Safe becasue these conversions follows Hyper-V specifications
         unsafe {
             SegmentRegister {
                 base: reg.base,
@@ -480,6 +481,7 @@ pub struct LapicState {
 }
 impl Default for LapicState {
     fn default() -> Self {
+        // SAFETY: Safe becasue filling with zeros for default
         unsafe { ::std::mem::zeroed() }
     }
 }
@@ -506,6 +508,7 @@ pub struct XSave {
 
 impl Default for XSave {
     fn default() -> Self {
+        // SAFETY: Safe becasue filling with zeros for default
         unsafe { ::std::mem::zeroed() }
     }
 }
@@ -516,6 +519,7 @@ impl From<mshv_vp_state> for XSave {
             ..Default::default()
         };
         let mut bs = reg.xsave.flags.to_le_bytes();
+        // SAFETY: Safe because, buffer layout is correctly measered
         unsafe {
             ptr::copy(
                 bs.as_ptr() as *mut u8,
@@ -523,7 +527,9 @@ impl From<mshv_vp_state> for XSave {
                 8,
             )
         };
+        // SAFETY: Safe becasue, buffer layout is correctly measered
         bs = unsafe { reg.xsave.states.as_uint64.to_le_bytes() };
+        // SAFETY: Safe becasue, buffer layout is correctly measered
         unsafe {
             ptr::copy(
                 bs.as_ptr() as *mut u8,
@@ -532,6 +538,7 @@ impl From<mshv_vp_state> for XSave {
             )
         };
         bs = reg.buf_size.to_le_bytes();
+        // SAFETY: Safe becasue, buffer layout is correctly measered
         unsafe {
             ptr::copy(
                 bs.as_ptr() as *mut u8,
@@ -540,6 +547,7 @@ impl From<mshv_vp_state> for XSave {
             )
         };
         let min: usize = cmp::min(4096, reg.buf_size as u32) as usize;
+        // SAFETY: Safe becasue, buffer layout is correctly measered
         unsafe {
             ptr::copy(
                 reg.buf.bytes,
@@ -571,7 +579,9 @@ impl From<mshv_vp_state> for LapicState {
     fn from(reg: mshv_vp_state) -> Self {
         let mut ret: LapicState = LapicState::default();
         let state = ret.regs.as_mut_ptr();
+        // SAFETY: Buffer has lapic by definion
         let hv_state = unsafe { *reg.buf.lapic };
+        // SAFETY: Safe becasue these conervion exactly follows Hyper-V specifications
         unsafe {
             *(state.offset(LOCAL_APIC_OFFSET_APIC_ID) as *mut u32) = hv_state.apic_id;
             *(state.offset(LOCAL_APIC_OFFSET_VERSION) as *mut u32) = hv_state.apic_version;
@@ -598,6 +608,7 @@ impl From<mshv_vp_state> for LapicState {
 
         /* vectors ISR TMR IRR */
         for i in 0..8 {
+            // SAFETY: We know that ISR TMR IRR are 32 bits
             unsafe {
                 *(state.offset(LOCAL_APIC_OFFSET_ISR + i * 16) as *mut u32) =
                     hv_state.apic_isr[i as usize];
@@ -620,6 +631,7 @@ impl From<mshv_vp_state> for LapicState {
         }
 
         // TODO This is meant to be max(tpr, isrv), but tpr is not populated!
+        // SAFETY: We know that isrv is 32 bits
         unsafe {
             *(state.offset(LOCAL_APIC_OFFSET_PPR) as *mut u32) = isrv;
         }
@@ -631,6 +643,7 @@ impl From<LapicState> for mshv_vp_state {
     fn from(reg: LapicState) -> Self {
         let state = reg.regs.as_ptr();
         let mut vp_state: mshv_vp_state = mshv_vp_state::default();
+        // SAFETY: We know that these ar all 32 bits
         unsafe {
             let mut lapic_state = hv_local_interrupt_controller_state {
                 apic_id: *(state.offset(LOCAL_APIC_OFFSET_APIC_ID) as *mut u32),
@@ -694,6 +707,7 @@ impl fmt::Display for XSave {
 impl XSave {
     pub fn flags(&self) -> u64 {
         let array: [u8; 8] = [0, 0, 0, 0, 0, 0, 0, 0];
+        // SAFETY: Safe becasue we are copying exactly 8 bytes and valid bytes
         unsafe {
             ptr::copy(
                 self.buffer.as_ptr().offset(0) as *mut u8,
@@ -705,6 +719,7 @@ impl XSave {
     }
     pub fn states(&self) -> u64 {
         let array: [u8; 8] = [0, 0, 0, 0, 0, 0, 0, 0];
+        // SAFETY: Safe becasue we are copying exactly 8 bytes and valid bytes
         unsafe {
             ptr::copy(
                 self.buffer.as_ptr().offset(8) as *mut u8,
@@ -716,6 +731,7 @@ impl XSave {
     }
     pub fn data_size(&self) -> u64 {
         let array: [u8; 8] = [0, 0, 0, 0, 0, 0, 0, 0];
+        // SAFETY: Safe becasue we are copying exactly 8 bytes and valid bytes
         unsafe {
             ptr::copy(
                 self.buffer.as_ptr().offset(16) as *mut u8,
@@ -726,6 +742,7 @@ impl XSave {
         u64::from_le_bytes(array)
     }
     pub fn data_buffer(&self) -> *const u8 {
+        // SAFETY: Safe becasue buffer starts after 24 bytes
         unsafe { self.buffer.as_ptr().offset(24) as *mut u8 }
     }
 }
