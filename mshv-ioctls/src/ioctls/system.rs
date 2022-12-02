@@ -334,7 +334,7 @@ impl Mshv {
             IA32_MSR_MTRR_FIX4K_F0000,
             IA32_MSR_MTRR_FIX4K_F8000,
             IA32_MSR_TSC_AUX,
-            IA32_MSR_BNDCFGS,
+            //IA32_MSR_BNDCFGS,
             IA32_MSR_DEBUG_CTL,
             IA32_MSR_SPEC_CTRL,
             //IA32_MSR_TSC_ADJUST, // Current hypervisor version does not allow to get this MSR, need to check later
