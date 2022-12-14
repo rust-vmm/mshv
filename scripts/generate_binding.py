@@ -56,9 +56,9 @@ def generate_unified_mshv_headers(kernel_hdr_path):
     logging.debug("Done generating unified header file")
 
 
-def run_bindgen(kernel_hdr_path, output_dir, default_bindgen_args):
+def run_bindgen(kernel_hdr_path, output_dir, bindgen_args):
     cmd = f"""
-    bindgen {default_bindgen_args} \
+    bindgen {bindgen_args} \
     {kernel_hdr_path}/combined_mshv.h -- -I {kernel_hdr_path}/include > {output_dir}/bindings.rs
     """
     logging.debug("Running bindgen: %s", cmd)
@@ -82,11 +82,11 @@ def main(args):
     kernel_hdr_path = install_kernel_headers(args.kernel_src_path)
     generate_unified_mshv_headers(kernel_hdr_path)
 
-    default_bindgen_args = "--no-doc-comments --with-derive-default "
+    bindgen_args = "--no-doc-comments --with-derive-default "
 
-    default_bindgen_args += args.bindgen_args
+    bindgen_args += args.bindgen_args
 
-    run_bindgen(kernel_hdr_path, args.output, default_bindgen_args)
+    run_bindgen(kernel_hdr_path, args.output, bindgen_args)
 
     return 0
 
