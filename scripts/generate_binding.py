@@ -59,7 +59,7 @@ def generate_unified_mshv_headers(kernel_hdr_path):
 def run_bindgen(kernel_hdr_path, output_dir, default_bindgen_args):
     cmd = f"""
     bindgen {default_bindgen_args} \
-    {kernel_hdr_path}/combined_mshv.h -- -I {kernel_hdr_path}/include > {output_dir}/bindings.rs
+    {kernel_hdr_path}/combined_mshv.h -- -I {kernel_hdr_path}/include > {output_dir}/bindings-generated.rs
     """
     logging.debug("Running bindgen: %s", cmd)
 
@@ -111,7 +111,7 @@ if __name__ == "__main__":
         type=str,
         dest="output",
         default="mshv-bindings/src",
-        help="Directory to store bindgen.rs",
+        help="Directory to store bindings-generated.rs",
     )
 
     parser.add_argument(

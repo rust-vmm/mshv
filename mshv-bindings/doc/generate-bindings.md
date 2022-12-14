@@ -15,4 +15,4 @@ Generate the bindings with the following command:
 ./scripts/generate_binding.py -k {KERNEL_SOURCE_ROOT}
 ```
 
-bindings.rs would be updated in mshv-bindings/src/
+bindings-generated.rs would be updated in mshv-bindings/src/
