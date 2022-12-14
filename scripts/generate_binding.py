@@ -93,7 +93,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Generate Rust bindings from HyperV headers files from Linux Kernel"
+        description="Generate Rust bindings from Hyper-V headers from Linux kernel"
     )
 
     parser.add_argument(
