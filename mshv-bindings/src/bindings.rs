@@ -3,6 +3,7 @@
  * include/asm/hyperv-tlfs.h
  * include/asm-generic/hyperv-tlfs.h
  * include/linux/mshv.h
+ * include/asm-generic/hyperv-common-types.h
  */
 
 #[repr(C)]
@@ -175,7 +176,20 @@ pub const HV_TRANSLATE_GVA_PRIVILEGE_EXCEMP: u32 = 8;
 pub const HV_TRANSLATE_GVA_SET_PAGE_TABLE_BITS: u32 = 16;
 pub const HV_TRANSLATE_GVA_TLB_FLUSH_INHIBIT: u32 = 32;
 pub const HV_TRANSLATE_GVA_CONTROL_MASK: u32 = 63;
+pub const HV_MODIFY_SPA_PAGE_HOST_ACCESS_MAKE_EXCLUSIVE: u32 = 1;
+pub const HV_MODIFY_SPA_PAGE_HOST_ACCESS_MAKE_SHARED: u32 = 2;
+pub const HV_MODIFY_SPA_PAGE_HOST_ACCESS_LARGE_PAGE: u32 = 4;
+pub const HV_MODIFY_SPA_PAGE_HOST_ACCESS_HUGE_PAGE: u32 = 8;
+pub const HV_MODIFY_SPA_PAGE_HOST_ACCESS_FLAGS_MASK: u32 = 15;
 pub const MSHV_CAP_CORE_API_STABLE: u32 = 0;
+pub const MAX_RUN_MSG_SIZE: u32 = 256;
+pub const HV_PARTITION_ISOLATION_TYPE_NONE: u32 = 0;
+pub const HV_PARTITION_ISOLATION_TYPE_VBS: u32 = 1;
+pub const HV_PARTITION_ISOLATION_TYPE_SNP: u32 = 2;
+pub const HV_PARTITION_ISOLATION_TYPE_TDX: u32 = 3;
+pub const HV_PARTITION_ISOLATION_HOST_TYPE_NONE: u32 = 0;
+pub const HV_PARTITION_ISOLATION_HOST_TYPE_HARDWARE: u32 = 1;
+pub const HV_PARTITION_ISOLATION_HOST_TYPE_RESERVED: u32 = 2;
 pub const MSHV_VP_MAX_REGISTERS: u32 = 128;
 pub const MSHV_IRQFD_FLAG_DEASSIGN: u32 = 1;
 pub const MSHV_IRQFD_FLAG_RESAMPLE: u32 = 2;
@@ -305,6 +319,804 @@ pub type __be64 = __u64;
 pub type __sum16 = __u16;
 pub type __wsum = __u32;
 pub type __poll_t = ::std::os::raw::c_uint;
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_u128 {
+    pub low_part: __u64,
+    pub high_part: __u64,
+}
+#[test]
+fn bindgen_test_layout_hv_u128() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_u128>(),
+        16usize,
+        concat!("Size of: ", stringify!(hv_u128))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_u128>(),
+        1usize,
+        concat!("Alignment of ", stringify!(hv_u128))
+    );
+    fn test_field_low_part() {
+        assert_eq!(
+            unsafe {
+                let uninit = ::std::mem::MaybeUninit::<hv_u128>::uninit();
+                let ptr = uninit.as_ptr();
+                ::std::ptr::addr_of!((*ptr).low_part) as usize - ptr as usize
+            },
+            0usize,
+            concat!(
+                "Offset of field: ",
+                stringify!(hv_u128),
+                "::",
+                stringify!(low_part)
+            )
+        );
+    }
+    test_field_low_part();
+    fn test_field_high_part() {
+        assert_eq!(
+            unsafe {
+                let uninit = ::std::mem::MaybeUninit::<hv_u128>::uninit();
+                let ptr = uninit.as_ptr();
+                ::std::ptr::addr_of!((*ptr).high_part) as usize - ptr as usize
+            },
+            8usize,
+            concat!(
+                "Offset of field: ",
+                stringify!(hv_u128),
+                "::",
+                stringify!(high_part)
+            )
+        );
+    }
+    test_field_high_part();
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union hv_explicit_suspend_register {
+    pub as_uint64: __u64,
+    pub __bindgen_anon_1: hv_explicit_suspend_register__bindgen_ty_1,
+}
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_explicit_suspend_register__bindgen_ty_1 {
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
+}
+#[test]
+fn bindgen_test_layout_hv_explicit_suspend_register__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_explicit_suspend_register__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_explicit_suspend_register__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_explicit_suspend_register__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_explicit_suspend_register__bindgen_ty_1)
+        )
+    );
+}
+impl hv_explicit_suspend_register__bindgen_ty_1 {
+    #[inline]
+    pub fn suspended(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_suspended(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 63u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 63u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        suspended: __u64,
+        reserved: __u64,
+    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let suspended: u64 = unsafe { ::std::mem::transmute(suspended) };
+            suspended as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 63u8, {
+            let reserved: u64 = unsafe { ::std::mem::transmute(reserved) };
+            reserved as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[test]
+fn bindgen_test_layout_hv_explicit_suspend_register() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_explicit_suspend_register>(),
+        8usize,
+        concat!("Size of: ", stringify!(hv_explicit_suspend_register))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_explicit_suspend_register>(),
+        8usize,
+        concat!("Alignment of ", stringify!(hv_explicit_suspend_register))
+    );
+    fn test_field_as_uint64() {
+        assert_eq!(
+            unsafe {
+                let uninit = ::std::mem::MaybeUninit::<hv_explicit_suspend_register>::uninit();
+                let ptr = uninit.as_ptr();
+                ::std::ptr::addr_of!((*ptr).as_uint64) as usize - ptr as usize
+            },
+            0usize,
+            concat!(
+                "Offset of field: ",
+                stringify!(hv_explicit_suspend_register),
+                "::",
+                stringify!(as_uint64)
+            )
+        );
+    }
+    test_field_as_uint64();
+}
+impl Default for hv_explicit_suspend_register {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union hv_intercept_suspend_register {
+    pub as_uint64: __u64,
+    pub __bindgen_anon_1: hv_intercept_suspend_register__bindgen_ty_1,
+}
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_intercept_suspend_register__bindgen_ty_1 {
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
+}
+#[test]
+fn bindgen_test_layout_hv_intercept_suspend_register__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_intercept_suspend_register__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_intercept_suspend_register__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_intercept_suspend_register__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_intercept_suspend_register__bindgen_ty_1)
+        )
+    );
+}
+impl hv_intercept_suspend_register__bindgen_ty_1 {
+    #[inline]
+    pub fn suspended(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_suspended(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 63u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 63u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        suspended: __u64,
+        reserved: __u64,
+    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let suspended: u64 = unsafe { ::std::mem::transmute(suspended) };
+            suspended as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 63u8, {
+            let reserved: u64 = unsafe { ::std::mem::transmute(reserved) };
+            reserved as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[test]
+fn bindgen_test_layout_hv_intercept_suspend_register() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_intercept_suspend_register>(),
+        8usize,
+        concat!("Size of: ", stringify!(hv_intercept_suspend_register))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_intercept_suspend_register>(),
+        8usize,
+        concat!("Alignment of ", stringify!(hv_intercept_suspend_register))
+    );
+    fn test_field_as_uint64() {
+        assert_eq!(
+            unsafe {
+                let uninit = ::std::mem::MaybeUninit::<hv_intercept_suspend_register>::uninit();
+                let ptr = uninit.as_ptr();
+                ::std::ptr::addr_of!((*ptr).as_uint64) as usize - ptr as usize
+            },
+            0usize,
+            concat!(
+                "Offset of field: ",
+                stringify!(hv_intercept_suspend_register),
+                "::",
+                stringify!(as_uint64)
+            )
+        );
+    }
+    test_field_as_uint64();
+}
+impl Default for hv_intercept_suspend_register {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union hv_dispatch_suspend_register {
+    pub as_uint64: __u64,
+    pub __bindgen_anon_1: hv_dispatch_suspend_register__bindgen_ty_1,
+}
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_dispatch_suspend_register__bindgen_ty_1 {
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
+}
+#[test]
+fn bindgen_test_layout_hv_dispatch_suspend_register__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_dispatch_suspend_register__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_dispatch_suspend_register__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_dispatch_suspend_register__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_dispatch_suspend_register__bindgen_ty_1)
+        )
+    );
+}
+impl hv_dispatch_suspend_register__bindgen_ty_1 {
+    #[inline]
+    pub fn suspended(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_suspended(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 63u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 63u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        suspended: __u64,
+        reserved: __u64,
+    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let suspended: u64 = unsafe { ::std::mem::transmute(suspended) };
+            suspended as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 63u8, {
+            let reserved: u64 = unsafe { ::std::mem::transmute(reserved) };
+            reserved as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[test]
+fn bindgen_test_layout_hv_dispatch_suspend_register() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_dispatch_suspend_register>(),
+        8usize,
+        concat!("Size of: ", stringify!(hv_dispatch_suspend_register))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_dispatch_suspend_register>(),
+        8usize,
+        concat!("Alignment of ", stringify!(hv_dispatch_suspend_register))
+    );
+    fn test_field_as_uint64() {
+        assert_eq!(
+            unsafe {
+                let uninit = ::std::mem::MaybeUninit::<hv_dispatch_suspend_register>::uninit();
+                let ptr = uninit.as_ptr();
+                ::std::ptr::addr_of!((*ptr).as_uint64) as usize - ptr as usize
+            },
+            0usize,
+            concat!(
+                "Offset of field: ",
+                stringify!(hv_dispatch_suspend_register),
+                "::",
+                stringify!(as_uint64)
+            )
+        );
+    }
+    test_field_as_uint64();
+}
+impl Default for hv_dispatch_suspend_register {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union hv_partition_isolation_properties {
+    pub as_uint64: __u64,
+    pub __bindgen_anon_1: hv_partition_isolation_properties__bindgen_ty_1,
+}
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_partition_isolation_properties__bindgen_ty_1 {
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
+}
+#[test]
+fn bindgen_test_layout_hv_partition_isolation_properties__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_partition_isolation_properties__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_partition_isolation_properties__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_partition_isolation_properties__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_partition_isolation_properties__bindgen_ty_1)
+        )
+    );
+}
+impl hv_partition_isolation_properties__bindgen_ty_1 {
+    #[inline]
+    pub fn isolation_type(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 5u8) as u64) }
+    }
+    #[inline]
+    pub fn set_isolation_type(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 5u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn isolation_host_type(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(5usize, 2u8) as u64) }
+    }
+    #[inline]
+    pub fn set_isolation_host_type(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(5usize, 2u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn rsvd_z(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(7usize, 5u8) as u64) }
+    }
+    #[inline]
+    pub fn set_rsvd_z(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(7usize, 5u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn shared_gpa_boundary_page_number(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(12usize, 52u8) as u64) }
+    }
+    #[inline]
+    pub fn set_shared_gpa_boundary_page_number(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(12usize, 52u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        isolation_type: __u64,
+        isolation_host_type: __u64,
+        rsvd_z: __u64,
+        shared_gpa_boundary_page_number: __u64,
+    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 5u8, {
+            let isolation_type: u64 = unsafe { ::std::mem::transmute(isolation_type) };
+            isolation_type as u64
+        });
+        __bindgen_bitfield_unit.set(5usize, 2u8, {
+            let isolation_host_type: u64 = unsafe { ::std::mem::transmute(isolation_host_type) };
+            isolation_host_type as u64
+        });
+        __bindgen_bitfield_unit.set(7usize, 5u8, {
+            let rsvd_z: u64 = unsafe { ::std::mem::transmute(rsvd_z) };
+            rsvd_z as u64
+        });
+        __bindgen_bitfield_unit.set(12usize, 52u8, {
+            let shared_gpa_boundary_page_number: u64 =
+                unsafe { ::std::mem::transmute(shared_gpa_boundary_page_number) };
+            shared_gpa_boundary_page_number as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[test]
+fn bindgen_test_layout_hv_partition_isolation_properties() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_partition_isolation_properties>(),
+        8usize,
+        concat!("Size of: ", stringify!(hv_partition_isolation_properties))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_partition_isolation_properties>(),
+        8usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_partition_isolation_properties)
+        )
+    );
+    fn test_field_as_uint64() {
+        assert_eq!(
+            unsafe {
+                let uninit = ::std::mem::MaybeUninit::<hv_partition_isolation_properties>::uninit();
+                let ptr = uninit.as_ptr();
+                ::std::ptr::addr_of!((*ptr).as_uint64) as usize - ptr as usize
+            },
+            0usize,
+            concat!(
+                "Offset of field: ",
+                stringify!(hv_partition_isolation_properties),
+                "::",
+                stringify!(as_uint64)
+            )
+        );
+    }
+    test_field_as_uint64();
+}
+impl Default for hv_partition_isolation_properties {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union hv_interrupt_control {
+    pub __bindgen_anon_1: hv_interrupt_control__bindgen_ty_1,
+    pub as_uint64: __u64,
+}
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_interrupt_control__bindgen_ty_1 {
+    pub interrupt_type: __u32,
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 4usize]>,
+}
+#[test]
+fn bindgen_test_layout_hv_interrupt_control__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_interrupt_control__bindgen_ty_1>(),
+        8usize,
+        concat!("Size of: ", stringify!(hv_interrupt_control__bindgen_ty_1))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_interrupt_control__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_interrupt_control__bindgen_ty_1)
+        )
+    );
+    fn test_field_interrupt_type() {
+        assert_eq!(
+            unsafe {
+                let uninit =
+                    ::std::mem::MaybeUninit::<hv_interrupt_control__bindgen_ty_1>::uninit();
+                let ptr = uninit.as_ptr();
+                ::std::ptr::addr_of!((*ptr).interrupt_type) as usize - ptr as usize
+            },
+            0usize,
+            concat!(
+                "Offset of field: ",
+                stringify!(hv_interrupt_control__bindgen_ty_1),
+                "::",
+                stringify!(interrupt_type)
+            )
+        );
+    }
+    test_field_interrupt_type();
+}
+impl hv_interrupt_control__bindgen_ty_1 {
+    #[inline]
+    pub fn level_triggered(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_level_triggered(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn logical_dest_mode(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_logical_dest_mode(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn rsvd(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(2usize, 30u8) as u32) }
+    }
+    #[inline]
+    pub fn set_rsvd(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(2usize, 30u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        level_triggered: __u32,
+        logical_dest_mode: __u32,
+        rsvd: __u32,
+    ) -> __BindgenBitfieldUnit<[u8; 4usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 4usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let level_triggered: u32 = unsafe { ::std::mem::transmute(level_triggered) };
+            level_triggered as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 1u8, {
+            let logical_dest_mode: u32 = unsafe { ::std::mem::transmute(logical_dest_mode) };
+            logical_dest_mode as u64
+        });
+        __bindgen_bitfield_unit.set(2usize, 30u8, {
+            let rsvd: u32 = unsafe { ::std::mem::transmute(rsvd) };
+            rsvd as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[test]
+fn bindgen_test_layout_hv_interrupt_control() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_interrupt_control>(),
+        8usize,
+        concat!("Size of: ", stringify!(hv_interrupt_control))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_interrupt_control>(),
+        8usize,
+        concat!("Alignment of ", stringify!(hv_interrupt_control))
+    );
+    fn test_field_as_uint64() {
+        assert_eq!(
+            unsafe {
+                let uninit = ::std::mem::MaybeUninit::<hv_interrupt_control>::uninit();
+                let ptr = uninit.as_ptr();
+                ::std::ptr::addr_of!((*ptr).as_uint64) as usize - ptr as usize
+            },
+            0usize,
+            concat!(
+                "Offset of field: ",
+                stringify!(hv_interrupt_control),
+                "::",
+                stringify!(as_uint64)
+            )
+        );
+    }
+    test_field_as_uint64();
+}
+impl Default for hv_interrupt_control {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub const hv_register_name_HV_REGISTER_EXPLICIT_SUSPEND: hv_register_name = 0;
+pub const hv_register_name_HV_REGISTER_INTERCEPT_SUSPEND: hv_register_name = 1;
+pub const hv_register_name_HV_REGISTER_INSTRUCTION_EMULATION_HINTS: hv_register_name = 2;
+pub const hv_register_name_HV_REGISTER_DISPATCH_SUSPEND: hv_register_name = 3;
+pub const hv_register_name_HV_REGISTER_INTERNAL_ACTIVITY_STATE: hv_register_name = 4;
+pub const hv_register_name_HV_REGISTER_HYPERVISOR_VERSION: hv_register_name = 256;
+pub const hv_register_name_HV_REGISTER_PRIVILEGES_AND_FEATURES_INFO: hv_register_name = 512;
+pub const hv_register_name_HV_REGISTER_FEATURES_INFO: hv_register_name = 513;
+pub const hv_register_name_HV_REGISTER_IMPLEMENTATION_LIMITS_INFO: hv_register_name = 514;
+pub const hv_register_name_HV_REGISTER_HARDWARE_FEATURES_INFO: hv_register_name = 515;
+pub const hv_register_name_HV_REGISTER_CPU_MANAGEMENT_FEATURES_INFO: hv_register_name = 516;
+pub const hv_register_name_HV_REGISTER_SVM_FEATURES_INFO: hv_register_name = 517;
+pub const hv_register_name_HV_REGISTER_SKIP_LEVEL_FEATURES_INFO: hv_register_name = 518;
+pub const hv_register_name_HV_REGISTER_NESTED_VIRT_FEATURES_INFO: hv_register_name = 519;
+pub const hv_register_name_HV_REGISTER_IPT_FEATURES_INFO: hv_register_name = 520;
+pub const hv_register_name_HV_REGISTER_GUEST_CRASH_P0: hv_register_name = 528;
+pub const hv_register_name_HV_REGISTER_GUEST_CRASH_P1: hv_register_name = 529;
+pub const hv_register_name_HV_REGISTER_GUEST_CRASH_P2: hv_register_name = 530;
+pub const hv_register_name_HV_REGISTER_GUEST_CRASH_P3: hv_register_name = 531;
+pub const hv_register_name_HV_REGISTER_GUEST_CRASH_P4: hv_register_name = 532;
+pub const hv_register_name_HV_REGISTER_GUEST_CRASH_CTL: hv_register_name = 533;
+pub const hv_register_name_HV_REGISTER_POWER_STATE_CONFIG_C1: hv_register_name = 544;
+pub const hv_register_name_HV_REGISTER_POWER_STATE_TRIGGER_C1: hv_register_name = 545;
+pub const hv_register_name_HV_REGISTER_POWER_STATE_CONFIG_C2: hv_register_name = 546;
+pub const hv_register_name_HV_REGISTER_POWER_STATE_TRIGGER_C2: hv_register_name = 547;
+pub const hv_register_name_HV_REGISTER_POWER_STATE_CONFIG_C3: hv_register_name = 548;
+pub const hv_register_name_HV_REGISTER_POWER_STATE_TRIGGER_C3: hv_register_name = 549;
+pub const hv_register_name_HV_REGISTER_PROCESSOR_CLOCK_FREQUENCY: hv_register_name = 576;
+pub const hv_register_name_HV_REGISTER_INTERRUPT_CLOCK_FREQUENCY: hv_register_name = 577;
+pub const hv_register_name_HV_REGISTER_GUEST_IDLE: hv_register_name = 592;
+pub const hv_register_name_HV_REGISTER_DEBUG_DEVICE_OPTIONS: hv_register_name = 608;
+pub const hv_register_name_HV_REGISTER_MEMORY_ZEROING_CONTROL: hv_register_name = 624;
+pub const hv_register_name_HV_REGISTER_PENDING_EVENT0: hv_register_name = 65540;
+pub const hv_register_name_HV_REGISTER_PENDING_EVENT1: hv_register_name = 65541;
+pub const hv_register_name_HV_REGISTER_VP_RUNTIME: hv_register_name = 589824;
+pub const hv_register_name_HV_REGISTER_GUEST_OS_ID: hv_register_name = 589826;
+pub const hv_register_name_HV_REGISTER_VP_INDEX: hv_register_name = 589827;
+pub const hv_register_name_HV_REGISTER_TIME_REF_COUNT: hv_register_name = 589828;
+pub const hv_register_name_HV_REGISTER_CPU_MANAGEMENT_VERSION: hv_register_name = 589831;
+pub const hv_register_name_HV_REGISTER_VP_ASSIST_PAGE: hv_register_name = 589843;
+pub const hv_register_name_HV_REGISTER_VP_ROOT_SIGNAL_COUNT: hv_register_name = 589844;
+pub const hv_register_name_HV_REGISTER_REFERENCE_TSC: hv_register_name = 589847;
+pub const hv_register_name_HV_REGISTER_STATS_PARTITION_RETAIL: hv_register_name = 589856;
+pub const hv_register_name_HV_REGISTER_STATS_PARTITION_INTERNAL: hv_register_name = 589857;
+pub const hv_register_name_HV_REGISTER_STATS_VP_RETAIL: hv_register_name = 589858;
+pub const hv_register_name_HV_REGISTER_STATS_VP_INTERNAL: hv_register_name = 589859;
+pub const hv_register_name_HV_REGISTER_NESTED_VP_INDEX: hv_register_name = 593923;
+pub const hv_register_name_HV_REGISTER_SINT0: hv_register_name = 655360;
+pub const hv_register_name_HV_REGISTER_SINT1: hv_register_name = 655361;
+pub const hv_register_name_HV_REGISTER_SINT2: hv_register_name = 655362;
+pub const hv_register_name_HV_REGISTER_SINT3: hv_register_name = 655363;
+pub const hv_register_name_HV_REGISTER_SINT4: hv_register_name = 655364;
+pub const hv_register_name_HV_REGISTER_SINT5: hv_register_name = 655365;
+pub const hv_register_name_HV_REGISTER_SINT6: hv_register_name = 655366;
+pub const hv_register_name_HV_REGISTER_SINT7: hv_register_name = 655367;
+pub const hv_register_name_HV_REGISTER_SINT8: hv_register_name = 655368;
+pub const hv_register_name_HV_REGISTER_SINT9: hv_register_name = 655369;
+pub const hv_register_name_HV_REGISTER_SINT10: hv_register_name = 655370;
+pub const hv_register_name_HV_REGISTER_SINT11: hv_register_name = 655371;
+pub const hv_register_name_HV_REGISTER_SINT12: hv_register_name = 655372;
+pub const hv_register_name_HV_REGISTER_SINT13: hv_register_name = 655373;
+pub const hv_register_name_HV_REGISTER_SINT14: hv_register_name = 655374;
+pub const hv_register_name_HV_REGISTER_SINT15: hv_register_name = 655375;
+pub const hv_register_name_HV_REGISTER_SCONTROL: hv_register_name = 655376;
+pub const hv_register_name_HV_REGISTER_SVERSION: hv_register_name = 655377;
+pub const hv_register_name_HV_REGISTER_SIFP: hv_register_name = 655378;
+pub const hv_register_name_HV_REGISTER_SIPP: hv_register_name = 655379;
+pub const hv_register_name_HV_REGISTER_EOM: hv_register_name = 655380;
+pub const hv_register_name_HV_REGISTER_SIRBP: hv_register_name = 655381;
+pub const hv_register_name_HV_REGISTER_NESTED_SINT0: hv_register_name = 659456;
+pub const hv_register_name_HV_REGISTER_NESTED_SINT1: hv_register_name = 659457;
+pub const hv_register_name_HV_REGISTER_NESTED_SINT2: hv_register_name = 659458;
+pub const hv_register_name_HV_REGISTER_NESTED_SINT3: hv_register_name = 659459;
+pub const hv_register_name_HV_REGISTER_NESTED_SINT4: hv_register_name = 659460;
+pub const hv_register_name_HV_REGISTER_NESTED_SINT5: hv_register_name = 659461;
+pub const hv_register_name_HV_REGISTER_NESTED_SINT6: hv_register_name = 659462;
+pub const hv_register_name_HV_REGISTER_NESTED_SINT7: hv_register_name = 659463;
+pub const hv_register_name_HV_REGISTER_NESTED_SINT8: hv_register_name = 659464;
+pub const hv_register_name_HV_REGISTER_NESTED_SINT9: hv_register_name = 659465;
+pub const hv_register_name_HV_REGISTER_NESTED_SINT10: hv_register_name = 659466;
+pub const hv_register_name_HV_REGISTER_NESTED_SINT11: hv_register_name = 659467;
+pub const hv_register_name_HV_REGISTER_NESTED_SINT12: hv_register_name = 659468;
+pub const hv_register_name_HV_REGISTER_NESTED_SINT13: hv_register_name = 659469;
+pub const hv_register_name_HV_REGISTER_NESTED_SINT14: hv_register_name = 659470;
+pub const hv_register_name_HV_REGISTER_NESTED_SINT15: hv_register_name = 659471;
+pub const hv_register_name_HV_REGISTER_NESTED_SCONTROL: hv_register_name = 659472;
+pub const hv_register_name_HV_REGISTER_NESTED_SVERSION: hv_register_name = 659473;
+pub const hv_register_name_HV_REGISTER_NESTED_SIFP: hv_register_name = 659474;
+pub const hv_register_name_HV_REGISTER_NESTED_SIPP: hv_register_name = 659475;
+pub const hv_register_name_HV_REGISTER_NESTED_EOM: hv_register_name = 659476;
+pub const hv_register_name_HV_REGISTER_NESTED_SIRBP: hv_register_name = 659477;
+pub const hv_register_name_HV_REGISTER_STIMER0_CONFIG: hv_register_name = 720896;
+pub const hv_register_name_HV_REGISTER_STIMER0_COUNT: hv_register_name = 720897;
+pub const hv_register_name_HV_REGISTER_STIMER1_CONFIG: hv_register_name = 720898;
+pub const hv_register_name_HV_REGISTER_STIMER1_COUNT: hv_register_name = 720899;
+pub const hv_register_name_HV_REGISTER_STIMER2_CONFIG: hv_register_name = 720900;
+pub const hv_register_name_HV_REGISTER_STIMER2_COUNT: hv_register_name = 720901;
+pub const hv_register_name_HV_REGISTER_STIMER3_CONFIG: hv_register_name = 720902;
+pub const hv_register_name_HV_REGISTER_STIMER3_COUNT: hv_register_name = 720903;
+pub const hv_register_name_HV_REGISTER_STIME_UNHALTED_TIMER_CONFIG: hv_register_name = 721152;
+pub const hv_register_name_HV_REGISTER_STIME_UNHALTED_TIMER_COUNT: hv_register_name = 721153;
+pub const hv_register_name_HV_REGISTER_VSM_CODE_PAGE_OFFSETS: hv_register_name = 851970;
+pub const hv_register_name_HV_REGISTER_VSM_VP_STATUS: hv_register_name = 851971;
+pub const hv_register_name_HV_REGISTER_VSM_PARTITION_STATUS: hv_register_name = 851972;
+pub const hv_register_name_HV_REGISTER_VSM_VINA: hv_register_name = 851973;
+pub const hv_register_name_HV_REGISTER_VSM_CAPABILITIES: hv_register_name = 851974;
+pub const hv_register_name_HV_REGISTER_VSM_PARTITION_CONFIG: hv_register_name = 851975;
+pub const hv_register_name_HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL0: hv_register_name = 851984;
+pub const hv_register_name_HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL1: hv_register_name = 851985;
+pub const hv_register_name_HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL2: hv_register_name = 851986;
+pub const hv_register_name_HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL3: hv_register_name = 851987;
+pub const hv_register_name_HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL4: hv_register_name = 851988;
+pub const hv_register_name_HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL5: hv_register_name = 851989;
+pub const hv_register_name_HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL6: hv_register_name = 851990;
+pub const hv_register_name_HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL7: hv_register_name = 851991;
+pub const hv_register_name_HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL8: hv_register_name = 851992;
+pub const hv_register_name_HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL9: hv_register_name = 851993;
+pub const hv_register_name_HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL10: hv_register_name = 851994;
+pub const hv_register_name_HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL11: hv_register_name = 851995;
+pub const hv_register_name_HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL12: hv_register_name = 851996;
+pub const hv_register_name_HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL13: hv_register_name = 851997;
+pub const hv_register_name_HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL14: hv_register_name = 851998;
+pub const hv_register_name_HV_REGISTER_VSM_VP_WAIT_FOR_TLB_LOCK: hv_register_name = 852000;
+pub const hv_register_name_HV_REGISTER_ISOLATION_CAPABILITIES: hv_register_name = 852224;
+pub const hv_register_name_HV_REGISTER_PENDING_INTERRUPTION: hv_register_name = 65538;
+pub const hv_register_name_HV_REGISTER_INTERRUPT_STATE: hv_register_name = 65539;
+pub type hv_register_name = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union hv_partition_processor_features {
@@ -1941,152 +2753,6 @@ impl Default for hv_partition_processor_xsave_features {
         }
     }
 }
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union hv_partition_isolation_properties {
-    pub as_uint64: __u64,
-    pub __bindgen_anon_1: hv_partition_isolation_properties__bindgen_ty_1,
-}
-#[repr(C, packed)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct hv_partition_isolation_properties__bindgen_ty_1 {
-    pub _bitfield_align_1: [u8; 0],
-    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
-}
-#[test]
-fn bindgen_test_layout_hv_partition_isolation_properties__bindgen_ty_1() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_partition_isolation_properties__bindgen_ty_1>(),
-        8usize,
-        concat!(
-            "Size of: ",
-            stringify!(hv_partition_isolation_properties__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_partition_isolation_properties__bindgen_ty_1>(),
-        1usize,
-        concat!(
-            "Alignment of ",
-            stringify!(hv_partition_isolation_properties__bindgen_ty_1)
-        )
-    );
-}
-impl hv_partition_isolation_properties__bindgen_ty_1 {
-    #[inline]
-    pub fn isolation_type(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 5u8) as u64) }
-    }
-    #[inline]
-    pub fn set_isolation_type(&mut self, val: __u64) {
-        unsafe {
-            let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(0usize, 5u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn isolation_host_type(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(5usize, 2u8) as u64) }
-    }
-    #[inline]
-    pub fn set_isolation_host_type(&mut self, val: __u64) {
-        unsafe {
-            let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(5usize, 2u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn rsvd_z(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(7usize, 5u8) as u64) }
-    }
-    #[inline]
-    pub fn set_rsvd_z(&mut self, val: __u64) {
-        unsafe {
-            let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(7usize, 5u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn shared_gpa_boundary_page_number(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(12usize, 52u8) as u64) }
-    }
-    #[inline]
-    pub fn set_shared_gpa_boundary_page_number(&mut self, val: __u64) {
-        unsafe {
-            let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(12usize, 52u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn new_bitfield_1(
-        isolation_type: __u64,
-        isolation_host_type: __u64,
-        rsvd_z: __u64,
-        shared_gpa_boundary_page_number: __u64,
-    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
-        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
-        __bindgen_bitfield_unit.set(0usize, 5u8, {
-            let isolation_type: u64 = unsafe { ::std::mem::transmute(isolation_type) };
-            isolation_type as u64
-        });
-        __bindgen_bitfield_unit.set(5usize, 2u8, {
-            let isolation_host_type: u64 = unsafe { ::std::mem::transmute(isolation_host_type) };
-            isolation_host_type as u64
-        });
-        __bindgen_bitfield_unit.set(7usize, 5u8, {
-            let rsvd_z: u64 = unsafe { ::std::mem::transmute(rsvd_z) };
-            rsvd_z as u64
-        });
-        __bindgen_bitfield_unit.set(12usize, 52u8, {
-            let shared_gpa_boundary_page_number: u64 =
-                unsafe { ::std::mem::transmute(shared_gpa_boundary_page_number) };
-            shared_gpa_boundary_page_number as u64
-        });
-        __bindgen_bitfield_unit
-    }
-}
-#[test]
-fn bindgen_test_layout_hv_partition_isolation_properties() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_partition_isolation_properties>(),
-        8usize,
-        concat!("Size of: ", stringify!(hv_partition_isolation_properties))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_partition_isolation_properties>(),
-        8usize,
-        concat!(
-            "Alignment of ",
-            stringify!(hv_partition_isolation_properties)
-        )
-    );
-    fn test_field_as_uint64() {
-        assert_eq!(
-            unsafe {
-                let uninit = ::std::mem::MaybeUninit::<hv_partition_isolation_properties>::uninit();
-                let ptr = uninit.as_ptr();
-                ::std::ptr::addr_of!((*ptr).as_uint64) as usize - ptr as usize
-            },
-            0usize,
-            concat!(
-                "Offset of field: ",
-                stringify!(hv_partition_isolation_properties),
-                "::",
-                stringify!(as_uint64)
-            )
-        );
-    }
-    test_field_as_uint64();
-}
-impl Default for hv_partition_isolation_properties {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C, packed)]
 #[derive(Copy, Clone)]
 pub struct hv_partition_creation_properties {
@@ -2171,386 +2837,215 @@ impl Default for hv_partition_creation_properties {
         }
     }
 }
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
-pub enum hv_register_name {
-    HV_REGISTER_EXPLICIT_SUSPEND = 0,
-    HV_REGISTER_INTERCEPT_SUSPEND = 1,
-    HV_REGISTER_INSTRUCTION_EMULATION_HINTS = 2,
-    HV_REGISTER_DISPATCH_SUSPEND = 3,
-    HV_REGISTER_INTERNAL_ACTIVITY_STATE = 4,
-    HV_REGISTER_HYPERVISOR_VERSION = 256,
-    HV_REGISTER_PRIVILEGES_AND_FEATURES_INFO = 512,
-    HV_REGISTER_FEATURES_INFO = 513,
-    HV_REGISTER_IMPLEMENTATION_LIMITS_INFO = 514,
-    HV_REGISTER_HARDWARE_FEATURES_INFO = 515,
-    HV_REGISTER_CPU_MANAGEMENT_FEATURES_INFO = 516,
-    HV_REGISTER_SVM_FEATURES_INFO = 517,
-    HV_REGISTER_SKIP_LEVEL_FEATURES_INFO = 518,
-    HV_REGISTER_NESTED_VIRT_FEATURES_INFO = 519,
-    HV_REGISTER_IPT_FEATURES_INFO = 520,
-    HV_REGISTER_GUEST_CRASH_P0 = 528,
-    HV_REGISTER_GUEST_CRASH_P1 = 529,
-    HV_REGISTER_GUEST_CRASH_P2 = 530,
-    HV_REGISTER_GUEST_CRASH_P3 = 531,
-    HV_REGISTER_GUEST_CRASH_P4 = 532,
-    HV_REGISTER_GUEST_CRASH_CTL = 533,
-    HV_REGISTER_POWER_STATE_CONFIG_C1 = 544,
-    HV_REGISTER_POWER_STATE_TRIGGER_C1 = 545,
-    HV_REGISTER_POWER_STATE_CONFIG_C2 = 546,
-    HV_REGISTER_POWER_STATE_TRIGGER_C2 = 547,
-    HV_REGISTER_POWER_STATE_CONFIG_C3 = 548,
-    HV_REGISTER_POWER_STATE_TRIGGER_C3 = 549,
-    HV_REGISTER_PROCESSOR_CLOCK_FREQUENCY = 576,
-    HV_REGISTER_INTERRUPT_CLOCK_FREQUENCY = 577,
-    HV_REGISTER_GUEST_IDLE = 592,
-    HV_REGISTER_DEBUG_DEVICE_OPTIONS = 608,
-    HV_REGISTER_MEMORY_ZEROING_CONTROL = 624,
-    HV_REGISTER_PENDING_EVENT0 = 65540,
-    HV_REGISTER_PENDING_EVENT1 = 65541,
-    HV_REGISTER_VP_RUNTIME = 589824,
-    HV_REGISTER_GUEST_OS_ID = 589826,
-    HV_REGISTER_VP_INDEX = 589827,
-    HV_REGISTER_TIME_REF_COUNT = 589828,
-    HV_REGISTER_CPU_MANAGEMENT_VERSION = 589831,
-    HV_REGISTER_VP_ASSIST_PAGE = 589843,
-    HV_REGISTER_VP_ROOT_SIGNAL_COUNT = 589844,
-    HV_REGISTER_REFERENCE_TSC = 589847,
-    HV_REGISTER_STATS_PARTITION_RETAIL = 589856,
-    HV_REGISTER_STATS_PARTITION_INTERNAL = 589857,
-    HV_REGISTER_STATS_VP_RETAIL = 589858,
-    HV_REGISTER_STATS_VP_INTERNAL = 589859,
-    HV_REGISTER_NESTED_VP_INDEX = 593923,
-    HV_REGISTER_SINT0 = 655360,
-    HV_REGISTER_SINT1 = 655361,
-    HV_REGISTER_SINT2 = 655362,
-    HV_REGISTER_SINT3 = 655363,
-    HV_REGISTER_SINT4 = 655364,
-    HV_REGISTER_SINT5 = 655365,
-    HV_REGISTER_SINT6 = 655366,
-    HV_REGISTER_SINT7 = 655367,
-    HV_REGISTER_SINT8 = 655368,
-    HV_REGISTER_SINT9 = 655369,
-    HV_REGISTER_SINT10 = 655370,
-    HV_REGISTER_SINT11 = 655371,
-    HV_REGISTER_SINT12 = 655372,
-    HV_REGISTER_SINT13 = 655373,
-    HV_REGISTER_SINT14 = 655374,
-    HV_REGISTER_SINT15 = 655375,
-    HV_REGISTER_SCONTROL = 655376,
-    HV_REGISTER_SVERSION = 655377,
-    HV_REGISTER_SIFP = 655378,
-    HV_REGISTER_SIPP = 655379,
-    HV_REGISTER_EOM = 655380,
-    HV_REGISTER_SIRBP = 655381,
-    HV_REGISTER_NESTED_SINT0 = 659456,
-    HV_REGISTER_NESTED_SINT1 = 659457,
-    HV_REGISTER_NESTED_SINT2 = 659458,
-    HV_REGISTER_NESTED_SINT3 = 659459,
-    HV_REGISTER_NESTED_SINT4 = 659460,
-    HV_REGISTER_NESTED_SINT5 = 659461,
-    HV_REGISTER_NESTED_SINT6 = 659462,
-    HV_REGISTER_NESTED_SINT7 = 659463,
-    HV_REGISTER_NESTED_SINT8 = 659464,
-    HV_REGISTER_NESTED_SINT9 = 659465,
-    HV_REGISTER_NESTED_SINT10 = 659466,
-    HV_REGISTER_NESTED_SINT11 = 659467,
-    HV_REGISTER_NESTED_SINT12 = 659468,
-    HV_REGISTER_NESTED_SINT13 = 659469,
-    HV_REGISTER_NESTED_SINT14 = 659470,
-    HV_REGISTER_NESTED_SINT15 = 659471,
-    HV_REGISTER_NESTED_SCONTROL = 659472,
-    HV_REGISTER_NESTED_SVERSION = 659473,
-    HV_REGISTER_NESTED_SIFP = 659474,
-    HV_REGISTER_NESTED_SIPP = 659475,
-    HV_REGISTER_NESTED_EOM = 659476,
-    HV_REGISTER_NESTED_SIRBP = 659477,
-    HV_REGISTER_STIMER0_CONFIG = 720896,
-    HV_REGISTER_STIMER0_COUNT = 720897,
-    HV_REGISTER_STIMER1_CONFIG = 720898,
-    HV_REGISTER_STIMER1_COUNT = 720899,
-    HV_REGISTER_STIMER2_CONFIG = 720900,
-    HV_REGISTER_STIMER2_COUNT = 720901,
-    HV_REGISTER_STIMER3_CONFIG = 720902,
-    HV_REGISTER_STIMER3_COUNT = 720903,
-    HV_REGISTER_STIME_UNHALTED_TIMER_CONFIG = 721152,
-    HV_REGISTER_STIME_UNHALTED_TIMER_COUNT = 721153,
-    HV_REGISTER_VSM_CODE_PAGE_OFFSETS = 851970,
-    HV_REGISTER_VSM_VP_STATUS = 851971,
-    HV_REGISTER_VSM_PARTITION_STATUS = 851972,
-    HV_REGISTER_VSM_VINA = 851973,
-    HV_REGISTER_VSM_CAPABILITIES = 851974,
-    HV_REGISTER_VSM_PARTITION_CONFIG = 851975,
-    HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL0 = 851984,
-    HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL1 = 851985,
-    HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL2 = 851986,
-    HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL3 = 851987,
-    HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL4 = 851988,
-    HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL5 = 851989,
-    HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL6 = 851990,
-    HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL7 = 851991,
-    HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL8 = 851992,
-    HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL9 = 851993,
-    HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL10 = 851994,
-    HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL11 = 851995,
-    HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL12 = 851996,
-    HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL13 = 851997,
-    HV_REGISTER_VSM_VP_SECURE_CONFIG_VTL14 = 851998,
-    HV_REGISTER_VSM_VP_WAIT_FOR_TLB_LOCK = 852000,
-    HV_REGISTER_ISOLATION_CAPABILITIES = 852224,
-    HV_REGISTER_PENDING_INTERRUPTION = 65538,
-    HV_REGISTER_INTERRUPT_STATE = 65539,
-    HV_X64_REGISTER_DELIVERABILITY_NOTIFICATIONS = 65542,
-    HV_X64_REGISTER_RAX = 131072,
-    HV_X64_REGISTER_RCX = 131073,
-    HV_X64_REGISTER_RDX = 131074,
-    HV_X64_REGISTER_RBX = 131075,
-    HV_X64_REGISTER_RSP = 131076,
-    HV_X64_REGISTER_RBP = 131077,
-    HV_X64_REGISTER_RSI = 131078,
-    HV_X64_REGISTER_RDI = 131079,
-    HV_X64_REGISTER_R8 = 131080,
-    HV_X64_REGISTER_R9 = 131081,
-    HV_X64_REGISTER_R10 = 131082,
-    HV_X64_REGISTER_R11 = 131083,
-    HV_X64_REGISTER_R12 = 131084,
-    HV_X64_REGISTER_R13 = 131085,
-    HV_X64_REGISTER_R14 = 131086,
-    HV_X64_REGISTER_R15 = 131087,
-    HV_X64_REGISTER_RIP = 131088,
-    HV_X64_REGISTER_RFLAGS = 131089,
-    HV_X64_REGISTER_XMM0 = 196608,
-    HV_X64_REGISTER_XMM1 = 196609,
-    HV_X64_REGISTER_XMM2 = 196610,
-    HV_X64_REGISTER_XMM3 = 196611,
-    HV_X64_REGISTER_XMM4 = 196612,
-    HV_X64_REGISTER_XMM5 = 196613,
-    HV_X64_REGISTER_XMM6 = 196614,
-    HV_X64_REGISTER_XMM7 = 196615,
-    HV_X64_REGISTER_XMM8 = 196616,
-    HV_X64_REGISTER_XMM9 = 196617,
-    HV_X64_REGISTER_XMM10 = 196618,
-    HV_X64_REGISTER_XMM11 = 196619,
-    HV_X64_REGISTER_XMM12 = 196620,
-    HV_X64_REGISTER_XMM13 = 196621,
-    HV_X64_REGISTER_XMM14 = 196622,
-    HV_X64_REGISTER_XMM15 = 196623,
-    HV_X64_REGISTER_FP_MMX0 = 196624,
-    HV_X64_REGISTER_FP_MMX1 = 196625,
-    HV_X64_REGISTER_FP_MMX2 = 196626,
-    HV_X64_REGISTER_FP_MMX3 = 196627,
-    HV_X64_REGISTER_FP_MMX4 = 196628,
-    HV_X64_REGISTER_FP_MMX5 = 196629,
-    HV_X64_REGISTER_FP_MMX6 = 196630,
-    HV_X64_REGISTER_FP_MMX7 = 196631,
-    HV_X64_REGISTER_FP_CONTROL_STATUS = 196632,
-    HV_X64_REGISTER_XMM_CONTROL_STATUS = 196633,
-    HV_X64_REGISTER_CR0 = 262144,
-    HV_X64_REGISTER_CR2 = 262145,
-    HV_X64_REGISTER_CR3 = 262146,
-    HV_X64_REGISTER_CR4 = 262147,
-    HV_X64_REGISTER_CR8 = 262148,
-    HV_X64_REGISTER_XFEM = 262149,
-    HV_X64_REGISTER_INTERMEDIATE_CR0 = 266240,
-    HV_X64_REGISTER_INTERMEDIATE_CR4 = 266243,
-    HV_X64_REGISTER_INTERMEDIATE_CR8 = 266244,
-    HV_X64_REGISTER_DR0 = 327680,
-    HV_X64_REGISTER_DR1 = 327681,
-    HV_X64_REGISTER_DR2 = 327682,
-    HV_X64_REGISTER_DR3 = 327683,
-    HV_X64_REGISTER_DR6 = 327684,
-    HV_X64_REGISTER_DR7 = 327685,
-    HV_X64_REGISTER_ES = 393216,
-    HV_X64_REGISTER_CS = 393217,
-    HV_X64_REGISTER_SS = 393218,
-    HV_X64_REGISTER_DS = 393219,
-    HV_X64_REGISTER_FS = 393220,
-    HV_X64_REGISTER_GS = 393221,
-    HV_X64_REGISTER_LDTR = 393222,
-    HV_X64_REGISTER_TR = 393223,
-    HV_X64_REGISTER_IDTR = 458752,
-    HV_X64_REGISTER_GDTR = 458753,
-    HV_X64_REGISTER_TSC = 524288,
-    HV_X64_REGISTER_EFER = 524289,
-    HV_X64_REGISTER_KERNEL_GS_BASE = 524290,
-    HV_X64_REGISTER_APIC_BASE = 524291,
-    HV_X64_REGISTER_PAT = 524292,
-    HV_X64_REGISTER_SYSENTER_CS = 524293,
-    HV_X64_REGISTER_SYSENTER_EIP = 524294,
-    HV_X64_REGISTER_SYSENTER_ESP = 524295,
-    HV_X64_REGISTER_STAR = 524296,
-    HV_X64_REGISTER_LSTAR = 524297,
-    HV_X64_REGISTER_CSTAR = 524298,
-    HV_X64_REGISTER_SFMASK = 524299,
-    HV_X64_REGISTER_INITIAL_APIC_ID = 524300,
-    HV_X64_REGISTER_MSR_MTRR_CAP = 524301,
-    HV_X64_REGISTER_MSR_MTRR_DEF_TYPE = 524302,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_BASE0 = 524304,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_BASE1 = 524305,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_BASE2 = 524306,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_BASE3 = 524307,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_BASE4 = 524308,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_BASE5 = 524309,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_BASE6 = 524310,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_BASE7 = 524311,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_BASE8 = 524312,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_BASE9 = 524313,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_BASEA = 524314,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_BASEB = 524315,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_BASEC = 524316,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_BASED = 524317,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_BASEE = 524318,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_BASEF = 524319,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_MASK0 = 524352,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_MASK1 = 524353,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_MASK2 = 524354,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_MASK3 = 524355,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_MASK4 = 524356,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_MASK5 = 524357,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_MASK6 = 524358,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_MASK7 = 524359,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_MASK8 = 524360,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_MASK9 = 524361,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_MASKA = 524362,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_MASKB = 524363,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_MASKC = 524364,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_MASKD = 524365,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_MASKE = 524366,
-    HV_X64_REGISTER_MSR_MTRR_PHYS_MASKF = 524367,
-    HV_X64_REGISTER_MSR_MTRR_FIX64K00000 = 524400,
-    HV_X64_REGISTER_MSR_MTRR_FIX16K80000 = 524401,
-    HV_X64_REGISTER_MSR_MTRR_FIX16KA0000 = 524402,
-    HV_X64_REGISTER_MSR_MTRR_FIX4KC0000 = 524403,
-    HV_X64_REGISTER_MSR_MTRR_FIX4KC8000 = 524404,
-    HV_X64_REGISTER_MSR_MTRR_FIX4KD0000 = 524405,
-    HV_X64_REGISTER_MSR_MTRR_FIX4KD8000 = 524406,
-    HV_X64_REGISTER_MSR_MTRR_FIX4KE0000 = 524407,
-    HV_X64_REGISTER_MSR_MTRR_FIX4KE8000 = 524408,
-    HV_X64_REGISTER_MSR_MTRR_FIX4KF0000 = 524409,
-    HV_X64_REGISTER_MSR_MTRR_FIX4KF8000 = 524410,
-    HV_X64_REGISTER_TSC_AUX = 524411,
-    HV_X64_REGISTER_BNDCFGS = 524412,
-    HV_X64_REGISTER_DEBUG_CTL = 524413,
-    HV_X64_REGISTER_AVAILABLE0008007E = 524414,
-    HV_X64_REGISTER_AVAILABLE0008007F = 524415,
-    HV_X64_REGISTER_SGX_LAUNCH_CONTROL0 = 524416,
-    HV_X64_REGISTER_SGX_LAUNCH_CONTROL1 = 524417,
-    HV_X64_REGISTER_SGX_LAUNCH_CONTROL2 = 524418,
-    HV_X64_REGISTER_SGX_LAUNCH_CONTROL3 = 524419,
-    HV_X64_REGISTER_SPEC_CTRL = 524420,
-    HV_X64_REGISTER_PRED_CMD = 524421,
-    HV_X64_REGISTER_VIRT_SPEC_CTRL = 524422,
-    HV_X64_REGISTER_TSC_ADJUST = 524438,
-    HV_X64_REGISTER_MSR_IA32_MISC_ENABLE = 524448,
-    HV_X64_REGISTER_IA32_FEATURE_CONTROL = 524449,
-    HV_X64_REGISTER_IA32_VMX_BASIC = 524450,
-    HV_X64_REGISTER_IA32_VMX_PINBASED_CTLS = 524451,
-    HV_X64_REGISTER_IA32_VMX_PROCBASED_CTLS = 524452,
-    HV_X64_REGISTER_IA32_VMX_EXIT_CTLS = 524453,
-    HV_X64_REGISTER_IA32_VMX_ENTRY_CTLS = 524454,
-    HV_X64_REGISTER_IA32_VMX_MISC = 524455,
-    HV_X64_REGISTER_IA32_VMX_CR0_FIXED0 = 524456,
-    HV_X64_REGISTER_IA32_VMX_CR0_FIXED1 = 524457,
-    HV_X64_REGISTER_IA32_VMX_CR4_FIXED0 = 524458,
-    HV_X64_REGISTER_IA32_VMX_CR4_FIXED1 = 524459,
-    HV_X64_REGISTER_IA32_VMX_VMCS_ENUM = 524460,
-    HV_X64_REGISTER_IA32_VMX_PROCBASED_CTLS2 = 524461,
-    HV_X64_REGISTER_IA32_VMX_EPT_VPID_CAP = 524462,
-    HV_X64_REGISTER_IA32_VMX_TRUE_PINBASED_CTLS = 524463,
-    HV_X64_REGISTER_IA32_VMX_TRUE_PROCBASED_CTLS = 524464,
-    HV_X64_REGISTER_IA32_VMX_TRUE_EXIT_CTLS = 524465,
-    HV_X64_REGISTER_IA32_VMX_TRUE_ENTRY_CTLS = 524466,
-    HV_X64_REGISTER_PERF_GLOBAL_CTRL = 528384,
-    HV_X64_REGISTER_PERF_GLOBAL_STATUS = 528385,
-    HV_X64_REGISTER_PERF_GLOBAL_IN_USE = 528386,
-    HV_X64_REGISTER_FIXED_CTR_CTRL = 528387,
-    HV_X64_REGISTER_DS_AREA = 528388,
-    HV_X64_REGISTER_PEBS_ENABLE = 528389,
-    HV_X64_REGISTER_PEBS_LD_LAT = 528390,
-    HV_X64_REGISTER_PEBS_FRONTEND = 528391,
-    HV_X64_REGISTER_PERF_EVT_SEL0 = 528640,
-    HV_X64_REGISTER_PMC0 = 528896,
-    HV_X64_REGISTER_FIXED_CTR0 = 529152,
-    HV_X64_REGISTER_LBR_TOS = 532480,
-    HV_X64_REGISTER_LBR_SELECT = 532481,
-    HV_X64_REGISTER_LER_FROM_LIP = 532482,
-    HV_X64_REGISTER_LER_TO_LIP = 532483,
-    HV_X64_REGISTER_LBR_FROM0 = 532736,
-    HV_X64_REGISTER_LBR_TO0 = 532992,
-    HV_X64_REGISTER_LBR_INFO0 = 537344,
-    HV_X64_REGISTER_RTIT_CTL = 528392,
-    HV_X64_REGISTER_RTIT_STATUS = 528393,
-    HV_X64_REGISTER_RTIT_OUTPUT_BASE = 528394,
-    HV_X64_REGISTER_RTIT_OUTPUT_MASK_PTRS = 528395,
-    HV_X64_REGISTER_RTIT_CR3_MATCH = 528396,
-    HV_X64_REGISTER_RTIT_ADDR0A = 529408,
-    HV_X64_REGISTER_APIC_ID = 542722,
-    HV_X64_REGISTER_APIC_VERSION = 542723,
-    HV_X64_REGISTER_HYPERCALL = 589825,
-    HV_X64_REGISTER_SYNTHETIC_EOI = 589840,
-    HV_X64_REGISTER_SYNTHETIC_ICR = 589841,
-    HV_X64_REGISTER_SYNTHETIC_TPR = 589842,
-    HV_X64_REGISTER_EMULATED_TIMER_PERIOD = 589872,
-    HV_X64_REGISTER_EMULATED_TIMER_CONTROL = 589873,
-    HV_X64_REGISTER_PM_TIMER_ASSIST = 589874,
-    HV_X64_REGISTER_CR_INTERCEPT_CONTROL = 917504,
-    HV_X64_REGISTER_CR_INTERCEPT_CR0_MASK = 917505,
-    HV_X64_REGISTER_CR_INTERCEPT_CR4_MASK = 917506,
-    HV_X64_REGISTER_CR_INTERCEPT_IA32_MISC_ENABLE_MASK = 917507,
-}
-#[repr(C, packed)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct hv_u128 {
-    pub low_part: __u64,
-    pub high_part: __u64,
-}
-#[test]
-fn bindgen_test_layout_hv_u128() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_u128>(),
-        16usize,
-        concat!("Size of: ", stringify!(hv_u128))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_u128>(),
-        1usize,
-        concat!("Alignment of ", stringify!(hv_u128))
-    );
-    fn test_field_low_part() {
-        assert_eq!(
-            unsafe {
-                let uninit = ::std::mem::MaybeUninit::<hv_u128>::uninit();
-                let ptr = uninit.as_ptr();
-                ::std::ptr::addr_of!((*ptr).low_part) as usize - ptr as usize
-            },
-            0usize,
-            concat!(
-                "Offset of field: ",
-                stringify!(hv_u128),
-                "::",
-                stringify!(low_part)
-            )
-        );
-    }
-    test_field_low_part();
-    fn test_field_high_part() {
-        assert_eq!(
-            unsafe {
-                let uninit = ::std::mem::MaybeUninit::<hv_u128>::uninit();
-                let ptr = uninit.as_ptr();
-                ::std::ptr::addr_of!((*ptr).high_part) as usize - ptr as usize
-            },
-            8usize,
-            concat!(
-                "Offset of field: ",
-                stringify!(hv_u128),
-                "::",
-                stringify!(high_part)
-            )
-        );
-    }
-    test_field_high_part();
-}
+pub const hv_x64_register_name_HV_X64_REGISTER_DELIVERABILITY_NOTIFICATIONS: hv_x64_register_name =
+    65542;
+pub const hv_x64_register_name_HV_X64_REGISTER_RAX: hv_x64_register_name = 131072;
+pub const hv_x64_register_name_HV_X64_REGISTER_RCX: hv_x64_register_name = 131073;
+pub const hv_x64_register_name_HV_X64_REGISTER_RDX: hv_x64_register_name = 131074;
+pub const hv_x64_register_name_HV_X64_REGISTER_RBX: hv_x64_register_name = 131075;
+pub const hv_x64_register_name_HV_X64_REGISTER_RSP: hv_x64_register_name = 131076;
+pub const hv_x64_register_name_HV_X64_REGISTER_RBP: hv_x64_register_name = 131077;
+pub const hv_x64_register_name_HV_X64_REGISTER_RSI: hv_x64_register_name = 131078;
+pub const hv_x64_register_name_HV_X64_REGISTER_RDI: hv_x64_register_name = 131079;
+pub const hv_x64_register_name_HV_X64_REGISTER_R8: hv_x64_register_name = 131080;
+pub const hv_x64_register_name_HV_X64_REGISTER_R9: hv_x64_register_name = 131081;
+pub const hv_x64_register_name_HV_X64_REGISTER_R10: hv_x64_register_name = 131082;
+pub const hv_x64_register_name_HV_X64_REGISTER_R11: hv_x64_register_name = 131083;
+pub const hv_x64_register_name_HV_X64_REGISTER_R12: hv_x64_register_name = 131084;
+pub const hv_x64_register_name_HV_X64_REGISTER_R13: hv_x64_register_name = 131085;
+pub const hv_x64_register_name_HV_X64_REGISTER_R14: hv_x64_register_name = 131086;
+pub const hv_x64_register_name_HV_X64_REGISTER_R15: hv_x64_register_name = 131087;
+pub const hv_x64_register_name_HV_X64_REGISTER_RIP: hv_x64_register_name = 131088;
+pub const hv_x64_register_name_HV_X64_REGISTER_RFLAGS: hv_x64_register_name = 131089;
+pub const hv_x64_register_name_HV_X64_REGISTER_XMM0: hv_x64_register_name = 196608;
+pub const hv_x64_register_name_HV_X64_REGISTER_XMM1: hv_x64_register_name = 196609;
+pub const hv_x64_register_name_HV_X64_REGISTER_XMM2: hv_x64_register_name = 196610;
+pub const hv_x64_register_name_HV_X64_REGISTER_XMM3: hv_x64_register_name = 196611;
+pub const hv_x64_register_name_HV_X64_REGISTER_XMM4: hv_x64_register_name = 196612;
+pub const hv_x64_register_name_HV_X64_REGISTER_XMM5: hv_x64_register_name = 196613;
+pub const hv_x64_register_name_HV_X64_REGISTER_XMM6: hv_x64_register_name = 196614;
+pub const hv_x64_register_name_HV_X64_REGISTER_XMM7: hv_x64_register_name = 196615;
+pub const hv_x64_register_name_HV_X64_REGISTER_XMM8: hv_x64_register_name = 196616;
+pub const hv_x64_register_name_HV_X64_REGISTER_XMM9: hv_x64_register_name = 196617;
+pub const hv_x64_register_name_HV_X64_REGISTER_XMM10: hv_x64_register_name = 196618;
+pub const hv_x64_register_name_HV_X64_REGISTER_XMM11: hv_x64_register_name = 196619;
+pub const hv_x64_register_name_HV_X64_REGISTER_XMM12: hv_x64_register_name = 196620;
+pub const hv_x64_register_name_HV_X64_REGISTER_XMM13: hv_x64_register_name = 196621;
+pub const hv_x64_register_name_HV_X64_REGISTER_XMM14: hv_x64_register_name = 196622;
+pub const hv_x64_register_name_HV_X64_REGISTER_XMM15: hv_x64_register_name = 196623;
+pub const hv_x64_register_name_HV_X64_REGISTER_FP_MMX0: hv_x64_register_name = 196624;
+pub const hv_x64_register_name_HV_X64_REGISTER_FP_MMX1: hv_x64_register_name = 196625;
+pub const hv_x64_register_name_HV_X64_REGISTER_FP_MMX2: hv_x64_register_name = 196626;
+pub const hv_x64_register_name_HV_X64_REGISTER_FP_MMX3: hv_x64_register_name = 196627;
+pub const hv_x64_register_name_HV_X64_REGISTER_FP_MMX4: hv_x64_register_name = 196628;
+pub const hv_x64_register_name_HV_X64_REGISTER_FP_MMX5: hv_x64_register_name = 196629;
+pub const hv_x64_register_name_HV_X64_REGISTER_FP_MMX6: hv_x64_register_name = 196630;
+pub const hv_x64_register_name_HV_X64_REGISTER_FP_MMX7: hv_x64_register_name = 196631;
+pub const hv_x64_register_name_HV_X64_REGISTER_FP_CONTROL_STATUS: hv_x64_register_name = 196632;
+pub const hv_x64_register_name_HV_X64_REGISTER_XMM_CONTROL_STATUS: hv_x64_register_name = 196633;
+pub const hv_x64_register_name_HV_X64_REGISTER_CR0: hv_x64_register_name = 262144;
+pub const hv_x64_register_name_HV_X64_REGISTER_CR2: hv_x64_register_name = 262145;
+pub const hv_x64_register_name_HV_X64_REGISTER_CR3: hv_x64_register_name = 262146;
+pub const hv_x64_register_name_HV_X64_REGISTER_CR4: hv_x64_register_name = 262147;
+pub const hv_x64_register_name_HV_X64_REGISTER_CR8: hv_x64_register_name = 262148;
+pub const hv_x64_register_name_HV_X64_REGISTER_XFEM: hv_x64_register_name = 262149;
+pub const hv_x64_register_name_HV_X64_REGISTER_INTERMEDIATE_CR0: hv_x64_register_name = 266240;
+pub const hv_x64_register_name_HV_X64_REGISTER_INTERMEDIATE_CR4: hv_x64_register_name = 266243;
+pub const hv_x64_register_name_HV_X64_REGISTER_INTERMEDIATE_CR8: hv_x64_register_name = 266244;
+pub const hv_x64_register_name_HV_X64_REGISTER_DR0: hv_x64_register_name = 327680;
+pub const hv_x64_register_name_HV_X64_REGISTER_DR1: hv_x64_register_name = 327681;
+pub const hv_x64_register_name_HV_X64_REGISTER_DR2: hv_x64_register_name = 327682;
+pub const hv_x64_register_name_HV_X64_REGISTER_DR3: hv_x64_register_name = 327683;
+pub const hv_x64_register_name_HV_X64_REGISTER_DR6: hv_x64_register_name = 327684;
+pub const hv_x64_register_name_HV_X64_REGISTER_DR7: hv_x64_register_name = 327685;
+pub const hv_x64_register_name_HV_X64_REGISTER_ES: hv_x64_register_name = 393216;
+pub const hv_x64_register_name_HV_X64_REGISTER_CS: hv_x64_register_name = 393217;
+pub const hv_x64_register_name_HV_X64_REGISTER_SS: hv_x64_register_name = 393218;
+pub const hv_x64_register_name_HV_X64_REGISTER_DS: hv_x64_register_name = 393219;
+pub const hv_x64_register_name_HV_X64_REGISTER_FS: hv_x64_register_name = 393220;
+pub const hv_x64_register_name_HV_X64_REGISTER_GS: hv_x64_register_name = 393221;
+pub const hv_x64_register_name_HV_X64_REGISTER_LDTR: hv_x64_register_name = 393222;
+pub const hv_x64_register_name_HV_X64_REGISTER_TR: hv_x64_register_name = 393223;
+pub const hv_x64_register_name_HV_X64_REGISTER_IDTR: hv_x64_register_name = 458752;
+pub const hv_x64_register_name_HV_X64_REGISTER_GDTR: hv_x64_register_name = 458753;
+pub const hv_x64_register_name_HV_X64_REGISTER_TSC: hv_x64_register_name = 524288;
+pub const hv_x64_register_name_HV_X64_REGISTER_EFER: hv_x64_register_name = 524289;
+pub const hv_x64_register_name_HV_X64_REGISTER_KERNEL_GS_BASE: hv_x64_register_name = 524290;
+pub const hv_x64_register_name_HV_X64_REGISTER_APIC_BASE: hv_x64_register_name = 524291;
+pub const hv_x64_register_name_HV_X64_REGISTER_PAT: hv_x64_register_name = 524292;
+pub const hv_x64_register_name_HV_X64_REGISTER_SYSENTER_CS: hv_x64_register_name = 524293;
+pub const hv_x64_register_name_HV_X64_REGISTER_SYSENTER_EIP: hv_x64_register_name = 524294;
+pub const hv_x64_register_name_HV_X64_REGISTER_SYSENTER_ESP: hv_x64_register_name = 524295;
+pub const hv_x64_register_name_HV_X64_REGISTER_STAR: hv_x64_register_name = 524296;
+pub const hv_x64_register_name_HV_X64_REGISTER_LSTAR: hv_x64_register_name = 524297;
+pub const hv_x64_register_name_HV_X64_REGISTER_CSTAR: hv_x64_register_name = 524298;
+pub const hv_x64_register_name_HV_X64_REGISTER_SFMASK: hv_x64_register_name = 524299;
+pub const hv_x64_register_name_HV_X64_REGISTER_INITIAL_APIC_ID: hv_x64_register_name = 524300;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_CAP: hv_x64_register_name = 524301;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_DEF_TYPE: hv_x64_register_name = 524302;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_BASE0: hv_x64_register_name = 524304;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_BASE1: hv_x64_register_name = 524305;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_BASE2: hv_x64_register_name = 524306;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_BASE3: hv_x64_register_name = 524307;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_BASE4: hv_x64_register_name = 524308;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_BASE5: hv_x64_register_name = 524309;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_BASE6: hv_x64_register_name = 524310;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_BASE7: hv_x64_register_name = 524311;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_BASE8: hv_x64_register_name = 524312;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_BASE9: hv_x64_register_name = 524313;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_BASEA: hv_x64_register_name = 524314;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_BASEB: hv_x64_register_name = 524315;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_BASEC: hv_x64_register_name = 524316;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_BASED: hv_x64_register_name = 524317;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_BASEE: hv_x64_register_name = 524318;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_BASEF: hv_x64_register_name = 524319;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_MASK0: hv_x64_register_name = 524352;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_MASK1: hv_x64_register_name = 524353;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_MASK2: hv_x64_register_name = 524354;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_MASK3: hv_x64_register_name = 524355;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_MASK4: hv_x64_register_name = 524356;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_MASK5: hv_x64_register_name = 524357;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_MASK6: hv_x64_register_name = 524358;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_MASK7: hv_x64_register_name = 524359;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_MASK8: hv_x64_register_name = 524360;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_MASK9: hv_x64_register_name = 524361;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_MASKA: hv_x64_register_name = 524362;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_MASKB: hv_x64_register_name = 524363;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_MASKC: hv_x64_register_name = 524364;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_MASKD: hv_x64_register_name = 524365;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_MASKE: hv_x64_register_name = 524366;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_PHYS_MASKF: hv_x64_register_name = 524367;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_FIX64K00000: hv_x64_register_name = 524400;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_FIX16K80000: hv_x64_register_name = 524401;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_FIX16KA0000: hv_x64_register_name = 524402;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_FIX4KC0000: hv_x64_register_name = 524403;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_FIX4KC8000: hv_x64_register_name = 524404;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_FIX4KD0000: hv_x64_register_name = 524405;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_FIX4KD8000: hv_x64_register_name = 524406;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_FIX4KE0000: hv_x64_register_name = 524407;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_FIX4KE8000: hv_x64_register_name = 524408;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_FIX4KF0000: hv_x64_register_name = 524409;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_MTRR_FIX4KF8000: hv_x64_register_name = 524410;
+pub const hv_x64_register_name_HV_X64_REGISTER_TSC_AUX: hv_x64_register_name = 524411;
+pub const hv_x64_register_name_HV_X64_REGISTER_BNDCFGS: hv_x64_register_name = 524412;
+pub const hv_x64_register_name_HV_X64_REGISTER_DEBUG_CTL: hv_x64_register_name = 524413;
+pub const hv_x64_register_name_HV_X64_REGISTER_AVAILABLE0008007E: hv_x64_register_name = 524414;
+pub const hv_x64_register_name_HV_X64_REGISTER_AVAILABLE0008007F: hv_x64_register_name = 524415;
+pub const hv_x64_register_name_HV_X64_REGISTER_SGX_LAUNCH_CONTROL0: hv_x64_register_name = 524416;
+pub const hv_x64_register_name_HV_X64_REGISTER_SGX_LAUNCH_CONTROL1: hv_x64_register_name = 524417;
+pub const hv_x64_register_name_HV_X64_REGISTER_SGX_LAUNCH_CONTROL2: hv_x64_register_name = 524418;
+pub const hv_x64_register_name_HV_X64_REGISTER_SGX_LAUNCH_CONTROL3: hv_x64_register_name = 524419;
+pub const hv_x64_register_name_HV_X64_REGISTER_SPEC_CTRL: hv_x64_register_name = 524420;
+pub const hv_x64_register_name_HV_X64_REGISTER_PRED_CMD: hv_x64_register_name = 524421;
+pub const hv_x64_register_name_HV_X64_REGISTER_VIRT_SPEC_CTRL: hv_x64_register_name = 524422;
+pub const hv_x64_register_name_HV_X64_REGISTER_TSC_ADJUST: hv_x64_register_name = 524438;
+pub const hv_x64_register_name_HV_X64_REGISTER_MSR_IA32_MISC_ENABLE: hv_x64_register_name = 524448;
+pub const hv_x64_register_name_HV_X64_REGISTER_IA32_FEATURE_CONTROL: hv_x64_register_name = 524449;
+pub const hv_x64_register_name_HV_X64_REGISTER_IA32_VMX_BASIC: hv_x64_register_name = 524450;
+pub const hv_x64_register_name_HV_X64_REGISTER_IA32_VMX_PINBASED_CTLS: hv_x64_register_name =
+    524451;
+pub const hv_x64_register_name_HV_X64_REGISTER_IA32_VMX_PROCBASED_CTLS: hv_x64_register_name =
+    524452;
+pub const hv_x64_register_name_HV_X64_REGISTER_IA32_VMX_EXIT_CTLS: hv_x64_register_name = 524453;
+pub const hv_x64_register_name_HV_X64_REGISTER_IA32_VMX_ENTRY_CTLS: hv_x64_register_name = 524454;
+pub const hv_x64_register_name_HV_X64_REGISTER_IA32_VMX_MISC: hv_x64_register_name = 524455;
+pub const hv_x64_register_name_HV_X64_REGISTER_IA32_VMX_CR0_FIXED0: hv_x64_register_name = 524456;
+pub const hv_x64_register_name_HV_X64_REGISTER_IA32_VMX_CR0_FIXED1: hv_x64_register_name = 524457;
+pub const hv_x64_register_name_HV_X64_REGISTER_IA32_VMX_CR4_FIXED0: hv_x64_register_name = 524458;
+pub const hv_x64_register_name_HV_X64_REGISTER_IA32_VMX_CR4_FIXED1: hv_x64_register_name = 524459;
+pub const hv_x64_register_name_HV_X64_REGISTER_IA32_VMX_VMCS_ENUM: hv_x64_register_name = 524460;
+pub const hv_x64_register_name_HV_X64_REGISTER_IA32_VMX_PROCBASED_CTLS2: hv_x64_register_name =
+    524461;
+pub const hv_x64_register_name_HV_X64_REGISTER_IA32_VMX_EPT_VPID_CAP: hv_x64_register_name = 524462;
+pub const hv_x64_register_name_HV_X64_REGISTER_IA32_VMX_TRUE_PINBASED_CTLS: hv_x64_register_name =
+    524463;
+pub const hv_x64_register_name_HV_X64_REGISTER_IA32_VMX_TRUE_PROCBASED_CTLS: hv_x64_register_name =
+    524464;
+pub const hv_x64_register_name_HV_X64_REGISTER_IA32_VMX_TRUE_EXIT_CTLS: hv_x64_register_name =
+    524465;
+pub const hv_x64_register_name_HV_X64_REGISTER_IA32_VMX_TRUE_ENTRY_CTLS: hv_x64_register_name =
+    524466;
+pub const hv_x64_register_name_HV_X64_REGISTER_PERF_GLOBAL_CTRL: hv_x64_register_name = 528384;
+pub const hv_x64_register_name_HV_X64_REGISTER_PERF_GLOBAL_STATUS: hv_x64_register_name = 528385;
+pub const hv_x64_register_name_HV_X64_REGISTER_PERF_GLOBAL_IN_USE: hv_x64_register_name = 528386;
+pub const hv_x64_register_name_HV_X64_REGISTER_FIXED_CTR_CTRL: hv_x64_register_name = 528387;
+pub const hv_x64_register_name_HV_X64_REGISTER_DS_AREA: hv_x64_register_name = 528388;
+pub const hv_x64_register_name_HV_X64_REGISTER_PEBS_ENABLE: hv_x64_register_name = 528389;
+pub const hv_x64_register_name_HV_X64_REGISTER_PEBS_LD_LAT: hv_x64_register_name = 528390;
+pub const hv_x64_register_name_HV_X64_REGISTER_PEBS_FRONTEND: hv_x64_register_name = 528391;
+pub const hv_x64_register_name_HV_X64_REGISTER_PERF_EVT_SEL0: hv_x64_register_name = 528640;
+pub const hv_x64_register_name_HV_X64_REGISTER_PMC0: hv_x64_register_name = 528896;
+pub const hv_x64_register_name_HV_X64_REGISTER_FIXED_CTR0: hv_x64_register_name = 529152;
+pub const hv_x64_register_name_HV_X64_REGISTER_LBR_TOS: hv_x64_register_name = 532480;
+pub const hv_x64_register_name_HV_X64_REGISTER_LBR_SELECT: hv_x64_register_name = 532481;
+pub const hv_x64_register_name_HV_X64_REGISTER_LER_FROM_LIP: hv_x64_register_name = 532482;
+pub const hv_x64_register_name_HV_X64_REGISTER_LER_TO_LIP: hv_x64_register_name = 532483;
+pub const hv_x64_register_name_HV_X64_REGISTER_LBR_FROM0: hv_x64_register_name = 532736;
+pub const hv_x64_register_name_HV_X64_REGISTER_LBR_TO0: hv_x64_register_name = 532992;
+pub const hv_x64_register_name_HV_X64_REGISTER_LBR_INFO0: hv_x64_register_name = 537344;
+pub const hv_x64_register_name_HV_X64_REGISTER_RTIT_CTL: hv_x64_register_name = 528392;
+pub const hv_x64_register_name_HV_X64_REGISTER_RTIT_STATUS: hv_x64_register_name = 528393;
+pub const hv_x64_register_name_HV_X64_REGISTER_RTIT_OUTPUT_BASE: hv_x64_register_name = 528394;
+pub const hv_x64_register_name_HV_X64_REGISTER_RTIT_OUTPUT_MASK_PTRS: hv_x64_register_name = 528395;
+pub const hv_x64_register_name_HV_X64_REGISTER_RTIT_CR3_MATCH: hv_x64_register_name = 528396;
+pub const hv_x64_register_name_HV_X64_REGISTER_RTIT_ADDR0A: hv_x64_register_name = 529408;
+pub const hv_x64_register_name_HV_X64_REGISTER_APIC_ID: hv_x64_register_name = 542722;
+pub const hv_x64_register_name_HV_X64_REGISTER_APIC_VERSION: hv_x64_register_name = 542723;
+pub const hv_x64_register_name_HV_X64_REGISTER_HYPERCALL: hv_x64_register_name = 589825;
+pub const hv_x64_register_name_HV_X64_REGISTER_SYNTHETIC_EOI: hv_x64_register_name = 589840;
+pub const hv_x64_register_name_HV_X64_REGISTER_SYNTHETIC_ICR: hv_x64_register_name = 589841;
+pub const hv_x64_register_name_HV_X64_REGISTER_SYNTHETIC_TPR: hv_x64_register_name = 589842;
+pub const hv_x64_register_name_HV_X64_REGISTER_EMULATED_TIMER_PERIOD: hv_x64_register_name = 589872;
+pub const hv_x64_register_name_HV_X64_REGISTER_EMULATED_TIMER_CONTROL: hv_x64_register_name =
+    589873;
+pub const hv_x64_register_name_HV_X64_REGISTER_PM_TIMER_ASSIST: hv_x64_register_name = 589874;
+pub const hv_x64_register_name_HV_X64_REGISTER_SEV_CONTROL: hv_x64_register_name = 589888;
+pub const hv_x64_register_name_HV_X64_REGISTER_CR_INTERCEPT_CONTROL: hv_x64_register_name = 917504;
+pub const hv_x64_register_name_HV_X64_REGISTER_CR_INTERCEPT_CR0_MASK: hv_x64_register_name = 917505;
+pub const hv_x64_register_name_HV_X64_REGISTER_CR_INTERCEPT_CR4_MASK: hv_x64_register_name = 917506;
+pub const hv_x64_register_name_HV_X64_REGISTER_CR_INTERCEPT_IA32_MISC_ENABLE_MASK:
+    hv_x64_register_name = 917507;
+pub type hv_x64_register_name = ::std::os::raw::c_uint;
 #[repr(C, packed)]
 #[derive(Copy, Clone)]
 pub union hv_x64_fp_register {
@@ -3676,336 +4171,6 @@ fn bindgen_test_layout_hv_x64_table_register() {
         );
     }
     test_field_base();
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union hv_explicit_suspend_register {
-    pub as_uint64: __u64,
-    pub __bindgen_anon_1: hv_explicit_suspend_register__bindgen_ty_1,
-}
-#[repr(C, packed)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct hv_explicit_suspend_register__bindgen_ty_1 {
-    pub _bitfield_align_1: [u8; 0],
-    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
-}
-#[test]
-fn bindgen_test_layout_hv_explicit_suspend_register__bindgen_ty_1() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_explicit_suspend_register__bindgen_ty_1>(),
-        8usize,
-        concat!(
-            "Size of: ",
-            stringify!(hv_explicit_suspend_register__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_explicit_suspend_register__bindgen_ty_1>(),
-        1usize,
-        concat!(
-            "Alignment of ",
-            stringify!(hv_explicit_suspend_register__bindgen_ty_1)
-        )
-    );
-}
-impl hv_explicit_suspend_register__bindgen_ty_1 {
-    #[inline]
-    pub fn suspended(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u64) }
-    }
-    #[inline]
-    pub fn set_suspended(&mut self, val: __u64) {
-        unsafe {
-            let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(0usize, 1u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn reserved(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 63u8) as u64) }
-    }
-    #[inline]
-    pub fn set_reserved(&mut self, val: __u64) {
-        unsafe {
-            let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(1usize, 63u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn new_bitfield_1(
-        suspended: __u64,
-        reserved: __u64,
-    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
-        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
-        __bindgen_bitfield_unit.set(0usize, 1u8, {
-            let suspended: u64 = unsafe { ::std::mem::transmute(suspended) };
-            suspended as u64
-        });
-        __bindgen_bitfield_unit.set(1usize, 63u8, {
-            let reserved: u64 = unsafe { ::std::mem::transmute(reserved) };
-            reserved as u64
-        });
-        __bindgen_bitfield_unit
-    }
-}
-#[test]
-fn bindgen_test_layout_hv_explicit_suspend_register() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_explicit_suspend_register>(),
-        8usize,
-        concat!("Size of: ", stringify!(hv_explicit_suspend_register))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_explicit_suspend_register>(),
-        8usize,
-        concat!("Alignment of ", stringify!(hv_explicit_suspend_register))
-    );
-    fn test_field_as_uint64() {
-        assert_eq!(
-            unsafe {
-                let uninit = ::std::mem::MaybeUninit::<hv_explicit_suspend_register>::uninit();
-                let ptr = uninit.as_ptr();
-                ::std::ptr::addr_of!((*ptr).as_uint64) as usize - ptr as usize
-            },
-            0usize,
-            concat!(
-                "Offset of field: ",
-                stringify!(hv_explicit_suspend_register),
-                "::",
-                stringify!(as_uint64)
-            )
-        );
-    }
-    test_field_as_uint64();
-}
-impl Default for hv_explicit_suspend_register {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union hv_intercept_suspend_register {
-    pub as_uint64: __u64,
-    pub __bindgen_anon_1: hv_intercept_suspend_register__bindgen_ty_1,
-}
-#[repr(C, packed)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct hv_intercept_suspend_register__bindgen_ty_1 {
-    pub _bitfield_align_1: [u8; 0],
-    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
-}
-#[test]
-fn bindgen_test_layout_hv_intercept_suspend_register__bindgen_ty_1() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_intercept_suspend_register__bindgen_ty_1>(),
-        8usize,
-        concat!(
-            "Size of: ",
-            stringify!(hv_intercept_suspend_register__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_intercept_suspend_register__bindgen_ty_1>(),
-        1usize,
-        concat!(
-            "Alignment of ",
-            stringify!(hv_intercept_suspend_register__bindgen_ty_1)
-        )
-    );
-}
-impl hv_intercept_suspend_register__bindgen_ty_1 {
-    #[inline]
-    pub fn suspended(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u64) }
-    }
-    #[inline]
-    pub fn set_suspended(&mut self, val: __u64) {
-        unsafe {
-            let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(0usize, 1u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn reserved(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 63u8) as u64) }
-    }
-    #[inline]
-    pub fn set_reserved(&mut self, val: __u64) {
-        unsafe {
-            let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(1usize, 63u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn new_bitfield_1(
-        suspended: __u64,
-        reserved: __u64,
-    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
-        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
-        __bindgen_bitfield_unit.set(0usize, 1u8, {
-            let suspended: u64 = unsafe { ::std::mem::transmute(suspended) };
-            suspended as u64
-        });
-        __bindgen_bitfield_unit.set(1usize, 63u8, {
-            let reserved: u64 = unsafe { ::std::mem::transmute(reserved) };
-            reserved as u64
-        });
-        __bindgen_bitfield_unit
-    }
-}
-#[test]
-fn bindgen_test_layout_hv_intercept_suspend_register() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_intercept_suspend_register>(),
-        8usize,
-        concat!("Size of: ", stringify!(hv_intercept_suspend_register))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_intercept_suspend_register>(),
-        8usize,
-        concat!("Alignment of ", stringify!(hv_intercept_suspend_register))
-    );
-    fn test_field_as_uint64() {
-        assert_eq!(
-            unsafe {
-                let uninit = ::std::mem::MaybeUninit::<hv_intercept_suspend_register>::uninit();
-                let ptr = uninit.as_ptr();
-                ::std::ptr::addr_of!((*ptr).as_uint64) as usize - ptr as usize
-            },
-            0usize,
-            concat!(
-                "Offset of field: ",
-                stringify!(hv_intercept_suspend_register),
-                "::",
-                stringify!(as_uint64)
-            )
-        );
-    }
-    test_field_as_uint64();
-}
-impl Default for hv_intercept_suspend_register {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union hv_dispatch_suspend_register {
-    pub as_uint64: __u64,
-    pub __bindgen_anon_1: hv_dispatch_suspend_register__bindgen_ty_1,
-}
-#[repr(C, packed)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct hv_dispatch_suspend_register__bindgen_ty_1 {
-    pub _bitfield_align_1: [u8; 0],
-    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
-}
-#[test]
-fn bindgen_test_layout_hv_dispatch_suspend_register__bindgen_ty_1() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_dispatch_suspend_register__bindgen_ty_1>(),
-        8usize,
-        concat!(
-            "Size of: ",
-            stringify!(hv_dispatch_suspend_register__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_dispatch_suspend_register__bindgen_ty_1>(),
-        1usize,
-        concat!(
-            "Alignment of ",
-            stringify!(hv_dispatch_suspend_register__bindgen_ty_1)
-        )
-    );
-}
-impl hv_dispatch_suspend_register__bindgen_ty_1 {
-    #[inline]
-    pub fn suspended(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u64) }
-    }
-    #[inline]
-    pub fn set_suspended(&mut self, val: __u64) {
-        unsafe {
-            let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(0usize, 1u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn reserved(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 63u8) as u64) }
-    }
-    #[inline]
-    pub fn set_reserved(&mut self, val: __u64) {
-        unsafe {
-            let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(1usize, 63u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn new_bitfield_1(
-        suspended: __u64,
-        reserved: __u64,
-    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
-        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
-        __bindgen_bitfield_unit.set(0usize, 1u8, {
-            let suspended: u64 = unsafe { ::std::mem::transmute(suspended) };
-            suspended as u64
-        });
-        __bindgen_bitfield_unit.set(1usize, 63u8, {
-            let reserved: u64 = unsafe { ::std::mem::transmute(reserved) };
-            reserved as u64
-        });
-        __bindgen_bitfield_unit
-    }
-}
-#[test]
-fn bindgen_test_layout_hv_dispatch_suspend_register() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_dispatch_suspend_register>(),
-        8usize,
-        concat!("Size of: ", stringify!(hv_dispatch_suspend_register))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_dispatch_suspend_register>(),
-        8usize,
-        concat!("Alignment of ", stringify!(hv_dispatch_suspend_register))
-    );
-    fn test_field_as_uint64() {
-        assert_eq!(
-            unsafe {
-                let uninit = ::std::mem::MaybeUninit::<hv_dispatch_suspend_register>::uninit();
-                let ptr = uninit.as_ptr();
-                ::std::ptr::addr_of!((*ptr).as_uint64) as usize - ptr as usize
-            },
-            0usize,
-            concat!(
-                "Offset of field: ",
-                stringify!(hv_dispatch_suspend_register),
-                "::",
-                stringify!(as_uint64)
-            )
-        );
-    }
-    test_field_as_uint64();
-}
-impl Default for hv_dispatch_suspend_register {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -8635,148 +8800,6 @@ pub const hv_interrupt_type_HV_X64_INTERRUPT_TYPE_LOCALINT0: hv_interrupt_type =
 pub const hv_interrupt_type_HV_X64_INTERRUPT_TYPE_LOCALINT1: hv_interrupt_type = 9;
 pub const hv_interrupt_type_HV_X64_INTERRUPT_TYPE_MAXIMUM: hv_interrupt_type = 10;
 pub type hv_interrupt_type = ::std::os::raw::c_uint;
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union hv_interrupt_control {
-    pub __bindgen_anon_1: hv_interrupt_control__bindgen_ty_1,
-    pub as_uint64: __u64,
-}
-#[repr(C, packed)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct hv_interrupt_control__bindgen_ty_1 {
-    pub interrupt_type: __u32,
-    pub _bitfield_align_1: [u8; 0],
-    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 4usize]>,
-}
-#[test]
-fn bindgen_test_layout_hv_interrupt_control__bindgen_ty_1() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_interrupt_control__bindgen_ty_1>(),
-        8usize,
-        concat!("Size of: ", stringify!(hv_interrupt_control__bindgen_ty_1))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_interrupt_control__bindgen_ty_1>(),
-        1usize,
-        concat!(
-            "Alignment of ",
-            stringify!(hv_interrupt_control__bindgen_ty_1)
-        )
-    );
-    fn test_field_interrupt_type() {
-        assert_eq!(
-            unsafe {
-                let uninit =
-                    ::std::mem::MaybeUninit::<hv_interrupt_control__bindgen_ty_1>::uninit();
-                let ptr = uninit.as_ptr();
-                ::std::ptr::addr_of!((*ptr).interrupt_type) as usize - ptr as usize
-            },
-            0usize,
-            concat!(
-                "Offset of field: ",
-                stringify!(hv_interrupt_control__bindgen_ty_1),
-                "::",
-                stringify!(interrupt_type)
-            )
-        );
-    }
-    test_field_interrupt_type();
-}
-impl hv_interrupt_control__bindgen_ty_1 {
-    #[inline]
-    pub fn level_triggered(&self) -> __u32 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u32) }
-    }
-    #[inline]
-    pub fn set_level_triggered(&mut self, val: __u32) {
-        unsafe {
-            let val: u32 = ::std::mem::transmute(val);
-            self._bitfield_1.set(0usize, 1u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn logical_dest_mode(&self) -> __u32 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 1u8) as u32) }
-    }
-    #[inline]
-    pub fn set_logical_dest_mode(&mut self, val: __u32) {
-        unsafe {
-            let val: u32 = ::std::mem::transmute(val);
-            self._bitfield_1.set(1usize, 1u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn rsvd(&self) -> __u32 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(2usize, 30u8) as u32) }
-    }
-    #[inline]
-    pub fn set_rsvd(&mut self, val: __u32) {
-        unsafe {
-            let val: u32 = ::std::mem::transmute(val);
-            self._bitfield_1.set(2usize, 30u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn new_bitfield_1(
-        level_triggered: __u32,
-        logical_dest_mode: __u32,
-        rsvd: __u32,
-    ) -> __BindgenBitfieldUnit<[u8; 4usize]> {
-        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 4usize]> = Default::default();
-        __bindgen_bitfield_unit.set(0usize, 1u8, {
-            let level_triggered: u32 = unsafe { ::std::mem::transmute(level_triggered) };
-            level_triggered as u64
-        });
-        __bindgen_bitfield_unit.set(1usize, 1u8, {
-            let logical_dest_mode: u32 = unsafe { ::std::mem::transmute(logical_dest_mode) };
-            logical_dest_mode as u64
-        });
-        __bindgen_bitfield_unit.set(2usize, 30u8, {
-            let rsvd: u32 = unsafe { ::std::mem::transmute(rsvd) };
-            rsvd as u64
-        });
-        __bindgen_bitfield_unit
-    }
-}
-#[test]
-fn bindgen_test_layout_hv_interrupt_control() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_interrupt_control>(),
-        8usize,
-        concat!("Size of: ", stringify!(hv_interrupt_control))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_interrupt_control>(),
-        8usize,
-        concat!("Alignment of ", stringify!(hv_interrupt_control))
-    );
-    fn test_field_as_uint64() {
-        assert_eq!(
-            unsafe {
-                let uninit = ::std::mem::MaybeUninit::<hv_interrupt_control>::uninit();
-                let ptr = uninit.as_ptr();
-                ::std::ptr::addr_of!((*ptr).as_uint64) as usize - ptr as usize
-            },
-            0usize,
-            concat!(
-                "Offset of field: ",
-                stringify!(hv_interrupt_control),
-                "::",
-                stringify!(as_uint64)
-            )
-        );
-    }
-    test_field_as_uint64();
-}
-impl Default for hv_interrupt_control {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C, packed)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct hv_local_interrupt_controller_state {
@@ -11911,6 +11934,321 @@ impl Default for hv_register_intercept_result_parameters {
         }
     }
 }
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union hv_snp_guest_policy {
+    pub __bindgen_anon_1: hv_snp_guest_policy__bindgen_ty_1,
+    pub as_uint64: __u64,
+}
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_snp_guest_policy__bindgen_ty_1 {
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
+}
+#[test]
+fn bindgen_test_layout_hv_snp_guest_policy__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_snp_guest_policy__bindgen_ty_1>(),
+        8usize,
+        concat!("Size of: ", stringify!(hv_snp_guest_policy__bindgen_ty_1))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_snp_guest_policy__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_snp_guest_policy__bindgen_ty_1)
+        )
+    );
+}
+impl hv_snp_guest_policy__bindgen_ty_1 {
+    #[inline]
+    pub fn minor_version(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 8u8) as u64) }
+    }
+    #[inline]
+    pub fn set_minor_version(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 8u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn major_version(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(8usize, 8u8) as u64) }
+    }
+    #[inline]
+    pub fn set_major_version(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(8usize, 8u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn smt_allowed(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(16usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_smt_allowed(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(16usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn vmpls_required(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(17usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_vmpls_required(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(17usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn migration_agent_allowed(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(18usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_migration_agent_allowed(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(18usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn debug_allowed(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(19usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_debug_allowed(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(19usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(20usize, 44u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(20usize, 44u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        minor_version: __u64,
+        major_version: __u64,
+        smt_allowed: __u64,
+        vmpls_required: __u64,
+        migration_agent_allowed: __u64,
+        debug_allowed: __u64,
+        reserved: __u64,
+    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 8u8, {
+            let minor_version: u64 = unsafe { ::std::mem::transmute(minor_version) };
+            minor_version as u64
+        });
+        __bindgen_bitfield_unit.set(8usize, 8u8, {
+            let major_version: u64 = unsafe { ::std::mem::transmute(major_version) };
+            major_version as u64
+        });
+        __bindgen_bitfield_unit.set(16usize, 1u8, {
+            let smt_allowed: u64 = unsafe { ::std::mem::transmute(smt_allowed) };
+            smt_allowed as u64
+        });
+        __bindgen_bitfield_unit.set(17usize, 1u8, {
+            let vmpls_required: u64 = unsafe { ::std::mem::transmute(vmpls_required) };
+            vmpls_required as u64
+        });
+        __bindgen_bitfield_unit.set(18usize, 1u8, {
+            let migration_agent_allowed: u64 =
+                unsafe { ::std::mem::transmute(migration_agent_allowed) };
+            migration_agent_allowed as u64
+        });
+        __bindgen_bitfield_unit.set(19usize, 1u8, {
+            let debug_allowed: u64 = unsafe { ::std::mem::transmute(debug_allowed) };
+            debug_allowed as u64
+        });
+        __bindgen_bitfield_unit.set(20usize, 44u8, {
+            let reserved: u64 = unsafe { ::std::mem::transmute(reserved) };
+            reserved as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[test]
+fn bindgen_test_layout_hv_snp_guest_policy() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_snp_guest_policy>(),
+        8usize,
+        concat!("Size of: ", stringify!(hv_snp_guest_policy))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_snp_guest_policy>(),
+        8usize,
+        concat!("Alignment of ", stringify!(hv_snp_guest_policy))
+    );
+    fn test_field_as_uint64() {
+        assert_eq!(
+            unsafe {
+                let uninit = ::std::mem::MaybeUninit::<hv_snp_guest_policy>::uninit();
+                let ptr = uninit.as_ptr();
+                ::std::ptr::addr_of!((*ptr).as_uint64) as usize - ptr as usize
+            },
+            0usize,
+            concat!(
+                "Offset of field: ",
+                stringify!(hv_snp_guest_policy),
+                "::",
+                stringify!(as_uint64)
+            )
+        );
+    }
+    test_field_as_uint64();
+}
+impl Default for hv_snp_guest_policy {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union hv_x64_register_sev_control {
+    pub as_uint64: __u64,
+    pub __bindgen_anon_1: hv_x64_register_sev_control__bindgen_ty_1,
+}
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_x64_register_sev_control__bindgen_ty_1 {
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
+}
+#[test]
+fn bindgen_test_layout_hv_x64_register_sev_control__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_x64_register_sev_control__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_x64_register_sev_control__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_x64_register_sev_control__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_x64_register_sev_control__bindgen_ty_1)
+        )
+    );
+}
+impl hv_x64_register_sev_control__bindgen_ty_1 {
+    #[inline]
+    pub fn enable_encrypted_state(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_enable_encrypted_state(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved_z(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 11u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved_z(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 11u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn vmsa_gpa_page_number(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(12usize, 52u8) as u64) }
+    }
+    #[inline]
+    pub fn set_vmsa_gpa_page_number(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(12usize, 52u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        enable_encrypted_state: __u64,
+        reserved_z: __u64,
+        vmsa_gpa_page_number: __u64,
+    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let enable_encrypted_state: u64 =
+                unsafe { ::std::mem::transmute(enable_encrypted_state) };
+            enable_encrypted_state as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 11u8, {
+            let reserved_z: u64 = unsafe { ::std::mem::transmute(reserved_z) };
+            reserved_z as u64
+        });
+        __bindgen_bitfield_unit.set(12usize, 52u8, {
+            let vmsa_gpa_page_number: u64 = unsafe { ::std::mem::transmute(vmsa_gpa_page_number) };
+            vmsa_gpa_page_number as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[test]
+fn bindgen_test_layout_hv_x64_register_sev_control() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_x64_register_sev_control>(),
+        8usize,
+        concat!("Size of: ", stringify!(hv_x64_register_sev_control))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_x64_register_sev_control>(),
+        8usize,
+        concat!("Alignment of ", stringify!(hv_x64_register_sev_control))
+    );
+    fn test_field_as_uint64() {
+        assert_eq!(
+            unsafe {
+                let uninit = ::std::mem::MaybeUninit::<hv_x64_register_sev_control>::uninit();
+                let ptr = uninit.as_ptr();
+                ::std::ptr::addr_of!((*ptr).as_uint64) as usize - ptr as usize
+            },
+            0usize,
+            concat!(
+                "Offset of field: ",
+                stringify!(hv_x64_register_sev_control),
+                "::",
+                stringify!(as_uint64)
+            )
+        );
+    }
+    test_field_as_uint64();
+}
+impl Default for hv_x64_register_sev_control {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub const hv_message_type_HVMSG_NONE: hv_message_type = 0;
 pub const hv_message_type_HVMSG_UNMAPPED_GPA: hv_message_type = 2147483648;
 pub const hv_message_type_HVMSG_GPA_INTERCEPT: hv_message_type = 2147483649;
@@ -11918,11 +12256,14 @@ pub const hv_message_type_HVMSG_TIMER_EXPIRED: hv_message_type = 2147483664;
 pub const hv_message_type_HVMSG_INVALID_VP_REGISTER_VALUE: hv_message_type = 2147483680;
 pub const hv_message_type_HVMSG_UNRECOVERABLE_EXCEPTION: hv_message_type = 2147483681;
 pub const hv_message_type_HVMSG_UNSUPPORTED_FEATURE: hv_message_type = 2147483682;
+pub const hv_message_type_HVMSG_OPAQUE_INTERCEPT: hv_message_type = 2147483711;
 pub const hv_message_type_HVMSG_EVENTLOG_BUFFERCOMPLETE: hv_message_type = 2147483712;
 pub const hv_message_type_HVMSG_HYPERCALL_INTERCEPT: hv_message_type = 2147483728;
 pub const hv_message_type_HVMSG_SYNIC_EVENT_INTERCEPT: hv_message_type = 2147483744;
 pub const hv_message_type_HVMSG_SYNIC_SINT_INTERCEPT: hv_message_type = 2147483745;
 pub const hv_message_type_HVMSG_SYNIC_SINT_DELIVERABLE: hv_message_type = 2147483746;
+pub const hv_message_type_HVMSG_SCHEDULER_VP_SIGNAL_BITSET: hv_message_type = 2147483904;
+pub const hv_message_type_HVMSG_SCHEDULER_VP_SIGNAL_PAIR: hv_message_type = 2147483905;
 pub const hv_message_type_HVMSG_X64_IO_PORT_INTERCEPT: hv_message_type = 2147549184;
 pub const hv_message_type_HVMSG_X64_MSR_INTERCEPT: hv_message_type = 2147549185;
 pub const hv_message_type_HVMSG_X64_CPUID_INTERCEPT: hv_message_type = 2147549186;
@@ -12657,7 +12998,8 @@ pub const hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_SYNTHETIC_TIMERS: hv_get_
     4;
 pub type hv_get_set_vp_state_type = ::std::os::raw::c_int;
 pub const hv_vp_state_page_type_HV_VP_STATE_PAGE_REGISTERS: hv_vp_state_page_type = 0;
-pub const hv_vp_state_page_type_HV_VP_STATE_PAGE_COUNT: hv_vp_state_page_type = 1;
+pub const hv_vp_state_page_type_HV_VP_STATE_PAGE_INTERCEPT_MESSAGE: hv_vp_state_page_type = 1;
+pub const hv_vp_state_page_type_HV_VP_STATE_PAGE_COUNT: hv_vp_state_page_type = 2;
 pub type hv_vp_state_page_type = ::std::os::raw::c_uint;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_PRIVILEGE_FLAGS:
     hv_partition_property_code = 65536;
@@ -12714,6 +13056,8 @@ pub const hv_partition_property_code_HV_PARTITION_PROPERTY_NON_ARCHITECTURAL_COR
     hv_partition_property_code = 327697;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_HYPERCALL_DOORBELL_PAGE:
     hv_partition_property_code = 327698;
+pub const hv_partition_property_code_HV_PARTITION_PROPERTY_ISOLATION_POLICY:
+    hv_partition_property_code = 327700;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_UNIMPLEMENTED_MSR_ACTION:
     hv_partition_property_code = 327703;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_VENDOR:
@@ -13416,6 +13760,65 @@ impl Default for hv_partition_property_page_access_tracking_config {
 pub const MSHV_PAGE_ACCESS_TRACKING_GRANULARITY_SMALL_PAGES: _bindgen_ty_1 = 0;
 pub const MSHV_PAGE_ACCESS_TRACKING_GRANULARITY_LARGE_PAGES: _bindgen_ty_1 = 1;
 pub type _bindgen_ty_1 = ::std::os::raw::c_uint;
+pub const hv_isolated_page_type_hv_isolated_page_type_normal: hv_isolated_page_type = 0;
+pub const hv_isolated_page_type_hv_isolated_page_type_vmsa: hv_isolated_page_type = 1;
+pub const hv_isolated_page_type_hv_isolated_page_type_zero: hv_isolated_page_type = 2;
+pub const hv_isolated_page_type_hv_isolated_page_type_unmeasured: hv_isolated_page_type = 3;
+pub const hv_isolated_page_type_hv_isolated_page_type_secrets: hv_isolated_page_type = 4;
+pub const hv_isolated_page_type_hv_isolated_page_type_cpuid: hv_isolated_page_type = 5;
+pub const hv_isolated_page_type_hv_isolated_page_type_count: hv_isolated_page_type = 6;
+pub type hv_isolated_page_type = ::std::os::raw::c_uint;
+pub const hv_isolated_page_size_hv_isolated_page_size4_kb: hv_isolated_page_size = 0;
+pub const hv_isolated_page_size_hv_isolated_page_size2_mb: hv_isolated_page_size = 1;
+pub type hv_isolated_page_size = ::std::os::raw::c_uint;
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_opaque_intercept_message {
+    pub vp_index: __u32,
+}
+#[test]
+fn bindgen_test_layout_hv_opaque_intercept_message() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_opaque_intercept_message>(),
+        4usize,
+        concat!("Size of: ", stringify!(hv_opaque_intercept_message))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_opaque_intercept_message>(),
+        1usize,
+        concat!("Alignment of ", stringify!(hv_opaque_intercept_message))
+    );
+    fn test_field_vp_index() {
+        assert_eq!(
+            unsafe {
+                let uninit = ::std::mem::MaybeUninit::<hv_opaque_intercept_message>::uninit();
+                let ptr = uninit.as_ptr();
+                ::std::ptr::addr_of!((*ptr).vp_index) as usize - ptr as usize
+            },
+            0usize,
+            concat!(
+                "Offset of field: ",
+                stringify!(hv_opaque_intercept_message),
+                "::",
+                stringify!(vp_index)
+            )
+        );
+    }
+    test_field_vp_index();
+}
+pub const hv_partition_isolation_state_HV_PARTITION_ISOLATION_INVALID:
+    hv_partition_isolation_state = 0;
+pub const hv_partition_isolation_state_HV_PARTITION_ISOLATION_INSECURE_CLEAN:
+    hv_partition_isolation_state = 1;
+pub const hv_partition_isolation_state_HV_PARTITION_ISOLATION_INSECURE_DIRTY:
+    hv_partition_isolation_state = 2;
+pub const hv_partition_isolation_state_HV_PARTITION_ISOLATION_SECURE: hv_partition_isolation_state =
+    3;
+pub const hv_partition_isolation_state_HV_PARTITION_ISOLATION_SECURE_DIRTY:
+    hv_partition_isolation_state = 4;
+pub const hv_partition_isolation_state_HV_PARTITION_ISOLATION_SECURE_TERMINATING:
+    hv_partition_isolation_state = 5;
+pub type hv_partition_isolation_state = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct mshv_create_partition {
