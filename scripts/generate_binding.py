@@ -37,6 +37,7 @@ def generate_unified_mshv_headers(kernel_hdr_path):
     mshv_header_files = [
         f"{kernel_hdr_path}/include/asm/hyperv-tlfs.h",
         f"{kernel_hdr_path}/include/asm-generic/hyperv-tlfs.h",
+        f"{kernel_hdr_path}/include/asm-generic/hyperv-common-types.h",
         f"{kernel_hdr_path}/include/linux/mshv.h",
     ]
 
@@ -57,7 +58,7 @@ def generate_unified_mshv_headers(kernel_hdr_path):
 
 def run_bindgen(kernel_hdr_path, output_dir, default_bindgen_args):
     cmd = f"""
-    bindgen {default_bindgen_args} --rustified-enum hv_register_name \
+    bindgen {default_bindgen_args} \
     {kernel_hdr_path}/combined_mshv.h -- -I {kernel_hdr_path}/include > {output_dir}/bindings.rs
     """
     logging.debug("Running bindgen: %s", cmd)
