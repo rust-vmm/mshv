@@ -217,9 +217,9 @@ impl VmFd {
     /// interrupts from userland.
     fn irqfd(&self, fd: RawFd, resamplefd: RawFd, gsi: u32, flags: u32) -> Result<()> {
         let irqfd_arg = mshv_irqfd {
-            fd: fd as i32,
+            fd,
             flags,
-            resamplefd: resamplefd as i32,
+            resamplefd,
             gsi,
         };
 
@@ -536,7 +536,7 @@ impl VmFd {
             vec![hv_gpa_page_access_state { as_uint8: 0 }; nr_pfns as usize];
         let mut gpa_pages_access_state: mshv_get_gpa_pages_access_state =
             mshv_get_gpa_pages_access_state {
-                count: nr_pfns as u32,
+                count: nr_pfns,
                 hv_gpa_page_number: base_pfn,
                 flags,
                 states: states.as_mut_ptr(),

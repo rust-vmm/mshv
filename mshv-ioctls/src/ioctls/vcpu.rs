@@ -105,92 +105,92 @@ impl VcpuFd {
     pub fn set_regs(&self, regs: &StandardRegisters) -> Result<()> {
         let reg_assocs = [
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_RAX as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_RAX,
                 value: hv_register_value { reg64: regs.rax },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_RBX as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_RBX,
                 value: hv_register_value { reg64: regs.rbx },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_RCX as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_RCX,
                 value: hv_register_value { reg64: regs.rcx },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_RDX as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_RDX,
                 value: hv_register_value { reg64: regs.rdx },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_RSI as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_RSI,
                 value: hv_register_value { reg64: regs.rsi },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_RDI as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_RDI,
                 value: hv_register_value { reg64: regs.rdi },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_RSP as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_RSP,
                 value: hv_register_value { reg64: regs.rsp },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_RBP as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_RBP,
                 value: hv_register_value { reg64: regs.rbp },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_R8 as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_R8,
                 value: hv_register_value { reg64: regs.r8 },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_R9 as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_R9,
                 value: hv_register_value { reg64: regs.r9 },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_R10 as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_R10,
                 value: hv_register_value { reg64: regs.r10 },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_R11 as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_R11,
                 value: hv_register_value { reg64: regs.r11 },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_R12 as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_R12,
                 value: hv_register_value { reg64: regs.r12 },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_R13 as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_R13,
                 value: hv_register_value { reg64: regs.r13 },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_R14 as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_R14,
                 value: hv_register_value { reg64: regs.r14 },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_R15 as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_R15,
                 value: hv_register_value { reg64: regs.r15 },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_RIP as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_RIP,
                 value: hv_register_value { reg64: regs.rip },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_RFLAGS as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_RFLAGS,
                 value: hv_register_value { reg64: regs.rflags },
                 ..Default::default()
             },
@@ -225,7 +225,7 @@ impl VcpuFd {
         let mut reg_assocs: Vec<hv_register_assoc> = reg_names
             .iter()
             .map(|name| hv_register_assoc {
-                name: *name as u32,
+                name: *name,
                 ..Default::default()
             })
             .collect();
@@ -281,7 +281,7 @@ impl VcpuFd {
         let mut reg_assocs: Vec<hv_register_assoc> = reg_names
             .iter()
             .map(|name| hv_register_assoc {
-                name: *name as u32,
+                name: *name,
                 ..Default::default()
             })
             .collect();
@@ -402,7 +402,7 @@ impl VcpuFd {
             .iter()
             .zip(reg_values.iter())
             .map(|t| hv_register_assoc {
-                name: *t.0 as u32,
+                name: *t.0,
                 value: *t.1,
                 ..Default::default()
             })
@@ -501,7 +501,7 @@ impl VcpuFd {
             .iter()
             .zip(reg_values.iter())
             .map(|t| hv_register_assoc {
-                name: *t.0 as u32,
+                name: *t.0,
                 value: *t.1,
                 ..Default::default()
             })
@@ -517,7 +517,7 @@ impl VcpuFd {
         let mut reg_assocs: Vec<hv_register_assoc> = reg_names
             .iter()
             .map(|name| hv_register_assoc {
-                name: *name as u32,
+                name: *name,
                 ..Default::default()
             })
             .collect();
@@ -577,7 +577,7 @@ impl VcpuFd {
         let mut reg_assocs: Vec<hv_register_assoc> = reg_names
             .iter()
             .map(|name| hv_register_assoc {
-                name: *name as u32,
+                name: *name,
                 ..Default::default()
             })
             .collect();
@@ -620,7 +620,7 @@ impl VcpuFd {
             .iter()
             .zip(reg_values.iter())
             .map(|t| hv_register_assoc {
-                name: *t.0 as u32,
+                name: *t.0,
                 value: *t.1,
                 ..Default::default()
             })
@@ -636,7 +636,7 @@ impl VcpuFd {
 
         for i in 0..nmsrs {
             let name = match msr_to_hv_reg_name(msrs.as_slice()[i].index) {
-                Ok(n) => n as u32,
+                Ok(n) => n,
                 Err(_) => return Err(errno::Error::new(libc::EINVAL)),
             };
             reg_assocs.push(hv_register_assoc {
@@ -665,7 +665,7 @@ impl VcpuFd {
 
         for i in 0..nmsrs {
             let name = match msr_to_hv_reg_name(msrs.as_slice()[i].index) {
-                Ok(n) => n as u32,
+                Ok(n) => n,
                 Err(_) => return Err(errno::Error::new(libc::EINVAL)),
             };
             reg_assocs.push(hv_register_assoc {
@@ -702,7 +702,7 @@ impl VcpuFd {
         let mut reg_assocs: Vec<hv_register_assoc> = reg_names
             .iter()
             .map(|name| hv_register_assoc {
-                name: *name as u32,
+                name: *name,
                 ..Default::default()
             })
             .collect();
@@ -755,7 +755,7 @@ impl VcpuFd {
             .iter()
             .zip(reg_values.iter())
             .map(|t| hv_register_assoc {
-                name: *t.0 as u32,
+                name: *t.0,
                 value: *t.1,
                 ..Default::default()
             })
@@ -766,7 +766,7 @@ impl VcpuFd {
     /// X86 specific call that returns the vcpu's current "xcrs".
     pub fn get_xcrs(&self) -> Result<Xcrs> {
         let mut reg_assocs: [hv_register_assoc; 1] = [hv_register_assoc {
-            name: hv_x64_register_name_HV_X64_REGISTER_XFEM as u32,
+            name: hv_x64_register_name_HV_X64_REGISTER_XFEM,
             ..Default::default()
         }];
         self.get_reg(&mut reg_assocs)?;
@@ -783,7 +783,7 @@ impl VcpuFd {
     /// X86 specific call to set XCRs
     pub fn set_xcrs(&self, xcrs: &Xcrs) -> Result<()> {
         self.set_reg(&[hv_register_assoc {
-            name: hv_x64_register_name_HV_X64_REGISTER_XFEM as u32,
+            name: hv_x64_register_name_HV_X64_REGISTER_XFEM,
             value: hv_register_value { reg64: xcrs.xcr0 },
             ..Default::default()
         }])
@@ -791,7 +791,7 @@ impl VcpuFd {
     /// X86 specific call that returns the vcpu's current "misc registers".
     pub fn get_misc_regs(&self) -> Result<MiscRegs> {
         let mut reg_assocs: [hv_register_assoc; 1] = [hv_register_assoc {
-            name: hv_x64_register_name_HV_X64_REGISTER_HYPERCALL as u32,
+            name: hv_x64_register_name_HV_X64_REGISTER_HYPERCALL,
             ..Default::default()
         }];
         self.get_reg(&mut reg_assocs)?;
@@ -808,7 +808,7 @@ impl VcpuFd {
     /// X86 specific call that sets the vcpu's current "misc registers".
     pub fn set_misc_regs(&self, misc: &MiscRegs) -> Result<()> {
         self.set_reg(&[hv_register_assoc {
-            name: hv_x64_register_name_HV_X64_REGISTER_HYPERCALL as u32,
+            name: hv_x64_register_name_HV_X64_REGISTER_HYPERCALL,
             value: hv_register_value {
                 reg64: misc.hypercall,
             },
@@ -850,7 +850,7 @@ impl VcpuFd {
     pub fn set_lapic(&self, lapic_state: &LapicState) -> Result<()> {
         let mut vp_state: mshv_vp_state = mshv_vp_state::from(*lapic_state);
         let buffer = Buffer::new(0x1000, 0x1000)?;
-        let min: usize = cmp::min(buffer.size(), vp_state.buf_size as usize) as usize;
+        let min: usize = cmp::min(buffer.size(), vp_state.buf_size as usize);
         // SAFETY: src and dest are valid and properly aligned
         unsafe { ptr::copy(vp_state.buf.bytes, buffer.buf, min) };
         vp_state.buf_size = buffer.size() as u64;
@@ -872,7 +872,7 @@ impl VcpuFd {
     pub fn set_xsave(&self, data: &XSave) -> Result<()> {
         let mut vp_state: mshv_vp_state = mshv_vp_state::from(*data);
         let buffer = Buffer::new(0x1000, 0x1000)?;
-        let min: usize = cmp::min(buffer.size(), vp_state.buf_size as usize) as usize;
+        let min: usize = cmp::min(buffer.size(), vp_state.buf_size as usize);
         // SAFETY: src and dest are valid and properly aligned
         unsafe { ptr::copy(data.buffer.as_ptr().offset(24) as *mut u8, buffer.buf, min) };
         vp_state.buf_size = buffer.size() as u64;
@@ -908,7 +908,7 @@ impl VcpuFd {
         let mut reg_assocs: Vec<hv_register_assoc> = reg_names
             .iter()
             .map(|name| hv_register_assoc {
-                name: *name as u32,
+                name: *name,
                 ..Default::default()
             })
             .collect();
@@ -1004,12 +1004,12 @@ mod tests {
 
         vcpu.set_reg(&[
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_RIP as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_RIP,
                 value: hv_register_value { reg64: 0x1000 },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_RFLAGS as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_RFLAGS,
                 value: hv_register_value { reg64: 0x2 },
                 ..Default::default()
             },
@@ -1018,11 +1018,11 @@ mod tests {
 
         let mut get_regs: [hv_register_assoc; 2] = [
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_RIP as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_RIP,
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_RFLAGS as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_RFLAGS,
                 ..Default::default()
             },
         ];
@@ -1164,7 +1164,7 @@ mod tests {
 
         //Get CS Register
         let mut cs_reg = hv_register_assoc {
-            name: hv_x64_register_name_HV_X64_REGISTER_CS as u32,
+            name: hv_x64_register_name_HV_X64_REGISTER_CS,
             ..Default::default()
         };
         vcpu.get_reg(slice::from_mut(&mut cs_reg)).unwrap();
@@ -1180,22 +1180,22 @@ mod tests {
         vcpu.set_reg(&[
             cs_reg,
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_RAX as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_RAX,
                 value: hv_register_value { reg64: 2 },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_RBX as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_RBX,
                 value: hv_register_value { reg64: 2 },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_RIP as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_RIP,
                 value: hv_register_value { reg64: 0x1000 },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_RFLAGS as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_RFLAGS,
                 value: hv_register_value { reg64: 0x2 },
                 ..Default::default()
             },
@@ -1227,7 +1227,7 @@ mod tests {
                         done = true;
                         /* Advance rip */
                         vcpu.set_reg(&[hv_register_assoc {
-                            name: hv_x64_register_name_HV_X64_REGISTER_RIP as u32,
+                            name: hv_x64_register_name_HV_X64_REGISTER_RIP,
                             value: hv_register_value {
                                 reg64: io_message.header.rip + 1,
                             },
@@ -1348,11 +1348,11 @@ mod tests {
         set_registers_64!(vcpu, &arr_reg_name_value).unwrap();
         let mut get_regs: [hv_register_assoc; 2] = [
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_RIP as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_RIP,
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_RFLAGS as u32,
+                name: hv_x64_register_name_HV_X64_REGISTER_RFLAGS,
                 ..Default::default()
             },
         ];

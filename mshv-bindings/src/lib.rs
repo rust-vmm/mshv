@@ -11,6 +11,7 @@ extern crate vmm_sys_util;
     clippy::too_many_arguments,
     clippy::missing_safety_doc,
     clippy::useless_transmute,
+    clippy::unnecessary_cast,
     non_camel_case_types,
     non_snake_case,
     non_upper_case_globals
