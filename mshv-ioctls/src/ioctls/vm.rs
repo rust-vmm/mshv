@@ -32,6 +32,17 @@ pub enum IoEventAddress {
     Mmio(u64),
 }
 
+/// VMType represents the type of VM.
+///
+/// Currently we support two different variants:
+/// - AMD's SEV-SNP
+/// - Normal VM with no support for confidential computing
+#[derive(Eq, PartialEq, Hash, Clone, Debug, Copy)]
+pub enum VmType {
+    Normal,
+    Snp,
+}
+
 /// Helper structure for disabling datamatch.
 ///
 /// The structure can be used as a parameter to
