@@ -59,6 +59,8 @@ def generate_unified_mshv_headers(kernel_hdr_path):
 def run_bindgen(kernel_hdr_path, output_dir, bindgen_args):
     cmd = f"""
     bindgen {bindgen_args} \
+    --no-default hv_message \
+    --no-default hv_message_header \
     {kernel_hdr_path}/combined_mshv.h -- -I {kernel_hdr_path}/include > {output_dir}/bindings-generated.rs
     """
     logging.debug("Running bindgen: %s", cmd)

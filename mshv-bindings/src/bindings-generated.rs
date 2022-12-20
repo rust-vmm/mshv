@@ -12773,15 +12773,6 @@ fn bindgen_test_layout_hv_message_header() {
     }
     test_field_reserved();
 }
-impl Default for hv_message_header {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C, packed)]
 #[derive(Copy, Clone)]
 pub struct hv_message {
@@ -12878,15 +12869,6 @@ fn bindgen_test_layout_hv_message() {
         );
     }
     test_field_u();
-}
-impl Default for hv_message {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C, packed)]
 #[derive(Copy, Clone)]
