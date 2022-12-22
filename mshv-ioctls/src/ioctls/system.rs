@@ -334,9 +334,20 @@ impl Mshv {
             IA32_MSR_MTRR_FIX4K_F0000,
             IA32_MSR_MTRR_FIX4K_F8000,
             IA32_MSR_TSC_AUX,
-            IA32_MSR_BNDCFGS,
+            /*
+                IA32_MSR_BNDCFGS MSR can be accessed if any of the following features enabled
+                HV_X64_PROCESSOR_FEATURE0_IBRS
+                HV_X64_PROCESSOR_FEATURE0_STIBP
+                HV_X64_PROCESSOR_FEATURE0_MDD
+                HV_X64_PROCESSOR_FEATURE1_PSFD
+            */
+            //IA32_MSR_BNDCFGS,
             IA32_MSR_DEBUG_CTL,
-            IA32_MSR_SPEC_CTRL,
+            /*
+                MPX support needed for this MSR
+                Currently feature is not enabled
+            */
+            //IA32_MSR_SPEC_CTRL,
             //IA32_MSR_TSC_ADJUST, // Current hypervisor version does not allow to get this MSR, need to check later
             HV_X64_MSR_GUEST_OS_ID,
         ])
