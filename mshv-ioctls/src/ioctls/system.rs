@@ -68,11 +68,11 @@ impl MshvPartitionBuilder {
                     disabled_processor_xsave_features: hv_partition_processor_xsave_features {
                         as_uint64: 0_u64,
                     },
-                    isolation_properties: hv_partition_isolation_properties { as_uint64: 0_u64 },
                 },
                 synthetic_processor_features: hv_partition_synthetic_processor_features {
                     as_uint64: [0; 1],
                 },
+                isolation_properties: hv_partition_isolation_properties { as_uint64: 0_u64 },
                 flags: 0_u64,
             },
         }
@@ -90,7 +90,6 @@ impl MshvPartitionBuilder {
         // so we have to use unsafe here. We trust bindgen to generate the correct accessors.
         unsafe {
             self.mshv_partition
-                .partition_creation_properties
                 .isolation_properties
                 .__bindgen_anon_1
                 .set_isolation_type(val);
