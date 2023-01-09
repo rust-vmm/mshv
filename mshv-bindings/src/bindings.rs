@@ -2758,13 +2758,12 @@ impl Default for hv_partition_processor_xsave_features {
 pub struct hv_partition_creation_properties {
     pub disabled_processor_features: hv_partition_processor_features,
     pub disabled_processor_xsave_features: hv_partition_processor_xsave_features,
-    pub isolation_properties: hv_partition_isolation_properties,
 }
 #[test]
 fn bindgen_test_layout_hv_partition_creation_properties() {
     assert_eq!(
         ::std::mem::size_of::<hv_partition_creation_properties>(),
-        32usize,
+        24usize,
         concat!("Size of: ", stringify!(hv_partition_creation_properties))
     );
     assert_eq!(
@@ -2810,23 +2809,6 @@ fn bindgen_test_layout_hv_partition_creation_properties() {
         );
     }
     test_field_disabled_processor_xsave_features();
-    fn test_field_isolation_properties() {
-        assert_eq!(
-            unsafe {
-                let uninit = ::std::mem::MaybeUninit::<hv_partition_creation_properties>::uninit();
-                let ptr = uninit.as_ptr();
-                ::std::ptr::addr_of!((*ptr).isolation_properties) as usize - ptr as usize
-            },
-            24usize,
-            concat!(
-                "Offset of field: ",
-                stringify!(hv_partition_creation_properties),
-                "::",
-                stringify!(isolation_properties)
-            )
-        );
-    }
-    test_field_isolation_properties();
 }
 impl Default for hv_partition_creation_properties {
     fn default() -> Self {
@@ -12262,6 +12244,7 @@ pub const hv_message_type_HVMSG_HYPERCALL_INTERCEPT: hv_message_type = 214748372
 pub const hv_message_type_HVMSG_SYNIC_EVENT_INTERCEPT: hv_message_type = 2147483744;
 pub const hv_message_type_HVMSG_SYNIC_SINT_INTERCEPT: hv_message_type = 2147483745;
 pub const hv_message_type_HVMSG_SYNIC_SINT_DELIVERABLE: hv_message_type = 2147483746;
+pub const hv_message_type_HVMSG_ASYNC_CALL_COMPLETION: hv_message_type = 2147483760;
 pub const hv_message_type_HVMSG_SCHEDULER_VP_SIGNAL_BITSET: hv_message_type = 2147483904;
 pub const hv_message_type_HVMSG_SCHEDULER_VP_SIGNAL_PAIR: hv_message_type = 2147483905;
 pub const hv_message_type_HVMSG_X64_IO_PORT_INTERCEPT: hv_message_type = 2147549184;
@@ -13825,6 +13808,7 @@ pub struct mshv_create_partition {
     pub flags: __u64,
     pub partition_creation_properties: hv_partition_creation_properties,
     pub synthetic_processor_features: hv_partition_synthetic_processor_features,
+    pub isolation_properties: hv_partition_isolation_properties,
 }
 #[test]
 fn bindgen_test_layout_mshv_create_partition() {
@@ -13879,7 +13863,7 @@ fn bindgen_test_layout_mshv_create_partition() {
                 let ptr = uninit.as_ptr();
                 ::std::ptr::addr_of!((*ptr).synthetic_processor_features) as usize - ptr as usize
             },
-            40usize,
+            32usize,
             concat!(
                 "Offset of field: ",
                 stringify!(mshv_create_partition),
@@ -13889,6 +13873,23 @@ fn bindgen_test_layout_mshv_create_partition() {
         );
     }
     test_field_synthetic_processor_features();
+    fn test_field_isolation_properties() {
+        assert_eq!(
+            unsafe {
+                let uninit = ::std::mem::MaybeUninit::<mshv_create_partition>::uninit();
+                let ptr = uninit.as_ptr();
+                ::std::ptr::addr_of!((*ptr).isolation_properties) as usize - ptr as usize
+            },
+            40usize,
+            concat!(
+                "Offset of field: ",
+                stringify!(mshv_create_partition),
+                "::",
+                stringify!(isolation_properties)
+            )
+        );
+    }
+    test_field_isolation_properties();
 }
 impl Default for mshv_create_partition {
     fn default() -> Self {
