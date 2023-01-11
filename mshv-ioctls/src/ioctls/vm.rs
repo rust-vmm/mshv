@@ -88,6 +88,19 @@ impl VmFd {
             Err(errno::Error::last())
         }
     }
+    /// Modify host visibility for a range of GPA
+    pub fn modify_gpa_host_access(
+        &self,
+        gpa_host_access_args: &mshv_modify_gpa_host_access,
+    ) -> Result<()> {
+        let ret =
+            unsafe { ioctl_with_ref(self, MSHV_MODIFY_GPA_HOST_ACCESS(), gpa_host_access_args) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
     /// Creates/modifies a guest physical memory.
     pub fn map_user_memory(&self, user_memory_region: mshv_user_mem_region) -> Result<()> {
         // SAFETY: IOCTL with correct types

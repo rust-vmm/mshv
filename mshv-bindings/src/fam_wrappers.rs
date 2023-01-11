@@ -5,6 +5,7 @@
 use vmm_sys_util::fam::{FamStruct, FamStructWrapper};
 
 use crate::regs::*;
+use crate::bindings::mshv_modify_gpa_host_access;
 
 pub const MAX_MSR_ENTRIES: usize = 256;
 
@@ -28,3 +29,9 @@ generate_fam_struct_impl!(
 generate_fam_struct_impl!(msr_list, u32, indices, u32, nmsrs, MAX_MSR_ENTRIES);
 
 pub type MsrList = FamStructWrapper<msr_list>;
+
+pub const HV_MAX_GPA_LIST_SIZE: usize = 512;
+
+generate_fam_struct_impl!(mshv_modify_gpa_host_access, u64, gpa_list, u64, gpa_list_size, HV_MAX_GPA_LIST_SIZE);
+
+pub type GpaHostAccess = FamStructWrapper<mshv_modify_gpa_host_access>;
