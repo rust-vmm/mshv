@@ -101,6 +101,18 @@ impl VmFd {
             Err(errno::Error::last())
         }
     }
+    /// Import the isolated pages
+    pub fn import_isolated_pages(
+        &self,
+        isolate_page_list: &mshv_import_isolated_pages,
+    ) -> Result<()> {
+        let ret = unsafe { ioctl_with_ref(self, MSHV_IMPORT_ISOLATED_PAGES(), isolate_page_list) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
     /// Creates/modifies a guest physical memory.
     pub fn map_user_memory(&self, user_memory_region: mshv_user_mem_region) -> Result<()> {
         // SAFETY: IOCTL with correct types
