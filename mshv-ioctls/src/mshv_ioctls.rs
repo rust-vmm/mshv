@@ -99,3 +99,9 @@ ioctl_iowr_nr!(
     0x1B,
     mshv_get_vp_cpuid_values
 );
+ioctl_iow_nr!(
+    MSHV_MODIFY_GPA_HOST_ACCESS,
+    MSHV_IOCTL,
+    0x28,
+    mshv_modify_gpa_host_access
+);
