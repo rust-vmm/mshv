@@ -105,3 +105,9 @@ ioctl_iow_nr!(
     0x28,
     mshv_modify_gpa_host_access
 );
+ioctl_iow_nr!(
+    MSHV_IMPORT_ISOLATED_PAGES,
+    MSHV_IOCTL,
+    0x29,
+    mshv_import_isolated_pages
+);
