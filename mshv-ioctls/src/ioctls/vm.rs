@@ -730,19 +730,19 @@ mod tests {
                 hv_partition_property_code_HV_PARTITION_PROPERTY_MAX_XSAVE_DATA_SIZE,
             )
             .unwrap();
-        println!("Max xsave data size: {} bytes", val);
+        println!("Max xsave data size: {val} bytes");
         val = vm
             .get_partition_property(
                 hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_XSAVE_FEATURES,
             )
             .unwrap();
-        println!("Xsave feature: {}", val);
+        println!("Xsave feature: {val}");
         val = vm
             .get_partition_property(
                 hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_CLOCK_FREQUENCY,
             )
             .unwrap();
-        println!("Processor frequency: {}", val);
+        println!("Processor frequency: {val}");
         vm.set_partition_property(
             hv_partition_property_code_HV_PARTITION_PROPERTY_UNIMPLEMENTED_MSR_ACTION,
             hv_unimplemented_msr_action_HV_UNIMPLEMENTED_MSR_ACTION_IGNORE_WRITE_READ_ZERO as u64,
