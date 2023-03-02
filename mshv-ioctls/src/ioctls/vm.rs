@@ -113,6 +113,15 @@ impl VmFd {
             Err(errno::Error::last())
         }
     }
+    /// Call complete isolated import
+    pub fn complete_isolated_import(&self, data: &mshv_complete_isolated_import) -> Result<()> {
+        let ret = unsafe { ioctl_with_ref(self, MSHV_COMPLETE_ISOLATED_IMPORT(), data) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
     /// Creates/modifies a guest physical memory.
     pub fn map_user_memory(&self, user_memory_region: mshv_user_mem_region) -> Result<()> {
         // SAFETY: IOCTL with correct types
