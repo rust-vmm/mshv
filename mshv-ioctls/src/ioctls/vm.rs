@@ -106,8 +106,16 @@ impl VmFd {
         &self,
         isolate_page_list: &mshv_import_isolated_pages,
     ) -> Result<()> {
-        let ret =
-            unsafe { ioctl_with_ref(self, MSHV_IMPORT_ISOLATED_PAGES(), isolate_page_list) };
+        let ret = unsafe { ioctl_with_ref(self, MSHV_IMPORT_ISOLATED_PAGES(), isolate_page_list) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
+    /// Call complete isolated import
+    pub fn complete_isolated_import(&self, data: &mshv_complete_isolated_import) -> Result<()> {
+        let ret = unsafe { ioctl_with_ref(self, MSHV_COMPLETE_ISOLATED_IMPORT(), data) };
         if ret == 0 {
             Ok(())
         } else {
