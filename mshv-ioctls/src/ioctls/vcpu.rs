@@ -100,6 +100,20 @@ impl VcpuFd {
         }
         Ok(())
     }
+
+    /// Sets the sev control register
+    pub fn set_sev_control_register(&self, reg: u64) -> Result<()> {
+        let reg_assocs = [
+            hv_register_assoc {
+                name: hv_x64_register_name_HV_X64_REGISTER_SEV_CONTROL,
+                value: hv_register_value { reg64: reg },
+                ..Default::default()
+            },
+        ];
+        self.set_reg(&reg_assocs)?;
+        println!("Done setting sev control register");
+        Ok(())
+    }
     /// Sets the vCPU general purpose registers
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     pub fn set_regs(&self, regs: &StandardRegisters) -> Result<()> {
