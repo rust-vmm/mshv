@@ -362,6 +362,7 @@ pub const HV_MAP_GPA_KERNEL_EXECUTABLE: u32 = 4;
 pub const HV_MAP_GPA_USER_EXECUTABLE: u32 = 8;
 pub const HV_MAP_GPA_EXECUTABLE: u32 = 12;
 pub const HV_MAP_GPA_PERMISSIONS_MASK: u32 = 15;
+pub const HV_MAP_GPA_ADJUSTABLE: u32 = 32768;
 pub const HV_MODIFY_SPA_PAGE_HOST_ACCESS_MAKE_EXCLUSIVE: u32 = 1;
 pub const HV_MODIFY_SPA_PAGE_HOST_ACCESS_MAKE_SHARED: u32 = 2;
 pub const HV_MODIFY_SPA_PAGE_HOST_ACCESS_LARGE_PAGE: u32 = 4;
@@ -401,13 +402,16 @@ pub const HV_TRANSLATE_GVA_SHADOW_STACK: u32 = 1024;
 pub const HV_EVENT_FLAGS_COUNT: u32 = 2048;
 pub const HV_EVENT_FLAGS_BYTE_COUNT: u32 = 256;
 pub const HV_SYNIC_EVENT_RING_MESSAGE_COUNT: u32 = 63;
+pub const HV_INTERCEPT_ACCESS_READ: u32 = 0;
+pub const HV_INTERCEPT_ACCESS_WRITE: u32 = 1;
+pub const HV_INTERCEPT_ACCESS_EXECUTE: u32 = 2;
 pub const HV_HYPERCALL_INTERCEPT_MAX_XMM_REGISTERS: u32 = 6;
+pub const HV_GPA_ATTRIBUTE_INTERCEPT_MAX_RANGES: u32 = 29;
 pub const HV_UNSUPPORTED_FEATURE_INTERCEPT: u32 = 1;
 pub const HV_UNSUPPORTED_FEATURE_TASK_SWITCH_TSS: u32 = 2;
 pub const HV_X64_PENDING_INTERRUPT: u32 = 0;
 pub const HV_X64_PENDING_NMI: u32 = 2;
 pub const HV_X64_PENDING_EXCEPTION: u32 = 3;
-pub const HV_GPA_ATTRIBUTE_INTERCEPT_MAX_RANGES: u32 = 29;
 pub const HV_GET_SET_VP_STATE_TYPE_PFN: u32 = 2147483648;
 pub const HV_ROOT_SCHEDULER_MAX_VPS_PER_CHILD_PARTITION: u32 = 1024;
 pub const HV_DISPATCH_VP_FLAG_CLEAR_INTERCEPT_SUSPEND: u32 = 1;
@@ -416,6 +420,30 @@ pub const HV_DISPATCH_VP_FLAG_SET_CALLER_SPEC_CTRL: u32 = 4;
 pub const HV_DISPATCH_VP_FLAG_SKIP_VP_SPEC_FLUSH: u32 = 8;
 pub const HV_DISPATCH_VP_FLAG_SKIP_CALLER_SPEC_FLUSH: u32 = 16;
 pub const HV_DISPATCH_VP_FLAG_SKIP_CALLER_USER_SPEC_FLUSH: u32 = 32;
+pub const GHCB_INFO_BIT_WIDTH: u32 = 12;
+pub const GHCB_INFO_MASK: u32 = 4095;
+pub const GHCB_DATA_MASK: u64 = 4503599627370495;
+pub const GHCB_INFO_NORMAL: u32 = 0;
+pub const GHCB_INFO_SEV_INFO_RESPONSE: u32 = 1;
+pub const GHCB_INFO_SEV_INFO_REQUEST: u32 = 2;
+pub const GHCB_INFO_AP_JUMP_TABLE: u32 = 3;
+pub const GHCB_INFO_CPUID_REQUEST: u32 = 4;
+pub const GHCB_INFO_CPUID_RESPONSE: u32 = 5;
+pub const GHCB_INFO_PREFERRED_REQUEST: u32 = 16;
+pub const GHCB_INFO_PREFERRED_RESPONSE: u32 = 17;
+pub const GHCB_INFO_REGISTER_REQUEST: u32 = 18;
+pub const GHCB_INFO_REGISTER_RESPONSE: u32 = 19;
+pub const GHCB_INFO_PAGE_STATE_CHANGE: u32 = 20;
+pub const GHCB_INFO_PAGE_STATE_UPDATED: u32 = 21;
+pub const GHCB_INFO_HYP_FEATURE_REQUEST: u32 = 128;
+pub const GHCB_INFO_HYP_FEATURE_RESPONSE: u32 = 129;
+pub const GHCB_INFO_SPECIAL_HYPERCALL: u32 = 3840;
+pub const GHCB_INFO_SPECIAL_FAST_CALL: u32 = 3841;
+pub const GHCB_INFO_HYPERCALL_OUTPUT: u32 = 3842;
+pub const GHCB_INFO_SPECIAL_DBGPRINT: u32 = 3843;
+pub const GHCB_INFO_SHUTDOWN_REQUEST: u32 = 256;
+pub const GHCB_PROTOCOL_VERSION_MIN: u32 = 1;
+pub const GHCB_PROTOCOL_VERSION_MAX: u32 = 2;
 pub const MSHV_CAP_CORE_API_STABLE: u32 = 0;
 pub const MSHV_CAP_REGISTER_PAGE: u32 = 1;
 pub const MSHV_CAP_VTL_RETURN_ACTION: u32 = 2;
@@ -1529,6 +1557,8 @@ impl Default for hv_port_id {
 pub const hv_message_type_HVMSG_NONE: hv_message_type = 0;
 pub const hv_message_type_HVMSG_UNMAPPED_GPA: hv_message_type = 2147483648;
 pub const hv_message_type_HVMSG_GPA_INTERCEPT: hv_message_type = 2147483649;
+pub const hv_message_type_HVMSG_UNACCEPTED_GPA_INTERCEPT: hv_message_type = 2147483651;
+pub const hv_message_type_HVMSG_GPA_ATTRIBUTE_INTERCEPT: hv_message_type = 2147483652;
 pub const hv_message_type_HVMSG_TIMER_EXPIRED: hv_message_type = 2147483664;
 pub const hv_message_type_HVMSG_INVALID_VP_REGISTER_VALUE: hv_message_type = 2147483680;
 pub const hv_message_type_HVMSG_UNRECOVERABLE_EXCEPTION: hv_message_type = 2147483681;
@@ -1553,7 +1583,6 @@ pub const hv_message_type_HVMSG_X64_HALT: hv_message_type = 2147549191;
 pub const hv_message_type_HVMSG_X64_INTERRUPTION_DELIVERABLE: hv_message_type = 2147549192;
 pub const hv_message_type_HVMSG_X64_SIPI_INTERCEPT: hv_message_type = 2147549193;
 pub const hv_message_type_HVMSG_X64_SEV_VMG_EXIT_INTERCEPT: hv_message_type = 2147549203;
-
 pub type hv_message_type = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -4239,12 +4268,231 @@ pub const hv_register_name_HV_X64_REGISTER_EMULATED_TIMER_PERIOD: hv_register_na
 pub const hv_register_name_HV_X64_REGISTER_EMULATED_TIMER_CONTROL: hv_register_name = 589873;
 pub const hv_register_name_HV_X64_REGISTER_PM_TIMER_ASSIST: hv_register_name = 589874;
 pub const hv_register_name_HV_X64_REGISTER_SEV_CONTROL: hv_register_name = 589888;
+pub const hv_register_name_HV_X64_REGISTER_SEV_GHCB_GPA: hv_register_name = 589889;
+pub const hv_register_name_HV_X64_REGISTER_SEV_DOORBELL_GPA: hv_register_name = 589890;
 pub const hv_register_name_HV_X64_REGISTER_CR_INTERCEPT_CONTROL: hv_register_name = 917504;
 pub const hv_register_name_HV_X64_REGISTER_CR_INTERCEPT_CR0_MASK: hv_register_name = 917505;
 pub const hv_register_name_HV_X64_REGISTER_CR_INTERCEPT_CR4_MASK: hv_register_name = 917506;
 pub const hv_register_name_HV_X64_REGISTER_CR_INTERCEPT_IA32_MISC_ENABLE_MASK: hv_register_name =
     917507;
 pub type hv_register_name = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union hv_gpa_page_range {
+    pub address_space: __u64,
+    pub page: hv_gpa_page_range__bindgen_ty_1,
+    pub __bindgen_anon_1: hv_gpa_page_range__bindgen_ty_2,
+}
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_gpa_page_range__bindgen_ty_1 {
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
+}
+#[test]
+fn bindgen_test_layout_hv_gpa_page_range__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_gpa_page_range__bindgen_ty_1>(),
+        8usize,
+        concat!("Size of: ", stringify!(hv_gpa_page_range__bindgen_ty_1))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_gpa_page_range__bindgen_ty_1>(),
+        1usize,
+        concat!("Alignment of ", stringify!(hv_gpa_page_range__bindgen_ty_1))
+    );
+}
+impl hv_gpa_page_range__bindgen_ty_1 {
+    #[inline]
+    pub fn additional_pages(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 11u8) as u64) }
+    }
+    #[inline]
+    pub fn set_additional_pages(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 11u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn largepage(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(11usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_largepage(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(11usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn basepfn(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(12usize, 52u8) as u64) }
+    }
+    #[inline]
+    pub fn set_basepfn(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(12usize, 52u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        additional_pages: __u64,
+        largepage: __u64,
+        basepfn: __u64,
+    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 11u8, {
+            let additional_pages: u64 = unsafe { ::std::mem::transmute(additional_pages) };
+            additional_pages as u64
+        });
+        __bindgen_bitfield_unit.set(11usize, 1u8, {
+            let largepage: u64 = unsafe { ::std::mem::transmute(largepage) };
+            largepage as u64
+        });
+        __bindgen_bitfield_unit.set(12usize, 52u8, {
+            let basepfn: u64 = unsafe { ::std::mem::transmute(basepfn) };
+            basepfn as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_gpa_page_range__bindgen_ty_2 {
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
+}
+#[test]
+fn bindgen_test_layout_hv_gpa_page_range__bindgen_ty_2() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_gpa_page_range__bindgen_ty_2>(),
+        8usize,
+        concat!("Size of: ", stringify!(hv_gpa_page_range__bindgen_ty_2))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_gpa_page_range__bindgen_ty_2>(),
+        1usize,
+        concat!("Alignment of ", stringify!(hv_gpa_page_range__bindgen_ty_2))
+    );
+}
+impl hv_gpa_page_range__bindgen_ty_2 {
+    #[inline]
+    pub fn reserved(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 12u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 12u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn page_size(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(12usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_page_size(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(12usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved1(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(13usize, 8u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved1(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(13usize, 8u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn base_large_pfn(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(21usize, 43u8) as u64) }
+    }
+    #[inline]
+    pub fn set_base_large_pfn(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(21usize, 43u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        reserved: __u64,
+        page_size: __u64,
+        reserved1: __u64,
+        base_large_pfn: __u64,
+    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 12u8, {
+            let reserved: u64 = unsafe { ::std::mem::transmute(reserved) };
+            reserved as u64
+        });
+        __bindgen_bitfield_unit.set(12usize, 1u8, {
+            let page_size: u64 = unsafe { ::std::mem::transmute(page_size) };
+            page_size as u64
+        });
+        __bindgen_bitfield_unit.set(13usize, 8u8, {
+            let reserved1: u64 = unsafe { ::std::mem::transmute(reserved1) };
+            reserved1 as u64
+        });
+        __bindgen_bitfield_unit.set(21usize, 43u8, {
+            let base_large_pfn: u64 = unsafe { ::std::mem::transmute(base_large_pfn) };
+            base_large_pfn as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[test]
+fn bindgen_test_layout_hv_gpa_page_range() {
+    const UNINIT: ::std::mem::MaybeUninit<hv_gpa_page_range> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<hv_gpa_page_range>(),
+        8usize,
+        concat!("Size of: ", stringify!(hv_gpa_page_range))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_gpa_page_range>(),
+        8usize,
+        concat!("Alignment of ", stringify!(hv_gpa_page_range))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).address_space) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_gpa_page_range),
+            "::",
+            stringify!(address_space)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).page) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_gpa_page_range),
+            "::",
+            stringify!(page)
+        )
+    );
+}
+impl Default for hv_gpa_page_range {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union hv_explicit_suspend_register {
@@ -8805,6 +9053,128 @@ fn bindgen_test_layout_hv_sev_vmgexit_offload() {
     );
 }
 impl Default for hv_sev_vmgexit_offload {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union hv_x64_register_sev_ghcb {
+    pub as_uint64: __u64,
+    pub __bindgen_anon_1: hv_x64_register_sev_ghcb__bindgen_ty_1,
+}
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_x64_register_sev_ghcb__bindgen_ty_1 {
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
+}
+#[test]
+fn bindgen_test_layout_hv_x64_register_sev_ghcb__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_x64_register_sev_ghcb__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_x64_register_sev_ghcb__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_x64_register_sev_ghcb__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_x64_register_sev_ghcb__bindgen_ty_1)
+        )
+    );
+}
+impl hv_x64_register_sev_ghcb__bindgen_ty_1 {
+    #[inline]
+    pub fn enabled(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_enabled(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reservedz(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 11u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reservedz(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 11u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn page_number(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(12usize, 52u8) as u64) }
+    }
+    #[inline]
+    pub fn set_page_number(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(12usize, 52u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        enabled: __u64,
+        reservedz: __u64,
+        page_number: __u64,
+    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let enabled: u64 = unsafe { ::std::mem::transmute(enabled) };
+            enabled as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 11u8, {
+            let reservedz: u64 = unsafe { ::std::mem::transmute(reservedz) };
+            reservedz as u64
+        });
+        __bindgen_bitfield_unit.set(12usize, 52u8, {
+            let page_number: u64 = unsafe { ::std::mem::transmute(page_number) };
+            page_number as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[test]
+fn bindgen_test_layout_hv_x64_register_sev_ghcb() {
+    const UNINIT: ::std::mem::MaybeUninit<hv_x64_register_sev_ghcb> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<hv_x64_register_sev_ghcb>(),
+        8usize,
+        concat!("Size of: ", stringify!(hv_x64_register_sev_ghcb))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_x64_register_sev_ghcb>(),
+        8usize,
+        concat!("Alignment of ", stringify!(hv_x64_register_sev_ghcb))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).as_uint64) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_x64_register_sev_ghcb),
+            "::",
+            stringify!(as_uint64)
+        )
+    );
+}
+impl Default for hv_x64_register_sev_ghcb {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
         unsafe {
@@ -17277,6 +17647,177 @@ impl Default for hv_x64_memory_intercept_message {
 }
 #[repr(C, packed)]
 #[derive(Copy, Clone)]
+pub struct hv_x64_gpa_attribute_intercept_message {
+    pub vp_index: __u32,
+    pub __bindgen_anon_1: hv_x64_gpa_attribute_intercept_message__bindgen_ty_1,
+    pub ranges: [hv_gpa_page_range; 29usize],
+}
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_x64_gpa_attribute_intercept_message__bindgen_ty_1 {
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 4usize]>,
+}
+#[test]
+fn bindgen_test_layout_hv_x64_gpa_attribute_intercept_message__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_x64_gpa_attribute_intercept_message__bindgen_ty_1>(),
+        4usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_x64_gpa_attribute_intercept_message__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_x64_gpa_attribute_intercept_message__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_x64_gpa_attribute_intercept_message__bindgen_ty_1)
+        )
+    );
+}
+impl hv_x64_gpa_attribute_intercept_message__bindgen_ty_1 {
+    #[inline]
+    pub fn range_count(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 5u8) as u32) }
+    }
+    #[inline]
+    pub fn set_range_count(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 5u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn adjust(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(5usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_adjust(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(5usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn host_visibility(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(6usize, 2u8) as u32) }
+    }
+    #[inline]
+    pub fn set_host_visibility(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(6usize, 2u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn memory_type(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(8usize, 6u8) as u32) }
+    }
+    #[inline]
+    pub fn set_memory_type(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(8usize, 6u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(14usize, 18u8) as u32) }
+    }
+    #[inline]
+    pub fn set_reserved(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(14usize, 18u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        range_count: __u32,
+        adjust: __u32,
+        host_visibility: __u32,
+        memory_type: __u32,
+        reserved: __u32,
+    ) -> __BindgenBitfieldUnit<[u8; 4usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 4usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 5u8, {
+            let range_count: u32 = unsafe { ::std::mem::transmute(range_count) };
+            range_count as u64
+        });
+        __bindgen_bitfield_unit.set(5usize, 1u8, {
+            let adjust: u32 = unsafe { ::std::mem::transmute(adjust) };
+            adjust as u64
+        });
+        __bindgen_bitfield_unit.set(6usize, 2u8, {
+            let host_visibility: u32 = unsafe { ::std::mem::transmute(host_visibility) };
+            host_visibility as u64
+        });
+        __bindgen_bitfield_unit.set(8usize, 6u8, {
+            let memory_type: u32 = unsafe { ::std::mem::transmute(memory_type) };
+            memory_type as u64
+        });
+        __bindgen_bitfield_unit.set(14usize, 18u8, {
+            let reserved: u32 = unsafe { ::std::mem::transmute(reserved) };
+            reserved as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[test]
+fn bindgen_test_layout_hv_x64_gpa_attribute_intercept_message() {
+    const UNINIT: ::std::mem::MaybeUninit<hv_x64_gpa_attribute_intercept_message> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<hv_x64_gpa_attribute_intercept_message>(),
+        240usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_x64_gpa_attribute_intercept_message)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_x64_gpa_attribute_intercept_message>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_x64_gpa_attribute_intercept_message)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).vp_index) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_x64_gpa_attribute_intercept_message),
+            "::",
+            stringify!(vp_index)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).ranges) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_x64_gpa_attribute_intercept_message),
+            "::",
+            stringify!(ranges)
+        )
+    );
+}
+impl Default for hv_x64_gpa_attribute_intercept_message {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct hv_x64_cpuid_intercept_message {
     pub header: hv_x64_intercept_message_header,
     pub rax: __u64,
@@ -18350,396 +18891,6 @@ fn bindgen_test_layout_hv_x64_sipi_intercept_message() {
     );
 }
 impl Default for hv_x64_sipi_intercept_message {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union hv_gpa_page_range {
-    pub address_space: __u64,
-    pub page: hv_gpa_page_range__bindgen_ty_1,
-    pub __bindgen_anon_1: hv_gpa_page_range__bindgen_ty_2,
-}
-#[repr(C)]
-#[repr(align(8))]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct hv_gpa_page_range__bindgen_ty_1 {
-    pub _bitfield_align_1: [u64; 0],
-    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
-}
-#[test]
-fn bindgen_test_layout_hv_gpa_page_range__bindgen_ty_1() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_gpa_page_range__bindgen_ty_1>(),
-        8usize,
-        concat!("Size of: ", stringify!(hv_gpa_page_range__bindgen_ty_1))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_gpa_page_range__bindgen_ty_1>(),
-        8usize,
-        concat!("Alignment of ", stringify!(hv_gpa_page_range__bindgen_ty_1))
-    );
-}
-impl hv_gpa_page_range__bindgen_ty_1 {
-    #[inline]
-    pub fn additional_pages(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 11u8) as u64) }
-    }
-    #[inline]
-    pub fn set_additional_pages(&mut self, val: __u64) {
-        unsafe {
-            let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(0usize, 11u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn largepage(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(11usize, 1u8) as u64) }
-    }
-    #[inline]
-    pub fn set_largepage(&mut self, val: __u64) {
-        unsafe {
-            let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(11usize, 1u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn basepfn(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(12usize, 52u8) as u64) }
-    }
-    #[inline]
-    pub fn set_basepfn(&mut self, val: __u64) {
-        unsafe {
-            let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(12usize, 52u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn new_bitfield_1(
-        additional_pages: __u64,
-        largepage: __u64,
-        basepfn: __u64,
-    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
-        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
-        __bindgen_bitfield_unit.set(0usize, 11u8, {
-            let additional_pages: u64 = unsafe { ::std::mem::transmute(additional_pages) };
-            additional_pages as u64
-        });
-        __bindgen_bitfield_unit.set(11usize, 1u8, {
-            let largepage: u64 = unsafe { ::std::mem::transmute(largepage) };
-            largepage as u64
-        });
-        __bindgen_bitfield_unit.set(12usize, 52u8, {
-            let basepfn: u64 = unsafe { ::std::mem::transmute(basepfn) };
-            basepfn as u64
-        });
-        __bindgen_bitfield_unit
-    }
-}
-#[repr(C)]
-#[repr(align(8))]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct hv_gpa_page_range__bindgen_ty_2 {
-    pub _bitfield_align_1: [u64; 0],
-    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
-}
-#[test]
-fn bindgen_test_layout_hv_gpa_page_range__bindgen_ty_2() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_gpa_page_range__bindgen_ty_2>(),
-        8usize,
-        concat!("Size of: ", stringify!(hv_gpa_page_range__bindgen_ty_2))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_gpa_page_range__bindgen_ty_2>(),
-        8usize,
-        concat!("Alignment of ", stringify!(hv_gpa_page_range__bindgen_ty_2))
-    );
-}
-impl hv_gpa_page_range__bindgen_ty_2 {
-    #[inline]
-    pub fn reserved(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 12u8) as u64) }
-    }
-    #[inline]
-    pub fn set_reserved(&mut self, val: __u64) {
-        unsafe {
-            let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(0usize, 12u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn page_size(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(12usize, 1u8) as u64) }
-    }
-    #[inline]
-    pub fn set_page_size(&mut self, val: __u64) {
-        unsafe {
-            let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(12usize, 1u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn reserved1(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(13usize, 8u8) as u64) }
-    }
-    #[inline]
-    pub fn set_reserved1(&mut self, val: __u64) {
-        unsafe {
-            let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(13usize, 8u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn base_large_pfn(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(21usize, 43u8) as u64) }
-    }
-    #[inline]
-    pub fn set_base_large_pfn(&mut self, val: __u64) {
-        unsafe {
-            let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(21usize, 43u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn new_bitfield_1(
-        reserved: __u64,
-        page_size: __u64,
-        reserved1: __u64,
-        base_large_pfn: __u64,
-    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
-        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
-        __bindgen_bitfield_unit.set(0usize, 12u8, {
-            let reserved: u64 = unsafe { ::std::mem::transmute(reserved) };
-            reserved as u64
-        });
-        __bindgen_bitfield_unit.set(12usize, 1u8, {
-            let page_size: u64 = unsafe { ::std::mem::transmute(page_size) };
-            page_size as u64
-        });
-        __bindgen_bitfield_unit.set(13usize, 8u8, {
-            let reserved1: u64 = unsafe { ::std::mem::transmute(reserved1) };
-            reserved1 as u64
-        });
-        __bindgen_bitfield_unit.set(21usize, 43u8, {
-            let base_large_pfn: u64 = unsafe { ::std::mem::transmute(base_large_pfn) };
-            base_large_pfn as u64
-        });
-        __bindgen_bitfield_unit
-    }
-}
-#[test]
-fn bindgen_test_layout_hv_gpa_page_range() {
-    const UNINIT: ::std::mem::MaybeUninit<hv_gpa_page_range> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<hv_gpa_page_range>(),
-        8usize,
-        concat!("Size of: ", stringify!(hv_gpa_page_range))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_gpa_page_range>(),
-        8usize,
-        concat!("Alignment of ", stringify!(hv_gpa_page_range))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).address_space) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_gpa_page_range),
-            "::",
-            stringify!(address_space)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).page) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_gpa_page_range),
-            "::",
-            stringify!(page)
-        )
-    );
-}
-impl Default for hv_gpa_page_range {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[repr(C, packed)]
-#[derive(Copy, Clone)]
-pub struct hv_x64_gpa_attribute_intercept_message {
-    pub vp_index: __u32,
-    pub __bindgen_anon_1: hv_x64_gpa_attribute_intercept_message__bindgen_ty_1,
-    pub ranges: [hv_gpa_page_range; 29usize],
-}
-#[repr(C, packed)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct hv_x64_gpa_attribute_intercept_message__bindgen_ty_1 {
-    pub _bitfield_align_1: [u8; 0],
-    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 4usize]>,
-}
-#[test]
-fn bindgen_test_layout_hv_x64_gpa_attribute_intercept_message__bindgen_ty_1() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_x64_gpa_attribute_intercept_message__bindgen_ty_1>(),
-        4usize,
-        concat!(
-            "Size of: ",
-            stringify!(hv_x64_gpa_attribute_intercept_message__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_x64_gpa_attribute_intercept_message__bindgen_ty_1>(),
-        1usize,
-        concat!(
-            "Alignment of ",
-            stringify!(hv_x64_gpa_attribute_intercept_message__bindgen_ty_1)
-        )
-    );
-}
-impl hv_x64_gpa_attribute_intercept_message__bindgen_ty_1 {
-    #[inline]
-    pub fn range_count(&self) -> __u32 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 5u8) as u32) }
-    }
-    #[inline]
-    pub fn set_range_count(&mut self, val: __u32) {
-        unsafe {
-            let val: u32 = ::std::mem::transmute(val);
-            self._bitfield_1.set(0usize, 5u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn adjust(&self) -> __u32 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(5usize, 1u8) as u32) }
-    }
-    #[inline]
-    pub fn set_adjust(&mut self, val: __u32) {
-        unsafe {
-            let val: u32 = ::std::mem::transmute(val);
-            self._bitfield_1.set(5usize, 1u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn host_visibility(&self) -> __u32 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(6usize, 2u8) as u32) }
-    }
-    #[inline]
-    pub fn set_host_visibility(&mut self, val: __u32) {
-        unsafe {
-            let val: u32 = ::std::mem::transmute(val);
-            self._bitfield_1.set(6usize, 2u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn memory_type(&self) -> __u32 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(8usize, 6u8) as u32) }
-    }
-    #[inline]
-    pub fn set_memory_type(&mut self, val: __u32) {
-        unsafe {
-            let val: u32 = ::std::mem::transmute(val);
-            self._bitfield_1.set(8usize, 6u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn reserved(&self) -> __u32 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(14usize, 18u8) as u32) }
-    }
-    #[inline]
-    pub fn set_reserved(&mut self, val: __u32) {
-        unsafe {
-            let val: u32 = ::std::mem::transmute(val);
-            self._bitfield_1.set(14usize, 18u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn new_bitfield_1(
-        range_count: __u32,
-        adjust: __u32,
-        host_visibility: __u32,
-        memory_type: __u32,
-        reserved: __u32,
-    ) -> __BindgenBitfieldUnit<[u8; 4usize]> {
-        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 4usize]> = Default::default();
-        __bindgen_bitfield_unit.set(0usize, 5u8, {
-            let range_count: u32 = unsafe { ::std::mem::transmute(range_count) };
-            range_count as u64
-        });
-        __bindgen_bitfield_unit.set(5usize, 1u8, {
-            let adjust: u32 = unsafe { ::std::mem::transmute(adjust) };
-            adjust as u64
-        });
-        __bindgen_bitfield_unit.set(6usize, 2u8, {
-            let host_visibility: u32 = unsafe { ::std::mem::transmute(host_visibility) };
-            host_visibility as u64
-        });
-        __bindgen_bitfield_unit.set(8usize, 6u8, {
-            let memory_type: u32 = unsafe { ::std::mem::transmute(memory_type) };
-            memory_type as u64
-        });
-        __bindgen_bitfield_unit.set(14usize, 18u8, {
-            let reserved: u32 = unsafe { ::std::mem::transmute(reserved) };
-            reserved as u64
-        });
-        __bindgen_bitfield_unit
-    }
-}
-#[test]
-fn bindgen_test_layout_hv_x64_gpa_attribute_intercept_message() {
-    const UNINIT: ::std::mem::MaybeUninit<hv_x64_gpa_attribute_intercept_message> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<hv_x64_gpa_attribute_intercept_message>(),
-        240usize,
-        concat!(
-            "Size of: ",
-            stringify!(hv_x64_gpa_attribute_intercept_message)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_x64_gpa_attribute_intercept_message>(),
-        1usize,
-        concat!(
-            "Alignment of ",
-            stringify!(hv_x64_gpa_attribute_intercept_message)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).vp_index) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_x64_gpa_attribute_intercept_message),
-            "::",
-            stringify!(vp_index)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).ranges) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_x64_gpa_attribute_intercept_message),
-            "::",
-            stringify!(ranges)
-        )
-    );
-}
-impl Default for hv_x64_gpa_attribute_intercept_message {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
         unsafe {
