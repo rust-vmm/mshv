@@ -4263,6 +4263,7 @@ pub const hv_register_name_HV_X64_REGISTER_HYPERCALL: hv_register_name = 589825;
 pub const hv_register_name_HV_X64_REGISTER_SYNTHETIC_EOI: hv_register_name = 589840;
 pub const hv_register_name_HV_X64_REGISTER_SYNTHETIC_ICR: hv_register_name = 589841;
 pub const hv_register_name_HV_X64_REGISTER_SYNTHETIC_TPR: hv_register_name = 589842;
+pub const hv_register_name_HV_X64_REGISTER_GHCB: hv_register_name = 589849;
 pub const hv_register_name_HV_X64_REGISTER_REG_PAGE: hv_register_name = 589852;
 pub const hv_register_name_HV_X64_REGISTER_EMULATED_TIMER_PERIOD: hv_register_name = 589872;
 pub const hv_register_name_HV_X64_REGISTER_EMULATED_TIMER_CONTROL: hv_register_name = 589873;
