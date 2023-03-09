@@ -146,4 +146,16 @@ impl hv_message {
             unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
+    #[inline]
+    pub fn to_vmg_intercept_info(&self) -> Result<hv_x64_vmgexit_intercept_message> {
+        if self.header.message_type != hv_message_type_HVMSG_X64_SEV_VMGEXIT_INTERCEPT {
+            return Err(errno::Error::new(libc::EINVAL));
+        }
+        // SAFETY: We know at this point the payload is of the correct type. The payload field is
+        // unaligned. We use addr_of! to safely create a pointer, then call read_unaligned for
+        // copying its content out.
+        let ret =
+            unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
+        Ok(ret)
+    }
 }
