@@ -117,3 +117,8 @@ ioctl_iow_nr!(
     0x30,
     mshv_complete_isolated_import
 );
+ioctl_io_nr!(
+    MSHV_COMPLETE_MEM_EXCLUSIVE,
+    MSHV_IOCTL,
+    0x31
+);
