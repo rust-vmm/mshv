@@ -15,7 +15,7 @@ use std::fs::File;
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 use vmm_sys_util::errno;
 use vmm_sys_util::eventfd::EventFd;
-use vmm_sys_util::ioctl::{ioctl_with_mut_ref, ioctl_with_ref};
+use vmm_sys_util::ioctl::{ioctl_with_mut_ref, ioctl_with_ref, ioctl};
 
 /// Batch size for processing page access states
 const PAGE_ACCESS_STATES_BATCH_SIZE: u32 = 0x10000;
@@ -116,6 +116,15 @@ impl VmFd {
     /// Call complete isolated import
     pub fn complete_isolated_import(&self, data: &mshv_complete_isolated_import) -> Result<()> {
         let ret = unsafe { ioctl_with_ref(self, MSHV_COMPLETE_ISOLATED_IMPORT(), data) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
+    /// Call complete isolated import
+    pub fn complete_mem_exclusive(&self) -> Result<()> {
+        let ret = unsafe { ioctl(self, MSHV_COMPLETE_MEM_EXCLUSIVE()) };
         if ret == 0 {
             Ok(())
         } else {
