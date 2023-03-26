@@ -926,15 +926,40 @@ impl VcpuFd {
         Ok(ret_regs)
     }
     /// Register override CPUID values for one leaf.
-    pub fn register_intercept_result_cpuid_entry(&self, entry: &hv_cpuid_entry) -> Result<()> {
+    pub fn register_intercept_result_cpuid_entry(
+        &self,
+        entry: &hv_cpuid_entry,
+        always_override: Option<u8>,
+        ecx: Option<u32>,
+        subleaf_specific: Option<u8>,
+    ) -> Result<()> {
+        let subleaf_specific_param = subleaf_specific.unwrap_or(0);
+        let ecx_param = ecx.unwrap_or(0);
+        let always_override_param = always_override.unwrap_or(1);
+
         let mshv_cpuid = hv_register_x64_cpuid_result_parameters {
             input: hv_register_x64_cpuid_result_parameters__bindgen_ty_1 {
                 eax: entry.function,
-                ecx: 0,
-                subleaf_specific: 0,
-                always_override: 1,
+                // Subleaf index, default is 0. Further subleafs can be
+                // overwritten by a repeated call to this function with a desired
+                // index passed. Refer to the Intel Dev Manual for a particular
+                // EAX input for the further details.
+                ecx: ecx_param,
+                // Whether the intercept result is to be applied to all
+                // the subleafs (0) or just to the specific subleaf (1).
+                subleaf_specific: subleaf_specific_param,
+                // Override even if the hypervisor computed value is zero.
+                // If set to 1, the registered result will be still applied.
+                always_override: always_override_param,
+                // Not relevant, bindgen specific struct padding.
                 padding: 0,
             },
+            // With regard to masks - these are to specify bits to be overwritten.
+            // The current CpuidEntry structure wouldn't allow to carry the masks
+            // in addition to the actual register values. For this reason, the
+            // masks are set to the exact values of the corresponding register bits
+            // to be registered for an overwrite. To view resulting values the
+            // hypervisor would return, HvCallGetVpCpuidValues hypercall can be used.
             result: hv_register_x64_cpuid_result_parameters__bindgen_ty_2 {
                 eax: entry.eax,
                 eax_mask: entry.eax,
@@ -962,7 +987,7 @@ impl VcpuFd {
         let mut ret = Ok(());
 
         for entry in cpuid.as_slice().iter() {
-            let eret = self.register_intercept_result_cpuid_entry(entry);
+            let eret = self.register_intercept_result_cpuid_entry(entry, None, None, None);
             if eret.is_err() && ret.is_ok() {
                 ret = eret;
             }
