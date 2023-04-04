@@ -56,6 +56,22 @@ pub enum SyntheticProcessorFeature {
     SyntheticClusterIpi,
 }
 
+
+#[derive(Debug)]
+pub enum SevVmgExitOffload {
+    /// Standard format NAEs.
+    NaeRdtsc,
+    NaeCpuid,
+    NaeReservedIoPort,
+    NaeRdmsr,
+    NaeWrmsr,
+    NaeVmmcall,
+    NaeWbinvd,
+    NaeSnpPageStateChange,
+    /// GHCB MSR protocol
+    MsrCpuid,
+    MsrSnpPageStateChange,
+}
 impl MshvPartitionBuilder {
     /// Creates a new MshvPartitionBuilder
     pub fn new() -> MshvPartitionBuilder {
