@@ -222,6 +222,75 @@ impl MshvPartitionBuilder {
         }
         self
     }
+    /// Enable Sev VmgExit offloads
+    pub fn enable_sev_vmgexit_offload(
+        mut self,
+        feature: SevVmgExitOffload,
+    ) -> MshvPartitionBuilder {
+        match feature {
+            SevVmgExitOffload::NaeRdtsc => unsafe {
+                self.mshv_partition
+                    .vmgexit_offload_features
+                    .__bindgen_anon_1
+                    .set_nae_rdtsc(1);
+            },
+            SevVmgExitOffload::NaeCpuid => unsafe {
+                self.mshv_partition
+                    .vmgexit_offload_features
+                    .__bindgen_anon_1
+                    .set_nae_cpuid(1);
+            },
+            SevVmgExitOffload::NaeReservedIoPort => unsafe {
+                self.mshv_partition
+                    .vmgexit_offload_features
+                    .__bindgen_anon_1
+                    .set_nae_reserved_io_port(1);
+            },
+            SevVmgExitOffload::NaeRdmsr => unsafe {
+                self.mshv_partition
+                    .vmgexit_offload_features
+                    .__bindgen_anon_1
+                    .set_nae_rdmsr(1);
+            },
+            SevVmgExitOffload::NaeWrmsr => unsafe {
+                self.mshv_partition
+                    .vmgexit_offload_features
+                    .__bindgen_anon_1
+                    .set_nae_wrmsr(1);
+            },
+            SevVmgExitOffload::NaeVmmcall => unsafe {
+                self.mshv_partition
+                    .vmgexit_offload_features
+                    .__bindgen_anon_1
+                    .set_nae_vmmcall(1);
+            },
+            SevVmgExitOffload::NaeWbinvd => unsafe {
+                self.mshv_partition
+                    .vmgexit_offload_features
+                    .__bindgen_anon_1
+                    .set_nae_wbinvd(1);
+            },
+            SevVmgExitOffload::NaeSnpPageStateChange => unsafe {
+                self.mshv_partition
+                    .vmgexit_offload_features
+                    .__bindgen_anon_1
+                    .set_nae_snp_page_state_change(1);
+            },
+            SevVmgExitOffload::MsrCpuid => unsafe {
+                self.mshv_partition
+                    .vmgexit_offload_features
+                    .__bindgen_anon_1
+                    .set_msr_cpuid(1);
+            },
+            SevVmgExitOffload::MsrSnpPageStateChange => unsafe {
+                self.mshv_partition
+                    .vmgexit_offload_features
+                    .__bindgen_anon_1
+                    .set_msr_snp_page_state_change(1);
+            },
+        }
+        self
+    }
     /// Builds the partition
     pub fn build(&self) -> mshv_create_partition {
         self.mshv_partition
