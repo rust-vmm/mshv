@@ -930,11 +930,9 @@ impl VcpuFd {
         &self,
         entry: &hv_cpuid_entry,
         always_override: Option<u8>,
-        ecx: Option<u32>,
         subleaf_specific: Option<u8>,
     ) -> Result<()> {
         let subleaf_specific_param = subleaf_specific.unwrap_or(0);
-        let ecx_param = ecx.unwrap_or(0);
         let always_override_param = always_override.unwrap_or(1);
 
         let mshv_cpuid = hv_register_x64_cpuid_result_parameters {
@@ -944,7 +942,7 @@ impl VcpuFd {
                 // overwritten by a repeated call to this function with a desired
                 // index passed. Refer to the Intel Dev Manual for a particular
                 // EAX input for the further details.
-                ecx: ecx_param,
+                ecx: entry.index,
                 // Whether the intercept result is to be applied to all
                 // the subleafs (0) or just to the specific subleaf (1).
                 subleaf_specific: subleaf_specific_param,
@@ -987,7 +985,19 @@ impl VcpuFd {
         let mut ret = Ok(());
 
         for entry in cpuid.as_slice().iter() {
-            let eret = self.register_intercept_result_cpuid_entry(entry, None, None, None);
+            let override_arg = None;
+            let mut subleaf_specific = None;
+
+            match entry.function {
+                // 0xb - Extended Topology Enumeration Leaf
+                // 0x1f - V2 Extended Topology Enumeration Leaf
+                0xb | 0x1f => {
+                    subleaf_specific = Some(1);
+                }
+                _ => {}
+            }
+            let eret =
+                self.register_intercept_result_cpuid_entry(entry, override_arg, subleaf_specific);
             if eret.is_err() && ret.is_ok() {
                 ret = eret;
             }
