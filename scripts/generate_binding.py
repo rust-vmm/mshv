@@ -9,6 +9,14 @@ import tempfile
 from pathlib import Path
 from shutil import rmtree, which
 
+mshv_header_files = [
+    "include/hyperv/hvgdk_mini.h",
+    "include/hyperv/hvgdk.h",
+    "include/hyperv/hvhdk_mini.h",
+    "include/hyperv/hvhdk.h",
+    "include/linux/mshv.h",
+]
+
 
 def check_installed(cmd):
     return which(cmd) is not None
@@ -34,24 +42,25 @@ def install_kernel_headers(kernel_src_path):
 
 def generate_unified_mshv_headers(kernel_hdr_path):
     logging.debug("Start generating unified header file")
-    mshv_header_files = [
-        f"{kernel_hdr_path}/include/asm/hyperv-tlfs.h",
-        f"{kernel_hdr_path}/include/asm-generic/hyperv-tlfs.h",
-        f"{kernel_hdr_path}/include/asm-generic/hyperv-common-types.h",
-        f"{kernel_hdr_path}/include/linux/mshv.h",
-    ]
 
     with open(f"{kernel_hdr_path}/combined_mshv.h", "w") as fp:
         fp.write("typedef _Bool bool;\n")
+        data = ""
+
         for header in mshv_header_files:
-            data = ""
+            header_path = f"{kernel_hdr_path}/{header}"
 
-            with open(header, "r") as f:
-                data = f.read()
-                data = re.sub(r"BIT\(([0-9]+)\)", "(1 << \\1)", data, flags=re.M)
-                data = re.sub(r".*hyperv\-tlfs.h.*", "", data, flags=re.M)
+            with open(header_path, "r") as f:
+                data += f.read()
 
-            fp.write(data)
+        for header in mshv_header_files:
+            header_name = Path(header).name
+            regexp = f".*{header_name}.*"
+            data = re.sub(regexp, "", data, flags=re.M)
+
+        data = re.sub(r"BIT\(([0-9]+)\)", "(1 << (\\1))", data, flags=re.M)
+
+        fp.write(data)
 
     logging.debug("Done generating unified header file")
 
