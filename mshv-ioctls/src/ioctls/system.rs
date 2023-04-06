@@ -290,6 +290,7 @@ impl Mshv {
     }
     /// X86 specific call to get list of supported MSRS
     pub fn get_msr_index_list(&self) -> Result<MsrList> {
+        use mshv_bindings::hvdef::HV_X64_MSR_GUEST_OS_ID;
         /* return all the MSRs we currently support */
         Ok(MsrList::from_entries(&[
             IA32_MSR_TSC,
