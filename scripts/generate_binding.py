@@ -65,16 +65,33 @@ def generate_unified_mshv_headers(kernel_hdr_path):
     logging.debug("Done generating unified header file")
 
 
-def run_bindgen(kernel_hdr_path, output_dir, bindgen_args):
+def run_bindgen(kernel_hdr_path, output_file, bindgen_args):
     cmd = f"""
     bindgen {bindgen_args} \
-    {kernel_hdr_path}/combined_mshv.h -- -I {kernel_hdr_path}/include > {output_dir}/bindings.rs
+    {kernel_hdr_path}/combined_mshv.h -- -I {kernel_hdr_path}/include > {output_file}
     """
     logging.debug("Running bindgen: %s", cmd)
 
     subprocess.check_call(cmd, shell=True)
     logging.debug("Cleaning up installed header files")
     rmtree(kernel_hdr_path)
+
+
+def update_bindings_comment(bindings_file):
+    comment_lines = [
+        "/*\n",
+        " * Kernel (uapi) headers used for these bindings are as follows:\n",
+        " */\n"
+    ]
+    comment_lines[2:2] = map(lambda s: f" * {s}\n", mshv_header_files)
+
+    with open(bindings_file, "r") as f:
+        lines = f.readlines()
+
+    lines[1:1] = comment_lines
+
+    with open(bindings_file, "w") as f:
+        f.write("".join(lines))
 
 
 def main(args):
@@ -94,8 +111,10 @@ def main(args):
     bindgen_args = "--no-doc-comments --with-derive-default "
 
     bindgen_args += args.bindgen_args
+    output_file = f"{args.output}/bindings.rs"
 
-    run_bindgen(kernel_hdr_path, args.output, bindgen_args)
+    run_bindgen(kernel_hdr_path, output_file, bindgen_args)
+    update_bindings_comment(output_file)
 
     return 0
 
