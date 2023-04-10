@@ -378,7 +378,6 @@ impl Mshv {
             mshv_builder = mshv_builder
                 .enable_sev_vmgexit_offload(SevVmgExitOffload::NaeRdtsc)
                 .enable_sev_vmgexit_offload(SevVmgExitOffload::NaeCpuid)
-                .enable_sev_vmgexit_offload(SevVmgExitOffload::NaeIoPort)
                 .enable_sev_vmgexit_offload(SevVmgExitOffload::NaeRdmsr)
                 .enable_sev_vmgexit_offload(SevVmgExitOffload::NaeWrmsr)
                 .enable_sev_vmgexit_offload(SevVmgExitOffload::NaeVmmcall)
