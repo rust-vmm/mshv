@@ -286,7 +286,7 @@ impl MshvPartitionBuilder {
                 self.mshv_partition
                     .vmgexit_offload_features
                     .__bindgen_anon_1
-                    .set_nae_snp_page_state_change(1);
+                    .set_msr_snp_page_state_change(1);
             },
         }
         self
@@ -383,7 +383,8 @@ impl Mshv {
                 .enable_sev_vmgexit_offload(SevVmgExitOffload::NaeVmmcall)
                 .enable_sev_vmgexit_offload(SevVmgExitOffload::NaeWbinvd)
                 .enable_sev_vmgexit_offload(SevVmgExitOffload::NaeSnpPageStateChange)
-                .enable_sev_vmgexit_offload(SevVmgExitOffload::MsrCpuid);
+                .enable_sev_vmgexit_offload(SevVmgExitOffload::MsrCpuid)
+                .enable_sev_vmgexit_offload(SevVmgExitOffload::MsrSnpPageStateChange);
         }
 
         let pr = mshv_builder.build();
