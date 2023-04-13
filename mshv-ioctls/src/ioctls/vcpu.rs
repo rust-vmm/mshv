@@ -1034,6 +1034,26 @@ impl VcpuFd {
         }
         Ok([parms.eax, parms.ebx, parms.ecx, parms.edx])
     }
+    /// Read GPA
+    pub fn gpa_read(&self, input: &mut mshv_read_write_gpa) -> Result<mshv_read_write_gpa> {
+        // SAFETY: we know that our file is a vCPU fd, we know the kernel honours its ABI.
+        let ret = unsafe { ioctl_with_mut_ref(self, MSHV_READ_GPA(), input) };
+        if ret != 0 {
+            return Err(errno::Error::last());
+        }
+
+        Ok(*input)
+    }
+    /// Write GPA
+    pub fn gpa_write(&self, input: &mut mshv_read_write_gpa) -> Result<mshv_read_write_gpa> {
+        // SAFETY: we know that our file is a vCPU fd, we know the kernel honours its ABI.
+        let ret = unsafe { ioctl_with_mut_ref(self, MSHV_WRITE_GPA(), input) };
+        if ret != 0 {
+            return Err(errno::Error::last());
+        }
+
+        Ok(*input)
+    }
 }
 
 #[allow(dead_code)]
