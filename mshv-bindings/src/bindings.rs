@@ -1552,6 +1552,8 @@ pub const hv_message_type_HVMSG_X64_IOMMU_PRQ: hv_message_type = 2147549190;
 pub const hv_message_type_HVMSG_X64_HALT: hv_message_type = 2147549191;
 pub const hv_message_type_HVMSG_X64_INTERRUPTION_DELIVERABLE: hv_message_type = 2147549192;
 pub const hv_message_type_HVMSG_X64_SIPI_INTERCEPT: hv_message_type = 2147549193;
+pub const hv_message_type_HVMSG_X64_SEV_VMG_EXIT_INTERCEPT: hv_message_type = 2147549203;
+
 pub type hv_message_type = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Copy, Clone)]

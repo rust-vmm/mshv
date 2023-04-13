@@ -105,7 +105,7 @@ impl VcpuFd {
     pub fn set_sev_control_register(&self, reg: u64) -> Result<()> {
         let reg_assocs = [
             hv_register_assoc {
-                name: hv_x64_register_name_HV_X64_REGISTER_SEV_CONTROL,
+                name: hv_register_name_HV_X64_REGISTER_SEV_CONTROL,
                 value: hv_register_value { reg64: reg },
                 ..Default::default()
             },
