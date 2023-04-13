@@ -122,3 +122,15 @@ ioctl_io_nr!(
     MSHV_IOCTL,
     0x31
 );
+ioctl_iowr_nr!(
+    MSHV_READ_GPA,
+    MSHV_IOCTL,
+    0x32,
+    mshv_read_write_gpa
+);
+ioctl_iow_nr!(
+    MSHV_WRITE_GPA,
+    MSHV_IOCTL,
+    0x33,
+    mshv_read_write_gpa
+);
