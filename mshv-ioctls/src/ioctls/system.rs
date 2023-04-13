@@ -73,6 +73,7 @@ impl MshvPartitionBuilder {
                     as_uint64: [0; 1],
                 },
                 isolation_properties: hv_partition_isolation_properties { as_uint64: 0_u64 },
+                vmgexit_offload_features: hv_sev_vmgexit_offload { as_uint64: 0_u64 },
                 flags: 0_u64,
             },
         }
