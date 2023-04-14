@@ -24,6 +24,7 @@ impl hv_message {
     pub fn to_memory_info(&self) -> Result<hv_x64_memory_intercept_message> {
         if self.header.message_type != hv_message_type_HVMSG_GPA_INTERCEPT
             && self.header.message_type != hv_message_type_HVMSG_UNMAPPED_GPA
+            && self.header.message_type != hv_message_type_HVMSG_UNACCEPTED_GPA
         {
             return Err(errno::Error::new(libc::EINVAL));
         }
