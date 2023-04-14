@@ -36,6 +36,18 @@ impl hv_message {
         Ok(ret)
     }
     #[inline]
+    pub fn to_gpa_attribute_info(&self) -> Result<hv_x64_gpa_attribute_intercept_message> {
+        if self.header.message_type != hv_message_type_HVMSG_GPA_ATTRIBUTE_INTERCEPT {
+            return Err(errno::Error::new(libc::EINVAL));
+        }
+        // SAFETY: We know at this point the payload is of the correct type. The payload field is
+        // unaligned. We use addr_of! to safely create a pointer, then call read_unaligned for
+        // copying its content out.
+        let ret =
+            unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
+        Ok(ret)
+    }
+    #[inline]
     pub fn to_ioport_info(&self) -> Result<hv_x64_io_port_intercept_message> {
         if self.header.message_type != hv_message_type_HVMSG_X64_IO_PORT_INTERCEPT {
             return Err(errno::Error::new(libc::EINVAL));
