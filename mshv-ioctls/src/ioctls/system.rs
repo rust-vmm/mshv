@@ -355,6 +355,7 @@ impl Mshv {
         // creates mshv objects.
         let mut mshv_builder = MshvPartitionBuilder::new()
             .set_partiton_creation_flag(HV_PARTITION_CREATION_FLAG_LAPIC_ENABLED as u64)
+            .set_partiton_creation_flag(HV_PARTITION_CREATION_FLAG_X2APIC_CAPABLE as u64)
             .set_synthetic_processor_feature(SyntheticProcessorFeature::HypervisorPresent)
             .set_synthetic_processor_feature(SyntheticProcessorFeature::Hv1)
             .set_synthetic_processor_feature(
