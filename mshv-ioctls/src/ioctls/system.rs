@@ -285,6 +285,7 @@ impl Mshv {
 
         if vm_type == VmType::Snp {
             mshv_builder = mshv_builder
+                .set_partiton_creation_flag(HV_PARTITION_CREATION_FLAG_X2APIC_CAPABLE as u64)
                 .set_isolation_type(HV_PARTITION_ISOLATION_TYPE_SNP as u64)
                 .set_shared_gpa_boundary_page_number(0_u64);
         }
