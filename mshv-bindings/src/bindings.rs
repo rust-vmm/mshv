@@ -422,6 +422,7 @@ pub const HV_MODIFY_SPA_PAGE_HOST_ACCESS_MAKE_EXCLUSIVE: u32 = 1;
 pub const HV_MODIFY_SPA_PAGE_HOST_ACCESS_MAKE_SHARED: u32 = 2;
 pub const HV_MODIFY_SPA_PAGE_HOST_ACCESS_LARGE_PAGE: u32 = 4;
 pub const HV_MODIFY_SPA_PAGE_HOST_ACCESS_HUGE_PAGE: u32 = 8;
+pub const HV_PSP_CPUID_LEAF_COUNT_MAX: u32 = 64;
 pub const HV_INTERCEPT_ACCESS_READ: u32 = 0;
 pub const HV_INTERCEPT_ACCESS_WRITE: u32 = 1;
 pub const HV_INTERCEPT_ACCESS_EXECUTE: u32 = 2;
@@ -21397,6 +21398,196 @@ impl hv_input_modify_sparse_spa_page_host_access {
             reserved as u64
         });
         __bindgen_bitfield_unit
+    }
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_psp_cpuid_leaf {
+    pub eax_in: __u32,
+    pub ecx_in: __u32,
+    pub xfem_in: __u64,
+    pub xss_in: __u64,
+    pub eax_out: __u32,
+    pub ebx_out: __u32,
+    pub ecx_out: __u32,
+    pub edx_out: __u32,
+    pub reserved_z: __u64,
+}
+#[test]
+fn bindgen_test_layout_hv_psp_cpuid_leaf() {
+    const UNINIT: ::std::mem::MaybeUninit<hv_psp_cpuid_leaf> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<hv_psp_cpuid_leaf>(),
+        48usize,
+        concat!("Size of: ", stringify!(hv_psp_cpuid_leaf))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_psp_cpuid_leaf>(),
+        1usize,
+        concat!("Alignment of ", stringify!(hv_psp_cpuid_leaf))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).eax_in) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_psp_cpuid_leaf),
+            "::",
+            stringify!(eax_in)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).ecx_in) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_psp_cpuid_leaf),
+            "::",
+            stringify!(ecx_in)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).xfem_in) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_psp_cpuid_leaf),
+            "::",
+            stringify!(xfem_in)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).xss_in) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_psp_cpuid_leaf),
+            "::",
+            stringify!(xss_in)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).eax_out) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_psp_cpuid_leaf),
+            "::",
+            stringify!(eax_out)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).ebx_out) as usize - ptr as usize },
+        28usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_psp_cpuid_leaf),
+            "::",
+            stringify!(ebx_out)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).ecx_out) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_psp_cpuid_leaf),
+            "::",
+            stringify!(ecx_out)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).edx_out) as usize - ptr as usize },
+        36usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_psp_cpuid_leaf),
+            "::",
+            stringify!(edx_out)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).reserved_z) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_psp_cpuid_leaf),
+            "::",
+            stringify!(reserved_z)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_psp_cpuid_page {
+    pub count: __u32,
+    pub reserved_z1: __u32,
+    pub reserved_z2: __u64,
+    pub cpuid_leaf_info: [hv_psp_cpuid_leaf; 64usize],
+}
+#[test]
+fn bindgen_test_layout_hv_psp_cpuid_page() {
+    const UNINIT: ::std::mem::MaybeUninit<hv_psp_cpuid_page> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<hv_psp_cpuid_page>(),
+        3088usize,
+        concat!("Size of: ", stringify!(hv_psp_cpuid_page))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_psp_cpuid_page>(),
+        1usize,
+        concat!("Alignment of ", stringify!(hv_psp_cpuid_page))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).count) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_psp_cpuid_page),
+            "::",
+            stringify!(count)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).reserved_z1) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_psp_cpuid_page),
+            "::",
+            stringify!(reserved_z1)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).reserved_z2) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_psp_cpuid_page),
+            "::",
+            stringify!(reserved_z2)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).cpuid_leaf_info) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_psp_cpuid_page),
+            "::",
+            stringify!(cpuid_leaf_info)
+        )
+    );
+}
+impl Default for hv_psp_cpuid_page {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
     }
 }
 pub const hv_isolated_page_type_HV_ISOLATED_PAGE_TYPE_NORMAL: hv_isolated_page_type = 0;
