@@ -13684,7 +13684,7 @@ fn bindgen_test_layout_hv_input_unmap_vp_state_page() {
         )
     );
 }
-#[repr(C, packed)]
+#[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct hv_cpuid_leaf_info {
     pub eax: __u32,
@@ -23653,6 +23653,8 @@ fn bindgen_test_layout_mshv_register_deliverabilty_notifications() {
 pub struct mshv_get_vp_cpuid_values {
     pub function: __u32,
     pub index: __u32,
+    pub xfem: __u64,
+    pub xss: __u64,
     pub eax: __u32,
     pub ebx: __u32,
     pub ecx: __u32,
@@ -23665,12 +23667,12 @@ fn bindgen_test_layout_mshv_get_vp_cpuid_values() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<mshv_get_vp_cpuid_values>(),
-        24usize,
+        40usize,
         concat!("Size of: ", stringify!(mshv_get_vp_cpuid_values))
     );
     assert_eq!(
         ::std::mem::align_of::<mshv_get_vp_cpuid_values>(),
-        4usize,
+        8usize,
         concat!("Alignment of ", stringify!(mshv_get_vp_cpuid_values))
     );
     assert_eq!(
@@ -23694,8 +23696,28 @@ fn bindgen_test_layout_mshv_get_vp_cpuid_values() {
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).eax) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).xfem) as usize - ptr as usize },
         8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_get_vp_cpuid_values),
+            "::",
+            stringify!(xfem)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).xss) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_get_vp_cpuid_values),
+            "::",
+            stringify!(xss)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).eax) as usize - ptr as usize },
+        24usize,
         concat!(
             "Offset of field: ",
             stringify!(mshv_get_vp_cpuid_values),
@@ -23705,7 +23727,7 @@ fn bindgen_test_layout_mshv_get_vp_cpuid_values() {
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).ebx) as usize - ptr as usize },
-        12usize,
+        28usize,
         concat!(
             "Offset of field: ",
             stringify!(mshv_get_vp_cpuid_values),
@@ -23715,7 +23737,7 @@ fn bindgen_test_layout_mshv_get_vp_cpuid_values() {
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).ecx) as usize - ptr as usize },
-        16usize,
+        32usize,
         concat!(
             "Offset of field: ",
             stringify!(mshv_get_vp_cpuid_values),
@@ -23725,7 +23747,7 @@ fn bindgen_test_layout_mshv_get_vp_cpuid_values() {
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).edx) as usize - ptr as usize },
-        20usize,
+        36usize,
         concat!(
             "Offset of field: ",
             stringify!(mshv_get_vp_cpuid_values),
