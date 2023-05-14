@@ -304,6 +304,7 @@ pub const HVCALL_GET_VP_STATE: u32 = 227;
 pub const HVCALL_SET_VP_STATE: u32 = 228;
 pub const HVCALL_IMPORT_ISOLATED_PAGES: u32 = 239;
 pub const HVCALL_COMPLETE_ISOLATED_IMPORT: u32 = 241;
+pub const HVCALL_ISSUE_SNP_PSP_GUEST_REQUEST: u32 = 242;
 pub const HVCALL_GET_VP_CPUID_VALUES: u32 = 244;
 pub const HV_SYNIC_SINT_COUNT: u32 = 16;
 pub const HV_SYNIC_INTERCEPTION_SINT_INDEX: u32 = 0;
@@ -365,6 +366,8 @@ pub const HV_MAP_GPA_PERMISSIONS_MASK: u32 = 15;
 pub const HV_MAP_GPA_ADJUSTABLE: u32 = 32768;
 pub const HV_READ_WRITE_GPA_MAX_SIZE: u32 = 16;
 pub const SVM_EXITCODE_HV_DOORBELL_PAGE: u32 = 2147483668;
+pub const SVM_EXITCODE_SNP_GUEST_REQUEST: u32 = 2147483665;
+pub const SVM_EXITCODE_SNP_EXTENDED_GUEST_REQUEST: u32 = 2147483666;
 pub const SVM_NAE_HV_DOORBELL_PAGE_GET_PREFERRED: u32 = 0;
 pub const SVM_NAE_HV_DOORBELL_PAGE_SET: u32 = 1;
 pub const SVM_NAE_HV_DOORBELL_PAGE_QUERY: u32 = 2;
@@ -13684,7 +13687,7 @@ fn bindgen_test_layout_hv_input_unmap_vp_state_page() {
         )
     );
 }
-#[repr(C)]
+#[repr(C, packed)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct hv_cpuid_leaf_info {
     pub eax: __u32,
@@ -22509,6 +22512,62 @@ impl Default for svm_ghcb_msr {
         }
     }
 }
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_input_issue_psp_guest_request {
+    pub partition_id: __u64,
+    pub request_page: __u64,
+    pub response_page: __u64,
+}
+#[test]
+fn bindgen_test_layout_hv_input_issue_psp_guest_request() {
+    const UNINIT: ::std::mem::MaybeUninit<hv_input_issue_psp_guest_request> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<hv_input_issue_psp_guest_request>(),
+        24usize,
+        concat!("Size of: ", stringify!(hv_input_issue_psp_guest_request))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_input_issue_psp_guest_request>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_input_issue_psp_guest_request)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).partition_id) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_input_issue_psp_guest_request),
+            "::",
+            stringify!(partition_id)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).request_page) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_input_issue_psp_guest_request),
+            "::",
+            stringify!(request_page)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).response_page) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_input_issue_psp_guest_request),
+            "::",
+            stringify!(response_page)
+        )
+    );
+}
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct mshv_create_partition {
@@ -23994,6 +24053,48 @@ impl Default for mshv_complete_isolated_import {
             s.assume_init()
         }
     }
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_issue_psp_guest_request {
+    pub req_gpa: __u64,
+    pub rsp_gpa: __u64,
+}
+#[test]
+fn bindgen_test_layout_mshv_issue_psp_guest_request() {
+    const UNINIT: ::std::mem::MaybeUninit<mshv_issue_psp_guest_request> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<mshv_issue_psp_guest_request>(),
+        16usize,
+        concat!("Size of: ", stringify!(mshv_issue_psp_guest_request))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<mshv_issue_psp_guest_request>(),
+        8usize,
+        concat!("Alignment of ", stringify!(mshv_issue_psp_guest_request))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).req_gpa) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_issue_psp_guest_request),
+            "::",
+            stringify!(req_gpa)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).rsp_gpa) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_issue_psp_guest_request),
+            "::",
+            stringify!(rsp_gpa)
+        )
+    );
 }
 #[repr(C, packed)]
 #[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
