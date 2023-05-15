@@ -123,8 +123,8 @@ impl VmFd {
         }
     }
     /// Call complete isolated import
-    pub fn complete_mem_exclusive(&self) -> Result<()> {
-        let ret = unsafe { ioctl(self, MSHV_COMPLETE_MEM_EXCLUSIVE()) };
+    pub fn psp_issue_guest_request(&self, data: &mshv_issue_psp_guest_request) -> Result<()> {
+        let ret = unsafe { ioctl_with_ref(self, MSHV_ISSUE_PSP_GUEST_REQUEST(), data) };
         if ret == 0 {
             Ok(())
         } else {
