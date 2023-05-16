@@ -368,6 +368,7 @@ pub const HV_READ_WRITE_GPA_MAX_SIZE: u32 = 16;
 pub const SVM_EXITCODE_HV_DOORBELL_PAGE: u32 = 2147483668;
 pub const SVM_EXITCODE_SNP_GUEST_REQUEST: u32 = 2147483665;
 pub const SVM_EXITCODE_SNP_EXTENDED_GUEST_REQUEST: u32 = 2147483666;
+pub const SVM_EXITCODE_SNP_AP_CREATION: u32 = 2147483667;
 pub const SVM_NAE_HV_DOORBELL_PAGE_GET_PREFERRED: u32 = 0;
 pub const SVM_NAE_HV_DOORBELL_PAGE_SET: u32 = 1;
 pub const SVM_NAE_HV_DOORBELL_PAGE_QUERY: u32 = 2;
@@ -5314,6 +5315,129 @@ impl Default for hv_x64_pending_interruption_register {
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
+pub union hv_x64_register_sev_control {
+    pub as_uint64: __u64,
+    pub __bindgen_anon_1: hv_x64_register_sev_control__bindgen_ty_1,
+}
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_x64_register_sev_control__bindgen_ty_1 {
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
+}
+#[test]
+fn bindgen_test_layout_hv_x64_register_sev_control__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_x64_register_sev_control__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_x64_register_sev_control__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_x64_register_sev_control__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_x64_register_sev_control__bindgen_ty_1)
+        )
+    );
+}
+impl hv_x64_register_sev_control__bindgen_ty_1 {
+    #[inline]
+    pub fn enable_encrypted_state(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_enable_encrypted_state(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved_z(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 11u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved_z(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 11u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn vmsa_gpa_page_number(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(12usize, 52u8) as u64) }
+    }
+    #[inline]
+    pub fn set_vmsa_gpa_page_number(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(12usize, 52u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        enable_encrypted_state: __u64,
+        reserved_z: __u64,
+        vmsa_gpa_page_number: __u64,
+    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let enable_encrypted_state: u64 =
+                unsafe { ::std::mem::transmute(enable_encrypted_state) };
+            enable_encrypted_state as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 11u8, {
+            let reserved_z: u64 = unsafe { ::std::mem::transmute(reserved_z) };
+            reserved_z as u64
+        });
+        __bindgen_bitfield_unit.set(12usize, 52u8, {
+            let vmsa_gpa_page_number: u64 = unsafe { ::std::mem::transmute(vmsa_gpa_page_number) };
+            vmsa_gpa_page_number as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[test]
+fn bindgen_test_layout_hv_x64_register_sev_control() {
+    const UNINIT: ::std::mem::MaybeUninit<hv_x64_register_sev_control> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<hv_x64_register_sev_control>(),
+        8usize,
+        concat!("Size of: ", stringify!(hv_x64_register_sev_control))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_x64_register_sev_control>(),
+        8usize,
+        concat!("Alignment of ", stringify!(hv_x64_register_sev_control))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).as_uint64) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_x64_register_sev_control),
+            "::",
+            stringify!(as_uint64)
+        )
+    );
+}
+impl Default for hv_x64_register_sev_control {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
 pub union hv_register_value {
     pub reg128: hv_u128,
     pub reg64: __u64,
@@ -5333,6 +5457,7 @@ pub union hv_register_value {
     pub npiep_config: hv_x64_msr_npiep_config_contents,
     pub pending_exception_event: hv_x64_pending_exception_event,
     pub pending_virtualization_fault_event: hv_x64_pending_virtualization_fault_event,
+    pub sev_control: hv_x64_register_sev_control,
 }
 #[test]
 fn bindgen_test_layout_hv_register_value() {
@@ -5528,6 +5653,16 @@ fn bindgen_test_layout_hv_register_value() {
             stringify!(hv_register_value),
             "::",
             stringify!(pending_virtualization_fault_event)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).sev_control) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_register_value),
+            "::",
+            stringify!(sev_control)
         )
     );
 }
@@ -7940,129 +8075,6 @@ fn bindgen_test_layout_hv_snp_guest_policy() {
     );
 }
 impl Default for hv_snp_guest_policy {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union hv_x64_register_sev_control {
-    pub as_uint64: __u64,
-    pub __bindgen_anon_1: hv_x64_register_sev_control__bindgen_ty_1,
-}
-#[repr(C, packed)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct hv_x64_register_sev_control__bindgen_ty_1 {
-    pub _bitfield_align_1: [u8; 0],
-    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
-}
-#[test]
-fn bindgen_test_layout_hv_x64_register_sev_control__bindgen_ty_1() {
-    assert_eq!(
-        ::std::mem::size_of::<hv_x64_register_sev_control__bindgen_ty_1>(),
-        8usize,
-        concat!(
-            "Size of: ",
-            stringify!(hv_x64_register_sev_control__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_x64_register_sev_control__bindgen_ty_1>(),
-        1usize,
-        concat!(
-            "Alignment of ",
-            stringify!(hv_x64_register_sev_control__bindgen_ty_1)
-        )
-    );
-}
-impl hv_x64_register_sev_control__bindgen_ty_1 {
-    #[inline]
-    pub fn enable_encrypted_state(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u64) }
-    }
-    #[inline]
-    pub fn set_enable_encrypted_state(&mut self, val: __u64) {
-        unsafe {
-            let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(0usize, 1u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn reserved_z(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 11u8) as u64) }
-    }
-    #[inline]
-    pub fn set_reserved_z(&mut self, val: __u64) {
-        unsafe {
-            let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(1usize, 11u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn vmsa_gpa_page_number(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(12usize, 52u8) as u64) }
-    }
-    #[inline]
-    pub fn set_vmsa_gpa_page_number(&mut self, val: __u64) {
-        unsafe {
-            let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(12usize, 52u8, val as u64)
-        }
-    }
-    #[inline]
-    pub fn new_bitfield_1(
-        enable_encrypted_state: __u64,
-        reserved_z: __u64,
-        vmsa_gpa_page_number: __u64,
-    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
-        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
-        __bindgen_bitfield_unit.set(0usize, 1u8, {
-            let enable_encrypted_state: u64 =
-                unsafe { ::std::mem::transmute(enable_encrypted_state) };
-            enable_encrypted_state as u64
-        });
-        __bindgen_bitfield_unit.set(1usize, 11u8, {
-            let reserved_z: u64 = unsafe { ::std::mem::transmute(reserved_z) };
-            reserved_z as u64
-        });
-        __bindgen_bitfield_unit.set(12usize, 52u8, {
-            let vmsa_gpa_page_number: u64 = unsafe { ::std::mem::transmute(vmsa_gpa_page_number) };
-            vmsa_gpa_page_number as u64
-        });
-        __bindgen_bitfield_unit
-    }
-}
-#[test]
-fn bindgen_test_layout_hv_x64_register_sev_control() {
-    const UNINIT: ::std::mem::MaybeUninit<hv_x64_register_sev_control> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<hv_x64_register_sev_control>(),
-        8usize,
-        concat!("Size of: ", stringify!(hv_x64_register_sev_control))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<hv_x64_register_sev_control>(),
-        8usize,
-        concat!("Alignment of ", stringify!(hv_x64_register_sev_control))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).as_uint64) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(hv_x64_register_sev_control),
-            "::",
-            stringify!(as_uint64)
-        )
-    );
-}
-impl Default for hv_x64_register_sev_control {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
         unsafe {
@@ -24093,6 +24105,47 @@ fn bindgen_test_layout_mshv_issue_psp_guest_request() {
             stringify!(mshv_issue_psp_guest_request),
             "::",
             stringify!(rsp_gpa)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_snp_ap_create {
+    pub apic_id: __u64,
+    pub vmsa_gpa: __u64,
+}
+#[test]
+fn bindgen_test_layout_mshv_snp_ap_create() {
+    const UNINIT: ::std::mem::MaybeUninit<mshv_snp_ap_create> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<mshv_snp_ap_create>(),
+        16usize,
+        concat!("Size of: ", stringify!(mshv_snp_ap_create))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<mshv_snp_ap_create>(),
+        8usize,
+        concat!("Alignment of ", stringify!(mshv_snp_ap_create))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).apic_id) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_snp_ap_create),
+            "::",
+            stringify!(apic_id)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).vmsa_gpa) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_snp_ap_create),
+            "::",
+            stringify!(vmsa_gpa)
         )
     );
 }
