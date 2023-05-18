@@ -135,3 +135,9 @@ ioctl_iow_nr!(
     0x33,
     mshv_read_write_gpa
 );
+ioctl_iow_nr!(
+    MSHV_SNP_AP_CREATE,
+    MSHV_IOCTL,
+    0x34,
+    mshv_snp_ap_create
+);

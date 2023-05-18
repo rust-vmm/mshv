@@ -131,6 +131,15 @@ impl VmFd {
             Err(errno::Error::last())
         }
     }
+    /// Call complete isolated import
+    pub fn snp_ap_create(&self, data: &mshv_snp_ap_create) -> Result<()> {
+        let ret = unsafe { ioctl_with_ref(self, MSHV_SNP_AP_CREATE(), data) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
     /// Creates/modifies a guest physical memory.
     pub fn map_user_memory(&self, user_memory_region: mshv_user_mem_region) -> Result<()> {
         // SAFETY: IOCTL with correct types

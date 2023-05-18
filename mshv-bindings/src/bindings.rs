@@ -5438,6 +5438,144 @@ impl Default for hv_x64_register_sev_control {
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
+pub union hv_internal_activity_register {
+    pub as_uint64: __u64,
+    pub __bindgen_anon_1: hv_internal_activity_register__bindgen_ty_1,
+}
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_internal_activity_register__bindgen_ty_1 {
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
+}
+#[test]
+fn bindgen_test_layout_hv_internal_activity_register__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_internal_activity_register__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_internal_activity_register__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_internal_activity_register__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_internal_activity_register__bindgen_ty_1)
+        )
+    );
+}
+impl hv_internal_activity_register__bindgen_ty_1 {
+    #[inline]
+    pub fn startup_suspend(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_startup_suspend(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn halt_suspend(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_halt_suspend(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn idle_suspend(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(2usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_idle_suspend(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(2usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn rsvd_z(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(3usize, 61u8) as u64) }
+    }
+    #[inline]
+    pub fn set_rsvd_z(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(3usize, 61u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        startup_suspend: __u64,
+        halt_suspend: __u64,
+        idle_suspend: __u64,
+        rsvd_z: __u64,
+    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let startup_suspend: u64 = unsafe { ::std::mem::transmute(startup_suspend) };
+            startup_suspend as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 1u8, {
+            let halt_suspend: u64 = unsafe { ::std::mem::transmute(halt_suspend) };
+            halt_suspend as u64
+        });
+        __bindgen_bitfield_unit.set(2usize, 1u8, {
+            let idle_suspend: u64 = unsafe { ::std::mem::transmute(idle_suspend) };
+            idle_suspend as u64
+        });
+        __bindgen_bitfield_unit.set(3usize, 61u8, {
+            let rsvd_z: u64 = unsafe { ::std::mem::transmute(rsvd_z) };
+            rsvd_z as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[test]
+fn bindgen_test_layout_hv_internal_activity_register() {
+    const UNINIT: ::std::mem::MaybeUninit<hv_internal_activity_register> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<hv_internal_activity_register>(),
+        8usize,
+        concat!("Size of: ", stringify!(hv_internal_activity_register))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_internal_activity_register>(),
+        8usize,
+        concat!("Alignment of ", stringify!(hv_internal_activity_register))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).as_uint64) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_internal_activity_register),
+            "::",
+            stringify!(as_uint64)
+        )
+    );
+}
+impl Default for hv_internal_activity_register {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
 pub union hv_register_value {
     pub reg128: hv_u128,
     pub reg64: __u64,
@@ -5452,6 +5590,7 @@ pub union hv_register_value {
     pub explicit_suspend: hv_explicit_suspend_register,
     pub intercept_suspend: hv_intercept_suspend_register,
     pub dispatch_suspend: hv_dispatch_suspend_register,
+    pub internal_activity: hv_internal_activity_register,
     pub interrupt_state: hv_x64_interrupt_state_register,
     pub pending_interruption: hv_x64_pending_interruption_register,
     pub npiep_config: hv_x64_msr_npiep_config_contents,
@@ -5601,6 +5740,16 @@ fn bindgen_test_layout_hv_register_value() {
             stringify!(hv_register_value),
             "::",
             stringify!(dispatch_suspend)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).internal_activity) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_register_value),
+            "::",
+            stringify!(internal_activity)
         )
     );
     assert_eq!(
