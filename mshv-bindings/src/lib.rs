@@ -21,6 +21,7 @@ pub use bindings::*;
 pub mod regs;
 pub use regs::*;
 pub mod snp;
+pub use snp::*;
 
 #[cfg(feature = "with-serde")]
 extern crate serde;
