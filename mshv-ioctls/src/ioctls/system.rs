@@ -376,16 +376,6 @@ impl Mshv {
             mshv_builder = mshv_builder
                 .set_isolation_type(HV_PARTITION_ISOLATION_TYPE_SNP as u64)
                 .set_shared_gpa_boundary_page_number(0_u64);
-            mshv_builder = mshv_builder
-                .enable_sev_vmgexit_offload(SevVmgExitOffload::NaeRdtsc)
-                .enable_sev_vmgexit_offload(SevVmgExitOffload::NaeCpuid)
-                .enable_sev_vmgexit_offload(SevVmgExitOffload::NaeRdmsr)
-                .enable_sev_vmgexit_offload(SevVmgExitOffload::NaeWrmsr)
-                .enable_sev_vmgexit_offload(SevVmgExitOffload::NaeVmmcall)
-                .enable_sev_vmgexit_offload(SevVmgExitOffload::NaeWbinvd)
-                .enable_sev_vmgexit_offload(SevVmgExitOffload::NaeSnpPageStateChange)
-                .enable_sev_vmgexit_offload(SevVmgExitOffload::MsrCpuid)
-                .enable_sev_vmgexit_offload(SevVmgExitOffload::MsrSnpPageStateChange);
         }
 
         let pr = mshv_builder.build();

@@ -23,6 +23,26 @@ pub fn get_default_snp_guest_policy() -> hv_snp_guest_policy {
     snp_policy
 }
 
+///
+/// Get default vmg exit offload features
+///
+pub fn get_default_vmgexit_offload_features() -> hv_sev_vmgexit_offload {
+    let mut offload_feature = hv_sev_vmgexit_offload::default();
+
+    unsafe {
+        offload_feature.__bindgen_anon_1.set_nae_rdtsc(1);
+        offload_feature.__bindgen_anon_1.set_nae_cpuid(1);
+        offload_feature.__bindgen_anon_1.set_nae_rdmsr(1);
+        offload_feature.__bindgen_anon_1.set_nae_wrmsr(1);
+        offload_feature.__bindgen_anon_1.set_nae_vmmcall(1);
+        offload_feature.__bindgen_anon_1.set_nae_wbinvd(1);
+        offload_feature.__bindgen_anon_1.set_nae_snp_page_state_change(1);
+        offload_feature.__bindgen_anon_1.set_msr_cpuid(1);
+        offload_feature.__bindgen_anon_1.set_msr_snp_page_state_change(1);
+    }
+    offload_feature
+}
+
 pub fn get_sev_control_register(vmsa_pfn: u64) -> u64 {
     let mut sev_control = hv_x64_register_sev_control { as_uint64: 0_u64 };
 
