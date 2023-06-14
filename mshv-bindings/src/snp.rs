@@ -335,3 +335,288 @@ impl Default for svm_ghcb_msr {
         }
     }
 }
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union hv_sev_vmgexit_port_info {
+    pub as_uint32: __u32,
+    pub __bindgen_anon_1: hv_sev_vmgexit_port_info__bindgen_ty_1,
+}
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_sev_vmgexit_port_info__bindgen_ty_1 {
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 4usize]>,
+}
+#[test]
+fn bindgen_test_layout_hv_sev_vmgexit_port_info__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_sev_vmgexit_port_info__bindgen_ty_1>(),
+        4usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_sev_vmgexit_port_info__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_sev_vmgexit_port_info__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_sev_vmgexit_port_info__bindgen_ty_1)
+        )
+    );
+}
+
+impl hv_sev_vmgexit_port_info__bindgen_ty_1 {
+    #[inline]
+    pub fn access_type(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_access_type(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved1(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_reserved1(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn string_based_port_access(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(2usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_string_based_port_access(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(2usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn repeated_port_access(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(3usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_repeated_port_access(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(3usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn operand_size_8bit(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(4usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_operand_size_8bit(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(4usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn operand_size_16bit(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(5usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_operand_size_16bit(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(5usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn operand_size_32bit(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(6usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_operand_size_32bit(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(6usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn address_16bit(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(7usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_address_16bit(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(7usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn address_32bit(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(8usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_address_32bit(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(8usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn address_64bit(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(9usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_address_64bit(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(9usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn effective_segment_number(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(10usize, 3u8) as u32) }
+    }
+    #[inline]
+    pub fn set_effective_segment_number(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(10usize, 3u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved2(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(13usize, 3u8) as u32) }
+    }
+    #[inline]
+    pub fn set_reserved2(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(13usize, 3u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn intercepted_port(&self) -> __u32 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(16usize, 16u8) as u32) }
+    }
+    #[inline]
+    pub fn set_intercepted_port(&mut self, val: __u32) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(16usize, 16u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        access_type: __u32,
+        reserved1: __u32,
+        string_based_port_access: __u32,
+        repeated_port_access: __u32,
+        operand_size_8bit: __u32,
+        operand_size_16bit: __u32,
+        operand_size_32bit: __u32,
+        address_16bit: __u32,
+        address_32bit: __u32,
+        address_64bit: __u32,
+        effective_segment_number: __u32,
+        reserved2: __u32,
+        intercepted_port: __u32,
+    ) -> __BindgenBitfieldUnit<[u8; 4usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 4usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let access_type: u32 = unsafe { ::std::mem::transmute(access_type) };
+            access_type as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 1u8, {
+            let reserved1: u32 = unsafe { ::std::mem::transmute(reserved1) };
+            reserved1 as u64
+        });
+        __bindgen_bitfield_unit.set(2usize, 1u8, {
+            let string_based_port_access: u32 =
+                unsafe { ::std::mem::transmute(string_based_port_access) };
+            string_based_port_access as u64
+        });
+        __bindgen_bitfield_unit.set(3usize, 1u8, {
+            let repeated_port_access: u32 = unsafe { ::std::mem::transmute(repeated_port_access) };
+            repeated_port_access as u64
+        });
+        __bindgen_bitfield_unit.set(4usize, 1u8, {
+            let operand_size_8bit: u32 = unsafe { ::std::mem::transmute(operand_size_8bit) };
+            operand_size_8bit as u64
+        });
+        __bindgen_bitfield_unit.set(5usize, 1u8, {
+            let operand_size_16bit: u32 = unsafe { ::std::mem::transmute(operand_size_16bit) };
+            operand_size_16bit as u64
+        });
+        __bindgen_bitfield_unit.set(6usize, 1u8, {
+            let operand_size_32bit: u32 = unsafe { ::std::mem::transmute(operand_size_32bit) };
+            operand_size_32bit as u64
+        });
+        __bindgen_bitfield_unit.set(7usize, 1u8, {
+            let address_16bit: u32 = unsafe { ::std::mem::transmute(address_16bit) };
+            address_16bit as u64
+        });
+        __bindgen_bitfield_unit.set(8usize, 1u8, {
+            let address_32bit: u32 = unsafe { ::std::mem::transmute(address_32bit) };
+            address_32bit as u64
+        });
+        __bindgen_bitfield_unit.set(9usize, 1u8, {
+            let address_64bit: u32 = unsafe { ::std::mem::transmute(address_64bit) };
+            address_64bit as u64
+        });
+        __bindgen_bitfield_unit.set(10usize, 3u8, {
+            let effective_segment_number: u32 =
+                unsafe { ::std::mem::transmute(effective_segment_number) };
+            effective_segment_number as u64
+        });
+        __bindgen_bitfield_unit.set(13usize, 3u8, {
+            let reserved2: u32 = unsafe { ::std::mem::transmute(reserved2) };
+            reserved2 as u64
+        });
+        __bindgen_bitfield_unit.set(16usize, 16u8, {
+            let intercepted_port: u32 = unsafe { ::std::mem::transmute(intercepted_port) };
+            intercepted_port as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[test]
+fn bindgen_test_layout_hv_sev_vmgexit_port_info() {
+    const UNINIT: ::std::mem::MaybeUninit<hv_sev_vmgexit_port_info> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<hv_sev_vmgexit_port_info>(),
+        4usize,
+        concat!("Size of: ", stringify!(hv_sev_vmgexit_port_info))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_sev_vmgexit_port_info>(),
+        4usize,
+        concat!("Alignment of ", stringify!(hv_sev_vmgexit_port_info))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).as_uint32) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_sev_vmgexit_port_info),
+            "::",
+            stringify!(as_uint32)
+        )
+    );
+}
+impl Default for hv_sev_vmgexit_port_info {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
