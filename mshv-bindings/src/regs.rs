@@ -4,7 +4,6 @@
 //
 
 use crate::bindings::*;
-use crate::hvdef::HV_X64_MSR_GUEST_OS_ID;
 #[cfg(feature = "with-serde")]
 use serde_derive::{Deserialize, Serialize};
 use std::cmp;
