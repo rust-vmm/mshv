@@ -208,6 +208,7 @@ pub use ioctls::vm::InterruptRequest;
 pub use ioctls::vm::IoEventAddress;
 pub use ioctls::vm::NoDatamatch;
 pub use ioctls::vm::VmFd;
+pub use ioctls::vm::VmType;
 
 #[macro_use]
 mod mshv_ioctls;
