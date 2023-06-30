@@ -41,6 +41,18 @@ pub enum VmType {
     Snp,
 }
 
+impl TryFrom<u64> for VmType {
+    type Error = ();
+
+    fn try_from(v: u64) -> std::result::Result<Self, Self::Error> {
+        match v {
+            x if x == VmType::Normal as u64 => Ok(VmType::Normal),
+            x if x == VmType::Snp as u64 => Ok(VmType::Snp),
+            _ => Err(()),
+        }
+    }
+}
+
 /// Helper structure for disabling datamatch.
 ///
 /// The structure can be used as a parameter to
