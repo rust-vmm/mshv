@@ -1008,10 +1008,12 @@ impl VcpuFd {
     /// X86 specific call that retrieves the values of the specified CPUID
     /// leaf as observed on the virtual processor.
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
-    pub fn get_cpuid_values(&self, eax: u32, ecx: u32) -> Result<[u32; 4]> {
+    pub fn get_cpuid_values(&self, eax: u32, ecx: u32, xfem: u64, xss: u64) -> Result<[u32; 4]> {
         let mut parms = mshv_get_vp_cpuid_values {
             function: eax,
             index: ecx,
+            xfem,
+            xss,
             ..Default::default()
         };
         // SAFETY: we know that our file is a vCPU fd, we know the kernel will only read the
@@ -1437,7 +1439,7 @@ mod tests {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
-        let res = vcpu.get_cpuid_values(0, 0).unwrap();
+        let res = vcpu.get_cpuid_values(0, 0, 0, 0).unwrap();
         let max_function = res[0];
         assert!(max_function >= 1);
     }
