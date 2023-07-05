@@ -3,6 +3,15 @@
 // SPDX-License-Identifier: Apache-2.0 OR BSD-3-Clause
 //
 
+#![allow(
+    clippy::too_many_arguments,
+    clippy::missing_safety_doc,
+    clippy::useless_transmute,
+    clippy::unnecessary_cast,
+    non_camel_case_types,
+    non_snake_case,
+    non_upper_case_globals
+)]
 use crate::bindings::*;
 
 pub const GHCB_PROTOCOL_VERSION_MIN: u32 = 1;
