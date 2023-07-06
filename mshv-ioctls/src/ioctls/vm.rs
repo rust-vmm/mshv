@@ -146,6 +146,16 @@ impl VmFd {
             Err(errno::Error::last())
         }
     }
+    /// Create AP threads for SEV-SNP guest
+    pub fn sev_snp_ap_create(&self, data: &mshv_sev_snp_ap_create) -> Result<()> {
+        // SAFETY: IOCTL with correct types
+        let ret = unsafe { ioctl_with_ref(self, MSHV_SEV_SNP_AP_CREATE(), data) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
     /// Creates/modifies a guest physical memory.
     pub fn map_user_memory(&self, user_memory_region: mshv_user_mem_region) -> Result<()> {
         // SAFETY: IOCTL with correct types
