@@ -2,7 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0 OR BSD-3-Clause
 //
-
+// Definitions are derived from AMD GHCB spec
+// https://www.amd.com/system/files/TechDocs/56421-guest-hypervisor-communication-block-standardization.pdf
+// https://www.amd.com/system/files/TechDocs/24593.pdf
+//
 #![allow(
     clippy::too_many_arguments,
     clippy::missing_safety_doc,
