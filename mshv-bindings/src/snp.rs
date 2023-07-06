@@ -632,3 +632,29 @@ impl Default for hv_sev_vmgexit_port_info {
         }
     }
 }
+
+///
+/// Get default VMGEXIT offload features supported by
+/// Microsoft Hypervisor.
+///
+pub fn get_default_vmgexit_offload_features() -> hv_sev_vmgexit_offload {
+    let mut offload_feature = hv_sev_vmgexit_offload::default();
+
+    unsafe {
+        offload_feature.__bindgen_anon_1.set_nae_rdtsc(1);
+        offload_feature.__bindgen_anon_1.set_nae_cpuid(1);
+        offload_feature.__bindgen_anon_1.set_nae_rdmsr(1);
+        offload_feature.__bindgen_anon_1.set_nae_wrmsr(1);
+        offload_feature.__bindgen_anon_1.set_nae_vmmcall(1);
+        offload_feature.__bindgen_anon_1.set_nae_wbinvd(1);
+        offload_feature
+            .__bindgen_anon_1
+            .set_nae_snp_page_state_change(1);
+        offload_feature.__bindgen_anon_1.set_msr_cpuid(1);
+        offload_feature
+            .__bindgen_anon_1
+            .set_msr_snp_page_state_change(1);
+    }
+
+    offload_feature
+}
