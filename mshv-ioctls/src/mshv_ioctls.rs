@@ -117,5 +117,11 @@ ioctl_iow_nr!(
     0x30,
     mshv_complete_isolated_import
 );
+ioctl_iow_nr!(
+    MSHV_ISSUE_PSP_GUEST_REQUEST,
+    MSHV_IOCTL,
+    0x31,
+    mshv_issue_psp_guest_request
+);
 ioctl_iowr_nr!(MSHV_READ_GPA, MSHV_IOCTL, 0x32, mshv_read_write_gpa);
 ioctl_iow_nr!(MSHV_WRITE_GPA, MSHV_IOCTL, 0x33, mshv_read_write_gpa);

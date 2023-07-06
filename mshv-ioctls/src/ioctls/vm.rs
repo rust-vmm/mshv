@@ -136,6 +136,16 @@ impl VmFd {
             Err(errno::Error::last())
         }
     }
+    /// Issue PSP request from guest side
+    pub fn psp_issue_guest_request(&self, data: &mshv_issue_psp_guest_request) -> Result<()> {
+        // SAFETY: IOCTL with correct types
+        let ret = unsafe { ioctl_with_ref(self, MSHV_ISSUE_PSP_GUEST_REQUEST(), data) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
     /// Creates/modifies a guest physical memory.
     pub fn map_user_memory(&self, user_memory_region: mshv_user_mem_region) -> Result<()> {
         // SAFETY: IOCTL with correct types
