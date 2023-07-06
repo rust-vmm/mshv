@@ -111,5 +111,11 @@ ioctl_iow_nr!(
     0x29,
     mshv_import_isolated_pages
 );
+ioctl_iow_nr!(
+    MSHV_COMPLETE_ISOLATED_IMPORT,
+    MSHV_IOCTL,
+    0x30,
+    mshv_complete_isolated_import
+);
 ioctl_iowr_nr!(MSHV_READ_GPA, MSHV_IOCTL, 0x32, mshv_read_write_gpa);
 ioctl_iow_nr!(MSHV_WRITE_GPA, MSHV_IOCTL, 0x33, mshv_read_write_gpa);
