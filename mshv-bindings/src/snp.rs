@@ -700,3 +700,20 @@ pub fn get_default_snp_guest_policy() -> hv_snp_guest_policy {
 
     snp_policy
 }
+
+///
+/// Helper function to get sev control register
+/// for a given VMSA PFN.
+///
+pub fn get_sev_control_register(vmsa_pfn: u64) -> u64 {
+    let mut sev_control = hv_x64_register_sev_control { as_uint64: 0_u64 };
+
+    // SAFETY: access union field
+    unsafe {
+        sev_control.__bindgen_anon_1.set_enable_encrypted_state(1);
+        sev_control
+            .__bindgen_anon_1
+            .set_vmsa_gpa_page_number(vmsa_pfn);
+        sev_control.as_uint64
+    }
+}
