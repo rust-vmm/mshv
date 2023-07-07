@@ -16,6 +16,9 @@
     non_upper_case_globals
 )]
 use crate::bindings::*;
+use vmm_sys_util::errno;
+
+type Result<T> = std::result::Result<T, errno::Error>;
 
 pub const GHCB_PROTOCOL_VERSION_MIN: u32 = 1;
 pub const GHCB_PROTOCOL_VERSION_MAX: u32 = 2;
@@ -657,4 +660,23 @@ pub fn get_default_vmgexit_offload_features() -> hv_sev_vmgexit_offload {
     }
 
     offload_feature
+}
+
+///
+/// Helper function to parse the GPA range
+///
+pub fn parse_gpa_range(range: hv_gpa_page_range) -> Result<(u64, u64)> {
+    let gpa_page_start;
+    let gpa_page_count;
+
+    // SAFETY: access union field
+    unsafe {
+        if range.page.largepage() > 0 {
+            return Err(errno::Error::new(libc::EINVAL));
+        } else {
+            gpa_page_start = range.page.basepfn();
+            gpa_page_count = 1 + range.page.additional_pages();
+        }
+    }
+    Ok((gpa_page_start, gpa_page_count))
 }
