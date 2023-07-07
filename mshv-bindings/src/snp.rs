@@ -680,3 +680,23 @@ pub fn parse_gpa_range(range: hv_gpa_page_range) -> Result<(u64, u64)> {
     }
     Ok((gpa_page_start, gpa_page_count))
 }
+
+///
+/// Get default SEV-SNP guest policy supported by
+/// Microsoft Hypervisor.
+///
+pub fn get_default_snp_guest_policy() -> hv_snp_guest_policy {
+    let mut snp_policy = hv_snp_guest_policy { as_uint64: 0_u64 };
+
+    // SAFETY: access union field
+    unsafe {
+        snp_policy.__bindgen_anon_1.set_minor_version(0x1f);
+        snp_policy.__bindgen_anon_1.set_major_version(0x00);
+        snp_policy.__bindgen_anon_1.set_smt_allowed(1);
+        snp_policy.__bindgen_anon_1.set_vmpls_required(1);
+        snp_policy.__bindgen_anon_1.set_migration_agent_allowed(0);
+        snp_policy.__bindgen_anon_1.set_debug_allowed(0);
+    }
+
+    snp_policy
+}
