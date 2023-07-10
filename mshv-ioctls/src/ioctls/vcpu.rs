@@ -985,14 +985,23 @@ impl VcpuFd {
         let mut ret = Ok(());
 
         for entry in cpuid.as_slice().iter() {
-            let override_arg = None;
+            let mut override_arg = None;
             let mut subleaf_specific = None;
 
             match entry.function {
+                // Intel
                 // 0xb - Extended Topology Enumeration Leaf
                 // 0x1f - V2 Extended Topology Enumeration Leaf
-                0xb | 0x1f => {
+                // AMD
+                // 0x8000_001e - Processor Topology Information
+                // 0x8000_0026 - Extended CPU Topology
+                0xb | 0x1f | 0x8000_001e | 0x8000_0026 => {
                     subleaf_specific = Some(1);
+                    override_arg = None;
+                }
+                0x0000_0001 | 0x8000_0008 => {
+                    subleaf_specific = None;
+                    override_arg = Some(1);
                 }
                 _ => {}
             }
