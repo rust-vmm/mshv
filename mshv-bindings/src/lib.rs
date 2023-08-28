@@ -12,6 +12,7 @@ extern crate vmm_sys_util;
     clippy::missing_safety_doc,
     clippy::useless_transmute,
     clippy::unnecessary_cast,
+    clippy::incorrect_clone_impl_on_copy_type,
     non_camel_case_types,
     non_snake_case,
     non_upper_case_globals
