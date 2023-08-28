@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR BSD-3-Clause
 //
 #![allow(dead_code)]
-use zerocopy::{AsBytes, FromBytes};
+use zerocopy::{AsBytes, FromBytes, FromZeroes};
 
 pub const HV_CPUID_FUNCTION_VERSION_AND_FEATURES: u32 = 0x00000001;
 pub const HV_CPUID_FUNCTION_HV_VENDOR_AND_MAX_FUNCTION: u32 = 0x40000000;
@@ -175,7 +175,7 @@ pub enum HvError {
 pub type HvResult<T> = Result<T, HvError>;
 
 #[repr(C)]
-#[derive(Copy, Clone, AsBytes, Debug, FromBytes)]
+#[derive(Copy, Clone, AsBytes, Debug, FromBytes, FromZeroes)]
 pub struct HvMessageHeader {
     pub typ: u32,
     pub len: u8,
@@ -187,14 +187,14 @@ pub struct HvMessageHeader {
 pub const MESSAGE_TYPE_TIMER_EXPIRED: u32 = 0x80000010;
 
 #[repr(C)]
-#[derive(Copy, Clone, AsBytes, Debug, FromBytes)]
+#[derive(Copy, Clone, AsBytes, Debug, FromBytes, FromZeroes)]
 pub struct HvMessage {
     pub header: HvMessageHeader,
     pub payload: [[u8; 24]; 10],
 }
 
 #[repr(C)]
-#[derive(Copy, Clone, AsBytes, Debug, FromBytes)]
+#[derive(Copy, Clone, AsBytes, Debug, FromBytes, FromZeroes)]
 pub struct TimerMessagePayload {
     pub timer_index: u32,
     pub reserved: u32,

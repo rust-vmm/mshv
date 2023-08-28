@@ -10,7 +10,7 @@ use std::cmp;
 use std::fmt;
 use std::ptr;
 use vmm_sys_util::errno;
-use zerocopy::{AsBytes, FromBytes};
+use zerocopy::{AsBytes, FromBytes, FromZeroes};
 
 #[repr(C)]
 #[derive(Default)]
@@ -63,7 +63,7 @@ impl<T> ::std::clone::Clone for __IncompleteArrayField<T> {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct StandardRegisters {
     pub rax: u64,
@@ -87,7 +87,7 @@ pub struct StandardRegisters {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, AsBytes, FromBytes)]
+#[derive(Debug, Default, Copy, Clone, AsBytes, FromBytes, FromZeroes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct SegmentRegister {
     /* segment register + descriptor */
@@ -190,7 +190,7 @@ impl From<SegmentRegister> for hv_x64_segment_register {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, FromBytes)]
+#[derive(Debug, Default, Copy, Clone, FromBytes, FromZeroes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct TableRegister {
     pub base: u64,
@@ -217,7 +217,7 @@ impl From<TableRegister> for hv_x64_table_register {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, FromBytes)]
+#[derive(Debug, Default, Copy, Clone, FromBytes, FromZeroes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct SpecialRegisters {
     pub cs: SegmentRegister,
@@ -241,7 +241,7 @@ pub struct SpecialRegisters {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct DebugRegisters {
     pub dr0: u64,
@@ -253,7 +253,7 @@ pub struct DebugRegisters {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct FloatingPointUnit {
     pub fpr: [[u8; 16usize]; 8usize],
@@ -381,7 +381,7 @@ pub fn msr_to_hv_reg_name(msr: u32) -> Result<::std::os::raw::c_uint, &'static s
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct msr_entry {
     pub index: u32,
@@ -408,7 +408,7 @@ pub struct msr_list {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct VcpuEvents {
     pub pending_interruption: u64,
@@ -418,14 +418,14 @@ pub struct VcpuEvents {
     pub pending_event1: [u8; 16usize],
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct Xcrs {
     pub xcr0: u64,
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
 pub struct hv_cpuid_entry {
     pub function: __u32,
     pub index: __u32,
@@ -515,7 +515,7 @@ impl Drop for Buffer {
 }
 
 #[repr(C)]
-#[derive(Copy, Clone, Debug, AsBytes, FromBytes)]
+#[derive(Copy, Clone, Debug, AsBytes, FromBytes, FromZeroes)]
 pub struct LapicState {
     pub regs: [::std::os::raw::c_char; 1024usize],
 }
@@ -531,7 +531,7 @@ impl Default for hv_register_value {
     }
 } */
 #[repr(C)]
-#[derive(Copy, Clone, Debug, AsBytes, FromBytes)]
+#[derive(Copy, Clone, Debug, AsBytes, FromBytes, FromZeroes)]
 /// This struct normalizes the actual mhsv XSave structure
 /// XSave only used in save and restore functionalities, serilization and
 /// deserialization are needed. Putting all the fields into a single buffer makes
@@ -772,14 +772,14 @@ impl XSave {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct SuspendRegisters {
     pub explicit_register: u64,
     pub intercept_register: u64,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct MiscRegs {
     pub hypercall: u64,
