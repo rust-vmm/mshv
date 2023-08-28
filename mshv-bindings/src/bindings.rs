@@ -626,6 +626,7 @@ pub const hv_status_HV_STATUS_NO_RESOURCES: hv_status = 29;
 pub const hv_status_HV_STATUS_PROCESSOR_FEATURE_NOT_SUPPORTED: hv_status = 32;
 pub const hv_status_HV_STATUS_INVALID_LP_INDEX: hv_status = 65;
 pub const hv_status_HV_STATUS_INVALID_REGISTER_VALUE: hv_status = 80;
+pub const hv_status_HV_STATUS_OPERATION_FAILED: hv_status = 113;
 pub const hv_status_HV_STATUS_CALL_PENDING: hv_status = 121;
 pub type hv_status = ::std::os::raw::c_uint;
 #[repr(C)]
@@ -7182,6 +7183,7 @@ pub const hv_sleep_state_HV_SLEEP_STATE_LOCK: hv_sleep_state = 6;
 pub type hv_sleep_state = ::std::os::raw::c_uint;
 pub const hv_system_property_HV_SYSTEM_PROPERTY_SLEEP_STATE: hv_system_property = 3;
 pub const hv_system_property_HV_SYSTEM_PROPERTY_SCHEDULER_TYPE: hv_system_property = 15;
+pub const hv_system_property_HV_DYNAMIC_PROCESSOR_FEATURE_PROPERTY: hv_system_property = 21;
 pub const hv_system_property_HV_SYSTEM_PROPERTY_DIAGOSTICS_LOG_BUFFERS: hv_system_property = 28;
 pub type hv_system_property = ::std::os::raw::c_uint;
 #[repr(C, packed)]
@@ -7236,16 +7238,34 @@ fn bindgen_test_layout_hv_sleep_state_info() {
         )
     );
 }
+pub const hv_snp_status_HV_SNP_STATUS_NONE: hv_snp_status = 0;
+pub const hv_snp_status_HV_SNP_STATUS_AVAILABLE: hv_snp_status = 1;
+pub const hv_snp_status_HV_SNP_STATUS_INCOMPATIBLE: hv_snp_status = 2;
+pub const hv_snp_status_HV_SNP_STATUS_PSP_UNAVAILABLE: hv_snp_status = 3;
+pub const hv_snp_status_HV_SNP_STATUS_PSP_INIT_FAILED: hv_snp_status = 4;
+pub const hv_snp_status_HV_SNP_STATUS_PSP_BAD_FW_VERSION: hv_snp_status = 5;
+pub const hv_snp_status_HV_SNP_STATUS_BAD_CONFIGURATION: hv_snp_status = 6;
+pub const hv_snp_status_HV_SNP_STATUS_PSP_FW_UPDATE_IN_PROGRESS: hv_snp_status = 7;
+pub const hv_snp_status_HV_SNP_STATUS_PSP_RB_INIT_FAILED: hv_snp_status = 8;
+pub const hv_snp_status_HV_SNP_STATUS_PSP_PLATFORM_STATUS_FAILED: hv_snp_status = 9;
+pub const hv_snp_status_HV_SNP_STATUS_PSP_INIT_LATE_FAILED: hv_snp_status = 10;
+pub type hv_snp_status = ::std::os::raw::c_uint;
+pub const hv_dynamic_processor_feature_property_HV_X64_DYNAMIC_PROCESSOR_FEATURE_MAX_ENCRYPTED_PARTITIONS : hv_dynamic_processor_feature_property = 13 ;
+pub const hv_dynamic_processor_feature_property_HV_X64_DYNAMIC_PROCESSOR_FEATURE_SNP_STATUS:
+    hv_dynamic_processor_feature_property = 16;
+pub type hv_dynamic_processor_feature_property = ::std::os::raw::c_uint;
 #[repr(C, packed)]
 #[derive(Copy, Clone)]
 pub struct hv_input_get_system_property {
     pub property_id: __u32,
+    pub reserved: __u32,
     pub __bindgen_anon_1: hv_input_get_system_property__bindgen_ty_1,
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union hv_input_get_system_property__bindgen_ty_1 {
-    pub as_uint32: __u32,
+    pub as_uint64: __u64,
+    pub hv_processor_feature: __u32,
 }
 #[test]
 fn bindgen_test_layout_hv_input_get_system_property__bindgen_ty_1() {
@@ -7254,7 +7274,7 @@ fn bindgen_test_layout_hv_input_get_system_property__bindgen_ty_1() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<hv_input_get_system_property__bindgen_ty_1>(),
-        4usize,
+        8usize,
         concat!(
             "Size of: ",
             stringify!(hv_input_get_system_property__bindgen_ty_1)
@@ -7262,20 +7282,30 @@ fn bindgen_test_layout_hv_input_get_system_property__bindgen_ty_1() {
     );
     assert_eq!(
         ::std::mem::align_of::<hv_input_get_system_property__bindgen_ty_1>(),
-        4usize,
+        8usize,
         concat!(
             "Alignment of ",
             stringify!(hv_input_get_system_property__bindgen_ty_1)
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).as_uint32) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).as_uint64) as usize - ptr as usize },
         0usize,
         concat!(
             "Offset of field: ",
             stringify!(hv_input_get_system_property__bindgen_ty_1),
             "::",
-            stringify!(as_uint32)
+            stringify!(as_uint64)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).hv_processor_feature) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_input_get_system_property__bindgen_ty_1),
+            "::",
+            stringify!(hv_processor_feature)
         )
     );
 }
@@ -7295,7 +7325,7 @@ fn bindgen_test_layout_hv_input_get_system_property() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<hv_input_get_system_property>(),
-        8usize,
+        16usize,
         concat!("Size of: ", stringify!(hv_input_get_system_property))
     );
     assert_eq!(
@@ -7311,6 +7341,16 @@ fn bindgen_test_layout_hv_input_get_system_property() {
             stringify!(hv_input_get_system_property),
             "::",
             stringify!(property_id)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).reserved) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_input_get_system_property),
+            "::",
+            stringify!(reserved)
         )
     );
 }
@@ -7378,6 +7418,7 @@ pub struct hv_output_get_system_property {
 pub union hv_output_get_system_property__bindgen_ty_1 {
     pub scheduler_type: __u32,
     pub hv_diagbuf_info: hv_system_diag_log_buffer_config,
+    pub hv_processor_feature_value: __u64,
 }
 #[test]
 fn bindgen_test_layout_hv_output_get_system_property__bindgen_ty_1() {
@@ -7394,7 +7435,7 @@ fn bindgen_test_layout_hv_output_get_system_property__bindgen_ty_1() {
     );
     assert_eq!(
         ::std::mem::align_of::<hv_output_get_system_property__bindgen_ty_1>(),
-        4usize,
+        8usize,
         concat!(
             "Alignment of ",
             stringify!(hv_output_get_system_property__bindgen_ty_1)
@@ -7418,6 +7459,16 @@ fn bindgen_test_layout_hv_output_get_system_property__bindgen_ty_1() {
             stringify!(hv_output_get_system_property__bindgen_ty_1),
             "::",
             stringify!(hv_diagbuf_info)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).hv_processor_feature_value) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_output_get_system_property__bindgen_ty_1),
+            "::",
+            stringify!(hv_processor_feature_value)
         )
     );
 }
