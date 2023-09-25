@@ -999,7 +999,7 @@ impl VcpuFd {
                     subleaf_specific = Some(1);
                     override_arg = None;
                 }
-                0x0000_0001 | 0x8000_0008 => {
+                0x0000_0001 | 0x8000_0000 | 0x8000_0001 | 0x8000_0008 => {
                     subleaf_specific = None;
                     override_arg = Some(1);
                 }
