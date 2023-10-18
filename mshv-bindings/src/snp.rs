@@ -55,6 +55,9 @@ pub const GHCB_INFO_HYPERCALL_OUTPUT: u32 = 3842;
 pub const GHCB_INFO_SPECIAL_DBGPRINT: u32 = 3843;
 pub const GHCB_INFO_SHUTDOWN_REQUEST: u32 = 256;
 
+pub const GHCB_HYP_FEATURE_SEV_SNP: u32 = 1 << 0;
+pub const GHCB_HYP_FEATURE_SEV_SNP_AP_CREATION: u32 = 1 << 1;
+
 #[repr(C, packed)]
 #[derive(Copy, Clone)]
 pub union svm_ghcb_msr {
