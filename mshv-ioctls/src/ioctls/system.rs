@@ -299,19 +299,6 @@ impl Mshv {
         self.create_vm_with_type(VmType::Normal)
     }
 
-    /// Check if MSHV API is stable
-    pub fn check_stable(&self) -> Result<bool> {
-        // Safe because we know `self.hv` is a real MSHV fd as this module is the only one that
-        // creates mshv objects.
-        let cap: u32 = MSHV_CAP_CORE_API_STABLE;
-        // SAFETY: IOCTL call with the correct types.
-        let ret = unsafe { ioctl_with_ref(&self.hv, MSHV_CHECK_EXTENSION(), &cap) };
-        match ret {
-            0 => Ok(false),
-            r if r > 0 => Ok(true),
-            _ => Err(errno::Error::last()),
-        }
-    }
     /// X86 specific call to get list of supported MSRS
     pub fn get_msr_index_list(&self) -> Result<MsrList> {
         /* return all the MSRs we currently support */
