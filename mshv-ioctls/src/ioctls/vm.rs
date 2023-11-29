@@ -4,7 +4,7 @@
 //
 use crate::ioctls::device::{new_device, DeviceFd};
 use crate::ioctls::vcpu::{new_vcpu, VcpuFd};
-use crate::ioctls::Result;
+use crate::ioctls::{MshvError, Result};
 use crate::mshv_ioctls::*;
 use mshv_bindings::*;
 
@@ -703,6 +703,17 @@ impl VmFd {
             Ok(new_device(unsafe { File::from_raw_fd(device.fd as i32) }))
         } else {
             Err(errno::Error::last().into())
+        }
+    }
+
+    /// Execute a hypercall for this partition
+    pub fn hvcall(&self, args: &mut mshv_root_hvcall) -> Result<()> {
+        // SAFETY: IOCTL with correct types
+        let ret = unsafe { ioctl_with_ref(self, MSHV_ROOT_HVCALL(), args) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(MshvError::from_hvcall(errno::Error::last(), *args))
         }
     }
 }
