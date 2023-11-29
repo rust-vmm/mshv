@@ -134,3 +134,5 @@ ioctl_iow_nr!(
     0x34,
     mshv_sev_snp_ap_create
 );
+
+ioctl_iowr_nr!(MSHV_ROOT_HVCALL, MSHV_IOCTL, 0x35, mshv_root_hvcall);

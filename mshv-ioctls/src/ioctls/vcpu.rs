@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 OR BSD-3-Clause
 //
-use crate::ioctls::Result;
+use crate::ioctls::{MshvError, Result};
 use crate::mshv_ioctls::*;
 use mshv_bindings::*;
 use std::convert::TryFrom;
@@ -1114,6 +1114,17 @@ impl VcpuFd {
             self.set_vp_state_ioctl(&vp_state)?;
         }
         Ok(())
+    }
+
+    /// Execute a hypercall for this vp
+    pub fn hvcall(&self, args: &mut mshv_root_hvcall) -> Result<()> {
+        // SAFETY: IOCTL with correct types
+        let ret = unsafe { ioctl_with_ref(self, MSHV_ROOT_HVCALL(), args) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(MshvError::from_hvcall(errno::Error::last(), *args))
+        }
     }
 }
 
