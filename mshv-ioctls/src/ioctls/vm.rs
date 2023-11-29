@@ -704,6 +704,17 @@ impl VmFd {
             Err(errno::Error::last())
         }
     }
+
+    /// Execute a hypercall for this partition
+    pub fn hvcall(&self, args: &mut mshv_root_hvcall) -> Result<()> {
+        // SAFETY: IOCTL with correct types
+        let ret = unsafe { ioctl_with_ref(self, MSHV_ROOT_HVCALL(), args) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
 }
 /// Helper function to create a new `VmFd`.
 ///
