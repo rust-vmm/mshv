@@ -202,7 +202,7 @@ impl VmFd {
         // SAFETY: we're sure vcpu_fd is valid.
         let vcpu = unsafe { File::from_raw_fd(vcpu_fd) };
 
-        Ok(new_vcpu(vcpu))
+        Ok(new_vcpu(id as u32, vcpu))
     }
     /// Inject an interrupt into the guest..
     pub fn request_virtual_interrupt(&self, request: &InterruptRequest) -> Result<()> {
