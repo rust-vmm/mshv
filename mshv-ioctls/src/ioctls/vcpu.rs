@@ -43,6 +43,7 @@ macro_rules! set_registers_64 {
 #[derive(Debug)]
 /// Wrapper over Mshv vCPU ioctls.
 pub struct VcpuFd {
+    index: u32,
     vcpu: File,
 }
 
@@ -51,8 +52,8 @@ pub struct VcpuFd {
 /// This should not be exported as a public function because the preferred way is to use
 /// `create_vcpu` from `VmFd`. The function cannot be part of the `VcpuFd` implementation because
 /// then it would be exported with the public `VcpuFd` interface.
-pub fn new_vcpu(vcpu: File) -> VcpuFd {
-    VcpuFd { vcpu }
+pub fn new_vcpu(index: u32, vcpu: File) -> VcpuFd {
+    VcpuFd { index, vcpu }
 }
 
 impl AsRawFd for VcpuFd {
