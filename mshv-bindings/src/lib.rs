@@ -13,10 +13,13 @@ mod x86_64;
 #[cfg(target_arch = "x86_64")]
 pub use self::x86_64::*;
 
-pub mod hvdef;
-pub use hvdef::*;
-
 #[cfg(target_arch = "aarch64")]
 mod arm64;
 #[cfg(target_arch = "aarch64")]
 pub use self::arm64::*;
+
+pub mod hvdef;
+pub use hvdef::*;
+
+pub mod hvcall;
+pub use hvcall::*;
