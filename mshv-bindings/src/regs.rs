@@ -13,56 +13,6 @@ use vmm_sys_util::errno;
 use zerocopy::{AsBytes, FromBytes, FromZeroes};
 
 #[repr(C)]
-#[derive(Default)]
-pub struct __IncompleteArrayField<T>(::std::marker::PhantomData<T>, [T; 0]);
-impl<T> __IncompleteArrayField<T> {
-    #[inline]
-    pub fn new() -> Self {
-        __IncompleteArrayField(::std::marker::PhantomData, [])
-    }
-
-    #[inline]
-    /// # Safety
-    /// Safe Beacuse we know the size of the field.
-    /// Caller needs to make sure lossless conversion
-    pub unsafe fn as_ptr(&self) -> *const T {
-        self as *const __IncompleteArrayField<T> as *const T
-    }
-    #[inline]
-    /// # Safety
-    /// Safe Beacuse we know the size of the field.
-    /// Caller needs to make sure lossless conversion
-    pub unsafe fn as_mut_ptr(&mut self) -> *mut T {
-        self as *const __IncompleteArrayField<T> as *mut T
-    }
-    #[inline]
-    /// # Safety
-    /// Safe Beacuse we know the size of the field.
-    /// Caller needs to make sure lossless conversion
-    pub unsafe fn as_slice(&self, len: usize) -> &[T] {
-        ::std::slice::from_raw_parts(self.as_ptr(), len)
-    }
-    #[inline]
-    /// # Safety
-    /// Safe Beacuse we know the size of the field.
-    /// Caller needs to make sure lossless conversion
-    pub unsafe fn as_mut_slice(&mut self, len: usize) -> &mut [T] {
-        ::std::slice::from_raw_parts_mut(self.as_mut_ptr(), len)
-    }
-}
-impl<T> ::std::fmt::Debug for __IncompleteArrayField<T> {
-    fn fmt(&self, fmt: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        fmt.write_str("__IncompleteArrayField")
-    }
-}
-impl<T> ::std::clone::Clone for __IncompleteArrayField<T> {
-    #[inline]
-    fn clone(&self) -> Self {
-        Self::new()
-    }
-}
-
-#[repr(C)]
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct StandardRegisters {
