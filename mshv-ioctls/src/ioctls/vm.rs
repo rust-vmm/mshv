@@ -100,14 +100,14 @@ impl AsRawFd for VmFd {
 impl VmFd {
     /// Install intercept to enable some VM exits like MSR, CPUId etc
     pub fn install_intercept(&self, install_intercept_args: mshv_install_intercept) -> Result<()> {
-        // SAFETY: IOCTL with correct types
-        let ret =
-            unsafe { ioctl_with_ref(self, MSHV_INSTALL_INTERCEPT(), &install_intercept_args) };
-        if ret == 0 {
-            Ok(())
-        } else {
-            Err(errno::Error::last())
-        }
+        let input = hv_input_install_intercept {
+            access_type: install_intercept_args.access_type_mask,
+            intercept_type: install_intercept_args.intercept_type,
+            intercept_parameter: install_intercept_args.intercept_parameter,
+            ..Default::default() // NOTE: kernel will populate partition_id field
+        };
+        let mut args = make_args!(HVCALL_INSTALL_INTERCEPT, input);
+        self.hvcall(&mut args)
     }
     /// Modify host visibility for a range of GPA
     pub fn modify_gpa_host_access(
@@ -794,7 +794,7 @@ mod tests {
             intercept_type: hv_intercept_type_HV_INTERCEPT_TYPE_X64_CPUID,
             intercept_parameter: hv_intercept_parameters { cpuid_index: 0x100 },
         };
-        vm.install_intercept(intercept_args).unwrap();
+        assert!(vm.install_intercept(intercept_args).is_ok());
     }
     #[test]
     fn test_setting_immutable_partition_property() {
