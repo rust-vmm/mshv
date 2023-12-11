@@ -882,23 +882,23 @@ impl VcpuFd {
     }
     /// Translate guest virtual address to guest physical address
     pub fn translate_gva(&self, gva: u64, flags: u64) -> Result<(u64, hv_translate_gva_result)> {
-        let gpa: u64 = 0;
-        let result = hv_translate_gva_result { as_uint64: 0 };
-
-        let mut args = mshv_translate_gva {
-            gva,
-            flags,
-            gpa: &gpa as *const _ as *mut u64,
-            result: &result as *const _ as *mut hv_translate_gva_result,
+        let input = hv_input_translate_virtual_address {
+            vp_index: self.index,
+            control_flags: flags,
+            gva_page: gva >> HV_HYP_PAGE_SHIFT,
+            ..Default::default() // NOTE: kernel will populate partition_id field
         };
-        // SAFETY: we know that our file is a vCPU fd, we know the kernel honours its ABI.
-        let ret = unsafe { ioctl_with_mut_ref(self, MSHV_VP_TRANSLATE_GVA(), &mut args) };
-        if ret != 0 {
-            return Err(errno::Error::last());
-        }
+        let output = hv_output_translate_virtual_address {
+            ..Default::default()
+        };
+        let mut args = make_args!(HVCALL_TRANSLATE_VIRTUAL_ADDRESS, input, output);
+        self.hvcall(&mut args)?;
 
-        Ok((gpa, result))
+        let gpa = (output.gpa_page << HV_HYP_PAGE_SHIFT) | (gva & !(1 << HV_HYP_PAGE_SHIFT));
+
+        Ok((gpa, output.translation_result))
     }
+
     /// X86 specific call that returns the vcpu's current "suspend registers".
     pub fn get_suspend_regs(&self) -> Result<SuspendRegisters> {
         let reg_names: [hv_register_name; 2] = [
@@ -1019,20 +1019,38 @@ impl VcpuFd {
     /// leaf as observed on the virtual processor.
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     pub fn get_cpuid_values(&self, eax: u32, ecx: u32, xfem: u64, xss: u64) -> Result<[u32; 4]> {
-        let mut parms = mshv_get_vp_cpuid_values {
-            function: eax,
-            index: ecx,
-            xfem,
-            xss,
-            ..Default::default()
-        };
-        // SAFETY: we know that our file is a vCPU fd, we know the kernel will only read the
-        // correct amount of memory from our pointer, and we verify the return result.
-        let ret = unsafe { ioctl_with_mut_ref(self, MSHV_GET_VP_CPUID_VALUES(), &mut parms) };
-        if ret != 0 {
-            return Err(errno::Error::last());
+        let mut input = make_rep_input!(
+            hv_input_get_vp_cpuid_values {
+                vp_index: self.index,
+                ..Default::default() // NOTE: kernel will populate partition_id field
+            },
+            cpuid_leaf_info,
+            [hv_cpuid_leaf_info {
+                eax,
+                ecx,
+                xfem,
+                xss,
+            }]
+        );
+        unsafe {
+            input
+                .as_mut_struct_ref()
+                .flags
+                .__bindgen_anon_1
+                .set_use_vp_xfem_xss(1);
+            input
+                .as_mut_struct_ref()
+                .flags
+                .__bindgen_anon_1
+                .set_apply_registered_values(1);
         }
-        Ok([parms.eax, parms.ebx, parms.ecx, parms.edx])
+        let mut output_arr: [hv_output_get_vp_cpuid_values; 1] = [Default::default()];
+        let mut args = make_rep_args!(HVCALL_GET_VP_CPUID_VALUES, input, output_arr);
+        self.hvcall(&mut args)?;
+
+        // SAFETY: we know the hvcall succeeded, and both fields of the union
+        // are equivalent we just return the array instead of taking eax, ebx, etc...
+        Ok(unsafe { output_arr[0].as_uint32 })
     }
     /// Read GPA
     pub fn gpa_read(&self, input: &mut mshv_read_write_gpa) -> Result<mshv_read_write_gpa> {
