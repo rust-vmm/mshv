@@ -66,39 +66,62 @@ impl AsRawFd for VcpuFd {
 impl VcpuFd {
     /// Get the register values by providing an array of register names
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
-    pub fn get_reg(&self, reg_names: &mut [hv_register_assoc]) -> Result<()> {
-        //TODO: Error if input register len is zero
-        let mut mshv_vp_register_args = mshv_vp_registers {
-            count: reg_names.len() as i32,
-            regs: reg_names.as_mut_ptr(),
-        };
-        // SAFETY: we know that our file is a vCPU fd, we know the kernel will only read the
-        // correct amount of memory from our pointer, and we verify the return result.
-        let ret = unsafe {
-            ioctl_with_mut_ref(self, MSHV_GET_VP_REGISTERS(), &mut mshv_vp_register_args)
-        };
-        if ret != 0 {
-            return Err(errno::Error::last());
+    pub fn get_reg(&self, reg_assocs: &mut [hv_register_assoc]) -> Result<()> {
+        if reg_assocs.is_empty() {
+            return Err(errno::Error::new(libc::EINVAL));
         }
+        let reg_names: Vec<hv_register_name> = reg_assocs.iter().map(|assoc| assoc.name).collect();
+        let input = make_rep_input!(
+            hv_input_get_vp_registers {
+                vp_index: self.index,
+                ..Default::default()
+            },
+            names,
+            reg_names.as_slice()
+        );
+        let mut output: Vec<hv_register_value> = reg_names
+            .iter()
+            .map(|_| hv_register_value {
+                reg128: hv_u128 {
+                    ..Default::default()
+                },
+            })
+            .collect();
+        let output_slice = output.as_mut_slice();
+
+        let mut args = make_rep_args!(HVCALL_GET_VP_REGISTERS, input, output_slice);
+        self.hvcall(&mut args)?;
+
+        if args.reps as usize != reg_assocs.len() {
+            // TODO better handling? partial success?
+            return Err(errno::Error::new(libc::EINTR));
+        }
+
+        for (assoc, value) in reg_assocs.iter_mut().zip(output.iter()) {
+            assoc.value = *value;
+        }
+
         Ok(())
     }
-    /// Sets a vCPU register to input value.
-    ///
-    /// # Arguments
-    ///
-    /// * `reg_name` - general purpose register name.
-    /// * `reg_value` - register value.
+    /// Set the register values by providing an array of register assocs
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
-    pub fn set_reg(&self, regs: &[hv_register_assoc]) -> Result<()> {
-        let hv_vp_register_args = mshv_vp_registers {
-            count: regs.len() as i32,
-            regs: regs.as_ptr() as *mut hv_register_assoc,
-        };
-        // SAFETY: IOCTL call with correct types.
-        let ret = unsafe { ioctl_with_ref(self, MSHV_SET_VP_REGISTERS(), &hv_vp_register_args) };
-        if ret != 0 {
-            return Err(errno::Error::last());
+    pub fn set_reg(&self, reg_assocs: &[hv_register_assoc]) -> Result<()> {
+        let input = make_rep_input!(
+            hv_input_set_vp_registers {
+                vp_index: self.index,
+                ..Default::default()
+            },
+            elements,
+            reg_assocs
+        );
+        let mut args = make_rep_args!(HVCALL_SET_VP_REGISTERS, input);
+        self.hvcall(&mut args)?;
+
+        if args.reps as usize != reg_assocs.len() {
+            // TODO better handling? partial success?
+            return Err(errno::Error::new(libc::EINTR));
         }
+
         Ok(())
     }
     /// Sets the vCPU general purpose registers
