@@ -33,7 +33,6 @@ extern crate serde_derive;
 pub mod hvdef;
 pub use hvdef::*;
 mod unmarshal;
-pub use unmarshal::*;
 
 #[cfg(feature = "fam-wrappers")]
 mod fam_wrappers;
@@ -43,6 +42,3 @@ pub use fam_wrappers::*;
 
 #[cfg(feature = "with-serde")]
 mod serializers;
-
-#[cfg(feature = "with-serde")]
-pub use serializers::*;
