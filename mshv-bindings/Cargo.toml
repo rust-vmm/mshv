@@ -13,7 +13,7 @@ with-serde = ["serde", "serde_derive"]
 libc = ">=0.2.39"
 serde = { version = ">=1.0.27", optional = true }
 serde_derive = { version = ">=1.0.27", optional = true }
-vmm-sys-util = ">=0.2.1"
+vmm-sys-util = ">=0.12.1"
 
 zerocopy = { version = "0.7", features = ["derive"] }
 
