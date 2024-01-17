@@ -8,4 +8,4 @@ license = "Apache-2.0 OR BSD-3-Clause"
 [dependencies]
 libc = ">=0.2.39"
 mshv-bindings = {path = "../mshv-bindings", features = ["fam-wrappers"]}
-vmm-sys-util = ">=0.8.0"
+vmm-sys-util = ">=0.12.1"
