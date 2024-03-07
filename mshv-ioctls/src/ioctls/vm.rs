@@ -106,7 +106,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         }
     }
     /// Modify host visibility for a range of GPA
@@ -120,7 +120,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         }
     }
     /// Import the isolated pages
@@ -133,7 +133,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         }
     }
     /// Mark completion of importing the isoalted pages
@@ -143,7 +143,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         }
     }
     /// Issue PSP request from guest side
@@ -153,7 +153,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         }
     }
     /// Create AP threads for SEV-SNP guest
@@ -163,7 +163,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         }
     }
     /// Creates/modifies a guest physical memory.
@@ -173,7 +173,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         }
     }
     /// Unmap a guest physical memory.
@@ -183,7 +183,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         }
     }
     /// Creates a new MSHV vCPU file descriptor
@@ -194,7 +194,7 @@ impl VmFd {
         // SAFETY: IOCTL with correct types
         let vcpu_fd = unsafe { ioctl_with_ref(&self.vm, MSHV_CREATE_VP(), &vp_arg) };
         if vcpu_fd < 0 {
-            return Err(errno::Error::last());
+            return Err(errno::Error::last().into());
         }
 
         // Wrap the vCPU now in case the following ? returns early. This is safe because we verified
@@ -230,7 +230,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         }
     }
     ///
@@ -248,7 +248,7 @@ impl VmFd {
         if ret == 0 {
             Ok(event_info.newly_signaled != 0)
         } else {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         }
     }
     ///
@@ -266,7 +266,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         }
     }
     ///
@@ -289,7 +289,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         }
     }
     /// irqfd: Passes in an eventfd which is to be used for injecting
@@ -307,7 +307,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         }
     }
     /// Registers an event that will, when signaled, trigger the `gsi` IRQ.
@@ -428,7 +428,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         }
     }
 
@@ -446,7 +446,7 @@ impl VmFd {
         //
         let mmio_addr = match addr {
             IoEventAddress::Pio(_) => {
-                return Err(errno::Error::new(libc::ENOTSUP));
+                return Err(libc::ENOTSUP.into());
             }
             IoEventAddress::Mmio(ref m) => *m,
         };
@@ -469,7 +469,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         }
     }
     /// Registers an event to be signaled whenever a certain address is written to.
@@ -555,7 +555,7 @@ impl VmFd {
         if ret == 0 {
             Ok(property.property_value)
         } else {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         }
     }
     /// Sets a partion property
@@ -569,7 +569,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         }
     }
     /// Enable dirty page tracking by hypervisor
@@ -632,7 +632,7 @@ impl VmFd {
         if ret == 0 {
             Ok(gpa_pages_access_state)
         } else {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         }
     }
     /// Gets the bitmap of pages dirtied since the last call of this function
@@ -649,7 +649,7 @@ impl VmFd {
         // each page.
         // SAFETY: FFI call to libc
         let page_size = match unsafe { libc::sysconf(libc::_SC_PAGESIZE) } {
-            -1 => return Err(errno::Error::last()),
+            -1 => return Err(errno::Error::last().into()),
             ps => ps as usize,
         };
 
@@ -702,7 +702,7 @@ impl VmFd {
             // SAFETY: fd is valid
             Ok(new_device(unsafe { File::from_raw_fd(device.fd as i32) }))
         } else {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         }
     }
 }
@@ -721,8 +721,8 @@ mod tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
     use crate::ioctls::system::Mshv;
+    use crate::ioctls::MshvError;
     use std::mem;
-    use vmm_sys_util::errno::Error;
 
     #[test]
     fn test_user_memory() {
@@ -925,7 +925,7 @@ mod tests {
         let res = vm.register_deliverabilty_notifications(0, 1);
         assert!(res.is_err());
         if let Err(e) = res {
-            assert!(e == Error::new(libc::EINVAL));
+            assert!(e == MshvError::from(libc::EINVAL))
         }
     }
 }

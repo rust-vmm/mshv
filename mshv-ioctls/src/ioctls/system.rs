@@ -252,7 +252,7 @@ impl Mshv {
         // SAFETY: we give a constant null-terminated string and verify the result.
         let ret = unsafe { open("/dev/mshv\0".as_ptr() as *const c_char, open_flags) };
         if ret < 0 {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         } else {
             Ok(ret)
         }
@@ -267,7 +267,7 @@ impl Mshv {
             let vm_file = unsafe { File::from_raw_fd(ret) };
             Ok(new_vmfd(vm_file))
         } else {
-            Err(errno::Error::last())
+            Err(errno::Error::last().into())
         }
     }
 

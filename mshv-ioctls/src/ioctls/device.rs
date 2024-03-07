@@ -28,7 +28,7 @@ impl DeviceFd {
         // requirements.
         let ret = unsafe { ioctl_with_ref(self, MSHV_HAS_DEVICE_ATTR(), device_attr) };
         if ret != 0 {
-            return Err(errno::Error::last());
+            return Err(errno::Error::last().into());
         }
         Ok(())
     }
@@ -79,7 +79,7 @@ impl DeviceFd {
         // requirements.
         let ret = unsafe { ioctl_with_ref(self, MSHV_SET_DEVICE_ATTR(), device_attr) };
         if ret != 0 {
-            return Err(errno::Error::last());
+            return Err(errno::Error::last().into());
         }
         Ok(())
     }
@@ -108,7 +108,7 @@ impl DeviceFd {
         // requirements.
         let ret = unsafe { ioctl_with_mut_ref(self, MSHV_GET_DEVICE_ATTR(), device_attr) };
         if ret != 0 {
-            return Err(errno::Error::last());
+            return Err(errno::Error::last().into());
         }
         Ok(())
     }
