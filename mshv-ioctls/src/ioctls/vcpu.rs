@@ -76,7 +76,7 @@ impl VcpuFd {
             ioctl_with_mut_ref(self, MSHV_GET_VP_REGISTERS(), &mut mshv_vp_register_args)
         };
         if ret != 0 {
-            return Err(errno::Error::last());
+            return Err(errno::Error::last().into());
         }
         Ok(())
     }
@@ -95,7 +95,7 @@ impl VcpuFd {
         // SAFETY: IOCTL call with correct types.
         let ret = unsafe { ioctl_with_ref(self, MSHV_SET_VP_REGISTERS(), &hv_vp_register_args) };
         if ret != 0 {
-            return Err(errno::Error::last());
+            return Err(errno::Error::last().into());
         }
         Ok(())
     }
@@ -393,7 +393,7 @@ impl VcpuFd {
         // we can't do this without the vm fd which isn't available here
         for bits in &sregs.interrupt_bitmap {
             if *bits != 0 {
-                return Err(errno::Error::new(libc::EINVAL));
+                return Err(libc::EINVAL.into());
             }
         }
 
@@ -639,7 +639,7 @@ impl VcpuFd {
         for i in 0..nmsrs {
             let name = match msr_to_hv_reg_name(msrs.as_slice()[i].index) {
                 Ok(n) => n,
-                Err(_) => return Err(errno::Error::new(libc::EINVAL)),
+                Err(_) => return Err(libc::EINVAL.into()),
             };
             reg_assocs.push(hv_register_assoc {
                 name,
@@ -669,7 +669,7 @@ impl VcpuFd {
         for i in 0..nmsrs {
             let name = match msr_to_hv_reg_name(msrs.as_slice()[i].index) {
                 Ok(n) => n,
-                Err(_) => return Err(errno::Error::new(libc::EINVAL)),
+                Err(_) => return Err(libc::EINVAL.into()),
             };
             reg_assocs.push(hv_register_assoc {
                 name,
@@ -688,7 +688,7 @@ impl VcpuFd {
         // SAFETY: we know that our file is a vCPU fd and we verify the return result.
         let ret = unsafe { ioctl_with_mut_ref(self, MSHV_RUN_VP(), &mut hv_message_input) };
         if ret != 0 {
-            return Err(errno::Error::last());
+            return Err(errno::Error::last().into());
         }
         Ok(hv_message_input)
     }
@@ -829,7 +829,7 @@ impl VcpuFd {
         // SAFETY: we know that our file is a vCPU fd and we verify the return result.
         let ret = unsafe { ioctl_with_mut_ref(self, MSHV_GET_VP_STATE(), state) };
         if ret != 0 {
-            return Err(errno::Error::last());
+            return Err(errno::Error::last().into());
         }
         Ok(())
     }
@@ -839,7 +839,7 @@ impl VcpuFd {
         // SAFETY: IOCTL call with correct types
         let ret = unsafe { ioctl_with_ref(self, MSHV_SET_VP_STATE(), state) };
         if ret != 0 {
-            return Err(errno::Error::last());
+            return Err(errno::Error::last().into());
         }
         Ok(())
     }
@@ -853,7 +853,7 @@ impl VcpuFd {
             ..Default::default()
         };
         self.get_vp_state_ioctl(&mut vp_state)?;
-        LapicState::try_from(buffer)
+        Ok(LapicState::try_from(buffer)?)
     }
     /// Sets the state of the LAPIC (Local Advanced Programmable Interrupt Controller).
     pub fn set_lapic(&self, lapic_state: &LapicState) -> Result<()> {
@@ -876,7 +876,7 @@ impl VcpuFd {
             ..Default::default()
         };
         self.get_vp_state_ioctl(&mut vp_state)?;
-        XSave::try_from(buffer)
+        Ok(XSave::try_from(buffer)?)
     }
     /// Set the xsave data
     pub fn set_xsave(&self, data: &XSave) -> Result<()> {
@@ -903,7 +903,7 @@ impl VcpuFd {
         // SAFETY: we know that our file is a vCPU fd, we know the kernel honours its ABI.
         let ret = unsafe { ioctl_with_mut_ref(self, MSHV_VP_TRANSLATE_GVA(), &mut args) };
         if ret != 0 {
-            return Err(errno::Error::last());
+            return Err(errno::Error::last().into());
         }
 
         Ok((gpa, result))
@@ -986,7 +986,7 @@ impl VcpuFd {
         };
         let ret = unsafe { ioctl_with_ref(self, MSHV_VP_REGISTER_INTERCEPT_RESULT(), &args) };
         if ret != 0 {
-            return Err(errno::Error::last());
+            return Err(errno::Error::last().into());
         }
 
         Ok(())
@@ -1040,7 +1040,7 @@ impl VcpuFd {
         // correct amount of memory from our pointer, and we verify the return result.
         let ret = unsafe { ioctl_with_mut_ref(self, MSHV_GET_VP_CPUID_VALUES(), &mut parms) };
         if ret != 0 {
-            return Err(errno::Error::last());
+            return Err(errno::Error::last().into());
         }
         Ok([parms.eax, parms.ebx, parms.ecx, parms.edx])
     }
@@ -1049,7 +1049,7 @@ impl VcpuFd {
         // SAFETY: we know that our file is a vCPU fd, we know the kernel honours its ABI.
         let ret = unsafe { ioctl_with_mut_ref(self, MSHV_READ_GPA(), input) };
         if ret != 0 {
-            return Err(errno::Error::last());
+            return Err(errno::Error::last().into());
         }
 
         Ok(*input)
@@ -1059,7 +1059,7 @@ impl VcpuFd {
         // SAFETY: we know that our file is a vCPU fd, we know the kernel honours its ABI.
         let ret = unsafe { ioctl_with_mut_ref(self, MSHV_WRITE_GPA(), input) };
         if ret != 0 {
-            return Err(errno::Error::last());
+            return Err(errno::Error::last().into());
         }
 
         Ok(*input)

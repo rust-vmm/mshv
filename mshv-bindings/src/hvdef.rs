@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR BSD-3-Clause
 //
 #![allow(dead_code)]
+use num_enum::TryFromPrimitive;
 use zerocopy::{AsBytes, FromBytes, FromZeroes};
 
 pub const HV_CPUID_FUNCTION_VERSION_AND_FEATURES: u32 = 0x00000001;
@@ -113,7 +114,7 @@ pub const MSR_HYPERCALL_ADDR_MASK: u64 = !0xfff;
 pub const MSR_SIEFP_SIMP_ACTIVE: u64 = 1;
 pub const MSR_SIEFP_SIMP_ADDR_MASK: u64 = !0xfff;
 
-#[derive(Debug)]
+#[derive(TryFromPrimitive, Debug, Copy, Clone, PartialEq)]
 #[repr(u16)]
 pub enum HvError {
     InvalidHypercallCode = 0x0002,
@@ -171,8 +172,6 @@ pub enum HvError {
     InsufficientRootMemory = 0x0073,
     EventBufferAlreadyFreed = 0x0074,
 }
-
-pub type HvResult<T> = Result<T, HvError>;
 
 #[repr(C)]
 #[derive(Copy, Clone, AsBytes, Debug, FromBytes, FromZeroes)]
