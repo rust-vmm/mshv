@@ -38,6 +38,8 @@ pub enum SyntheticProcessorFeature {
     AccessSynicRegs,
     /// Access to synthetic timers and associated MSRs (HV_X64_MSR_STIMER0_CONFIG through HV_X64_MSR_STIMER3_COUNT).Corresponds to access_synthetic_timer_regs privilege.
     AccessSyntheticTimerRegs,
+    /// Access to Synthetic timers in direct mode
+    DirectSyntheticTimers,
     /// Access to the reference TSC. Corresponds to access_partition_reference_tsc privilege.
     AccessPartitionReferenceTsc,
     /// Partition has access to frequency regs. corresponds to access_frequency_regs privilege.
@@ -147,6 +149,12 @@ impl MshvPartitionBuilder {
                     .synthetic_processor_features
                     .__bindgen_anon_1
                     .set_access_synthetic_timer_regs(1);
+            },
+            SyntheticProcessorFeature::DirectSyntheticTimers => unsafe {
+                self.mshv_partition
+                    .synthetic_processor_features
+                    .__bindgen_anon_1
+                    .set_direct_synthetic_timers(1);
             },
             SyntheticProcessorFeature::AccessPartitionReferenceTsc => unsafe {
                 self.mshv_partition
@@ -274,6 +282,7 @@ impl Mshv {
             )
             .set_synthetic_processor_feature(SyntheticProcessorFeature::AccessSynicRegs)
             .set_synthetic_processor_feature(SyntheticProcessorFeature::AccessSyntheticTimerRegs)
+            .set_synthetic_processor_feature(SyntheticProcessorFeature::DirectSyntheticTimers)
             .set_synthetic_processor_feature(SyntheticProcessorFeature::AccessPartitionReferenceTsc)
             .set_synthetic_processor_feature(SyntheticProcessorFeature::AccessFrequencyRegs)
             .set_synthetic_processor_feature(SyntheticProcessorFeature::AccessIntrCtrlRegs)
