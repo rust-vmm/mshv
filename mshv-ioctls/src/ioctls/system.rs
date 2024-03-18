@@ -81,7 +81,7 @@ impl MshvPartitionBuilder {
     }
 
     /// Updates partition flags
-    pub fn set_partiton_creation_flag(mut self, flag: u64) -> MshvPartitionBuilder {
+    pub fn set_partition_creation_flag(mut self, flag: u64) -> MshvPartitionBuilder {
         self.mshv_partition.flags |= flag;
         self
     }
@@ -274,7 +274,7 @@ impl Mshv {
     /// Helper function to creates a VM fd using the MSHV fd with provided configuration.
     pub fn create_vm_with_type(&self, vm_type: VmType) -> Result<VmFd> {
         let mut mshv_builder = MshvPartitionBuilder::new()
-            .set_partiton_creation_flag(HV_PARTITION_CREATION_FLAG_LAPIC_ENABLED as u64)
+            .set_partition_creation_flag(HV_PARTITION_CREATION_FLAG_LAPIC_ENABLED as u64)
             .set_synthetic_processor_feature(SyntheticProcessorFeature::HypervisorPresent)
             .set_synthetic_processor_feature(SyntheticProcessorFeature::Hv1)
             .set_synthetic_processor_feature(
@@ -294,7 +294,7 @@ impl Mshv {
 
         if vm_type == VmType::Snp {
             mshv_builder = mshv_builder
-                .set_partiton_creation_flag(HV_PARTITION_CREATION_FLAG_X2APIC_CAPABLE as u64)
+                .set_partition_creation_flag(HV_PARTITION_CREATION_FLAG_X2APIC_CAPABLE as u64)
                 .set_isolation_type(HV_PARTITION_ISOLATION_TYPE_SNP as u64)
                 .set_shared_gpa_boundary_page_number(0_u64);
         }
