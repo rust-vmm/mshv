@@ -366,6 +366,7 @@ pub struct VcpuEvents {
     pub internal_activity_state: u64,
     pub pending_event0: [u8; 16usize],
     pub pending_event1: [u8; 16usize],
+    pub deliverability_notifications: u64,
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]

@@ -692,12 +692,13 @@ impl VcpuFd {
     /// Returns currently pending exceptions, interrupts, and NMIs as well as related
     /// states of the vcpu.
     pub fn get_vcpu_events(&self) -> Result<VcpuEvents> {
-        let reg_names: [hv_register_name; 5] = [
+        let reg_names: [hv_register_name; 6] = [
             hv_register_name_HV_REGISTER_PENDING_INTERRUPTION,
             hv_register_name_HV_REGISTER_INTERRUPT_STATE,
             hv_register_name_HV_REGISTER_INTERNAL_ACTIVITY_STATE,
             hv_register_name_HV_REGISTER_PENDING_EVENT0,
             hv_register_name_HV_REGISTER_PENDING_EVENT1,
+            hv_register_name_HV_REGISTER_DELIVERABILITY_NOTIFICATIONS,
         ];
         let mut reg_assocs: Vec<hv_register_assoc> = reg_names
             .iter()
@@ -717,21 +718,23 @@ impl VcpuFd {
                 std::mem::transmute::<hv_u128, [u8; 16usize]>(reg_assocs[3].value.reg128);
             ret_regs.pending_event1 =
                 std::mem::transmute::<hv_u128, [u8; 16usize]>(reg_assocs[4].value.reg128);
+            ret_regs.deliverability_notifications = reg_assocs[5].value.reg64;
         }
         Ok(ret_regs)
     }
     /// Sets pending exceptions, interrupts, and NMIs as well as related states of the vcpu.
     pub fn set_vcpu_events(&self, events: &VcpuEvents) -> Result<()> {
-        let reg_names: [hv_register_name; 5] = [
+        let reg_names: [hv_register_name; 6] = [
             hv_register_name_HV_REGISTER_PENDING_INTERRUPTION,
             hv_register_name_HV_REGISTER_INTERRUPT_STATE,
             hv_register_name_HV_REGISTER_INTERNAL_ACTIVITY_STATE,
             hv_register_name_HV_REGISTER_PENDING_EVENT0,
             hv_register_name_HV_REGISTER_PENDING_EVENT1,
+            hv_register_name_HV_REGISTER_DELIVERABILITY_NOTIFICATIONS,
         ];
         // SAFETY: access union fields requires unsafe. For transmuting values we're sure
         // the types and bit patterns are correct.
-        let reg_values: [hv_register_value; 5] = unsafe {
+        let reg_values: [hv_register_value; 6] = unsafe {
             [
                 hv_register_value {
                     reg64: events.pending_interruption,
@@ -747,6 +750,9 @@ impl VcpuFd {
                 },
                 hv_register_value {
                     reg128: std::mem::transmute::<[u8; 16usize], hv_u128>(events.pending_event1),
+                },
+                hv_register_value {
+                    reg64: events.deliverability_notifications,
                 },
             ]
         };

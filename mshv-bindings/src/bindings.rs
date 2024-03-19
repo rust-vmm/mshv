@@ -4009,6 +4009,7 @@ pub const hv_register_name_HV_REGISTER_DEBUG_DEVICE_OPTIONS: hv_register_name = 
 pub const hv_register_name_HV_REGISTER_MEMORY_ZEROING_CONTROL: hv_register_name = 624;
 pub const hv_register_name_HV_REGISTER_PENDING_EVENT0: hv_register_name = 65540;
 pub const hv_register_name_HV_REGISTER_PENDING_EVENT1: hv_register_name = 65541;
+pub const hv_register_name_HV_REGISTER_DELIVERABILITY_NOTIFICATIONS: hv_register_name = 65542;
 pub const hv_register_name_HV_REGISTER_VP_RUNTIME: hv_register_name = 589824;
 pub const hv_register_name_HV_REGISTER_GUEST_OS_ID: hv_register_name = 589826;
 pub const hv_register_name_HV_REGISTER_VP_INDEX: hv_register_name = 589827;
