@@ -366,9 +366,30 @@ impl Mshv {
                 MPX support needed for this MSR
                 Currently feature is not enabled
             */
-            //IA32_MSR_SPEC_CTRL,
+            IA32_MSR_SPEC_CTRL,
             //IA32_MSR_TSC_ADJUST, // Current hypervisor version does not allow to get this MSR, need to check later
             HV_X64_MSR_GUEST_OS_ID,
+            HV_X64_MSR_SINT0,
+            HV_X64_MSR_SINT1,
+            HV_X64_MSR_SINT2,
+            HV_X64_MSR_SINT3,
+            HV_X64_MSR_SINT4,
+            HV_X64_MSR_SINT5,
+            HV_X64_MSR_SINT6,
+            HV_X64_MSR_SINT7,
+            HV_X64_MSR_SINT8,
+            HV_X64_MSR_SINT9,
+            HV_X64_MSR_SINT10,
+            HV_X64_MSR_SINT11,
+            HV_X64_MSR_SINT12,
+            HV_X64_MSR_SINT13,
+            HV_X64_MSR_SINT14,
+            HV_X64_MSR_SINT15,
+            HV_X64_MSR_SCONTROL,
+            HV_X64_MSR_SIEFP,
+            HV_X64_MSR_SIMP,
+            HV_X64_MSR_REFERENCE_TSC,
+            HV_X64_MSR_EOM,
         ])
         .unwrap())
     }
@@ -395,11 +416,10 @@ mod tests {
         assert!(vm.is_ok());
     }
     #[test]
-    #[ignore]
     fn test_get_msr_index_list() {
         let hv = Mshv::new().unwrap();
         let msr_list = hv.get_msr_index_list().unwrap();
-        assert!(msr_list.as_fam_struct_ref().nmsrs == 45);
+        assert!(msr_list.as_fam_struct_ref().nmsrs == 65);
 
         let mut found = false;
         for index in msr_list.as_slice() {
