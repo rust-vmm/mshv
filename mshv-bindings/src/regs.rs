@@ -193,6 +193,14 @@ pub struct SpecialRegisters {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
+pub struct ApicRegs {
+    pub apic_id: u64,
+    pub apic_version: u64,
+}
+
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
+#[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct DebugRegisters {
     pub dr0: u64,
     pub dr1: u64,

@@ -794,6 +794,59 @@ impl VcpuFd {
             ..Default::default()
         }])
     }
+
+    /// X86 specific call that returns the vcpu's current "apic registers".
+    pub fn get_apic_regs(&self) -> Result<ApicRegs> {
+        let reg_names: [hv_register_name; 2] = [
+            hv_register_name_HV_X64_REGISTER_APIC_ID,
+            hv_register_name_HV_X64_REGISTER_APIC_VERSION,
+        ];
+
+        let mut reg_assocs: Vec<hv_register_assoc> = reg_names
+            .iter()
+            .map(|name| hv_register_assoc {
+                name: *name,
+                ..Default::default()
+            })
+            .collect();
+
+        self.get_reg(&mut reg_assocs)?;
+
+        let ret_regs = unsafe {
+            ApicRegs {
+                apic_id: reg_assocs[0].value.reg64,
+                apic_version: reg_assocs[1].value.reg64,
+            }
+        };
+
+        Ok(ret_regs)
+    }
+
+    /// X86 specific call that sets the vcpu's current "apic registers".
+    pub fn set_apic_regs(&self, d_regs: &ApicRegs) -> Result<()> {
+        let reg_names = [
+            hv_register_name_HV_X64_REGISTER_APIC_ID,
+            //hv_register_name_HV_X64_REGISTER_APIC_VERSION,
+        ];
+        let reg_values = [
+            hv_register_value { reg64: d_regs.apic_id },
+            //hv_register_value { reg64: d_regs.apic_version },
+        ];
+
+        let reg_assocs: Vec<hv_register_assoc> = reg_names
+            .iter()
+            .zip(reg_values.iter())
+            .map(|t| hv_register_assoc {
+                name: *t.0,
+                value: *t.1,
+                ..Default::default()
+            })
+            .collect();
+
+        self.set_reg(&reg_assocs)?;
+        Ok(())
+    }
+
     /// X86 specific call that returns the vcpu's current "misc registers".
     pub fn get_misc_regs(&self) -> Result<MiscRegs> {
         let mut reg_assocs: [hv_register_assoc; 1] = [hv_register_assoc {
@@ -1488,5 +1541,17 @@ mod tests {
         let res = vcpu.get_cpuid_values(0, 0, 0, 0).unwrap();
         let max_function = res[0];
         assert!(max_function >= 1);
+    }
+    #[test]
+    fn test_set_get_apic_regs() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let s_regs = vcpu.get_apic_regs().unwrap();
+        vcpu.set_apic_regs(&s_regs).unwrap();
+        let g_regs = vcpu.get_apic_regs().unwrap();
+        assert!(g_regs.apic_id == s_regs.apic_id);
+        assert!(g_regs.apic_version == s_regs.apic_version);
     }
 }
