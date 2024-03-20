@@ -348,6 +348,18 @@ pub fn msr_to_hv_reg_name(msr: u32) -> Result<::std::os::raw::c_uint, &'static s
         HV_X64_MSR_SIMP => Ok(hv_register_name_HV_REGISTER_SIMP),
         HV_X64_MSR_REFERENCE_TSC => Ok(hv_register_name_HV_REGISTER_REFERENCE_TSC),
         HV_X64_MSR_EOM => Ok(hv_register_name_HV_REGISTER_EOM),
+        HV_X64_MSR_TPR => Ok(hv_register_name_HV_X64_REGISTER_SYNTHETIC_TPR),
+        HV_X64_MSR_ICR => Ok(hv_register_name_HV_X64_REGISTER_SYNTHETIC_ICR),
+        HV_X64_MSR_EOI => Ok(hv_register_name_HV_X64_REGISTER_SYNTHETIC_EOI),
+        HV_X64_MSR_TIME_REF_COUNT => Ok(hv_register_name_HV_REGISTER_TIME_REF_COUNT),
+        HV_X64_MSR_STIMER0_CONFIG => Ok(hv_register_name_HV_REGISTER_STIMER0_CONFIG),
+        HV_X64_MSR_STIMER0_COUNT => Ok(hv_register_name_HV_REGISTER_STIMER0_COUNT),
+        HV_X64_MSR_STIMER1_CONFIG => Ok(hv_register_name_HV_REGISTER_STIMER1_CONFIG),
+        HV_X64_MSR_STIMER1_COUNT => Ok(hv_register_name_HV_REGISTER_STIMER1_COUNT),
+        HV_X64_MSR_STIMER2_CONFIG => Ok(hv_register_name_HV_REGISTER_STIMER2_CONFIG),
+        HV_X64_MSR_STIMER2_COUNT => Ok(hv_register_name_HV_REGISTER_STIMER2_COUNT),
+        HV_X64_MSR_STIMER3_CONFIG => Ok(hv_register_name_HV_REGISTER_STIMER3_CONFIG),
+        HV_X64_MSR_STIMER3_COUNT => Ok(hv_register_name_HV_REGISTER_STIMER3_COUNT),
         _ => Err("Not a supported hv_register_name msr"),
     }
 }

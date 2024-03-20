@@ -390,6 +390,8 @@ impl Mshv {
             HV_X64_MSR_SIMP,
             HV_X64_MSR_REFERENCE_TSC,
             HV_X64_MSR_EOM,
+            HV_X64_MSR_TPR,
+            HV_X64_MSR_ICR,
         ])
         .unwrap())
     }
@@ -452,5 +454,37 @@ mod tests {
             });
         }
         assert!(num_errors == 0);
+    }
+    #[test]
+    fn test_get_msr_ref_count() {
+        let hv = Mshv::new().unwrap();
+        let ref_msr = HV_X64_MSR_TIME_REF_COUNT;
+
+        /* Test all MSRs in the list individually and determine which can be get/set */
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        let mut num_errors = 0;
+
+        let mut get_set_msrs = Msrs::from_entries(&[msr_entry {
+            index: ref_msr,
+            ..Default::default()
+        }])
+        .unwrap();
+        vcpu.get_msrs(&mut get_set_msrs).unwrap_or_else(|_| {
+            println!("Error getting MSR: 0x{:x}", ref_msr);
+            num_errors += 1;
+            0
+        });
+        vm.set_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_TIME_FREEZE,
+            1u64,
+        )
+        .unwrap();
+        vcpu.set_msrs(&get_set_msrs).unwrap_or_else(|_| {
+            println!("Error setting MSR: 0x{:x}", ref_msr);
+            num_errors += 1;
+            0
+        });
+    assert!(num_errors == 0);
     }
 }
