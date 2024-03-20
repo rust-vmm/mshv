@@ -223,6 +223,7 @@ impl VmFd {
             },
             dest_addr: request.apic_id,
             vector: request.vector,
+            ..Default::default()
         };
         // SAFETY: IOCTL with correct types
         let ret = unsafe { ioctl_with_ref(&self.vm, MSHV_ASSERT_INTERRUPT(), &interrupt_arg) };
@@ -762,11 +763,11 @@ mod tests {
         let vm = hv.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
         let state = vcpu.get_lapic().unwrap();
-        let vp_state: mshv_vp_state = mshv_vp_state::from(state);
-        let lapic: hv_local_interrupt_controller_state = unsafe { *(vp_state.buf.lapic) };
+        let buffer = Buffer::try_from(&state).unwrap();
+        let hv_state = unsafe { &*(buffer.buf as *const hv_local_interrupt_controller_state) };
         let cfg = InterruptRequest {
             interrupt_type: hv_interrupt_type_HV_X64_INTERRUPT_TYPE_EXTINT,
-            apic_id: lapic.apic_id as u64,
+            apic_id: hv_state.apic_id as u64,
             vector: 0,
             level_triggered: false,
             logical_destination_mode: false,

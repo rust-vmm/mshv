@@ -6,11 +6,13 @@
 use crate::bindings::*;
 #[cfg(feature = "with-serde")]
 use serde_derive::{Deserialize, Serialize};
-use std::cmp;
+use std::convert::TryFrom;
 use std::fmt;
 use std::ptr;
 use vmm_sys_util::errno;
 use zerocopy::{AsBytes, FromBytes, FromZeroes};
+
+pub const HV_PAGE_SIZE: usize = HV_HYP_PAGE_SIZE as usize;
 
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
@@ -463,7 +465,7 @@ impl Buffer {
         Ok(buf)
     }
 
-    pub fn dealloc(self) {
+    pub fn dealloc(&mut self) {
         // SAFETY: buf was allocated with layout
         unsafe {
             std::alloc::dealloc(self.buf, self.layout);
@@ -477,15 +479,13 @@ impl Buffer {
 
 impl Drop for Buffer {
     fn drop(&mut self) {
-        // SAFETY: buf was allocated with layout
-        unsafe {
-            std::alloc::dealloc(self.buf, self.layout);
-        }
+        self.dealloc();
     }
 }
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, AsBytes, FromBytes, FromZeroes)]
+/// Fixed buffer for lapic state
 pub struct LapicState {
     pub regs: [::std::os::raw::c_char; 1024usize],
 }
@@ -494,25 +494,12 @@ impl Default for LapicState {
         unsafe { ::std::mem::zeroed() }
     }
 }
-/*
-impl Default for hv_register_value {
-    fn default() -> Self {
-        unsafe { ::std::mem::zeroed() }
-    }
-} */
+
 #[repr(C)]
 #[derive(Copy, Clone, Debug, AsBytes, FromBytes, FromZeroes)]
-/// This struct normalizes the actual mhsv XSave structure
-/// XSave only used in save and restore functionalities, serilization and
-/// deserialization are needed. Putting all the fields into a single buffer makes
-/// it easier to serialize and deserialize
-/// Total buffer size: 4120
-/// flags: 8 bytes
-/// states: 8 bytes
-/// data_size: 8 bytes
-/// Actual xsave buffer: 4096 bytes
+/// Fixed buffer for xsave state
 pub struct XSave {
-    pub buffer: [::std::os::raw::c_char; 4120usize],
+    pub buffer: [u8; 4096usize],
 }
 
 impl Default for XSave {
@@ -521,69 +508,45 @@ impl Default for XSave {
     }
 }
 
-impl From<mshv_vp_state> for XSave {
-    fn from(reg: mshv_vp_state) -> Self {
-        let ret = XSave {
+impl TryFrom<Buffer> for XSave {
+    type Error = errno::Error;
+    fn try_from(buf: Buffer) -> Result<Self, Self::Error> {
+        let mut ret = XSave {
             ..Default::default()
         };
-        let mut bs = reg.xsave.flags.to_le_bytes();
-        unsafe {
-            ptr::copy(
-                bs.as_ptr() as *mut u8,
-                ret.buffer.as_ptr().offset(0) as *mut u8,
-                8,
-            )
-        };
-        bs = unsafe { reg.xsave.states.as_uint64.to_le_bytes() };
-        unsafe {
-            ptr::copy(
-                bs.as_ptr() as *mut u8,
-                ret.buffer.as_ptr().offset(8) as *mut u8,
-                8,
-            )
-        };
-        bs = reg.buf_size.to_le_bytes();
-        unsafe {
-            ptr::copy(
-                bs.as_ptr() as *mut u8,
-                ret.buffer.as_ptr().offset(16) as *mut u8,
-                8,
-            )
-        };
-        let min: usize = cmp::min(4096, reg.buf_size as u32) as usize;
-        unsafe {
-            ptr::copy(
-                reg.buf.bytes,
-                ret.buffer.as_ptr().offset(24) as *mut u8,
-                min,
-            )
-        };
-        ret
+        let ret_size = std::mem::size_of_val(&ret.buffer);
+        if ret_size < buf.size() {
+            return Err(errno::Error::new(libc::EINVAL));
+        }
+        // SAFETY: ret is large enough to hold buffer
+        unsafe { ptr::copy(buf.buf, ret.buffer.as_mut_ptr(), buf.size()) };
+        Ok(ret)
     }
 }
 
-impl From<XSave> for mshv_vp_state {
-    fn from(reg: XSave) -> Self {
-        let flags = reg.flags();
-        let states = reg.states();
-        let buffer_size = reg.data_size();
-        let mut ret = mshv_vp_state {
-            type_: hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_XSAVE,
-            buf_size: buffer_size,
-            ..Default::default()
-        };
-        ret.xsave.flags = flags;
-        ret.xsave.states.as_uint64 = states;
-        ret.buf.bytes = reg.data_buffer() as *mut u8;
-        ret
+impl TryFrom<&XSave> for Buffer {
+    type Error = errno::Error;
+    fn try_from(reg: &XSave) -> Result<Self, Self::Error> {
+        let reg_size = std::mem::size_of_val(&reg.buffer);
+        let num_pages = (reg_size + HV_PAGE_SIZE - 1) >> HV_HYP_PAGE_SHIFT;
+        let buffer = Buffer::new(num_pages * HV_PAGE_SIZE, HV_PAGE_SIZE)?;
+        // SAFETY: buffer is large enough to hold reg
+        unsafe { ptr::copy(reg.buffer.as_ptr(), buffer.buf, reg_size) };
+        Ok(buffer)
     }
 }
-impl From<mshv_vp_state> for LapicState {
-    fn from(reg: mshv_vp_state) -> Self {
+
+impl TryFrom<Buffer> for LapicState {
+    type Error = errno::Error;
+    fn try_from(buf: Buffer) -> Result<Self, Self::Error> {
         let mut ret: LapicState = LapicState::default();
         let state = ret.regs.as_mut_ptr();
-        let hv_state = unsafe { *reg.buf.lapic };
+        if buf.size() < std::mem::size_of::<hv_local_interrupt_controller_state>() {
+            return Err(errno::Error::new(libc::EINVAL));
+        }
+        // SAFETY: buf is large enough for hv_local_interrupt_controller_state
         unsafe {
+            let hv_state = &*(buf.buf as *const hv_local_interrupt_controller_state);
             *(state.offset(LOCAL_APIC_OFFSET_APIC_ID) as *mut u32) = hv_state.apic_id;
             *(state.offset(LOCAL_APIC_OFFSET_VERSION) as *mut u32) = hv_state.apic_version;
             *(state.offset(LOCAL_APIC_OFFSET_REMOTE_READ) as *mut u32) = hv_state.apic_remote_read;
@@ -605,11 +568,9 @@ impl From<mshv_vp_state> for LapicState {
                 hv_state.apic_counter_value;
             *(state.offset(LOCAL_APIC_OFFSET_DIVIDER) as *mut u32) =
                 hv_state.apic_divide_configuration;
-        }
 
-        /* vectors ISR TMR IRR */
-        for i in 0..8 {
-            unsafe {
+            /* vectors ISR TMR IRR */
+            for i in 0..8 {
                 *(state.offset(LOCAL_APIC_OFFSET_ISR + i * 16) as *mut u32) =
                     hv_state.apic_isr[i as usize];
                 *(state.offset(LOCAL_APIC_OFFSET_TMR + i * 16) as *mut u32) =
@@ -617,33 +578,36 @@ impl From<mshv_vp_state> for LapicState {
                 *(state.offset(LOCAL_APIC_OFFSET_IRR + i * 16) as *mut u32) =
                     hv_state.apic_irr[i as usize];
             }
-        }
 
-        // Highest priority interrupt (isr = in service register) this is how WHP computes it
-        let mut isrv: u32 = 0;
-        for i in (0..8).rev() {
-            let val: u32 = hv_state.apic_isr[i as usize];
-            if val != 0 {
-                isrv = 31 - val.leading_zeros(); // index of most significant set bit
-                isrv += i * 4 * 8; // i don't know
-                break;
+            // Highest priority interrupt (isr = in service register) this is how WHP computes it
+            let mut isrv: u32 = 0;
+            for i in (0..8).rev() {
+                let val: u32 = hv_state.apic_isr[i as usize];
+                if val != 0 {
+                    isrv = 31 - val.leading_zeros(); // index of most significant set bit
+                    isrv += i * 4 * 8; // i don't know
+                    break;
+                }
             }
-        }
 
-        // TODO This is meant to be max(tpr, isrv), but tpr is not populated!
-        unsafe {
+            // TODO This is meant to be max(tpr, isrv), but tpr is not populated!
             *(state.offset(LOCAL_APIC_OFFSET_PPR) as *mut u32) = isrv;
         }
-        ret
+        Ok(ret)
     }
 }
 
-impl From<LapicState> for mshv_vp_state {
-    fn from(reg: LapicState) -> Self {
-        let state = reg.regs.as_ptr();
-        let mut vp_state: mshv_vp_state = mshv_vp_state::default();
+impl TryFrom<&LapicState> for Buffer {
+    type Error = errno::Error;
+    fn try_from(reg: &LapicState) -> Result<Self, Self::Error> {
+        let hv_state_size = std::mem::size_of::<hv_local_interrupt_controller_state>();
+        let num_pages = (hv_state_size + HV_PAGE_SIZE - 1) >> HV_HYP_PAGE_SHIFT;
+        let buffer = Buffer::new(num_pages * HV_PAGE_SIZE, HV_PAGE_SIZE)?;
+        // SAFETY: buf is large enough for hv_local_interrupt_controller_state
         unsafe {
-            let mut lapic_state = hv_local_interrupt_controller_state {
+            let state = reg.regs.as_ptr();
+            let hv_state = &mut *(buffer.buf as *mut hv_local_interrupt_controller_state);
+            *hv_state = hv_local_interrupt_controller_state {
                 apic_id: *(state.offset(LOCAL_APIC_OFFSET_APIC_ID) as *mut u32),
                 apic_version: *(state.offset(LOCAL_APIC_OFFSET_VERSION) as *mut u32),
                 apic_remote_read: *(state.offset(LOCAL_APIC_OFFSET_REMOTE_READ) as *mut u32),
@@ -671,73 +635,28 @@ impl From<LapicState> for mshv_vp_state {
 
             /* vectors ISR TMR IRR */
             for i in 0..8 {
-                lapic_state.apic_isr[i as usize] =
+                hv_state.apic_isr[i as usize] =
                     *(state.offset(LOCAL_APIC_OFFSET_ISR + i * 16) as *mut u32);
-                lapic_state.apic_tmr[i as usize] =
+                hv_state.apic_tmr[i as usize] =
                     *(state.offset(LOCAL_APIC_OFFSET_TMR + i * 16) as *mut u32);
-                lapic_state.apic_irr[i as usize] =
+                hv_state.apic_irr[i as usize] =
                     *(state.offset(LOCAL_APIC_OFFSET_IRR + i * 16) as *mut u32);
             }
-            vp_state.type_ =
-                hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_LOCAL_INTERRUPT_CONTROLLER_STATE;
-            vp_state.buf_size = 1024;
-            let boxed_obj = Box::new(lapic_state);
-            vp_state.buf.lapic = Box::into_raw(boxed_obj);
         }
-        vp_state
+
+        Ok(buffer)
     }
 }
+
 // implement `Display` for `XSave`
 impl fmt::Display for XSave {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "flags: {}, states: {}, buffer_size: {}, buffer: {:?}\n data: {:02X?}",
-            self.flags(),
-            self.states(),
-            self.data_size(),
-            self.data_buffer(),
+            "buffer: {:?}\n data: {:02X?}",
+            self.buffer.as_ptr(),
             self.buffer,
         )
-    }
-}
-// Implement XSave to retrieve each field from the buffer
-impl XSave {
-    pub fn flags(&self) -> u64 {
-        let array: [u8; 8] = [0, 0, 0, 0, 0, 0, 0, 0];
-        unsafe {
-            ptr::copy(
-                self.buffer.as_ptr().offset(0) as *mut u8,
-                array.as_ptr() as *mut u8,
-                8,
-            )
-        };
-        u64::from_le_bytes(array)
-    }
-    pub fn states(&self) -> u64 {
-        let array: [u8; 8] = [0, 0, 0, 0, 0, 0, 0, 0];
-        unsafe {
-            ptr::copy(
-                self.buffer.as_ptr().offset(8) as *mut u8,
-                array.as_ptr() as *mut u8,
-                8,
-            )
-        };
-        u64::from_le_bytes(array)
-    }
-    pub fn data_size(&self) -> u64 {
-        let array: [u8; 8] = [0, 0, 0, 0, 0, 0, 0, 0];
-        unsafe {
-            ptr::copy(
-                self.buffer.as_ptr().offset(16) as *mut u8,
-                array.as_ptr() as *mut u8,
-                8,
-            )
-        };
-        u64::from_le_bytes(array)
-    }
-    pub fn data_buffer(&self) -> *const u8 {
-        unsafe { self.buffer.as_ptr().offset(24) as *mut u8 }
     }
 }
 
