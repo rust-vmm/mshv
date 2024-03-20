@@ -5,10 +5,9 @@
 use crate::ioctls::Result;
 use crate::mshv_ioctls::*;
 use mshv_bindings::*;
-use std::cmp;
+use std::convert::TryFrom;
 use std::fs::File;
 use std::os::unix::io::{AsRawFd, RawFd};
-use std::ptr;
 #[cfg(test)]
 use std::slice;
 use vmm_sys_util::errno;
@@ -816,7 +815,7 @@ impl VcpuFd {
         }])
     }
     /// Returns the VCpu state. This IOCTLs can be used to get XSave and LAPIC state.
-    pub fn get_vp_state_ioctl(&self, state: &mut mshv_vp_state) -> Result<()> {
+    pub fn get_vp_state_ioctl(&self, state: &mut mshv_get_set_vp_state) -> Result<()> {
         // SAFETY: we know that our file is a vCPU fd and we verify the return result.
         let ret = unsafe { ioctl_with_mut_ref(self, MSHV_GET_VP_STATE(), state) };
         if ret != 0 {
@@ -826,7 +825,7 @@ impl VcpuFd {
     }
     /// Set vp states (LAPIC, XSave etc)
     /// Test code already covered by get/set_lapic/xsave
-    pub fn set_vp_state_ioctl(&self, state: &mshv_vp_state) -> Result<()> {
+    pub fn set_vp_state_ioctl(&self, state: &mshv_get_set_vp_state) -> Result<()> {
         // SAFETY: IOCTL call with correct types
         let ret = unsafe { ioctl_with_ref(self, MSHV_SET_VP_STATE(), state) };
         if ret != 0 {
@@ -836,47 +835,48 @@ impl VcpuFd {
     }
     /// Get the state of the LAPIC (Local Advanced Programmable Interrupt Controller).
     pub fn get_lapic(&self) -> Result<LapicState> {
-        let buffer = Buffer::new(0x1000, 0x1000)?;
-        let mut vp_state: mshv_vp_state = mshv_vp_state::default();
-        vp_state.buf.bytes = buffer.buf;
-        vp_state.buf_size = buffer.size() as u64;
-        vp_state.type_ =
-            hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_LOCAL_INTERRUPT_CONTROLLER_STATE;
-
+        let buffer = Buffer::new(HV_PAGE_SIZE, HV_PAGE_SIZE)?;
+        let mut vp_state = mshv_get_set_vp_state {
+            buf_ptr: buffer.buf as u64,
+            buf_sz: buffer.size() as u32,
+            type_: MSHV_VP_STATE_LAPIC as u8,
+            ..Default::default()
+        };
         self.get_vp_state_ioctl(&mut vp_state)?;
-        Ok(LapicState::from(vp_state))
+        LapicState::try_from(buffer)
     }
     /// Sets the state of the LAPIC (Local Advanced Programmable Interrupt Controller).
     pub fn set_lapic(&self, lapic_state: &LapicState) -> Result<()> {
-        let mut vp_state: mshv_vp_state = mshv_vp_state::from(*lapic_state);
-        let buffer = Buffer::new(0x1000, 0x1000)?;
-        let min: usize = cmp::min(buffer.size(), vp_state.buf_size as usize);
-        // SAFETY: src and dest are valid and properly aligned
-        unsafe { ptr::copy(vp_state.buf.bytes, buffer.buf, min) };
-        vp_state.buf_size = buffer.size() as u64;
-        vp_state.buf.bytes = buffer.buf;
+        let buffer = Buffer::try_from(lapic_state)?;
+        let vp_state = mshv_get_set_vp_state {
+            type_: MSHV_VP_STATE_LAPIC as u8,
+            buf_sz: buffer.size() as u32,
+            buf_ptr: buffer.buf as u64,
+            ..Default::default()
+        };
         self.set_vp_state_ioctl(&vp_state)
     }
     /// Returns the xsave data
     pub fn get_xsave(&self) -> Result<XSave> {
-        let buffer = Buffer::new(0x1000, 0x1000)?;
-        let mut vp_state: mshv_vp_state = mshv_vp_state::default();
-        vp_state.buf.bytes = buffer.buf;
-        vp_state.buf_size = buffer.size() as u64;
-        vp_state.type_ = hv_get_set_vp_state_type_HV_GET_SET_VP_STATE_XSAVE;
+        let buffer = Buffer::new(HV_PAGE_SIZE, HV_PAGE_SIZE)?;
+        let mut vp_state = mshv_get_set_vp_state {
+            buf_ptr: buffer.buf as u64,
+            buf_sz: buffer.size() as u32,
+            type_: MSHV_VP_STATE_XSAVE as u8,
+            ..Default::default()
+        };
         self.get_vp_state_ioctl(&mut vp_state)?;
-        let ret = XSave::from(vp_state);
-        Ok(ret)
+        XSave::try_from(buffer)
     }
     /// Set the xsave data
     pub fn set_xsave(&self, data: &XSave) -> Result<()> {
-        let mut vp_state: mshv_vp_state = mshv_vp_state::from(*data);
-        let buffer = Buffer::new(0x1000, 0x1000)?;
-        let min: usize = cmp::min(buffer.size(), vp_state.buf_size as usize);
-        // SAFETY: src and dest are valid and properly aligned
-        unsafe { ptr::copy(data.buffer.as_ptr().offset(24) as *mut u8, buffer.buf, min) };
-        vp_state.buf_size = buffer.size() as u64;
-        vp_state.buf.bytes = buffer.buf;
+        let buffer = Buffer::try_from(data)?;
+        let vp_state = mshv_get_set_vp_state {
+            type_: MSHV_VP_STATE_XSAVE as u8,
+            buf_sz: buffer.size() as u32,
+            buf_ptr: buffer.buf as u64,
+            ..Default::default()
+        };
         self.set_vp_state_ioctl(&vp_state)
     }
     /// Translate guest virtual address to guest physical address
