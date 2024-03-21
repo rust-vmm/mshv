@@ -24,6 +24,8 @@ pub mod regs;
 pub use regs::*;
 pub mod snp;
 pub use snp::*;
+pub mod hvcall;
+pub use hvcall::*;
 
 #[cfg(feature = "with-serde")]
 extern crate serde;

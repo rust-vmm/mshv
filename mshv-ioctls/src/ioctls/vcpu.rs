@@ -44,6 +44,7 @@ macro_rules! set_registers_64 {
 #[derive(Debug)]
 /// Wrapper over Mshv vCPU ioctls.
 pub struct VcpuFd {
+    index: u32,
     vcpu: File,
 }
 
@@ -52,8 +53,8 @@ pub struct VcpuFd {
 /// This should not be exported as a public function because the preferred way is to use
 /// `create_vcpu` from `VmFd`. The function cannot be part of the `VcpuFd` implementation because
 /// then it would be exported with the public `VcpuFd` interface.
-pub fn new_vcpu(vcpu: File) -> VcpuFd {
-    VcpuFd { vcpu }
+pub fn new_vcpu(index: u32, vcpu: File) -> VcpuFd {
+    VcpuFd { index, vcpu }
 }
 
 impl AsRawFd for VcpuFd {
@@ -65,39 +66,62 @@ impl AsRawFd for VcpuFd {
 impl VcpuFd {
     /// Get the register values by providing an array of register names
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
-    pub fn get_reg(&self, reg_names: &mut [hv_register_assoc]) -> Result<()> {
-        //TODO: Error if input register len is zero
-        let mut mshv_vp_register_args = mshv_vp_registers {
-            count: reg_names.len() as i32,
-            regs: reg_names.as_mut_ptr(),
-        };
-        // SAFETY: we know that our file is a vCPU fd, we know the kernel will only read the
-        // correct amount of memory from our pointer, and we verify the return result.
-        let ret = unsafe {
-            ioctl_with_mut_ref(self, MSHV_GET_VP_REGISTERS(), &mut mshv_vp_register_args)
-        };
-        if ret != 0 {
-            return Err(errno::Error::last());
+    pub fn get_reg(&self, reg_assocs: &mut [hv_register_assoc]) -> Result<()> {
+        if reg_assocs.is_empty() {
+            return Err(errno::Error::new(libc::EINVAL));
         }
+        let reg_names: Vec<hv_register_name> = reg_assocs.iter().map(|assoc| assoc.name).collect();
+        let input = make_rep_input!(
+            hv_input_get_vp_registers {
+                vp_index: self.index,
+                ..Default::default()
+            },
+            names,
+            reg_names.as_slice()
+        );
+        let mut output: Vec<hv_register_value> = reg_names
+            .iter()
+            .map(|_| hv_register_value {
+                reg128: hv_u128 {
+                    ..Default::default()
+                },
+            })
+            .collect();
+        let output_slice = output.as_mut_slice();
+
+        let mut args = make_rep_args!(HVCALL_GET_VP_REGISTERS, input, output_slice);
+        self.hvcall(&mut args)?;
+
+        if args.reps as usize != reg_assocs.len() {
+            // TODO better handling? partial success?
+            return Err(errno::Error::new(libc::EINTR));
+        }
+
+        for (assoc, value) in reg_assocs.iter_mut().zip(output.iter()) {
+            assoc.value = *value;
+        }
+
         Ok(())
     }
-    /// Sets a vCPU register to input value.
-    ///
-    /// # Arguments
-    ///
-    /// * `reg_name` - general purpose register name.
-    /// * `reg_value` - register value.
+    /// Set the register values by providing an array of register assocs
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
-    pub fn set_reg(&self, regs: &[hv_register_assoc]) -> Result<()> {
-        let hv_vp_register_args = mshv_vp_registers {
-            count: regs.len() as i32,
-            regs: regs.as_ptr() as *mut hv_register_assoc,
-        };
-        // SAFETY: IOCTL call with correct types.
-        let ret = unsafe { ioctl_with_ref(self, MSHV_SET_VP_REGISTERS(), &hv_vp_register_args) };
-        if ret != 0 {
-            return Err(errno::Error::last());
+    pub fn set_reg(&self, reg_assocs: &[hv_register_assoc]) -> Result<()> {
+        let input = make_rep_input!(
+            hv_input_set_vp_registers {
+                vp_index: self.index,
+                ..Default::default()
+            },
+            elements,
+            reg_assocs
+        );
+        let mut args = make_rep_args!(HVCALL_SET_VP_REGISTERS, input);
+        self.hvcall(&mut args)?;
+
+        if args.reps as usize != reg_assocs.len() {
+            // TODO better handling? partial success?
+            return Err(errno::Error::new(libc::EINTR));
         }
+
         Ok(())
     }
     /// Sets the vCPU general purpose registers
@@ -881,23 +905,23 @@ impl VcpuFd {
     }
     /// Translate guest virtual address to guest physical address
     pub fn translate_gva(&self, gva: u64, flags: u64) -> Result<(u64, hv_translate_gva_result)> {
-        let gpa: u64 = 0;
-        let result = hv_translate_gva_result { as_uint64: 0 };
-
-        let mut args = mshv_translate_gva {
-            gva,
-            flags,
-            gpa: &gpa as *const _ as *mut u64,
-            result: &result as *const _ as *mut hv_translate_gva_result,
+        let input = hv_input_translate_virtual_address {
+            vp_index: self.index,
+            control_flags: flags,
+            gva_page: gva >> HV_HYP_PAGE_SHIFT,
+            ..Default::default() // NOTE: kernel will populate partition_id field
         };
-        // SAFETY: we know that our file is a vCPU fd, we know the kernel honours its ABI.
-        let ret = unsafe { ioctl_with_mut_ref(self, MSHV_VP_TRANSLATE_GVA(), &mut args) };
-        if ret != 0 {
-            return Err(errno::Error::last());
-        }
+        let output = hv_output_translate_virtual_address {
+            ..Default::default()
+        };
+        let mut args = make_args!(HVCALL_TRANSLATE_VIRTUAL_ADDRESS, input, output);
+        self.hvcall(&mut args)?;
 
-        Ok((gpa, result))
+        let gpa = (output.gpa_page << HV_HYP_PAGE_SHIFT) | (gva & !(1 << HV_HYP_PAGE_SHIFT));
+
+        Ok((gpa, output.translation_result))
     }
+
     /// X86 specific call that returns the vcpu's current "suspend registers".
     pub fn get_suspend_regs(&self) -> Result<SuspendRegisters> {
         let reg_names: [hv_register_name; 2] = [
@@ -1018,20 +1042,38 @@ impl VcpuFd {
     /// leaf as observed on the virtual processor.
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     pub fn get_cpuid_values(&self, eax: u32, ecx: u32, xfem: u64, xss: u64) -> Result<[u32; 4]> {
-        let mut parms = mshv_get_vp_cpuid_values {
-            function: eax,
-            index: ecx,
-            xfem,
-            xss,
-            ..Default::default()
-        };
-        // SAFETY: we know that our file is a vCPU fd, we know the kernel will only read the
-        // correct amount of memory from our pointer, and we verify the return result.
-        let ret = unsafe { ioctl_with_mut_ref(self, MSHV_GET_VP_CPUID_VALUES(), &mut parms) };
-        if ret != 0 {
-            return Err(errno::Error::last());
+        let mut input = make_rep_input!(
+            hv_input_get_vp_cpuid_values {
+                vp_index: self.index,
+                ..Default::default() // NOTE: kernel will populate partition_id field
+            },
+            cpuid_leaf_info,
+            [hv_cpuid_leaf_info {
+                eax,
+                ecx,
+                xfem,
+                xss,
+            }]
+        );
+        unsafe {
+            input
+                .as_mut_struct_ref()
+                .flags
+                .__bindgen_anon_1
+                .set_use_vp_xfem_xss(1);
+            input
+                .as_mut_struct_ref()
+                .flags
+                .__bindgen_anon_1
+                .set_apply_registered_values(1);
         }
-        Ok([parms.eax, parms.ebx, parms.ecx, parms.edx])
+        let mut output_arr: [hv_output_get_vp_cpuid_values; 1] = [Default::default()];
+        let mut args = make_rep_args!(HVCALL_GET_VP_CPUID_VALUES, input, output_arr);
+        self.hvcall(&mut args)?;
+
+        // SAFETY: we know the hvcall succeeded, and both fields of the union
+        // are equivalent we just return the array instead of taking eax, ebx, etc...
+        Ok(unsafe { output_arr[0].as_uint32 })
     }
     /// Read GPA
     pub fn gpa_read(&self, input: &mut mshv_read_write_gpa) -> Result<mshv_read_write_gpa> {
@@ -1063,6 +1105,17 @@ impl VcpuFd {
 
         self.set_reg(&reg_assocs)?;
         Ok(())
+    }
+
+    /// Execute a hypercall for this vp
+    pub fn hvcall(&self, args: &mut mshv_root_hvcall) -> Result<()> {
+        // SAFETY: IOCTL with correct types
+        let ret = unsafe { ioctl_with_ref(self, MSHV_ROOT_HVCALL(), args) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
     }
 }
 
