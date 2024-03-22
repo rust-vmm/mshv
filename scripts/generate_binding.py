@@ -58,7 +58,7 @@ def generate_unified_mshv_headers(kernel_hdr_path):
             regexp = f".*{header_name}.*"
             data = re.sub(regexp, "", data, flags=re.M)
 
-        data = re.sub(r"BIT\(([0-9]+)\)", "(1 << (\\1))", data, flags=re.M)
+        data = re.sub(r"BIT\(([A-Z_0-9]+)\)", "(1 << (\\1))", data, flags=re.M)
 
         fp.write(data)
 
