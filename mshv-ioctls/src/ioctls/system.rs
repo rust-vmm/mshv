@@ -366,7 +366,7 @@ impl Mshv {
                 MPX support needed for this MSR
                 Currently feature is not enabled
             */
-            IA32_MSR_SPEC_CTRL,
+            //IA32_MSR_SPEC_CTRL,
             //IA32_MSR_TSC_ADJUST, // Current hypervisor version does not allow to get this MSR, need to check later
             HV_X64_MSR_GUEST_OS_ID,
             HV_X64_MSR_SINT0,
@@ -419,7 +419,7 @@ mod tests {
     fn test_get_msr_index_list() {
         let hv = Mshv::new().unwrap();
         let msr_list = hv.get_msr_index_list().unwrap();
-        assert!(msr_list.as_fam_struct_ref().nmsrs == 65);
+        assert!(msr_list.as_fam_struct_ref().nmsrs == 64);
 
         let mut found = false;
         for index in msr_list.as_slice() {
