@@ -1557,4 +1557,37 @@ mod tests {
         let max_function = res[0];
         assert!(max_function >= 1);
     }
+
+    #[test]
+    fn test_get_set_synic_timers() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let state = vcpu.get_synic_timers().unwrap();
+
+        vcpu.set_synic_timers(&state).unwrap();
+    }
+
+    #[test]
+    fn test_get_set_simp() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let state = vcpu.get_synic_message_page().unwrap();
+
+        vcpu.set_synic_message_page(&state).unwrap();
+    }
+
+    #[test]
+    fn test_get_set_sief() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let state = vcpu.get_synic_event_flags_page().unwrap();
+
+        vcpu.set_synic_event_flags_page(&state).unwrap();
+    }
 }
