@@ -53,6 +53,53 @@ impl Serialize for XSave {
         data_buffer.serialize(serializer)
     }
 }
+
+impl<'de> Deserialize<'de> for SynicMessagePage {
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let data_buffer: Vec<u8> = Vec::deserialize(deserializer)?;
+        let mut val = SynicMessagePage::default();
+        // This panics if the source and destination have different lengths.
+        val.buffer.copy_from_slice(&data_buffer[..]);
+        Ok(val)
+    }
+}
+
+impl Serialize for SynicMessagePage {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let data_buffer = &self.buffer[..];
+        data_buffer.serialize(serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for SynicEventFlagsPage {
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let data_buffer: Vec<u8> = Vec::deserialize(deserializer)?;
+        let mut val = SynicEventFlagsPage::default();
+        // This panics if the source and destination have different lengths.
+        val.buffer.copy_from_slice(&data_buffer[..]);
+        Ok(val)
+    }
+}
+
+impl Serialize for SynicEventFlagsPage {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let data_buffer = &self.buffer[..];
+        data_buffer.serialize(serializer)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
