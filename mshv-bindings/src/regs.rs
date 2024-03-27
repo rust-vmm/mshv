@@ -800,3 +800,43 @@ impl TryFrom<&SynicMessagePage> for Buffer {
         Ok(buffer)
     }
 }
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug, AsBytes, FromBytes, FromZeroes)]
+pub struct SynicEventFlagsPage {
+    pub buffer: [u8; 4096usize],
+}
+
+impl Default for SynicEventFlagsPage {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
+}
+
+impl TryFrom<Buffer> for SynicEventFlagsPage {
+    type Error = errno::Error;
+    fn try_from(buf: Buffer) -> Result<Self, Self::Error> {
+        let mut ret = SynicEventFlagsPage {
+            ..Default::default()
+        };
+        let ret_size = std::mem::size_of_val(&ret.buffer);
+        if ret_size < buf.size() {
+            return Err(errno::Error::new(libc::EINVAL));
+        }
+        // SAFETY: ret is large enough to hold buffer
+        unsafe { ptr::copy(buf.buf, ret.buffer.as_mut_ptr(), buf.size()) };
+        Ok(ret)
+    }
+}
+
+impl TryFrom<&SynicEventFlagsPage> for Buffer {
+    type Error = errno::Error;
+    fn try_from(reg: &SynicEventFlagsPage) -> Result<Self, Self::Error> {
+        let reg_size = std::mem::size_of_val(&reg.buffer);
+        let num_pages = (reg_size + HV_PAGE_SIZE - 1) >> HV_HYP_PAGE_SHIFT;
+        let buffer = Buffer::new(num_pages * HV_PAGE_SIZE, HV_PAGE_SIZE)?;
+        // SAFETY: buffer is large enough to hold reg
+        unsafe { ptr::copy(reg.buffer.as_ptr(), buffer.buf, reg_size) };
+        Ok(buffer)
+    }
+}
