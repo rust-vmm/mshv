@@ -673,3 +673,56 @@ pub struct SuspendRegisters {
 pub struct MiscRegs {
     pub hypercall: u64,
 }
+
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
+#[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
+pub struct StimerState {
+    pub flags: u32,
+    pub resvd: u32,
+    pub config: u64,
+    pub count: u64,
+    pub adjustment: u64,
+    pub undelivered_exp_time: u64,
+}
+
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
+#[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
+pub struct SyntheticTimers {
+    pub timers: [StimerState; 4usize],
+    pub reserved: [u64; 5usize],
+}
+
+impl From<hv_stimer_state> for StimerState {
+    fn from(s: hv_stimer_state) -> Self {
+        let mut reg = StimerState {
+            resvd: s.resvd,
+            config: s.config,
+            count: s.count,
+            adjustment: s.adjustment,
+            undelivered_exp_time: s.undelivered_exp_time,
+            ..Default::default()
+        };
+        // 1st bit represents undelivered_msg_pending, rest of 31 bits are reserved
+        reg.flags = s.flags.undelivered_msg_pending() | (s.flags.reserved() << 1);
+        reg
+    }
+}
+
+impl From<StimerState> for hv_stimer_state {
+    fn from(s: StimerState) -> Self {
+        let mut reg = hv_stimer_state {
+            resvd: s.resvd,
+            config: s.config,
+            count: s.count,
+            adjustment: s.adjustment,
+            undelivered_exp_time: s.undelivered_exp_time,
+            ..Default::default()
+        };
+
+        reg.flags.set_undelivered_msg_pending(s.flags & 1);
+        reg.flags.set_reserved(s.flags >> 1);
+        reg
+    }
+}
