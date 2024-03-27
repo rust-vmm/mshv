@@ -119,6 +119,7 @@ mod tests {
             .zip(d_state.regs.iter())
             .all(|(a, b)| a == b));
     }
+
     #[test]
     fn test_xsave_serialization_deserialization() {
         let mut xsave = XSave {
@@ -133,6 +134,40 @@ mod tests {
             .buffer
             .iter()
             .zip(d_xsave.buffer.iter())
+            .all(|(a, b)| a == b));
+    }
+
+    #[test]
+    fn test_simp_serialization_deserialization() {
+        let mut simp = SynicMessagePage {
+            ..Default::default()
+        };
+        for i in 0..4096 {
+            simp.buffer[i] = random!();
+        }
+        let serialized = serde_json::to_string(&simp).expect("err ser");
+        let d_simp: SynicMessagePage = serde_json::from_str(&serialized).expect("err unser");
+        assert!(simp
+            .buffer
+            .iter()
+            .zip(d_simp.buffer.iter())
+            .all(|(a, b)| a == b));
+    }
+
+    #[test]
+    fn test_sief_serialization_deserialization() {
+        let mut sief = SynicEventFlagsPage {
+            ..Default::default()
+        };
+        for i in 0..4096 {
+            sief.buffer[i] = random!();
+        }
+        let serialized = serde_json::to_string(&sief).expect("err ser");
+        let d_sief: SynicEventFlagsPage = serde_json::from_str(&serialized).expect("err unser");
+        assert!(sief
+            .buffer
+            .iter()
+            .zip(d_sief.buffer.iter())
             .all(|(a, b)| a == b));
     }
 }
