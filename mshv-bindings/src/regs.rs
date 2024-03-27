@@ -726,3 +726,36 @@ impl From<StimerState> for hv_stimer_state {
         reg
     }
 }
+
+impl TryFrom<Buffer> for SyntheticTimers {
+    type Error = errno::Error;
+    fn try_from(buf: Buffer) -> Result<Self, Self::Error> {
+        let mut ret = SyntheticTimers {
+            ..Default::default()
+        };
+        let ret_size = std::mem::size_of::<hv_synthetic_timers_state>();
+        if ret_size > buf.size() {
+            return Err(errno::Error::new(libc::EINVAL));
+        }
+        unsafe {
+            let hv_state = &mut *(buf.buf as *mut hv_synthetic_timers_state);
+            ret.reserved = hv_state.reserved;
+            for i in 0..4 {
+                ret.timers[i] = StimerState::from(hv_state.timers[i]);
+            }
+        }
+        Ok(ret)
+    }
+}
+
+impl TryFrom<&SyntheticTimers> for Buffer {
+    type Error = errno::Error;
+    fn try_from(reg: &SyntheticTimers) -> Result<Self, Self::Error> {
+        let reg_size = std::mem::size_of::<hv_synthetic_timers_state>();
+        let num_pages = (reg_size + HV_PAGE_SIZE - 1) >> HV_HYP_PAGE_SHIFT;
+        let buffer = Buffer::new(num_pages * HV_PAGE_SIZE, HV_PAGE_SIZE)?;
+        // SAFETY: buffer is large enough to hold reg
+        unsafe { ptr::copy(reg.as_bytes().as_ptr(), buffer.buf, reg_size) };
+        Ok(buffer)
+    }
+}
