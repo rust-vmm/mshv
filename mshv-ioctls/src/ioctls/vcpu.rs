@@ -1125,6 +1125,31 @@ impl VcpuFd {
         };
         self.set_vp_state_ioctl(&vp_state)
     }
+
+    /// Returns the synthetic event flags
+    pub fn get_synic_event_flags_page(&self) -> Result<SynicEventFlagsPage> {
+        let buffer = Buffer::new(HV_PAGE_SIZE, HV_PAGE_SIZE)?;
+        let mut vp_state = mshv_get_set_vp_state {
+            buf_ptr: buffer.buf as u64,
+            buf_sz: buffer.size() as u32,
+            type_: MSHV_VP_STATE_SIMP as u8,
+            ..Default::default()
+        };
+        self.get_vp_state_ioctl(&mut vp_state)?;
+        SynicEventFlagsPage::try_from(buffer)
+    }
+
+    /// Set the synthetic event flags
+    pub fn set_synic_event_flags_page(&self, data: &SynicEventFlagsPage) -> Result<()> {
+        let buffer = Buffer::try_from(data)?;
+        let vp_state = mshv_get_set_vp_state {
+            type_: MSHV_VP_STATE_SIMP as u8,
+            buf_sz: buffer.size() as u32,
+            buf_ptr: buffer.buf as u64,
+            ..Default::default()
+        };
+        self.set_vp_state_ioctl(&vp_state)
+    }
 }
 
 #[allow(dead_code)]
