@@ -1158,6 +1158,7 @@ mod tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
     use crate::ioctls::system::Mshv;
+    use random_number::random;
 
     #[test]
     fn test_set_get_regs() {
@@ -1568,5 +1569,56 @@ mod tests {
         let res = vcpu.get_cpuid_values(0, 0, 0, 0).unwrap();
         let max_function = res[0];
         assert!(max_function >= 1);
+    }
+
+    #[test]
+    fn test_get_set_synic_timers() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let in_state: SyntheticTimers = vcpu.get_synic_timers().unwrap();
+        vcpu.set_synic_timers(&in_state).unwrap();
+        let out_state = vcpu.get_synic_timers().unwrap();
+        assert!(in_state == out_state);
+    }
+
+    #[test]
+    fn test_get_set_simp() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let mut in_state: SynicMessagePage = SynicMessagePage::default();
+
+        for i in 0..4096 {
+            in_state.buffer[i] = random!();
+        }
+        vcpu.set_synic_message_page(&in_state).unwrap();
+        let out_state = vcpu.get_synic_message_page().unwrap();
+        assert!(in_state
+            .buffer
+            .iter()
+            .zip(out_state.buffer.iter())
+            .all(|(a, b)| a == b));
+    }
+
+    #[test]
+    fn test_get_set_sief() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let mut in_state: SynicEventFlagsPage = SynicEventFlagsPage::default();
+        for i in 0..4096 {
+            in_state.buffer[i] = random!();
+        }
+        vcpu.set_synic_event_flags_page(&in_state).unwrap();
+        let out_state = vcpu.get_synic_event_flags_page().unwrap();
+        assert!(in_state
+            .buffer
+            .iter()
+            .zip(out_state.buffer.iter())
+            .all(|(a, b)| a == b));
     }
 }
