@@ -1076,6 +1076,31 @@ impl VcpuFd {
         self.set_reg(&reg_assocs)?;
         Ok(())
     }
+
+    /// Get the synthetic timers state
+    pub fn get_synic_timers(&self) -> Result<SyntheticTimers> {
+        let buffer = Buffer::new(HV_PAGE_SIZE, HV_PAGE_SIZE)?;
+        let mut vp_state = mshv_get_set_vp_state {
+            buf_sz: buffer.size() as u32,
+            buf_ptr: buffer.buf as u64,
+            type_: MSHV_VP_STATE_SYNTHETIC_TIMERS as u8,
+            ..Default::default()
+        };
+        self.get_vp_state_ioctl(&mut vp_state)?;
+        SyntheticTimers::try_from(buffer)
+    }
+
+    /// Set the synthetic timers state
+    pub fn set_synic_timers(&self, data: &SyntheticTimers) -> Result<()> {
+        let buffer = Buffer::try_from(data)?;
+        let vp_state = mshv_get_set_vp_state {
+            type_: MSHV_VP_STATE_SYNTHETIC_TIMERS as u8,
+            buf_sz: buffer.size() as u32,
+            buf_ptr: buffer.buf as u64,
+            ..Default::default()
+        };
+        self.set_vp_state_ioctl(&vp_state)
+    }
 }
 
 #[allow(dead_code)]
