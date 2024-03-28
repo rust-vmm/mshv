@@ -211,5 +211,7 @@ pub use ioctls::vm::VmType;
 
 #[macro_use]
 mod mshv_ioctls;
+pub use mshv_ioctls::*;
+
 #[macro_use]
 extern crate vmm_sys_util;
