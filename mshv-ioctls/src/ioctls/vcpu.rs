@@ -1076,6 +1076,80 @@ impl VcpuFd {
         self.set_reg(&reg_assocs)?;
         Ok(())
     }
+
+    /// Set the synthetic timers state
+    pub fn get_synic_timers(&self) -> Result<SyntheticTimers> {
+        let buffer = Buffer::new(HV_PAGE_SIZE, HV_PAGE_SIZE)?;
+        let mut vp_state = mshv_get_set_vp_state {
+            buf_sz: buffer.size() as u32,
+            buf_ptr: buffer.buf as u64,
+            type_: MSHV_VP_STATE_SYNTHETIC_TIMERS as u8,
+            ..Default::default()
+        };
+        self.get_vp_state_ioctl(&mut vp_state)?;
+        SyntheticTimers::try_from(buffer)
+    }
+
+    /// Set the synthetic timers state
+    pub fn set_synic_timers(&self, data: &SyntheticTimers) -> Result<()> {
+        let buffer = Buffer::try_from(data)?;
+        let vp_state = mshv_get_set_vp_state {
+            type_: MSHV_VP_STATE_SYNTHETIC_TIMERS as u8,
+            buf_sz: buffer.size() as u32,
+            buf_ptr: buffer.buf as u64,
+            ..Default::default()
+        };
+        self.set_vp_state_ioctl(&vp_state)
+    }
+
+    /// Returns the synthetic message page
+    pub fn get_synic_message_page(&self) -> Result<SynicMessagePage> {
+        let buffer = Buffer::new(HV_PAGE_SIZE, HV_PAGE_SIZE)?;
+        let mut vp_state = mshv_get_set_vp_state {
+            buf_ptr: buffer.buf as u64,
+            buf_sz: buffer.size() as u32,
+            type_: MSHV_VP_STATE_SIMP as u8,
+            ..Default::default()
+        };
+        self.get_vp_state_ioctl(&mut vp_state)?;
+        SynicMessagePage::try_from(buffer)
+    }
+    /// Set the synthetic message page
+    pub fn set_synic_message_page(&self, data: &SynicMessagePage) -> Result<()> {
+        let buffer = Buffer::try_from(data)?;
+        let vp_state = mshv_get_set_vp_state {
+            type_: MSHV_VP_STATE_SIMP as u8,
+            buf_sz: buffer.size() as u32,
+            buf_ptr: buffer.buf as u64,
+            ..Default::default()
+        };
+        self.set_vp_state_ioctl(&vp_state)
+    }
+
+    /// Returns the synthetic event flags
+    pub fn get_synic_event_flags_page(&self) -> Result<SynicEventFlagsPage> {
+        let buffer = Buffer::new(HV_PAGE_SIZE, HV_PAGE_SIZE)?;
+        let mut vp_state = mshv_get_set_vp_state {
+            buf_ptr: buffer.buf as u64,
+            buf_sz: buffer.size() as u32,
+            type_: MSHV_VP_STATE_SIMP as u8,
+            ..Default::default()
+        };
+        self.get_vp_state_ioctl(&mut vp_state)?;
+        SynicEventFlagsPage::try_from(buffer)
+    }
+
+    /// Set the synthetic event flags
+    pub fn set_synic_event_flags_page(&self, data: &SynicEventFlagsPage) -> Result<()> {
+        let buffer = Buffer::try_from(data)?;
+        let vp_state = mshv_get_set_vp_state {
+            type_: MSHV_VP_STATE_SIMP as u8,
+            buf_sz: buffer.size() as u32,
+            buf_ptr: buffer.buf as u64,
+            ..Default::default()
+        };
+        self.set_vp_state_ioctl(&vp_state)
+    }
 }
 
 #[allow(dead_code)]
@@ -1494,5 +1568,38 @@ mod tests {
         let res = vcpu.get_cpuid_values(0, 0, 0, 0).unwrap();
         let max_function = res[0];
         assert!(max_function >= 1);
+    }
+
+    #[test]
+    fn test_get_set_synic_timers() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let state = vcpu.get_synic_timers().unwrap();
+
+        vcpu.set_synic_timers(&state).unwrap();
+    }
+
+    #[test]
+    fn test_get_set_simp() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let state = vcpu.get_synic_message_page().unwrap();
+
+        vcpu.set_synic_message_page(&state).unwrap();
+    }
+
+    #[test]
+    fn test_get_set_sief() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let state = vcpu.get_synic_event_flags_page().unwrap();
+
+        vcpu.set_synic_event_flags_page(&state).unwrap();
     }
 }

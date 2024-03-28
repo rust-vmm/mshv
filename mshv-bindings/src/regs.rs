@@ -673,3 +673,170 @@ pub struct SuspendRegisters {
 pub struct MiscRegs {
     pub hypercall: u64,
 }
+
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
+#[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
+pub struct StimerState {
+    pub flags: u32,
+    pub resvd: u32,
+    pub config: u64,
+    pub count: u64,
+    pub adjustment: u64,
+    pub undelivered_exp_time: __u64,
+}
+
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
+#[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
+pub struct SyntheticTimers {
+    pub timers: [StimerState; 4usize],
+    pub reserved: [u64; 5usize],
+}
+
+impl From<hv_stimer_state> for StimerState {
+    fn from(s: hv_stimer_state) -> Self {
+        let mut reg = StimerState {
+            resvd: s.resvd,
+            config: s.config,
+            count: s.count,
+            adjustment: s.adjustment,
+            undelivered_exp_time: s.undelivered_exp_time,
+            ..Default::default()
+        };
+        // 1st bit represents undelivered_msg_pending, rest of 31 bits are reserved
+        reg.flags = s.flags.undelivered_msg_pending() | (s.flags.reserved() << 1);
+        reg
+    }
+}
+
+impl From<StimerState> for hv_stimer_state {
+    fn from(s: StimerState) -> Self {
+        let mut reg = hv_stimer_state {
+            resvd: s.resvd,
+            config: s.config,
+            count: s.count,
+            adjustment: s.adjustment,
+            undelivered_exp_time: s.undelivered_exp_time,
+            ..Default::default()
+        };
+
+        reg.flags.set_undelivered_msg_pending(s.flags & 1);
+        reg.flags.set_reserved(s.flags >> 1);
+        reg
+    }
+}
+
+impl TryFrom<Buffer> for SyntheticTimers {
+    type Error = errno::Error;
+    fn try_from(buf: Buffer) -> Result<Self, Self::Error> {
+        let mut ret = SyntheticTimers {
+            ..Default::default()
+        };
+        let ret_size = std::mem::size_of::<hv_synthetic_timers_state>();
+        if ret_size < buf.size() {
+            return Err(errno::Error::new(libc::EINVAL));
+        }
+        unsafe {
+            let hv_state = &mut *(buf.buf as *mut hv_synthetic_timers_state);
+            ret.reserved = hv_state.reserved;
+            for i in 0..4 {
+                ret.timers[i] = StimerState::from(hv_state.timers[i]);
+            }
+        }
+        Ok(ret)
+    }
+}
+
+impl TryFrom<&SyntheticTimers> for Buffer {
+    type Error = errno::Error;
+    fn try_from(reg: &SyntheticTimers) -> Result<Self, Self::Error> {
+        let reg_size = std::mem::size_of::<hv_synthetic_timers_state>();
+        let num_pages = (reg_size + HV_PAGE_SIZE - 1) >> HV_HYP_PAGE_SHIFT;
+        let buffer = Buffer::new(num_pages * HV_PAGE_SIZE, HV_PAGE_SIZE)?;
+        // SAFETY: buffer is large enough to hold reg
+        unsafe { ptr::copy(reg.as_bytes().as_ptr(), buffer.buf, reg_size) };
+        Ok(buffer)
+    }
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug, AsBytes, FromBytes, FromZeroes)]
+/// Fixed buffer for synic message page state
+pub struct SynicMessagePage {
+    pub buffer: [u8; 4096usize],
+}
+
+impl Default for SynicMessagePage {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
+}
+
+impl TryFrom<Buffer> for SynicMessagePage {
+    type Error = errno::Error;
+    fn try_from(buf: Buffer) -> Result<Self, Self::Error> {
+        let mut ret = SynicMessagePage {
+            ..Default::default()
+        };
+        let ret_size = std::mem::size_of_val(&ret.buffer);
+        if ret_size < buf.size() {
+            return Err(errno::Error::new(libc::EINVAL));
+        }
+        // SAFETY: ret is large enough to hold buffer
+        unsafe { ptr::copy(buf.buf, ret.buffer.as_mut_ptr(), buf.size()) };
+        Ok(ret)
+    }
+}
+
+impl TryFrom<&SynicMessagePage> for Buffer {
+    type Error = errno::Error;
+    fn try_from(reg: &SynicMessagePage) -> Result<Self, Self::Error> {
+        let reg_size = std::mem::size_of_val(&reg.buffer);
+        let num_pages = (reg_size + HV_PAGE_SIZE - 1) >> HV_HYP_PAGE_SHIFT;
+        let buffer = Buffer::new(num_pages * HV_PAGE_SIZE, HV_PAGE_SIZE)?;
+        // SAFETY: buffer is large enough to hold reg
+        unsafe { ptr::copy(reg.buffer.as_ptr(), buffer.buf, reg_size) };
+        Ok(buffer)
+    }
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug, AsBytes, FromBytes, FromZeroes)]
+pub struct SynicEventFlagsPage {
+    pub buffer: [u8; 4096usize],
+}
+
+impl Default for SynicEventFlagsPage {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
+}
+
+impl TryFrom<Buffer> for SynicEventFlagsPage {
+    type Error = errno::Error;
+    fn try_from(buf: Buffer) -> Result<Self, Self::Error> {
+        let mut ret = SynicEventFlagsPage {
+            ..Default::default()
+        };
+        let ret_size = std::mem::size_of_val(&ret.buffer);
+        if ret_size < buf.size() {
+            return Err(errno::Error::new(libc::EINVAL));
+        }
+        // SAFETY: ret is large enough to hold buffer
+        unsafe { ptr::copy(buf.buf, ret.buffer.as_mut_ptr(), buf.size()) };
+        Ok(ret)
+    }
+}
+
+impl TryFrom<&SynicEventFlagsPage> for Buffer {
+    type Error = errno::Error;
+    fn try_from(reg: &SynicEventFlagsPage) -> Result<Self, Self::Error> {
+        let reg_size = std::mem::size_of_val(&reg.buffer);
+        let num_pages = (reg_size + HV_PAGE_SIZE - 1) >> HV_HYP_PAGE_SHIFT;
+        let buffer = Buffer::new(num_pages * HV_PAGE_SIZE, HV_PAGE_SIZE)?;
+        // SAFETY: buffer is large enough to hold reg
+        unsafe { ptr::copy(reg.buffer.as_ptr(), buffer.buf, reg_size) };
+        Ok(buffer)
+    }
+}
