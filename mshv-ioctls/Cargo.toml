@@ -9,3 +9,6 @@ license = "Apache-2.0 OR BSD-3-Clause"
 libc = ">=0.2.39"
 mshv-bindings = {path = "../mshv-bindings", features = ["fam-wrappers"]}
 vmm-sys-util = ">=0.12.1"
+
+[dev-dependencies]
+random-number = "0.1.6"

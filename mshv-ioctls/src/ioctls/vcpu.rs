@@ -821,6 +821,7 @@ impl VcpuFd {
         if ret != 0 {
             return Err(errno::Error::last());
         }
+        println!("get_vp_state_ioctl OKAY");
         Ok(())
     }
     /// Set vp states (LAPIC, XSave etc)
@@ -1146,6 +1147,7 @@ mod tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
     use crate::ioctls::system::Mshv;
+    use random_number::random;
 
     #[test]
     fn test_set_get_regs() {
@@ -1564,9 +1566,10 @@ mod tests {
         let vm = hv.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
-        let state = vcpu.get_synic_timers().unwrap();
-
-        vcpu.set_synic_timers(&state).unwrap();
+        let in_state: SyntheticTimers = vcpu.get_synic_timers().unwrap();
+        vcpu.set_synic_timers(&in_state).unwrap();
+        let out_state = vcpu.get_synic_timers().unwrap();
+        assert!(in_state == out_state);
     }
 
     #[test]
@@ -1575,9 +1578,18 @@ mod tests {
         let vm = hv.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
-        let state = vcpu.get_synic_message_page().unwrap();
-
-        vcpu.set_synic_message_page(&state).unwrap();
+        let mut in_state: SynicMessagePage = SynicMessagePage::default();
+        
+        for i in 0..4096 {
+            in_state.buffer[i] = random!();
+        }
+        vcpu.set_synic_message_page(&in_state).unwrap();
+        let out_state = vcpu.get_synic_message_page().unwrap();
+        assert!(in_state
+            .buffer
+            .iter()
+            .zip(out_state.buffer.iter())
+            .all(|(a, b)| a == b));
     }
 
     #[test]
@@ -1586,8 +1598,16 @@ mod tests {
         let vm = hv.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
-        let state = vcpu.get_synic_event_flags_page().unwrap();
-
-        vcpu.set_synic_event_flags_page(&state).unwrap();
+        let mut in_state: SynicEventFlagsPage = SynicEventFlagsPage::default();
+        for i in 0..4096 {
+            in_state.buffer[i] = random!();
+        }
+        vcpu.set_synic_event_flags_page(&in_state).unwrap();
+        let out_state = vcpu.get_synic_event_flags_page().unwrap();
+        assert!(in_state
+            .buffer
+            .iter()
+            .zip(out_state.buffer.iter())
+            .all(|(a, b)| a == b));
     }
 }

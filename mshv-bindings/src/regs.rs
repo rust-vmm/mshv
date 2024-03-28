@@ -734,7 +734,8 @@ impl TryFrom<Buffer> for SyntheticTimers {
             ..Default::default()
         };
         let ret_size = std::mem::size_of::<hv_synthetic_timers_state>();
-        if ret_size < buf.size() {
+        if ret_size > buf.size() {
+            println!("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA RET SIZE {}, Buffer size: {}", ret_size, buf.size());
             return Err(errno::Error::new(libc::EINVAL));
         }
         unsafe {
