@@ -63,7 +63,7 @@ impl AsRawFd for VcpuFd {
 
 impl VcpuFd {
     /// Get the register values by providing an array of register names
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn get_reg(&self, reg_names: &mut [hv_register_assoc]) -> Result<()> {
         //TODO: Error if input register len is zero
         let mut mshv_vp_register_args = mshv_vp_registers {
@@ -86,7 +86,7 @@ impl VcpuFd {
     ///
     /// * `reg_name` - general purpose register name.
     /// * `reg_value` - register value.
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn set_reg(&self, regs: &[hv_register_assoc]) -> Result<()> {
         let hv_vp_register_args = mshv_vp_registers {
             count: regs.len() as i32,
@@ -100,7 +100,7 @@ impl VcpuFd {
         Ok(())
     }
     /// Sets the vCPU general purpose registers
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn set_regs(&self, regs: &StandardRegisters) -> Result<()> {
         let reg_assocs = [
             hv_register_assoc {
@@ -199,7 +199,7 @@ impl VcpuFd {
     }
 
     /// Returns the vCPU general purpose registers.
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn get_regs(&self) -> Result<StandardRegisters> {
         let reg_names = [
             hv_register_name_HV_X64_REGISTER_RAX,
@@ -255,7 +255,7 @@ impl VcpuFd {
         Ok(ret_regs)
     }
     /// Returns the vCPU special registers.
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn get_sregs(&self) -> Result<SpecialRegisters> {
         let reg_names: [::std::os::raw::c_uint; 18] = [
             hv_register_name_HV_X64_REGISTER_CS,
@@ -326,7 +326,7 @@ impl VcpuFd {
         Ok(ret_regs)
     }
     /// Sets the vCPU special registers
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn set_sregs(&self, sregs: &SpecialRegisters) -> Result<()> {
         let reg_names: [hv_register_name; 17] = [
             hv_register_name_HV_X64_REGISTER_CS,
@@ -410,7 +410,7 @@ impl VcpuFd {
         Ok(())
     }
 
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     fn fpu_registers() -> [hv_register_name; 26] {
         [
             hv_register_name_HV_X64_REGISTER_XMM0,
@@ -443,7 +443,7 @@ impl VcpuFd {
     }
 
     /// Sets the vCPU floating point registers
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn set_fpu(&self, fpu: &FloatingPointUnit) -> Result<()> {
         let reg_names = Self::fpu_registers();
         let mut reg_values: [hv_register_value; 26] = [hv_register_value { reg64: 0 }; 26];
@@ -510,7 +510,7 @@ impl VcpuFd {
         Ok(())
     }
     /// Returns the floating point state (FPU) from the vCPU.
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn get_fpu(&self) -> Result<FloatingPointUnit> {
         let reg_names = Self::fpu_registers();
         let mut reg_assocs: Vec<hv_register_assoc> = reg_names
@@ -563,7 +563,7 @@ impl VcpuFd {
         Ok(ret_regs)
     }
     /// X86 specific call that returns the vcpu's current "debug registers".
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn get_debug_regs(&self) -> Result<DebugRegisters> {
         let reg_names: [hv_register_name; 6] = [
             hv_register_name_HV_X64_REGISTER_DR0,
@@ -598,7 +598,7 @@ impl VcpuFd {
         Ok(ret_regs)
     }
     /// X86 specific call that sets the vcpu's current "debug registers".
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn set_debug_regs(&self, d_regs: &DebugRegisters) -> Result<()> {
         let reg_names = [
             hv_register_name_HV_X64_REGISTER_DR0,
@@ -631,7 +631,7 @@ impl VcpuFd {
         Ok(())
     }
     /// Returns the machine-specific registers (MSR) for this vCPU.
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn get_msrs(&self, msrs: &mut Msrs) -> Result<usize> {
         let nmsrs = msrs.as_fam_struct_ref().nmsrs as usize;
         let mut reg_assocs: Vec<hv_register_assoc> = Vec::with_capacity(nmsrs);
@@ -661,7 +661,7 @@ impl VcpuFd {
     }
     /// Setup the model-specific registers (MSR) for this vCPU.
     /// Returns the number of MSR entries actually written.
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn set_msrs(&self, msrs: &Msrs) -> Result<usize> {
         let nmsrs = msrs.as_fam_struct_ref().nmsrs as usize;
         let mut reg_assocs: Vec<hv_register_assoc> = Vec::with_capacity(nmsrs);
@@ -694,7 +694,7 @@ impl VcpuFd {
     }
     /// Returns currently pending exceptions, interrupts, and NMIs as well as related
     /// states of the vcpu.
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn get_vcpu_events(&self) -> Result<VcpuEvents> {
         let reg_names: [hv_register_name; 5] = [
             hv_register_name_HV_REGISTER_PENDING_INTERRUPTION,
@@ -725,7 +725,7 @@ impl VcpuFd {
         Ok(ret_regs)
     }
     /// Sets pending exceptions, interrupts, and NMIs as well as related states of the vcpu.
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn set_vcpu_events(&self, events: &VcpuEvents) -> Result<()> {
         let reg_names: [hv_register_name; 5] = [
             hv_register_name_HV_REGISTER_PENDING_INTERRUPTION,
@@ -769,7 +769,7 @@ impl VcpuFd {
         Ok(())
     }
     /// X86 specific call that returns the vcpu's current "xcrs".
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn get_xcrs(&self) -> Result<Xcrs> {
         let mut reg_assocs: [hv_register_assoc; 1] = [hv_register_assoc {
             name: hv_register_name_HV_X64_REGISTER_XFEM,
@@ -787,7 +787,7 @@ impl VcpuFd {
         Ok(ret_regs)
     }
     /// X86 specific call to set XCRs
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn set_xcrs(&self, xcrs: &Xcrs) -> Result<()> {
         self.set_reg(&[hv_register_assoc {
             name: hv_register_name_HV_X64_REGISTER_XFEM,
@@ -796,7 +796,7 @@ impl VcpuFd {
         }])
     }
     /// X86 specific call that returns the vcpu's current "misc registers".
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn get_misc_regs(&self) -> Result<MiscRegs> {
         let mut reg_assocs: [hv_register_assoc; 1] = [hv_register_assoc {
             name: hv_register_name_HV_X64_REGISTER_HYPERCALL,
@@ -814,7 +814,7 @@ impl VcpuFd {
         Ok(ret_regs)
     }
     /// X86 specific call that sets the vcpu's current "misc registers".
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn set_misc_regs(&self, misc: &MiscRegs) -> Result<()> {
         self.set_reg(&[hv_register_assoc {
             name: hv_register_name_HV_X64_REGISTER_HYPERCALL,
@@ -909,7 +909,7 @@ impl VcpuFd {
         Ok((gpa, result))
     }
     /// X86 specific call that returns the vcpu's current "suspend registers".
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn get_suspend_regs(&self) -> Result<SuspendRegisters> {
         let reg_names: [hv_register_name; 2] = [
             hv_register_name_HV_REGISTER_EXPLICIT_SUSPEND,
@@ -1027,7 +1027,7 @@ impl VcpuFd {
     }
     /// X86 specific call that retrieves the values of the specified CPUID
     /// leaf as observed on the virtual processor.
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn get_cpuid_values(&self, eax: u32, ecx: u32, xfem: u64, xss: u64) -> Result<[u32; 4]> {
         let mut parms = mshv_get_vp_cpuid_values {
             function: eax,
@@ -1065,7 +1065,7 @@ impl VcpuFd {
         Ok(*input)
     }
     /// Sets the sev control register
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn set_sev_control_register(&self, reg: u64) -> Result<()> {
         let reg_assocs = [hv_register_assoc {
             name: hv_register_name_HV_X64_REGISTER_SEV_CONTROL,
