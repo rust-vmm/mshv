@@ -836,6 +836,61 @@ mod tests {
             val == hv_unimplemented_msr_action_HV_UNIMPLEMENTED_MSR_ACTION_IGNORE_WRITE_READ_ZERO
                 .into()
         );
+        val = vm
+        .get_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_REFERENCE_TIME,
+        )
+        .unwrap();
+        println!("Ref Time 1: {val}");
+        
+        val = vm
+        .get_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_REFERENCE_TIME,
+        )
+        .unwrap();
+        println!("Ref Time 2: {val}");
+        val = vm
+        .get_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_REFERENCE_TIME,
+        )
+        .unwrap();
+        println!("Ref Time 3: {val}");
+        vm.set_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_TIME_FREEZE,
+            1u64,
+        )
+        .unwrap();
+        val = vm
+        .get_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_REFERENCE_TIME,
+        )
+        .unwrap();
+    println!("Ref Time 3: {val}");
+        vm.set_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_REFERENCE_TIME,
+            val + 100,
+        )
+        .unwrap();
+    val = vm
+    .get_partition_property(
+        hv_partition_property_code_HV_PARTITION_PROPERTY_REFERENCE_TIME,
+    )
+    .unwrap();
+    println!("Ref Time 3: {val}");
+    vm.set_partition_property(
+        hv_partition_property_code_HV_PARTITION_PROPERTY_TIME_FREEZE,
+        1u64,
+    )
+    .unwrap();
+    vm.set_partition_property(
+        hv_partition_property_code_HV_PARTITION_PROPERTY_REFERENCE_TIME,
+        val,
+    ).unwrap();
+    vm.set_partition_property(
+        hv_partition_property_code_HV_PARTITION_PROPERTY_TIME_FREEZE,
+        0u64,
+    ).unwrap();
+
     }
     #[test]
     fn test_irqfd() {
