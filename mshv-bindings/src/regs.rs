@@ -673,3 +673,35 @@ pub struct SuspendRegisters {
 pub struct MiscRegs {
     pub hypercall: u64,
 }
+
+// Total size: 13512 bytes
+// 1. MSHV_VP_STATE_LAPIC, Size: 1024 bytes;
+// 2. MSHV_VP_STATE_XSAVE, Size: 4096 bytes;
+// 3. MSHV_VP_STATE_SIMP, Size: 4096 bytes;
+// 4. MSHV_VP_STATE_SIEFP, Size: 4096 bytes;
+// 5. MSHV_VP_STATE_SYNTHETIC_TIMERS, Size: 200 bytes;
+const VP_STATE_COMP_SIZES: [usize; 5] = [0x400, 0x1000, 0x1000, 0x1000, 0xC8];
+
+pub const VP_STATE_COMPONENTS_BUFFER_SIZE: usize = VP_STATE_COMP_SIZES
+    [MSHV_VP_STATE_LAPIC as usize]
+    + VP_STATE_COMP_SIZES[MSHV_VP_STATE_XSAVE as usize]
+    + VP_STATE_COMP_SIZES[MSHV_VP_STATE_SIMP as usize]
+    + VP_STATE_COMP_SIZES[MSHV_VP_STATE_SIEFP as usize]
+    + VP_STATE_COMP_SIZES[MSHV_VP_STATE_SYNTHETIC_TIMERS as usize];
+
+// Total five components are stored in a single buffer serially
+// Components are:
+// Local APIC, Xsave, Synthetic Message Page, Synthetic Event Flags Page
+// and Synthetic Timers.
+#[repr(C)]
+#[derive(Copy, Clone, Debug, AsBytes, FromBytes, FromZeroes)]
+/// Fixed buffer for VP state components
+pub struct AllVpStateComponents {
+    pub buffer: [u8; VP_STATE_COMPONENTS_BUFFER_SIZE],
+}
+
+impl Default for AllVpStateComponents {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
+}
