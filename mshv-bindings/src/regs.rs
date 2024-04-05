@@ -689,6 +689,11 @@ pub const VP_STATE_COMPONENTS_BUFFER_SIZE: usize = VP_STATE_COMP_SIZES
     + VP_STATE_COMP_SIZES[MSHV_VP_STATE_SIEFP as usize]
     + VP_STATE_COMP_SIZES[MSHV_VP_STATE_SYNTHETIC_TIMERS as usize];
 
+#[inline(always)]
+fn get_vp_state_comp_start_offset(index: usize) -> usize {
+    VP_STATE_COMP_SIZES[0..index].iter().copied().sum()
+}
+
 // Total five components are stored in a single buffer serially
 // Components are:
 // Local APIC, Xsave, Synthetic Message Page, Synthetic Event Flags Page
@@ -703,5 +708,26 @@ pub struct AllVpStateComponents {
 impl Default for AllVpStateComponents {
     fn default() -> Self {
         unsafe { ::std::mem::zeroed() }
+    }
+}
+
+impl AllVpStateComponents {
+    pub fn copy_to_or_from_buffer(&mut self, index: usize, buffer: &mut Buffer, to_buffer: bool) {
+        let len: usize = VP_STATE_COMP_SIZES[index];
+
+        if len > buffer.size() {
+            panic!("Invalid buffer length for state components");
+        }
+
+        let start = get_vp_state_comp_start_offset(index);
+        let end = start + len;
+
+        if to_buffer {
+            // SAFETY: buffer is large enough to hold state data
+            unsafe { ptr::copy(self.buffer[start..end].as_ptr(), buffer.buf, len) };
+        } else {
+            // SAFETY: buffer is large enough to hold state data
+            unsafe { ptr::copy(buffer.buf, self.buffer[start..end].as_mut_ptr(), len) };
+        }
     }
 }
