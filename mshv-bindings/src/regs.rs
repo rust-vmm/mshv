@@ -731,3 +731,31 @@ impl AllVpStateComponents {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_all_vp_state_components_copy_to_buffer() {
+        let mut states: AllVpStateComponents = AllVpStateComponents::default();
+        let mut buffer = Buffer::new(HV_PAGE_SIZE, HV_PAGE_SIZE).unwrap();
+
+        for i in 0..VP_STATE_COMPONENTS_BUFFER_SIZE {
+            states.buffer[i] = 0xB9;
+        }
+
+        //test copy to buffer
+        for i in 0..MSHV_VP_STATE_COUNT {
+            let len = VP_STATE_COMP_SIZES[i as usize];
+            let start = get_vp_state_comp_start_offset(i as usize);
+            let end = start + len;
+            states.copy_to_or_from_buffer(i as usize, &mut buffer, true);
+            let buf_arr = unsafe { std::slice::from_raw_parts(buffer.buf, len) };
+            assert!(states.buffer[start..end]
+                .iter()
+                .zip(buf_arr)
+                .all(|(a, b)| a == b));
+        }
+    }
+}
