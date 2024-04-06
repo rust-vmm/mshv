@@ -735,6 +735,7 @@ impl AllVpStateComponents {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::slice::from_raw_parts_mut;
 
     #[test]
     fn test_all_vp_state_components_copy_to_buffer() {
@@ -753,6 +754,37 @@ mod tests {
             states.copy_to_or_from_buffer(i as usize, &mut buffer, true);
             // SAFETY: We read less than or equal to buffer length and the slice is valid.
             let buf_arr = unsafe { std::slice::from_raw_parts(buffer.buf, len) };
+            assert!(states.buffer[start..end]
+                .iter()
+                .zip(buf_arr)
+                .all(|(a, b)| a == b));
+        }
+    }
+
+    #[test]
+    fn test_all_vp_state_components_copy_from_buffer() {
+        let mut states: AllVpStateComponents = AllVpStateComponents::default();
+        let buffer = Buffer::new(HV_PAGE_SIZE, HV_PAGE_SIZE).unwrap();
+        let mut copy_buffer = Buffer::new(HV_PAGE_SIZE, HV_PAGE_SIZE).unwrap();
+
+        // SAFETY: Safe because the entire buffer is accessible as bytes,
+        // modifying them in the form of a byte slice is valid
+        let mut_buf = unsafe { from_raw_parts_mut(buffer.buf, buffer.layout.size()) };
+        for itm in mut_buf.iter_mut().take(HV_PAGE_SIZE) {
+            *itm = 0xA5;
+        }
+
+        // SAFETY: buffer is large enough to hold state data
+        unsafe { ptr::copy(mut_buf.as_mut_ptr(), copy_buffer.buf, HV_PAGE_SIZE) };
+
+        //test copy to buffer
+        for i in 0..MSHV_VP_STATE_COUNT {
+            let len = VP_STATE_COMP_SIZES[i as usize];
+            let start = get_vp_state_comp_start_offset(i as usize);
+            let end = start + len;
+
+            states.copy_to_or_from_buffer(i as usize, &mut copy_buffer, false);
+            let buf_arr = &mut_buf[0..len];
             assert!(states.buffer[start..end]
                 .iter()
                 .zip(buf_arr)
