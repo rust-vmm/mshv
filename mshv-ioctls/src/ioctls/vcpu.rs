@@ -1076,6 +1076,45 @@ impl VcpuFd {
         self.set_reg(&reg_assocs)?;
         Ok(())
     }
+
+    /// Gets the VP state components
+    #[cfg(not(target_arch = "aarch64"))]
+    pub fn get_all_vp_state_components(&self) -> Result<AllVpStateComponents> {
+        let mut states: AllVpStateComponents = AllVpStateComponents::default();
+        let mut buffer = Buffer::new(HV_PAGE_SIZE, HV_PAGE_SIZE)?;
+
+        for i in 0..MSHV_VP_STATE_COUNT {
+            buffer.zero_out_buf();
+            let mut vp_state = mshv_get_set_vp_state {
+                buf_ptr: buffer.buf as u64,
+                buf_sz: buffer.size() as u32,
+                type_: i as u8,
+                ..Default::default()
+            };
+            self.get_vp_state_ioctl(&mut vp_state)?;
+            states.copy_to_or_from_buffer(i as usize, &mut buffer, false);
+        }
+        Ok(states)
+    }
+
+    /// Sets the VP state components
+    #[cfg(not(target_arch = "aarch64"))]
+    pub fn set_all_vp_state_components(&self, states: &mut AllVpStateComponents) -> Result<()> {
+        let mut buffer = Buffer::new(HV_PAGE_SIZE, HV_PAGE_SIZE)?;
+
+        for i in 0..MSHV_VP_STATE_COUNT {
+            buffer.zero_out_buf();
+            states.copy_to_or_from_buffer(i as usize, &mut buffer, true);
+            let vp_state = mshv_get_set_vp_state {
+                type_: i as u8,
+                buf_sz: buffer.size() as u32,
+                buf_ptr: buffer.buf as u64,
+                ..Default::default()
+            };
+            self.set_vp_state_ioctl(&vp_state)?;
+        }
+        Ok(())
+    }
 }
 
 #[allow(dead_code)]
