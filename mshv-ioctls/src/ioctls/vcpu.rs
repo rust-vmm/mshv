@@ -1534,4 +1534,19 @@ mod tests {
         let max_function = res[0];
         assert!(max_function >= 1);
     }
+
+    #[test]
+    fn test_get_set_vp_state_components() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        let mut states = vcpu.get_all_vp_state_components().unwrap();
+        vcpu.set_all_vp_state_components(&mut states).unwrap();
+        let ret_states = vcpu.get_all_vp_state_components().unwrap();
+        assert!(states
+            .buffer
+            .iter()
+            .zip(ret_states.buffer)
+            .all(|(a, b)| *a == b));
+    }
 }
