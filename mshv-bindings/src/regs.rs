@@ -475,6 +475,13 @@ impl Buffer {
     pub fn size(&self) -> usize {
         self.layout.size()
     }
+
+    pub fn zero_out_buf(&mut self) {
+        // SAFETY: We write zeros to a valid pointer and the size is valid and allocated from a valid layout.
+        unsafe {
+            ::std::ptr::write_bytes(self.buf, 0u8, self.size());
+        }
+    }
 }
 
 impl Drop for Buffer {
