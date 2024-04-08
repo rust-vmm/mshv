@@ -475,6 +475,12 @@ impl Buffer {
     pub fn size(&self) -> usize {
         self.layout.size()
     }
+
+    pub fn zero_out_buf(&mut self) {
+        unsafe {
+            ::std::ptr::write_bytes(self.buf, 0u8, self.size());
+        }
+    }
 }
 
 impl Drop for Buffer {
