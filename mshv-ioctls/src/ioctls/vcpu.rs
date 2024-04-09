@@ -81,12 +81,44 @@ impl VcpuFd {
         }
         Ok(())
     }
-    /// Sets a vCPU register to input value.
-    ///
-    /// # Arguments
-    ///
-    /// * `reg_name` - general purpose register name.
-    /// * `reg_value` - register value.
+    /// Generic hvcall version of get_reg
+    pub fn hvcall_get_reg(&self, reg_assocs: &mut [hv_register_assoc]) -> Result<()> {
+        if reg_assocs.is_empty() {
+            return Err(libc::EINVAL.into());
+        }
+        let reg_names: Vec<hv_register_name> = reg_assocs.iter().map(|assoc| assoc.name).collect();
+        let input = make_rep_input!(
+            hv_input_get_vp_registers {
+                vp_index: self.index,
+                ..Default::default()
+            },
+            names,
+            reg_names.as_slice()
+        );
+        let mut output: Vec<hv_register_value> = reg_names
+            .iter()
+            .map(|_| hv_register_value {
+                reg128: hv_u128 {
+                    ..Default::default()
+                },
+            })
+            .collect();
+        let output_slice = output.as_mut_slice();
+
+        let mut args = make_rep_args!(HVCALL_GET_VP_REGISTERS, input, output_slice);
+        self.hvcall(&mut args)?;
+
+        if args.reps as usize != reg_assocs.len() {
+            return Err(libc::EINTR.into());
+        }
+
+        for (assoc, value) in reg_assocs.iter_mut().zip(output.iter()) {
+            assoc.value = *value;
+        }
+
+        Ok(())
+    }
+    /// Set vcpu register values by providing an array of register assocs
     #[cfg(not(target_arch = "aarch64"))]
     pub fn set_reg(&self, regs: &[hv_register_assoc]) -> Result<()> {
         let hv_vp_register_args = mshv_vp_registers {
@@ -98,6 +130,26 @@ impl VcpuFd {
         if ret != 0 {
             return Err(errno::Error::last().into());
         }
+
+        Ok(())
+    }
+    /// Generic hypercall version of set_reg
+    pub fn hvcall_set_reg(&self, reg_assocs: &[hv_register_assoc]) -> Result<()> {
+        let input = make_rep_input!(
+            hv_input_set_vp_registers {
+                vp_index: self.index,
+                ..Default::default()
+            },
+            elements,
+            reg_assocs
+        );
+        let mut args = make_rep_args!(HVCALL_SET_VP_REGISTERS, input);
+        self.hvcall(&mut args)?;
+
+        if args.reps as usize != reg_assocs.len() {
+            return Err(libc::EINTR.into());
+        }
+
         Ok(())
     }
     /// Sets the vCPU general purpose registers
@@ -909,6 +961,29 @@ impl VcpuFd {
 
         Ok((gpa, result))
     }
+    /// Generic hvcall version of translate guest virtual address
+    pub fn hvcall_translate_gva(
+        &self,
+        gva: u64,
+        flags: u64,
+    ) -> Result<(u64, hv_translate_gva_result)> {
+        let input = hv_input_translate_virtual_address {
+            vp_index: self.index,
+            control_flags: flags,
+            gva_page: gva >> HV_HYP_PAGE_SHIFT,
+            ..Default::default() // NOTE: kernel will populate partition_id field
+        };
+        let output = hv_output_translate_virtual_address {
+            ..Default::default()
+        };
+        let mut args = make_args!(HVCALL_TRANSLATE_VIRTUAL_ADDRESS, input, output);
+        self.hvcall(&mut args)?;
+
+        let gpa = (output.gpa_page << HV_HYP_PAGE_SHIFT) | (gva & !(1 << HV_HYP_PAGE_SHIFT));
+
+        Ok((gpa, output.translation_result))
+    }
+
     /// X86 specific call that returns the vcpu's current "suspend registers".
     #[cfg(not(target_arch = "aarch64"))]
     pub fn get_suspend_regs(&self) -> Result<SuspendRegisters> {
@@ -1045,6 +1120,48 @@ impl VcpuFd {
         }
         Ok([parms.eax, parms.ebx, parms.ecx, parms.edx])
     }
+    /// Generic hvcall version of get cpuid values
+    #[cfg(not(target_arch = "aarch64"))]
+    pub fn hvcall_get_cpuid_values(
+        &self,
+        eax: u32,
+        ecx: u32,
+        xfem: u64,
+        xss: u64,
+    ) -> Result<[u32; 4]> {
+        let mut input = make_rep_input!(
+            hv_input_get_vp_cpuid_values {
+                vp_index: self.index,
+                ..Default::default() // NOTE: Kernel will populate partition_id field
+            },
+            cpuid_leaf_info,
+            [hv_cpuid_leaf_info {
+                eax,
+                ecx,
+                xfem,
+                xss,
+            }]
+        );
+        unsafe {
+            input
+                .as_mut_struct_ref()
+                .flags
+                .__bindgen_anon_1
+                .set_use_vp_xfem_xss(1);
+            input
+                .as_mut_struct_ref()
+                .flags
+                .__bindgen_anon_1
+                .set_apply_registered_values(1);
+        }
+        let mut output_arr: [hv_output_get_vp_cpuid_values; 1] = [Default::default()];
+        let mut args = make_rep_args!(HVCALL_GET_VP_CPUID_VALUES, input, output_arr);
+        self.hvcall(&mut args)?;
+
+        // SAFETY: The hvcall succeeded, and both fields of the union are
+        // equivalent. Just return the array instead of taking eax, ebx, etc...
+        Ok(unsafe { output_arr[0].as_uint32 })
+    }
     /// Read GPA
     pub fn gpa_read(&self, input: &mut mshv_read_write_gpa) -> Result<mshv_read_write_gpa> {
         // SAFETY: we know that our file is a vCPU fd, we know the kernel honours its ABI.
@@ -1138,11 +1255,7 @@ mod tests {
 
     #[test]
     fn test_set_get_regs() {
-        let hv = Mshv::new().unwrap();
-        let vm = hv.create_vm().unwrap();
-        let vcpu = vm.create_vcpu(0).unwrap();
-
-        vcpu.set_reg(&[
+        let set_reg_assocs: [hv_register_assoc; 2] = [
             hv_register_assoc {
                 name: hv_register_name_HV_X64_REGISTER_RIP,
                 value: hv_register_value { reg64: 0x1000 },
@@ -1153,10 +1266,8 @@ mod tests {
                 value: hv_register_value { reg64: 0x2 },
                 ..Default::default()
             },
-        ])
-        .unwrap();
-
-        let mut get_regs: [hv_register_assoc; 2] = [
+        ];
+        let get_reg_assocs: [hv_register_assoc; 2] = [
             hv_register_assoc {
                 name: hv_register_name_HV_X64_REGISTER_RIP,
                 ..Default::default()
@@ -1167,12 +1278,30 @@ mod tests {
             },
         ];
 
-        vcpu.get_reg(&mut get_regs).unwrap();
+        for i in [0, 1] {
+            let hv = Mshv::new().unwrap();
+            let vm = hv.create_vm().unwrap();
+            let vcpu = vm.create_vcpu(0).unwrap();
 
-        // SAFETY: access union fields
-        unsafe {
-            assert!(get_regs[0].value.reg64 == 0x1000);
-            assert!(get_regs[1].value.reg64 == 0x2);
+            if i == 0 {
+                vcpu.set_reg(&set_reg_assocs).unwrap();
+            } else {
+                vcpu.hvcall_set_reg(&set_reg_assocs).unwrap();
+            }
+
+            let mut get_regs: [hv_register_assoc; 2] = get_reg_assocs;
+
+            if i == 0 {
+                vcpu.get_reg(&mut get_regs).unwrap();
+            } else {
+                vcpu.hvcall_get_reg(&mut get_regs).unwrap();
+            }
+
+            // SAFETY: access union fields
+            unsafe {
+                assert!(get_regs[0].value.reg64 == 0x1000);
+                assert!(get_regs[1].value.reg64 == 0x2);
+            }
         }
     }
 
@@ -1542,9 +1671,11 @@ mod tests {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
-        let res = vcpu.get_cpuid_values(0, 0, 0, 0).unwrap();
-        let max_function = res[0];
+        let res_0 = vcpu.get_cpuid_values(0, 0, 0, 0).unwrap();
+        let max_function = res_0[0];
         assert!(max_function >= 1);
+        let res_1 = vcpu.hvcall_get_cpuid_values(0, 0, 0, 0).unwrap();
+        assert!(res_1[0] >= 1);
     }
 
     #[test]

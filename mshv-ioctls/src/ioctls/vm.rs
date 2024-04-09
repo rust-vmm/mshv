@@ -572,6 +572,16 @@ impl VmFd {
             Err(errno::Error::last().into())
         }
     }
+    /// Generic hvcall version of set_partition_property
+    pub fn hvcall_set_partition_property(&self, code: u32, value: u64) -> Result<()> {
+        let input = hv_input_set_partition_property {
+            property_code: code,
+            property_value: value,
+            ..Default::default() // NOTE: kernel will populate partition_id field
+        };
+        let mut args = make_args!(HVCALL_SET_PARTITION_PROPERTY, input);
+        self.hvcall(&mut args)
+    }
     /// Enable dirty page tracking by hypervisor
     /// Flags:
     ///         bit 1: Enabled
@@ -798,20 +808,7 @@ mod tests {
         assert!(vm.install_intercept(intercept_args).is_ok());
     }
     #[test]
-    fn test_setting_immutable_partition_property() {
-        let hv = Mshv::new().unwrap();
-        let vm = hv.create_vm().unwrap();
-        let res = vm.set_partition_property(
-            hv_partition_property_code_HV_PARTITION_PROPERTY_PRIVILEGE_FLAGS,
-            0,
-        );
-
-        // We should get an error, because we are trying to change an immutable
-        // partition property.
-        assert!(res.is_err())
-    }
-    #[test]
-    fn test_get_set_property() {
+    fn test_get_property() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
 
@@ -847,6 +844,52 @@ mod tests {
             val == hv_unimplemented_msr_action_HV_UNIMPLEMENTED_MSR_ACTION_IGNORE_WRITE_READ_ZERO
                 .into()
         );
+    }
+    #[test]
+    fn test_set_property() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+
+        let code = hv_partition_property_code_HV_PARTITION_PROPERTY_UNIMPLEMENTED_MSR_ACTION;
+        let ignore =
+            hv_unimplemented_msr_action_HV_UNIMPLEMENTED_MSR_ACTION_IGNORE_WRITE_READ_ZERO as u64;
+        let fault = hv_unimplemented_msr_action_HV_UNIMPLEMENTED_MSR_ACTION_FAULT as u64;
+
+        vm.set_partition_property(code, ignore).unwrap();
+        let ignore_ret = vm.get_partition_property(code).unwrap();
+        assert!(ignore_ret == ignore);
+
+        vm.set_partition_property(code, fault).unwrap();
+        let fault_ret = vm.get_partition_property(code).unwrap();
+        assert!(fault_ret == fault);
+
+        // Test the same with hvcall_ equivalent
+        vm.hvcall_set_partition_property(code, ignore).unwrap();
+        let ignore_ret = vm.get_partition_property(code).unwrap();
+        assert!(ignore_ret == ignore);
+
+        vm.hvcall_set_partition_property(code, fault).unwrap();
+        let fault_ret = vm.get_partition_property(code).unwrap();
+        assert!(fault_ret == fault);
+    }
+    #[test]
+    fn test_set_partition_property_invalid() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let code = hv_partition_property_code_HV_PARTITION_PROPERTY_PRIVILEGE_FLAGS;
+
+        // old IOCTL
+        let res_0 = vm.set_partition_property(code, 0);
+        assert!(res_0.is_err());
+
+        // generic hvcall
+        let res_1 = vm.hvcall_set_partition_property(code, 0);
+        let mshv_err_check = MshvError::Hypercall {
+            code: HVCALL_SET_PARTITION_PROPERTY as u16,
+            status_raw: HV_STATUS_INVALID_PARTITION_STATE as u16,
+            status: Some(HvError::InvalidPartitionState),
+        };
+        assert!(res_1.err().unwrap() == mshv_err_check);
     }
     #[test]
     fn test_irqfd() {
