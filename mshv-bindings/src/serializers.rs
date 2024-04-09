@@ -112,4 +112,21 @@ mod tests {
             .zip(d_xsave.buffer.iter())
             .all(|(a, b)| a == b));
     }
+
+    #[test]
+    fn test_vp_state_components_serialization_deserialization() {
+        let mut states = AllVpStateComponents {
+            ..Default::default()
+        };
+        for i in 0..VP_STATE_COMPONENTS_BUFFER_SIZE {
+            states.buffer[i] = 0xC8;
+        }
+        let serialized = serde_json::to_string(&states).expect("err ser");
+        let d_states: AllVpStateComponents = serde_json::from_str(&serialized).expect("err unser");
+        assert!(states
+            .buffer
+            .iter()
+            .zip(d_states.buffer.iter())
+            .all(|(a, b)| a == b));
+    }
 }
