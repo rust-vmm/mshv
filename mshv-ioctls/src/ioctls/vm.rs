@@ -784,7 +784,7 @@ mod tests {
             intercept_type: hv_intercept_type_HV_INTERCEPT_TYPE_X64_CPUID,
             intercept_parameter: hv_intercept_parameters { cpuid_index: 0x100 },
         };
-        vm.install_intercept(intercept_args).unwrap();
+        assert!(vm.install_intercept(intercept_args).is_ok());
     }
     #[test]
     fn test_setting_immutable_partition_property() {
