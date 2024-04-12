@@ -22,14 +22,14 @@ def check_installed(cmd):
     return which(cmd) is not None
 
 
-def install_kernel_headers(kernel_src_path):
+def install_kernel_headers(kernel_src_path, arch):
     kernel_hdr_path = tempfile.mkdtemp(prefix="linux")
     logging.debug(f"Installing kernel headers at {kernel_hdr_path}")
     subprocess.run(
         [
             "make",
             "headers_install",
-            "ARCH=x86",
+            f"ARCH={arch}",
             f"INSTALL_HDR_PATH={kernel_hdr_path}",
             "-C",
             kernel_src_path,
@@ -94,6 +94,13 @@ def update_bindings_comment(bindings_file):
         f.write("".join(lines))
 
 
+def get_arch_location(arch):
+    if arch == "x86":
+        return "x86_64"
+
+    return arch
+
+
 def main(args):
     bindgen = check_installed("bindgen")
     if not bindgen:
@@ -105,13 +112,14 @@ def main(args):
         logging.error("Please install make.")
         return -1
 
-    kernel_hdr_path = install_kernel_headers(args.kernel_src_path)
+    kernel_hdr_path = install_kernel_headers(args.kernel_src_path, args.arch)
     generate_unified_mshv_headers(kernel_hdr_path)
 
     bindgen_args = "--no-doc-comments --with-derive-default "
 
     bindgen_args += args.bindgen_args
-    output_file = f"{args.output}/bindings.rs"
+    arch_location = get_arch_location(args.arch)
+    output_file = f"{args.output}/{arch_location}/bindings.rs"
 
     run_bindgen(kernel_hdr_path, output_file, bindgen_args)
     update_bindings_comment(output_file)
@@ -158,6 +166,15 @@ if __name__ == "__main__":
         choices=["info", "debug", "error"],
         default="info",
         help="Log level for logging (default: %(default)s)",
+    )
+
+    parser.add_argument(
+        "--arch",
+        "-a",
+        dest="arch",
+        choices=["x86", "arm64"],
+        default="x86",
+        help="Architecture for binding generation (default: %(default)s)",
     )
 
     log_level = {"info": logging.INFO, "debug": logging.DEBUG, "error": logging.ERROR}
