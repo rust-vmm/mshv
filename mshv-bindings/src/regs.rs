@@ -681,13 +681,30 @@ pub struct MiscRegs {
     pub hypercall: u64,
 }
 
+const fn initialize_comp_sizes() -> [usize; MSHV_VP_STATE_COUNT as usize] {
+    let mut vp_state_comp_size = [0; MSHV_VP_STATE_COUNT as usize];
+
+    vp_state_comp_size[MSHV_VP_STATE_LAPIC as usize] = std::mem::size_of::<LapicState>();
+    vp_state_comp_size[MSHV_VP_STATE_XSAVE as usize] = std::mem::size_of::<XSave>();
+    vp_state_comp_size[MSHV_VP_STATE_SIMP as usize] = HV_PAGE_SIZE; // Assuming SIMP page is
+                                                                    // allocated by the Hypervisor
+                                                                    // which is of PAGE_SIZE
+    vp_state_comp_size[MSHV_VP_STATE_SIEFP as usize] = HV_PAGE_SIZE; // Assuming SIEFP page is
+                                                                     // allocated by the Hypervisor
+                                                                     // which is of PAGE_SIZE
+    vp_state_comp_size[MSHV_VP_STATE_SYNTHETIC_TIMERS as usize] =
+        std::mem::size_of::<hv_synthetic_timers_state>();
+
+    vp_state_comp_size
+}
+
 // Total size: 13512 bytes
 // 1. MSHV_VP_STATE_LAPIC, Size: 1024 bytes;
 // 2. MSHV_VP_STATE_XSAVE, Size: 4096 bytes;
 // 3. MSHV_VP_STATE_SIMP, Size: 4096 bytes;
 // 4. MSHV_VP_STATE_SIEFP, Size: 4096 bytes;
 // 5. MSHV_VP_STATE_SYNTHETIC_TIMERS, Size: 200 bytes;
-const VP_STATE_COMP_SIZES: [usize; 5] = [0x400, 0x1000, 0x1000, 0x1000, 0xC8];
+const VP_STATE_COMP_SIZES: [usize; MSHV_VP_STATE_COUNT as usize] = initialize_comp_sizes();
 
 pub const VP_STATE_COMPONENTS_BUFFER_SIZE: usize = VP_STATE_COMP_SIZES
     [MSHV_VP_STATE_LAPIC as usize]
