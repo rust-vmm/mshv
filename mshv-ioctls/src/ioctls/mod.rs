@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 OR BSD-3-Clause
 //
-use mshv_bindings::{mshv_root_hvcall, HvError};
+use mshv_bindings::{mshv_root_hvcall, HvError, HV_STATUS_SUCCESS};
 use thiserror::Error;
 use vmm_sys_util::errno;
 pub mod device;
@@ -47,8 +47,7 @@ impl MshvError {
     /// * `ret_args` - MSHV_ROOT_HVCALL args struct, after the ioctl completed
     pub fn from_hvcall(error: errno::Error, ret_args: mshv_root_hvcall) -> Self {
         use std::convert::TryFrom;
-        // EIO signals that the hypercall itself may have failed
-        if error.errno() == libc::EIO && ret_args.status != 0 {
+        if ret_args.status != HV_STATUS_SUCCESS as u16 {
             let hv_err = HvError::try_from(ret_args.status);
             return MshvError::Hypercall {
                 code: ret_args.code,
@@ -138,15 +137,9 @@ mod tests {
             status: HV_STATUS_SUCCESS as u16,
             ..Default::default()
         };
-        {
-            let ioctl_err = errno::Error::new(libc::EFAULT);
-            let mshv_err = MshvError::from_hvcall(ioctl_err, args);
 
-            assert!(mshv_err == MshvError::Errno(ioctl_err));
-        }
         {
-            // special case: EIO with successful hypercall
-            let ioctl_err = errno::Error::new(libc::EIO);
+            let ioctl_err = errno::Error::new(libc::EINVAL);
             let mshv_err = MshvError::from_hvcall(ioctl_err, args);
 
             assert!(mshv_err == MshvError::Errno(ioctl_err));
