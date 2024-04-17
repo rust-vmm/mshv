@@ -8328,6 +8328,8 @@ pub const hv_partition_property_code_HV_PARTITION_PROPERTY_CPU_GROUP_ID:
     hv_partition_property_code = 131076;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_TIME_FREEZE: hv_partition_property_code =
     196611;
+pub const hv_partition_property_code_HV_PARTITION_PROPERTY_REFERENCE_TIME:
+    hv_partition_property_code = 196613;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_DEBUG_CHANNEL_ID:
     hv_partition_property_code = 262144;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_VIRTUAL_TLB_PAGE_COUNT:
