@@ -19,7 +19,7 @@ ioctl_io_nr!(MSHV_INITIALIZE_PARTITION, MSHV_IOCTL, 0x00);
 ioctl_iow_nr!(MSHV_CREATE_VP, MSHV_IOCTL, 0x04, mshv_create_vp);
 ioctl_iowr_nr!(MSHV_GET_VP_REGISTERS, MSHV_IOCTL, 0x05, mshv_vp_registers);
 ioctl_iow_nr!(MSHV_SET_VP_REGISTERS, MSHV_IOCTL, 0x06, mshv_vp_registers);
-ioctl_ior_nr!(MSHV_RUN_VP, MSHV_IOCTL, 0x07, hv_message);
+ioctl_ior_nr!(MSHV_RUN_VP, MSHV_IOCTL, 0x00, mshv_run_vp);
 #[cfg(target_arch = "x86_64")]
 ioctl_iowr_nr!(MSHV_GET_VP_STATE, MSHV_IOCTL, 0x0A, mshv_get_set_vp_state);
 #[cfg(target_arch = "x86_64")]
