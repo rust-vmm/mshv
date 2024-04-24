@@ -59,10 +59,10 @@ ioctl_iow_nr!(
 );
 ioctl_iowr_nr!(MSHV_VP_TRANSLATE_GVA, MSHV_IOCTL, 0x0E, mshv_translate_gva);
 ioctl_iowr_nr!(
-    MSHV_GET_GPA_ACCESS_STATES,
+    MSHV_GET_GPAP_ACCESS_BITMAP,
     MSHV_IOCTL,
-    0x12,
-    mshv_get_gpa_pages_access_state
+    0x07,
+    mshv_gpap_access_bitmap
 );
 
 ioctl_iowr_nr!(MSHV_CREATE_DEVICE, MSHV_IOCTL, 0x13, mshv_create_device);
