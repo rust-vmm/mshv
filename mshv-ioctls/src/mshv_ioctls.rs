@@ -11,7 +11,9 @@ ioctl_iow_nr!(MSHV_CREATE_VP, MSHV_IOCTL, 0x04, mshv_create_vp);
 ioctl_iowr_nr!(MSHV_GET_VP_REGISTERS, MSHV_IOCTL, 0x05, mshv_vp_registers);
 ioctl_iow_nr!(MSHV_SET_VP_REGISTERS, MSHV_IOCTL, 0x06, mshv_vp_registers);
 ioctl_ior_nr!(MSHV_RUN_VP, MSHV_IOCTL, 0x07, hv_message);
+#[cfg(target_arch = "x86_64")]
 ioctl_iowr_nr!(MSHV_GET_VP_STATE, MSHV_IOCTL, 0x0A, mshv_get_set_vp_state);
+#[cfg(target_arch = "x86_64")]
 ioctl_iowr_nr!(MSHV_SET_VP_STATE, MSHV_IOCTL, 0x0B, mshv_get_set_vp_state);
 ioctl_iow_nr!(
     MSHV_CREATE_PARTITION,
@@ -71,6 +73,7 @@ ioctl_iow_nr!(MSHV_SET_DEVICE_ATTR, MSHV_IOCTL, 0x14, mshv_device_attr);
 ioctl_iow_nr!(MSHV_GET_DEVICE_ATTR, MSHV_IOCTL, 0x15, mshv_device_attr);
 ioctl_iow_nr!(MSHV_HAS_DEVICE_ATTR, MSHV_IOCTL, 0x16, mshv_device_attr);
 
+#[cfg(target_arch = "x86_64")]
 ioctl_iow_nr!(
     MSHV_VP_REGISTER_INTERCEPT_RESULT,
     MSHV_IOCTL,
