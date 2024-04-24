@@ -5,6 +5,7 @@
 use crate::ioctls::{MshvError, Result};
 use crate::mshv_ioctls::*;
 use mshv_bindings::*;
+#[cfg(target_arch = "x86_64")]
 use std::convert::TryFrom;
 use std::fs::File;
 use std::os::unix::io::{AsRawFd, RawFd};
@@ -877,6 +878,7 @@ impl VcpuFd {
             ..Default::default()
         }])
     }
+    #[cfg(target_arch = "x86_64")]
     /// Returns the VCpu state. This IOCTLs can be used to get XSave and LAPIC state.
     pub fn get_vp_state_ioctl(&self, state: &mut mshv_get_set_vp_state) -> Result<()> {
         // SAFETY: we know that our file is a vCPU fd and we verify the return result.
@@ -886,6 +888,7 @@ impl VcpuFd {
         }
         Ok(())
     }
+    #[cfg(target_arch = "x86_64")]
     /// Set vp states (LAPIC, XSave etc)
     /// Test code already covered by get/set_lapic/xsave
     pub fn set_vp_state_ioctl(&self, state: &mshv_get_set_vp_state) -> Result<()> {
@@ -896,6 +899,7 @@ impl VcpuFd {
         }
         Ok(())
     }
+    #[cfg(target_arch = "x86_64")]
     /// Get the state of the LAPIC (Local Advanced Programmable Interrupt Controller).
     pub fn get_lapic(&self) -> Result<LapicState> {
         let buffer = Buffer::new(HV_PAGE_SIZE, HV_PAGE_SIZE)?;
@@ -908,6 +912,7 @@ impl VcpuFd {
         self.get_vp_state_ioctl(&mut vp_state)?;
         Ok(LapicState::try_from(buffer)?)
     }
+    #[cfg(target_arch = "x86_64")]
     /// Sets the state of the LAPIC (Local Advanced Programmable Interrupt Controller).
     pub fn set_lapic(&self, lapic_state: &LapicState) -> Result<()> {
         let buffer = Buffer::try_from(lapic_state)?;
@@ -919,6 +924,7 @@ impl VcpuFd {
         };
         self.set_vp_state_ioctl(&vp_state)
     }
+    #[cfg(target_arch = "x86_64")]
     /// Returns the xsave data
     pub fn get_xsave(&self) -> Result<XSave> {
         let buffer = Buffer::new(HV_PAGE_SIZE, HV_PAGE_SIZE)?;
@@ -931,6 +937,7 @@ impl VcpuFd {
         self.get_vp_state_ioctl(&mut vp_state)?;
         Ok(XSave::try_from(buffer)?)
     }
+    #[cfg(target_arch = "x86_64")]
     /// Set the xsave data
     pub fn set_xsave(&self, data: &XSave) -> Result<()> {
         let buffer = Buffer::try_from(data)?;
@@ -1012,6 +1019,7 @@ impl VcpuFd {
 
         Ok(ret_regs)
     }
+    #[cfg(target_arch = "x86_64")]
     /// Register override CPUID values for one leaf.
     pub fn register_intercept_result_cpuid_entry(
         &self,
@@ -1067,6 +1075,7 @@ impl VcpuFd {
 
         Ok(())
     }
+    #[cfg(target_arch = "x86_64")]
     /// Extend CPUID values delivered by hypervisor.
     pub fn register_intercept_result_cpuid(&self, cpuid: &CpuId) -> Result<()> {
         let mut ret = Ok(());
