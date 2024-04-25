@@ -1,0 +1,57 @@
+name: Cloud Hypervisor Build
+on: [pull_request, create]
+
+jobs:
+  build:
+    if: github.event_name == 'pull_request'
+    name: Cloud Hypervisor Build using MSHV chnages
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust:
+          - stable
+        target:
+          - x86_64-unknown-linux-gnu
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4
+        with:
+          path: mshv
+
+      - name: Install Rust toolchain (${{ matrix.rust }})
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ matrix.rust }}
+          target: ${{ matrix.target }}
+          components: rustfmt, clippy
+
+      - name: Cloning Cloud Hypervisor Repo
+        uses: actions/checkout@main
+        with:
+          repository: cloud-hypervisor/cloud-hypervisor
+          token: ${{ secrets.MY_MSHV_PAT }}
+          path: cloud-hypervisor
+
+      - name: Copying script to CLH directory
+        working-directory: ./mshv
+        run: cp scripts/use-local-mshv.sh ../cloud-hypervisor/
+  
+      - name: Applying patch(to use local mshv crates) with script
+        working-directory: ./cloud-hypervisor
+        run: ./use-local-mshv.sh
+
+      - name: Build Cloud-Hypervisor(mshv,kvm)
+        working-directory: ./cloud-hypervisor
+        run: cargo build --release --all --no-default-features --features mshv,kvm
+
+      - name: Build Cloud-Hypervisor(sev_snp)
+        working-directory: ./cloud-hypervisor
+        run: cargo build --release --all --no-default-features --features sev_snp
+
+      - name: Clippy(kvm,mshv)
+        working-directory: ./cloud-hypervisor
+        run: cargo clippy --locked --all --all-targets --no-default-features --tests --examples --features "mshv,kvm" -- -D warnings -D clippy::undocumented_unsafe_blocks
+
+      - name: Clippy(sev_snp)
+        working-directory: ./cloud-hypervisor
+        run: cargo clippy --locked --all --all-targets --no-default-features --tests --examples --features "sev_snp" -- -D warnings -D clippy::undocumented_unsafe_blocks
