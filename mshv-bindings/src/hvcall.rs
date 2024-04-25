@@ -47,12 +47,12 @@ pub struct RepInput<T> {
     size: usize,
     rep_count: usize,
 }
-impl<T> RepInput<T> {
+impl<T: Default> RepInput<T> {
     /// Create a RepInput<T> for a rep hypercall
     ///
     /// # Arguments
     ///
-    /// * `vec` - Vec<T> Created via vec_with_array_field(). T is hv_input_* struct
+    /// * `vec` - Vec<T> from input_with_arr_field_as_vec(). T is hv_input_* struct
     /// * `size` - Size of the hypercall input, including the rep data
     /// * `rep_count` - number of reps
     pub fn new(vec: Vec<T>, size: usize, rep_count: usize) -> Self {
@@ -74,33 +74,33 @@ impl<T> RepInput<T> {
     pub fn size(&self) -> usize {
         self.size
     }
+    /// Make `Vec<T>` with at least enough space for `count` entries of
+    /// `entry_size`, plus one additional entry
+    /// Populate the first element of the Vec with the T. The rest will hold
+    /// elements of size `entry_size` (note the Vec cannot be used normally to
+    /// modify these since size_of::<T>() isn't necessarily the same as entry_size)
+    pub fn input_with_arr_field_as_vec(t: T, entry_size: usize, count: usize) -> Vec<T> {
+        let element_space = count * entry_size;
+        let vec_size_bytes = size_of::<T>() + element_space;
+        let rounded_size = (vec_size_bytes + size_of::<T>() - 1) / size_of::<T>();
+        let mut v = Vec::with_capacity(rounded_size);
+        v.resize_with(rounded_size, T::default);
+        v[0] = t;
+        v
+    }
 }
 
-/// Make `Vec<T>` with at least enough space for `count` + 1 entries of
-/// `entry_size`, where `entry_size` != size_of::<T>()
-/// The first element of the Vec will hold the T data, and the rest will hold
-/// elements of size `entry_size` (note the Vec cannot be used normally to get
-/// at these)
-pub fn vec_with_array_field<T: Default>(t: T, entry_size: usize, count: usize) -> Vec<T> {
-    let element_space = count * entry_size;
-    let vec_size_bytes = size_of::<T>() + element_space;
-    let rounded_size = (vec_size_bytes + size_of::<T>() - 1) / size_of::<T>();
-    let mut v = Vec::with_capacity(rounded_size);
-    v.resize_with(rounded_size, T::default);
-    v[0] = t;
-    v
-}
-
-/// Utility for casting __IncompleteArrayField<T> as the interior type
-pub fn arr_field_as_entry_ptr_mut<T>(ptr: *mut __IncompleteArrayField<T>) -> *mut T {
-    ptr as *mut T
-}
-
-/// Utility for getting the interior type of a __IncompleteArrayField<T>
-/// Note we must use a raw pointer rather than a reference here, because the
-/// field itself may be unaligned due to the struct being packed
-pub fn arr_field_entry_size<T>(_: *const __IncompleteArrayField<T>) -> usize {
-    size_of::<T>()
+impl<U> __IncompleteArrayField<U> {
+    /// Utility for casting __IncompleteArrayField<T> as the interior type
+    pub fn as_entry_ptr_mut(ptr: *mut __IncompleteArrayField<U>) -> *mut U {
+        ptr as *mut U
+    }
+    /// Utility for getting the size of the interior type
+    /// Note we must use a raw pointer rather than a reference here, because the
+    /// compiler thinks the field itself may be unaligned due to the struct being packed
+    pub fn entry_size(_: *const __IncompleteArrayField<U>) -> usize {
+        size_of::<U>()
+    }
 }
 
 /// Assemble a RepInput<T> from a hypercall input struct and an array of rep data
@@ -113,12 +113,13 @@ macro_rules! make_rep_input {
     ($struct_expr:expr, $field_ident:ident, $arr_expr:expr) => {{
         let s = $struct_expr;
         let a = $arr_expr;
-        let el_size = arr_field_entry_size(std::ptr::addr_of!(s.$field_ident));
+        let el_size = __IncompleteArrayField::entry_size(std::ptr::addr_of!(s.$field_ident));
         let struct_size = std::mem::size_of_val(&s);
-        let mut vec = vec_with_array_field(s, el_size, a.len());
-        // SAFETY: we know the vector is large enough to hold the data
-        let ptr = arr_field_as_entry_ptr_mut(std::ptr::addr_of_mut!(vec[0].$field_ident));
+        let mut vec = RepInput::input_with_arr_field_as_vec(s, el_size, a.len());
+        let ptr =
+            __IncompleteArrayField::as_entry_ptr_mut(std::ptr::addr_of_mut!(vec[0].$field_ident));
         for (i, el) in a.iter().enumerate() {
+            // SAFETY: we know the vector is large enough to hold the data
             unsafe {
                 let mut p = ptr.add(i);
                 p.write_unaligned(*el);
