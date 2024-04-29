@@ -26,10 +26,11 @@ jobs:
           components: rustfmt, clippy
 
       - name: Cloning Cloud Hypervisor Repo
-        uses: actions/checkout@main
+        uses: actions/checkout@v4
         with:
+          depth: 1
+          branch: 'main'
           repository: cloud-hypervisor/cloud-hypervisor
-          token: ${{ secrets.MY_MSHV_PAT }}
           path: cloud-hypervisor
 
       - name: Copying script to CLH directory
