@@ -4,7 +4,7 @@ on: [pull_request, create]
 jobs:
   build:
     if: github.event_name == 'pull_request'
-    name: Cloud Hypervisor Build using MSHV chnages
+    name: Cloud Hypervisor Build using MSHV changes
     runs-on: ubuntu-latest
     strategy:
       matrix:
