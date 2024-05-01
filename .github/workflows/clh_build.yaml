@@ -28,18 +28,16 @@ jobs:
       - name: Cloning Cloud Hypervisor Repo
         uses: actions/checkout@v4
         with:
-          depth: 1
-          branch: 'main'
           repository: cloud-hypervisor/cloud-hypervisor
           path: cloud-hypervisor
 
       - name: Copying script to CLH directory
         working-directory: ./mshv
-        run: cp scripts/use-local-mshv.sh ../cloud-hypervisor/
+        run: cp scripts/use-local-mshv-for-clh-build.sh ../cloud-hypervisor/
   
       - name: Applying patch(to use local mshv crates) with script
         working-directory: ./cloud-hypervisor
-        run: ./use-local-mshv.sh
+        run: ./use-local-mshv-for-clh-build.sh
 
       - name: Build Cloud-Hypervisor(mshv,kvm)
         working-directory: ./cloud-hypervisor
