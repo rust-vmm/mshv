@@ -85,6 +85,7 @@ pub struct InterruptRequest {
     /// True means CPU is in long mode
     pub long_mode: bool,
 }
+
 /// Wrapper over Mshv VM ioctls.
 #[derive(Debug)]
 pub struct VmFd {
@@ -109,6 +110,7 @@ impl VmFd {
             Err(errno::Error::last().into())
         }
     }
+
     /// Modify host visibility for a range of GPA
     pub fn modify_gpa_host_access(
         &self,
@@ -123,6 +125,7 @@ impl VmFd {
             Err(errno::Error::last().into())
         }
     }
+
     /// Import the isolated pages
     pub fn import_isolated_pages(
         &self,
@@ -136,6 +139,7 @@ impl VmFd {
             Err(errno::Error::last().into())
         }
     }
+
     /// Mark completion of importing the isoalted pages
     pub fn complete_isolated_import(&self, data: &mshv_complete_isolated_import) -> Result<()> {
         // SAFETY: IOCTL with correct types
@@ -146,6 +150,7 @@ impl VmFd {
             Err(errno::Error::last().into())
         }
     }
+
     /// Issue PSP request from guest side
     pub fn psp_issue_guest_request(&self, data: &mshv_issue_psp_guest_request) -> Result<()> {
         // SAFETY: IOCTL with correct types
@@ -156,6 +161,7 @@ impl VmFd {
             Err(errno::Error::last().into())
         }
     }
+
     /// Create AP threads for SEV-SNP guest
     pub fn sev_snp_ap_create(&self, data: &mshv_sev_snp_ap_create) -> Result<()> {
         // SAFETY: IOCTL with correct types
@@ -166,6 +172,7 @@ impl VmFd {
             Err(errno::Error::last().into())
         }
     }
+
     /// Creates/modifies a guest physical memory.
     pub fn map_user_memory(&self, user_memory_region: mshv_user_mem_region) -> Result<()> {
         // SAFETY: IOCTL with correct types
@@ -176,6 +183,7 @@ impl VmFd {
             Err(errno::Error::last().into())
         }
     }
+
     /// Unmap a guest physical memory.
     pub fn unmap_user_memory(&self, user_memory_region: mshv_user_mem_region) -> Result<()> {
         // SAFETY: IOCTL with correct types
@@ -186,6 +194,7 @@ impl VmFd {
             Err(errno::Error::last().into())
         }
     }
+
     /// Creates a new MSHV vCPU file descriptor
     pub fn create_vcpu(&self, id: u8) -> Result<VcpuFd> {
         let vp_arg = mshv_create_vp {
@@ -204,6 +213,7 @@ impl VmFd {
 
         Ok(new_vcpu(id as u32, vcpu))
     }
+
     /// Inject an interrupt into the guest..
     pub fn request_virtual_interrupt(&self, request: &InterruptRequest) -> Result<()> {
         let mut control_flags: u32 = 0;
@@ -233,6 +243,7 @@ impl VmFd {
             Err(errno::Error::last().into())
         }
     }
+
     ///
     /// signal_event_direct: Send a sint signal event to the vp.
     pub fn signal_event_direct(&self, vp: u32, sint: u8, flag: u16) -> Result<bool> {
@@ -251,6 +262,7 @@ impl VmFd {
             Err(errno::Error::last().into())
         }
     }
+
     ///
     /// post_message_direct: Post a message to the vp using a given sint.
     pub fn post_message_direct(&self, vp: u32, sint: u8, msg: &[u8]) -> Result<()> {
@@ -269,6 +281,7 @@ impl VmFd {
             Err(errno::Error::last().into())
         }
     }
+
     ///
     /// register_deliverabilty_notifications: Register for a notification when
     /// hypervisor is ready to process more post_message_direct(s).
@@ -292,6 +305,7 @@ impl VmFd {
             Err(errno::Error::last().into())
         }
     }
+
     /// irqfd: Passes in an eventfd which is to be used for injecting
     /// interrupts from userland.
     fn irqfd(&self, fd: RawFd, resamplefd: RawFd, gsi: u32, flags: u32) -> Result<()> {
@@ -310,6 +324,7 @@ impl VmFd {
             Err(errno::Error::last().into())
         }
     }
+
     /// Registers an event that will, when signaled, trigger the `gsi` IRQ.
     ///
     /// # Arguments
@@ -334,6 +349,7 @@ impl VmFd {
     pub fn register_irqfd(&self, fd: &EventFd, gsi: u32) -> Result<()> {
         self.irqfd(fd.as_raw_fd(), 0, gsi, 0)
     }
+
     /// Registers an event that will, when signaled, assert the `gsi` IRQ.
     /// If the irqchip is resampled by the guest, the IRQ is de-asserted,
     /// and `resamplefd` is notified.
@@ -373,6 +389,7 @@ impl VmFd {
             MSHV_IRQFD_FLAG_RESAMPLE,
         )
     }
+
     /// Unregisters an event that will, when signaled, trigger the `gsi` IRQ.
     ///
     /// # Arguments
@@ -472,6 +489,7 @@ impl VmFd {
             Err(errno::Error::last().into())
         }
     }
+
     /// Registers an event to be signaled whenever a certain address is written to.
     ///
     /// # Arguments
@@ -505,6 +523,7 @@ impl VmFd {
     ) -> Result<()> {
         self.ioeventfd(fd, addr, datamatch, 0)
     }
+
     /// Unregisters an event from a certain address it has been previously registered to.
     ///
     /// # Arguments
@@ -558,6 +577,7 @@ impl VmFd {
             Err(errno::Error::last().into())
         }
     }
+
     /// Sets a partion property
     pub fn set_partition_property(&self, code: u32, value: u64) -> Result<()> {
         let property: mshv_partition_property = mshv_partition_property {
@@ -572,6 +592,7 @@ impl VmFd {
             Err(errno::Error::last().into())
         }
     }
+
     /// Generic hvcall version of set_partition_property
     pub fn hvcall_set_partition_property(&self, code: u32, value: u64) -> Result<()> {
         let input = hv_input_set_partition_property {
@@ -582,6 +603,7 @@ impl VmFd {
         let mut args = make_args!(HVCALL_SET_PARTITION_PROPERTY, input);
         self.hvcall(&mut args)
     }
+
     /// Enable dirty page tracking by hypervisor
     /// Flags:
     ///         bit 1: Enabled
@@ -593,6 +615,7 @@ impl VmFd {
             flag,
         )
     }
+
     /// Disable dirty page tracking by hypervisor
     /// Prerequisite: It is required to set the dirty bits if cleared
     /// previously, otherwise this hypercall will be failed.
@@ -606,6 +629,7 @@ impl VmFd {
             flag,
         )
     }
+
     /// Get page access state
     /// The data provides each page's access state whether it is dirty or accessed
     /// Prerequisite: Need to enable page_acess_tracking
@@ -645,6 +669,7 @@ impl VmFd {
             Err(errno::Error::last().into())
         }
     }
+
     /// Gets the bitmap of pages dirtied since the last call of this function
     ///
     /// Flags:
@@ -702,6 +727,7 @@ impl VmFd {
         }
         Ok(bitmap)
     }
+
     /// Create an in-kernel device
     ///
     /// See the documentation for `MSHV_CREATE_DEVICE`.
@@ -770,6 +796,7 @@ mod tests {
 
         vm.unmap_user_memory(mem).unwrap();
     }
+
     #[test]
     fn test_create_vcpu() {
         let hv = Mshv::new().unwrap();
@@ -777,6 +804,7 @@ mod tests {
         let vcpu = vm.create_vcpu(0);
         assert!(vcpu.is_ok());
     }
+
     #[test]
     fn test_assert_virtual_interrupt() {
         /* TODO better test with some code */
@@ -796,6 +824,7 @@ mod tests {
         };
         vm.request_virtual_interrupt(&cfg).unwrap();
     }
+
     #[test]
     fn test_install_intercept() {
         let hv = Mshv::new().unwrap();
@@ -807,6 +836,7 @@ mod tests {
         };
         assert!(vm.install_intercept(intercept_args).is_ok());
     }
+
     #[test]
     fn test_get_property() {
         let hv = Mshv::new().unwrap();
@@ -845,6 +875,7 @@ mod tests {
                 .into()
         );
     }
+
     #[test]
     fn test_set_property() {
         let hv = Mshv::new().unwrap();
@@ -872,6 +903,7 @@ mod tests {
         let fault_ret = vm.get_partition_property(code).unwrap();
         assert!(fault_ret == fault);
     }
+
     #[test]
     fn test_set_partition_property_invalid() {
         let hv = Mshv::new().unwrap();
@@ -891,6 +923,7 @@ mod tests {
         };
         assert!(res_1.err().unwrap() == mshv_err_check);
     }
+
     #[test]
     fn test_irqfd() {
         use libc::EFD_NONBLOCK;
@@ -900,6 +933,7 @@ mod tests {
         vm.register_irqfd(&efd, 30).unwrap();
         vm.unregister_irqfd(&efd, 30).unwrap();
     }
+
     #[test]
     fn test_ioeventfd() {
         let efd = EventFd::new(0).unwrap();
@@ -909,6 +943,7 @@ mod tests {
         vm.register_ioevent(&efd, &addr, NoDatamatch).unwrap();
         vm.unregister_ioevent(&efd, &addr, NoDatamatch).unwrap();
     }
+
     #[test]
     fn test_set_msi_routing() {
         let hv = Mshv::new().unwrap();
@@ -916,6 +951,7 @@ mod tests {
         let msi_routing = mshv_msi_routing::default();
         assert!(vm.set_msi_routing(&msi_routing).is_ok());
     }
+
     #[test]
     fn test_get_gpa_access_states() {
         let hv = Mshv::new().unwrap();
@@ -949,6 +985,7 @@ mod tests {
         vm.unmap_user_memory(mem_region).unwrap();
         unsafe { libc::munmap(load_addr as *mut c_void, mem_size) };
     }
+
     #[test]
     #[ignore]
     fn test_signal_event_direct() {
@@ -959,6 +996,7 @@ mod tests {
         let _vcpu = vm.create_vcpu(0).unwrap();
         vm.signal_event_direct(0, 0, 1).unwrap();
     }
+
     #[test]
     #[ignore]
     fn test_post_message_direct() {
@@ -970,6 +1008,7 @@ mod tests {
         let hv_message: [u8; mem::size_of::<HvMessage>()] = [0; mem::size_of::<HvMessage>()];
         vm.post_message_direct(0, 0, &hv_message).unwrap();
     }
+
     #[test]
     fn test_register_deliverabilty_notifications() {
         let hv = Mshv::new().unwrap();

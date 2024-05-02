@@ -47,6 +47,7 @@ pub struct RepInput<T> {
     size: usize,
     rep_count: usize,
 }
+
 impl<T: Default> RepInput<T> {
     /// Create a RepInput<T> for a rep hypercall
     ///
