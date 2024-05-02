@@ -25,8 +25,8 @@ pub struct MshvPartitionBuilder {
     mshv_partition: mshv_create_partition,
 }
 
+/// Synthetic processor features
 #[derive(Debug)]
-///
 pub enum SyntheticProcessorFeature {
     /// Report a hypervisor is present.
     HypervisorPresent,
@@ -226,6 +226,7 @@ impl MshvPartitionBuilder {
         }
         self
     }
+
     /// Builds the partition
     pub fn build(&self) -> mshv_create_partition {
         self.mshv_partition
@@ -242,6 +243,7 @@ impl Mshv {
         let ret = unsafe { Self::new_with_fd_number(fd) };
         Ok(ret)
     }
+
     /// Creates a new Mshv object assuming `fd` represents an existing open file descriptor
     /// associated with `/dev/mshv`.
     ///
@@ -408,6 +410,7 @@ impl Mshv {
         .unwrap())
     }
 }
+
 #[allow(dead_code)]
 #[cfg(test)]
 mod tests {
@@ -421,6 +424,7 @@ mod tests {
         let vm = hv.create_vm();
         assert!(vm.is_ok());
     }
+
     #[test]
     #[ignore]
     fn test_create_vm_with_default_config() {
@@ -429,6 +433,7 @@ mod tests {
         let vm = hv.create_vm_with_config(&pr);
         assert!(vm.is_ok());
     }
+
     #[test]
     fn test_get_msr_index_list() {
         let hv = Mshv::new().unwrap();

@@ -57,6 +57,7 @@ impl MshvError {
         }
         error.into()
     }
+
     /// Convert to error code. Analogous to errno::Error::errno()
     pub fn errno(self) -> i32 {
         errno::Error::from(self).errno()
@@ -130,6 +131,7 @@ mod tests {
             assert!(mshv_err == mshv_err_check);
         }
     }
+
     #[test]
     fn test_errno_from_mshv_root_hvcall() {
         let args = mshv_root_hvcall {

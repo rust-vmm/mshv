@@ -20,6 +20,7 @@ impl hv_message {
             unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
+
     #[inline]
     pub fn to_memory_info(&self) -> Result<hv_x64_memory_intercept_message> {
         if self.header.message_type != hv_message_type_HVMSG_GPA_INTERCEPT
@@ -35,6 +36,7 @@ impl hv_message {
             unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
+
     #[inline]
     pub fn to_gpa_attribute_info(&self) -> Result<hv_x64_gpa_attribute_intercept_message> {
         if self.header.message_type != hv_message_type_HVMSG_GPA_ATTRIBUTE_INTERCEPT {
@@ -47,6 +49,7 @@ impl hv_message {
             unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
+
     #[inline]
     pub fn to_ioport_info(&self) -> Result<hv_x64_io_port_intercept_message> {
         if self.header.message_type != hv_message_type_HVMSG_X64_IO_PORT_INTERCEPT {
@@ -59,6 +62,7 @@ impl hv_message {
             unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
+
     #[inline]
     pub fn to_msr_info(&self) -> Result<hv_x64_msr_intercept_message> {
         if self.header.message_type != hv_message_type_HVMSG_X64_MSR_INTERCEPT {
@@ -71,6 +75,7 @@ impl hv_message {
             unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
+
     #[inline]
     pub fn to_exception_info(&self) -> Result<hv_x64_exception_intercept_message> {
         if self.header.message_type != hv_message_type_HVMSG_X64_EXCEPTION_INTERCEPT {
@@ -83,6 +88,7 @@ impl hv_message {
             unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
+
     #[inline]
     pub fn to_invalid_vp_register_info(&self) -> Result<hv_x64_invalid_vp_register_message> {
         if self.header.message_type != hv_message_type_HVMSG_INVALID_VP_REGISTER_VALUE {
@@ -95,6 +101,7 @@ impl hv_message {
             unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
+
     #[inline]
     pub fn to_unrecoverable_exception_info(
         &self,
@@ -109,6 +116,7 @@ impl hv_message {
             unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
+
     #[inline]
     pub fn to_interruption_deliverable_info(
         &self,
@@ -123,6 +131,7 @@ impl hv_message {
             unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
+
     #[inline]
     pub fn to_apic_eoi_info(&self) -> Result<hv_x64_apic_eoi_message> {
         if self.header.message_type != hv_message_type_HVMSG_X64_APIC_EOI {
@@ -135,6 +144,7 @@ impl hv_message {
             unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
+
     #[inline]
     pub fn to_hypercall_intercept_info(&self) -> Result<hv_x64_hypercall_intercept_message> {
         if self.header.message_type != hv_message_type_HVMSG_HYPERCALL_INTERCEPT {
@@ -147,6 +157,7 @@ impl hv_message {
             unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
+
     #[inline]
     pub fn to_sint_deliverable_info(&self) -> Result<hv_x64_sint_deliverable_message> {
         if self.header.message_type != hv_message_type_HVMSG_SYNIC_SINT_DELIVERABLE {
@@ -159,6 +170,7 @@ impl hv_message {
             unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
+
     #[inline]
     pub fn to_vmg_intercept_info(&self) -> Result<hv_x64_vmgexit_intercept_message> {
         if self.header.message_type != hv_message_type_HVMSG_X64_SEV_VMGEXIT_INTERCEPT {

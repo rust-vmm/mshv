@@ -389,6 +389,7 @@ pub struct VcpuEvents {
     pub pending_event0: [u8; 16usize],
     pub pending_event1: [u8; 16usize],
 }
+
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
@@ -408,6 +409,7 @@ pub struct hv_cpuid_entry {
     pub edx: __u32,
     pub padding: [__u32; 3usize],
 }
+
 #[repr(C)]
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
@@ -496,6 +498,7 @@ impl Drop for Buffer {
 pub struct LapicState {
     pub regs: [::std::os::raw::c_char; 1024usize],
 }
+
 impl Default for LapicState {
     fn default() -> Self {
         unsafe { ::std::mem::zeroed() }
@@ -674,6 +677,7 @@ pub struct SuspendRegisters {
     pub explicit_register: u64,
     pub intercept_register: u64,
 }
+
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]

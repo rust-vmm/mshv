@@ -96,6 +96,7 @@ mod tests {
             .zip(d_state.regs.iter())
             .all(|(a, b)| a == b));
     }
+
     #[test]
     fn test_xsave_serialization_deserialization() {
         let mut xsave = XSave {
