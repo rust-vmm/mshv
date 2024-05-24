@@ -22,4 +22,4 @@ jobs:
         with:
           command: ${{ matrix.platform.command }}
           target: ${{ matrix.platform.target }}
-          args: "--release"
+          args: "--release --features \"with-serde,fam-wrappers\""
