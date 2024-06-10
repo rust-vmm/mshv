@@ -738,13 +738,14 @@ impl VcpuFd {
         Ok(0_usize)
     }
     ///  Triggers the running of the current virtual CPU returning an exit reason.
-    pub fn run(&self, mut hv_message_input: hv_message) -> Result<hv_message> {
+    pub fn run(&self) -> Result<hv_message> {
+        let mut msg = hv_message::default();
         // SAFETY: we know that our file is a vCPU fd and we verify the return result.
-        let ret = unsafe { ioctl_with_mut_ref(self, MSHV_RUN_VP(), &mut hv_message_input) };
+        let ret = unsafe { ioctl_with_mut_ref(self, MSHV_RUN_VP(), &mut msg) };
         if ret != 0 {
             return Err(errno::Error::last().into());
         }
-        Ok(hv_message_input)
+        Ok(msg)
     }
     /// Returns currently pending exceptions, interrupts, and NMIs as well as related
     /// states of the vcpu.
@@ -1429,10 +1430,11 @@ mod tests {
             )
         } as *mut u8;
         let mem_region = mshv_user_mem_region {
-            flags: HV_MAP_GPA_READABLE | HV_MAP_GPA_WRITABLE | HV_MAP_GPA_EXECUTABLE,
+            flags: set_bits!(u8, MSHV_MAP_GPA_BIT_WRITABLE, MSHV_MAP_GPA_BIT_EXECUTABLE),
             guest_pfn: 0x1,
             size: 0x1000,
             userspace_addr: load_addr as u64,
+            ..Default::default()
         };
 
         vm.map_user_memory(mem_region).unwrap();
@@ -1484,10 +1486,9 @@ mod tests {
         ])
         .unwrap();
 
-        let hv_message: hv_message = unsafe { std::mem::zeroed() };
         let mut done = false;
         loop {
-            let ret_hv_message: hv_message = vcpu.run(hv_message).unwrap();
+            let ret_hv_message = vcpu.run().unwrap();
             match ret_hv_message.header.message_type {
                 hv_message_type_HVMSG_X64_HALT => {
                     println!("VM Halted!");

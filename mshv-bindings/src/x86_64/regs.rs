@@ -4,6 +4,7 @@
 //
 
 use crate::bindings::*;
+use crate::HV_PAGE_SIZE;
 #[cfg(feature = "with-serde")]
 use serde_derive::{Deserialize, Serialize};
 use std::convert::TryFrom;
@@ -11,8 +12,6 @@ use std::fmt;
 use std::ptr;
 use vmm_sys_util::errno;
 use zerocopy::{AsBytes, FromBytes, FromZeroes};
-
-pub const HV_PAGE_SIZE: usize = HV_HYP_PAGE_SIZE as usize;
 
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]

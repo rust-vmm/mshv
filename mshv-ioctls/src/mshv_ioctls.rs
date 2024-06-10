@@ -10,7 +10,7 @@ ioctl_iow_nr!(MSHV_GET_VERSION_INFO, MSHV_IOCTL, 0x00, mshv_version_info);
 ioctl_iow_nr!(MSHV_CREATE_VP, MSHV_IOCTL, 0x04, mshv_create_vp);
 ioctl_iowr_nr!(MSHV_GET_VP_REGISTERS, MSHV_IOCTL, 0x05, mshv_vp_registers);
 ioctl_iow_nr!(MSHV_SET_VP_REGISTERS, MSHV_IOCTL, 0x06, mshv_vp_registers);
-ioctl_ior_nr!(MSHV_RUN_VP, MSHV_IOCTL, 0x07, hv_message);
+ioctl_ior_nr!(MSHV_RUN_VP, MSHV_IOCTL, 0x00, mshv_run_vp);
 #[cfg(target_arch = "x86_64")]
 ioctl_iowr_nr!(MSHV_GET_VP_STATE, MSHV_IOCTL, 0x0A, mshv_get_set_vp_state);
 #[cfg(target_arch = "x86_64")]
@@ -62,10 +62,10 @@ ioctl_iow_nr!(
 );
 ioctl_iowr_nr!(MSHV_VP_TRANSLATE_GVA, MSHV_IOCTL, 0x0E, mshv_translate_gva);
 ioctl_iowr_nr!(
-    MSHV_GET_GPA_ACCESS_STATES,
+    MSHV_GET_GPAP_ACCESS_BITMAP,
     MSHV_IOCTL,
-    0x12,
-    mshv_get_gpa_pages_access_state
+    0x07,
+    mshv_gpap_access_bitmap
 );
 
 ioctl_iowr_nr!(MSHV_CREATE_DEVICE, MSHV_IOCTL, 0x13, mshv_create_device);
