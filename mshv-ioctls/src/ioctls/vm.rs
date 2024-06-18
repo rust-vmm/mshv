@@ -6,6 +6,7 @@ use crate::ioctls::device::{new_device, DeviceFd};
 use crate::ioctls::vcpu::{new_vcpu, VcpuFd};
 use crate::ioctls::{MshvError, Result};
 use crate::mshv_ioctls::*;
+use crate::set_bits;
 use mshv_bindings::*;
 
 use std::cmp;
@@ -15,7 +16,7 @@ use std::fs::File;
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 use vmm_sys_util::errno;
 use vmm_sys_util::eventfd::EventFd;
-use vmm_sys_util::ioctl::{ioctl_with_mut_ref, ioctl_with_ref};
+use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref};
 
 /// Batch size for processing page access states
 const PAGE_ACCESS_STATES_BATCH_SIZE: u32 = 0x10000;
@@ -99,6 +100,16 @@ impl AsRawFd for VmFd {
 }
 
 impl VmFd {
+    /// Initialize the partition after creation
+    pub fn initialize(&self) -> Result<()> {
+        // SAFETY: IOCTL with correct types
+        let ret = unsafe { ioctl(self, MSHV_INITIALIZE_PARTITION()) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last().into())
+        }
+    }
     /// Install intercept to enable some VM exits like MSR, CPUId etc
     pub fn install_intercept(&self, install_intercept_args: mshv_install_intercept) -> Result<()> {
         // SAFETY: IOCTL with correct types
