@@ -26643,15 +26643,21 @@ fn bindgen_test_layout_mshv_version_info() {
         )
     );
 }
-pub const MSHV_GUEST_TYPE_NORMAL: _bindgen_ty_3 = 0;
-pub const MSHV_GUEST_TYPE_ENCRYPTED: _bindgen_ty_3 = 1;
-pub const MSHV_GUEST_TYPE_COUNT: _bindgen_ty_3 = 2;
+pub const MSHV_PT_BIT_LAPIC: _bindgen_ty_3 = 0;
+pub const MSHV_PT_BIT_X2APIC: _bindgen_ty_3 = 1;
+pub const MSHV_PT_BIT_GPA_SUPER_PAGES: _bindgen_ty_3 = 2;
+pub const MSHV_PT_BIT_COUNT: _bindgen_ty_3 = 3;
 pub type _bindgen_ty_3 = ::std::os::raw::c_uint;
+pub const MSHV_PT_ISOLATION_NONE: _bindgen_ty_4 = 0;
+pub const MSHV_PT_ISOLATION_SNP: _bindgen_ty_4 = 1;
+pub const MSHV_PT_ISOLATION_COUNT: _bindgen_ty_4 = 2;
+pub type _bindgen_ty_4 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_create_partition {
-    pub guest_type: __u8,
-    pub rsvd: [__u8; 7usize],
+    pub pt_flags: __u64,
+    pub pt_isolation: __u64,
+    pub rsvd: [__u64; 2usize],
 }
 #[test]
 fn bindgen_test_layout_mshv_create_partition() {
@@ -26660,27 +26666,37 @@ fn bindgen_test_layout_mshv_create_partition() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<mshv_create_partition>(),
-        8usize,
+        32usize,
         concat!("Size of: ", stringify!(mshv_create_partition))
     );
     assert_eq!(
         ::std::mem::align_of::<mshv_create_partition>(),
-        1usize,
+        8usize,
         concat!("Alignment of ", stringify!(mshv_create_partition))
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).guest_type) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).pt_flags) as usize - ptr as usize },
         0usize,
         concat!(
             "Offset of field: ",
             stringify!(mshv_create_partition),
             "::",
-            stringify!(guest_type)
+            stringify!(pt_flags)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pt_isolation) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_create_partition),
+            "::",
+            stringify!(pt_isolation)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).rsvd) as usize - ptr as usize },
-        1usize,
+        16usize,
         concat!(
             "Offset of field: ",
             stringify!(mshv_create_partition),
@@ -26719,10 +26735,10 @@ fn bindgen_test_layout_mshv_create_vp() {
         )
     );
 }
-pub const MSHV_MAP_GPA_BIT_WRITABLE: _bindgen_ty_4 = 0;
-pub const MSHV_MAP_GPA_BIT_EXECUTABLE: _bindgen_ty_4 = 1;
-pub const MSHV_MAP_GPA_BIT_COUNT: _bindgen_ty_4 = 2;
-pub type _bindgen_ty_4 = ::std::os::raw::c_uint;
+pub const MSHV_MAP_GPA_BIT_WRITABLE: _bindgen_ty_5 = 0;
+pub const MSHV_MAP_GPA_BIT_EXECUTABLE: _bindgen_ty_5 = 1;
+pub const MSHV_MAP_GPA_BIT_COUNT: _bindgen_ty_5 = 2;
+pub type _bindgen_ty_5 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_user_mem_region {
@@ -26860,11 +26876,11 @@ fn bindgen_test_layout_mshv_irqfd() {
         )
     );
 }
-pub const mshv_ioeventfd_flag_nr_datamatch: _bindgen_ty_5 = 0;
-pub const mshv_ioeventfd_flag_nr_pio: _bindgen_ty_5 = 1;
-pub const mshv_ioeventfd_flag_nr_deassign: _bindgen_ty_5 = 2;
-pub const mshv_ioeventfd_flag_nr_max: _bindgen_ty_5 = 3;
-pub type _bindgen_ty_5 = ::std::os::raw::c_uint;
+pub const mshv_ioeventfd_flag_nr_datamatch: _bindgen_ty_6 = 0;
+pub const mshv_ioeventfd_flag_nr_pio: _bindgen_ty_6 = 1;
+pub const mshv_ioeventfd_flag_nr_deassign: _bindgen_ty_6 = 2;
+pub const mshv_ioeventfd_flag_nr_max: _bindgen_ty_6 = 3;
+pub type _bindgen_ty_6 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_ioeventfd {
@@ -27066,15 +27082,15 @@ fn bindgen_test_layout_mshv_msi_routing() {
         )
     );
 }
-pub const MSHV_GPAP_ACCESS_TYPE_ACCESSED: _bindgen_ty_6 = 0;
-pub const MSHV_GPAP_ACCESS_TYPE_DIRTY: _bindgen_ty_6 = 1;
-pub const MSHV_GPAP_ACCESS_TYPE_COUNT: _bindgen_ty_6 = 2;
-pub type _bindgen_ty_6 = ::std::os::raw::c_uint;
-pub const MSHV_GPAP_ACCESS_OP_NOOP: _bindgen_ty_7 = 0;
-pub const MSHV_GPAP_ACCESS_OP_CLEAR: _bindgen_ty_7 = 1;
-pub const MSHV_GPAP_ACCESS_OP_SET: _bindgen_ty_7 = 2;
-pub const MSHV_GPAP_ACCESS_OP_COUNT: _bindgen_ty_7 = 3;
+pub const MSHV_GPAP_ACCESS_TYPE_ACCESSED: _bindgen_ty_7 = 0;
+pub const MSHV_GPAP_ACCESS_TYPE_DIRTY: _bindgen_ty_7 = 1;
+pub const MSHV_GPAP_ACCESS_TYPE_COUNT: _bindgen_ty_7 = 2;
 pub type _bindgen_ty_7 = ::std::os::raw::c_uint;
+pub const MSHV_GPAP_ACCESS_OP_NOOP: _bindgen_ty_8 = 0;
+pub const MSHV_GPAP_ACCESS_OP_CLEAR: _bindgen_ty_8 = 1;
+pub const MSHV_GPAP_ACCESS_OP_SET: _bindgen_ty_8 = 2;
+pub const MSHV_GPAP_ACCESS_OP_COUNT: _bindgen_ty_8 = 3;
+pub type _bindgen_ty_8 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_gpap_access_bitmap {
@@ -27161,12 +27177,12 @@ fn bindgen_test_layout_mshv_gpap_access_bitmap() {
         )
     );
 }
-pub const MSHV_GPA_HOST_ACCESS_BIT_ACQUIRE: _bindgen_ty_8 = 0;
-pub const MSHV_GPA_HOST_ACCESS_BIT_READABLE: _bindgen_ty_8 = 1;
-pub const MSHV_GPA_HOST_ACCESS_BIT_WRITABLE: _bindgen_ty_8 = 2;
-pub const MSHV_GPA_HOST_ACCESS_BIT_LARGE_PAGE: _bindgen_ty_8 = 3;
-pub const MSHV_GPA_HOST_ACCESS_BIT_COUNT: _bindgen_ty_8 = 4;
-pub type _bindgen_ty_8 = ::std::os::raw::c_uint;
+pub const MSHV_GPA_HOST_ACCESS_BIT_ACQUIRE: _bindgen_ty_9 = 0;
+pub const MSHV_GPA_HOST_ACCESS_BIT_READABLE: _bindgen_ty_9 = 1;
+pub const MSHV_GPA_HOST_ACCESS_BIT_WRITABLE: _bindgen_ty_9 = 2;
+pub const MSHV_GPA_HOST_ACCESS_BIT_LARGE_PAGE: _bindgen_ty_9 = 3;
+pub const MSHV_GPA_HOST_ACCESS_BIT_COUNT: _bindgen_ty_9 = 4;
+pub type _bindgen_ty_9 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default)]
 pub struct mshv_modify_gpa_host_access {
@@ -27231,14 +27247,14 @@ fn bindgen_test_layout_mshv_modify_gpa_host_access() {
         )
     );
 }
-pub const MSHV_ISOLATED_PAGE_NORMAL: _bindgen_ty_9 = 0;
-pub const MSHV_ISOLATED_PAGE_VMSA: _bindgen_ty_9 = 1;
-pub const MSHV_ISOLATED_PAGE_ZERO: _bindgen_ty_9 = 2;
-pub const MSHV_ISOLATED_PAGE_UNMEASURED: _bindgen_ty_9 = 3;
-pub const MSHV_ISOLATED_PAGE_SECRETS: _bindgen_ty_9 = 4;
-pub const MSHV_ISOLATED_PAGE_CPUID: _bindgen_ty_9 = 5;
-pub const MSHV_ISOLATED_PAGE_COUNT: _bindgen_ty_9 = 6;
-pub type _bindgen_ty_9 = ::std::os::raw::c_uint;
+pub const MSHV_ISOLATED_PAGE_NORMAL: _bindgen_ty_10 = 0;
+pub const MSHV_ISOLATED_PAGE_VMSA: _bindgen_ty_10 = 1;
+pub const MSHV_ISOLATED_PAGE_ZERO: _bindgen_ty_10 = 2;
+pub const MSHV_ISOLATED_PAGE_UNMEASURED: _bindgen_ty_10 = 3;
+pub const MSHV_ISOLATED_PAGE_SECRETS: _bindgen_ty_10 = 4;
+pub const MSHV_ISOLATED_PAGE_CPUID: _bindgen_ty_10 = 5;
+pub const MSHV_ISOLATED_PAGE_COUNT: _bindgen_ty_10 = 6;
+pub type _bindgen_ty_10 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default)]
 pub struct mshv_import_isolated_pages {
@@ -27449,13 +27465,13 @@ impl Default for mshv_run_vp {
         }
     }
 }
-pub const MSHV_VP_STATE_LAPIC: _bindgen_ty_10 = 0;
-pub const MSHV_VP_STATE_XSAVE: _bindgen_ty_10 = 1;
-pub const MSHV_VP_STATE_SIMP: _bindgen_ty_10 = 2;
-pub const MSHV_VP_STATE_SIEFP: _bindgen_ty_10 = 3;
-pub const MSHV_VP_STATE_SYNTHETIC_TIMERS: _bindgen_ty_10 = 4;
-pub const MSHV_VP_STATE_COUNT: _bindgen_ty_10 = 5;
-pub type _bindgen_ty_10 = ::std::os::raw::c_uint;
+pub const MSHV_VP_STATE_LAPIC: _bindgen_ty_11 = 0;
+pub const MSHV_VP_STATE_XSAVE: _bindgen_ty_11 = 1;
+pub const MSHV_VP_STATE_SIMP: _bindgen_ty_11 = 2;
+pub const MSHV_VP_STATE_SIEFP: _bindgen_ty_11 = 3;
+pub const MSHV_VP_STATE_SYNTHETIC_TIMERS: _bindgen_ty_11 = 4;
+pub const MSHV_VP_STATE_COUNT: _bindgen_ty_11 = 5;
+pub type _bindgen_ty_11 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_get_set_vp_state {
