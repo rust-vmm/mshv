@@ -201,8 +201,6 @@
 mod ioctls;
 pub use ioctls::device::DeviceFd;
 pub use ioctls::system::Mshv;
-pub use ioctls::system::MshvPartitionBuilder;
-pub use ioctls::system::SyntheticProcessorFeature;
 pub use ioctls::vcpu::VcpuFd;
 pub use ioctls::vm::InterruptRequest;
 pub use ioctls::vm::IoEventAddress;
