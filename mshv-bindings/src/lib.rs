@@ -25,3 +25,4 @@ pub mod hvcall;
 pub use hvcall::*;
 
 pub mod util;
+pub use util::*;
