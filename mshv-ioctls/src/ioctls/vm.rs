@@ -99,6 +99,12 @@ impl AsRawFd for VmFd {
 }
 
 impl VmFd {
+    /// Initialize the partition after creation
+    pub fn initialize(&self) -> Result<()> {
+        // SAFETY: IOCTL with correct types
+        unsafe{ ioctl_result(self, MSHV_INITIALIZE_PARTITION())? };
+        Ok(())
+    }
     /// Install intercept to enable some VM exits like MSR, CPUId etc
     pub fn install_intercept(&self, install_intercept_args: mshv_install_intercept) -> Result<()> {
         // SAFETY: IOCTL with correct types
