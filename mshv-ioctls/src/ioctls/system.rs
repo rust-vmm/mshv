@@ -81,7 +81,7 @@ impl Mshv {
             feature_bits.set_hv1(1);
             feature_bits.set_access_partition_reference_counter(1);
             feature_bits.set_access_synic_regs(1);
-            feature_bits.set_direct_synthetic_timers(1);
+            //feature_bits.set_direct_synthetic_timers(1); // this causes HV_INVALID_PARAMETER ??
             feature_bits.set_access_partition_reference_tsc(1);
             feature_bits.set_access_frequency_regs(1);
             feature_bits.set_access_intr_ctrl_regs(1);
