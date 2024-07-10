@@ -309,7 +309,7 @@ impl VmFd {
     /// irqfd: Passes in an eventfd which is to be used for injecting
     /// interrupts from userland.
     fn irqfd(&self, fd: RawFd, resamplefd: RawFd, gsi: u32, flags: u32) -> Result<()> {
-        let irqfd_arg = mshv_irqfd {
+        let irqfd_arg = mshv_user_irqfd {
             fd,
             flags,
             resamplefd,
@@ -386,7 +386,7 @@ impl VmFd {
             fd.as_raw_fd(),
             resamplefd.as_raw_fd(),
             gsi,
-            MSHV_IRQFD_FLAG_RESAMPLE,
+            set_bits!(u32, MSHV_IRQFD_BIT_RESAMPLE),
         )
     }
 
@@ -412,7 +412,12 @@ impl VmFd {
     /// vm.unregister_irqfd(&evtfd, 30).unwrap();
     /// ```
     pub fn unregister_irqfd(&self, fd: &EventFd, gsi: u32) -> Result<()> {
-        self.irqfd(fd.as_raw_fd(), 0, gsi, MSHV_IRQFD_FLAG_DEASSIGN)
+        self.irqfd(
+            fd.as_raw_fd(),
+            0,
+            gsi,
+            set_bits!(u32, MSHV_IRQFD_BIT_DEASSIGN),
+        )
     }
 
     /// Sets the MSI routing table entries, overwriting any previously set
@@ -422,7 +427,7 @@ impl VmFd {
     ///
     /// # Arguments
     ///
-    /// * mshv_msi_routing - MSI routing configuration.
+    /// * msi_routing - MSI routing configuration.
     ///
     /// # Example
     /// ```no_run
@@ -435,10 +440,10 @@ impl VmFd {
     /// let hv = Mshv::new().unwrap();
     /// let vm = hv.create_vm().unwrap();
     ///
-    /// let msi_routing = mshv_msi_routing::default();
+    /// let msi_routing = mshv_user_irq_table::default();
     /// vm.set_msi_routing(&msi_routing).unwrap();
     /// ```
-    pub fn set_msi_routing(&self, msi_routing: &mshv_msi_routing) -> Result<()> {
+    pub fn set_msi_routing(&self, msi_routing: &mshv_user_irq_table) -> Result<()> {
         // SAFETY: we allocated the structure and we know the kernel
         // will read exactly the size of the structure.
         let ret = unsafe { ioctl_with_ref(self, MSHV_SET_MSI_ROUTING(), msi_routing) };
@@ -469,10 +474,10 @@ impl VmFd {
         };
 
         if std::mem::size_of::<T>() > 0 {
-            flags |= 1 << mshv_ioeventfd_flag_nr_datamatch
+            flags |= set_bits!(u32, MSHV_IOEVENTFD_BIT_DATAMATCH);
         }
 
-        let ioeventfd = mshv_ioeventfd {
+        let ioeventfd = mshv_user_ioeventfd {
             datamatch: datamatch.into(),
             len: std::mem::size_of::<T>() as u32,
             addr: mmio_addr,
@@ -558,7 +563,12 @@ impl VmFd {
         addr: &IoEventAddress,
         datamatch: T,
     ) -> Result<()> {
-        self.ioeventfd(fd, addr, datamatch, 1 << mshv_ioeventfd_flag_nr_deassign)
+        self.ioeventfd(
+            fd,
+            addr,
+            datamatch,
+            set_bits!(u32, MSHV_IOEVENTFD_BIT_DEASSIGN),
+        )
     }
 
     /// Get property of the VM partition: For example , CPU Frequency, Size of the Xsave state and more.
@@ -948,7 +958,7 @@ mod tests {
     fn test_set_msi_routing() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
-        let msi_routing = mshv_msi_routing::default();
+        let msi_routing = mshv_user_irq_table::default();
         assert!(vm.set_msi_routing(&msi_routing).is_ok());
     }
 
