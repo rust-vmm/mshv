@@ -32,9 +32,9 @@ ioctl_iowr_nr!(
     0x0D,
     mshv_partition_property
 );
-ioctl_iow_nr!(MSHV_IRQFD, MSHV_IOCTL, 0x0E, mshv_irqfd);
-ioctl_iow_nr!(MSHV_IOEVENTFD, MSHV_IOCTL, 0xF, mshv_ioeventfd);
-ioctl_iow_nr!(MSHV_SET_MSI_ROUTING, MSHV_IOCTL, 0x11, mshv_msi_routing);
+ioctl_iow_nr!(MSHV_IRQFD, MSHV_IOCTL, 0x0E, mshv_user_irqfd);
+ioctl_iow_nr!(MSHV_IOEVENTFD, MSHV_IOCTL, 0xF, mshv_user_ioeventfd);
+ioctl_iow_nr!(MSHV_SET_MSI_ROUTING, MSHV_IOCTL, 0x11, mshv_user_irq_table);
 ioctl_iow_nr!(
     MSHV_MAP_GUEST_MEMORY,
     MSHV_IOCTL,
