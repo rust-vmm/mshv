@@ -6,7 +6,6 @@
 
 use mshv_bindings::*;
 
-ioctl_iow_nr!(MSHV_GET_VERSION_INFO, MSHV_IOCTL, 0x00, mshv_version_info);
 ioctl_iow_nr!(MSHV_CREATE_VP, MSHV_IOCTL, 0x04, mshv_create_vp);
 ioctl_iowr_nr!(MSHV_GET_VP_REGISTERS, MSHV_IOCTL, 0x05, mshv_vp_registers);
 ioctl_iow_nr!(MSHV_SET_VP_REGISTERS, MSHV_IOCTL, 0x06, mshv_vp_registers);
