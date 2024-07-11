@@ -5,9 +5,14 @@
 use mshv_bindings::{mshv_root_hvcall, HvError, HV_STATUS_SUCCESS};
 use thiserror::Error;
 use vmm_sys_util::errno;
+
+/// Module for device fd
 pub mod device;
+/// Module for /dev/mshv device
 pub mod system;
+/// Module for VP fd
 pub mod vcpu;
+/// Module for vm fd
 pub mod vm;
 
 /// A specialized `Error` type for MSHV ioctls
@@ -91,6 +96,18 @@ impl From<MshvError> for std::io::Error {
 /// is otherwise a direct mapping to Result.
 pub type Result<T> = std::result::Result<T, MshvError>;
 
+/// Set bits by index and OR them together
+#[macro_export]
+macro_rules! set_bits {
+    ($int_type:ty, $bit:expr) => {{
+        let bit: $int_type = ((1 as $int_type) << $bit);
+        bit
+    }};
+    ($int_type:ty, $bit:expr, $($bits:expr),+) => {{
+        set_bits!($int_type, $bit) | set_bits!($int_type, $($bits),+)
+    }};
+}
+
 #[cfg(test)]
 mod tests {
     use crate::MshvError;
@@ -146,5 +163,18 @@ mod tests {
 
             assert!(mshv_err == MshvError::Errno(ioctl_err));
         }
+    }
+
+    #[test]
+    fn test_set_bits() {
+        assert!(set_bits!(u8, 0) == 1_u8);
+        assert!(set_bits!(u8, 1) == 2_u8);
+        assert!(set_bits!(u8, 0, 1) == 3_u8);
+        assert!(set_bits!(u8, 2) == 4_u8);
+        assert!(set_bits!(u8, 0, 2) == 5_u8);
+
+        assert!(set_bits!(u16, 0) == 1_u16);
+        assert!(set_bits!(u32, 0) == 1_u32);
+        assert!(set_bits!(u64, 0) == 1_u64);
     }
 }
