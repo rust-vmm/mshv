@@ -1400,6 +1400,7 @@ mod tests {
 
         use super::*;
         use crate::ioctls::system::Mshv;
+        use crate::set_bits;
         use std::io::Write;
 
         let mshv = Mshv::new().unwrap();
@@ -1429,10 +1430,11 @@ mod tests {
             )
         } as *mut u8;
         let mem_region = mshv_user_mem_region {
-            flags: HV_MAP_GPA_READABLE | HV_MAP_GPA_WRITABLE | HV_MAP_GPA_EXECUTABLE,
+            flags: set_bits!(u8, MSHV_SET_MEM_BIT_WRITABLE, MSHV_SET_MEM_BIT_EXECUTABLE),
             guest_pfn: 0x1,
             size: 0x1000,
             userspace_addr: load_addr as u64,
+            ..Default::default()
         };
 
         vm.map_user_memory(mem_region).unwrap();
