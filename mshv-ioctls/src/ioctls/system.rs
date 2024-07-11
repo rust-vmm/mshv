@@ -5,6 +5,7 @@
 use crate::ioctls::vm::{new_vmfd, VmFd, VmType};
 use crate::ioctls::Result;
 use crate::mshv_ioctls::*;
+use crate::*;
 use libc::{open, O_CLOEXEC, O_NONBLOCK};
 use mshv_bindings::*;
 use std::fs::File;
