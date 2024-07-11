@@ -197,6 +197,7 @@
 //! }
 //! ```
 
+#[macro_use]
 mod ioctls;
 pub use ioctls::device::DeviceFd;
 pub use ioctls::system::Mshv;
