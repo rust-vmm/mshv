@@ -3,8 +3,11 @@
 // SPDX-License-Identifier: Apache-2.0 OR BSD-3-Clause
 //
 #![allow(dead_code)]
+use crate::HV_HYP_PAGE_SIZE;
 use num_enum::TryFromPrimitive;
 use zerocopy::{AsBytes, FromBytes, FromZeroes};
+
+pub const HV_PAGE_SIZE: usize = HV_HYP_PAGE_SIZE as usize;
 
 pub const HV_CPUID_FUNCTION_VERSION_AND_FEATURES: u32 = 0x00000001;
 pub const HV_CPUID_FUNCTION_HV_VENDOR_AND_MAX_FUNCTION: u32 = 0x40000000;
