@@ -3,3 +3,4 @@ members = [
     "mshv-bindings",
     "mshv-ioctls",
 ]
+resolver = "2"
