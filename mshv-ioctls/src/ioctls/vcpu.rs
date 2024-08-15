@@ -1544,6 +1544,199 @@ mod tests {
         unsafe { libc::munmap(load_addr as *mut c_void, mem_size) };
     }
 
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    fn test_run_code_mmap() {
+        use super::*;
+        use crate::ioctls::system::Mshv;
+        use crate::set_bits;
+        use libc::c_void;
+        use std::io::Write;
+
+        let mshv = Mshv::new().unwrap();
+        let vm = mshv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        // This example is based on https://lwn.net/Articles/658511/
+        #[rustfmt::skip]
+        let code:[u8;11] = [
+            0xba, 0xf8, 0x03,  /* mov $0x3f8, %dx */
+            0x00, 0xd8,         /* add %bl, %al */
+            0x04, b'0',         /* add $'0', %al */
+            0xee,               /* out %al, (%dx) */
+            /* send a 0 to indicate we're done */
+            0xb0, b'\0',        /* mov $'\0', %al */
+            0xee,               /* out %al, (%dx) */
+        ];
+
+        let mem_size = 0x4000;
+        let load_addr = unsafe {
+            libc::mmap(
+                std::ptr::null_mut(),
+                mem_size,
+                libc::PROT_READ | libc::PROT_WRITE,
+                libc::MAP_ANONYMOUS | libc::MAP_SHARED | libc::MAP_NORESERVE,
+                -1,
+                0,
+            )
+        } as *mut u8;
+        let mem_region = mshv_user_mem_region {
+            flags: set_bits!(u8, MSHV_SET_MEM_BIT_WRITABLE, MSHV_SET_MEM_BIT_EXECUTABLE),
+            guest_pfn: 0x1,
+            size: 0x1000,
+            userspace_addr: load_addr as u64,
+            ..Default::default()
+        };
+
+        let registers_addr = unsafe {
+            libc::mmap(
+                std::ptr::null_mut(),
+                0x1000,
+                libc::PROT_READ | libc::PROT_WRITE,
+                libc::MAP_SHARED,
+                vcpu.as_raw_fd(),
+                MSHV_VP_MMAP_OFFSET_REGISTERS as i64 * libc::sysconf(libc::_SC_PAGE_SIZE),
+            )
+        } as *mut u8;
+
+        if registers_addr as *mut c_void == libc::MAP_FAILED {
+            panic!(
+                "Could not mmap register page, error:{}",
+                std::io::Error::last_os_error()
+            );
+        }
+
+        let hv_msg_addr = unsafe {
+            libc::mmap(
+                std::ptr::null_mut(),
+                0x1000,
+                libc::PROT_READ | libc::PROT_WRITE,
+                libc::MAP_SHARED,
+                vcpu.as_raw_fd(),
+                MSHV_VP_MMAP_OFFSET_INTERCEPT_MESSAGE as i64 * libc::sysconf(libc::_SC_PAGE_SIZE),
+            )
+        } as *mut u8;
+
+        if hv_msg_addr as *mut c_void == libc::MAP_FAILED {
+            panic!(
+                "Could not mmap HV page, error:{}",
+                std::io::Error::last_os_error()
+            );
+        }
+
+        vm.map_user_memory(mem_region).unwrap();
+
+        let reg_page: *mut hv_vp_register_page = registers_addr as *mut hv_vp_register_page;
+        let hv_msg_page: *mut hv_message = hv_msg_addr as *mut hv_message;
+        let mut done = false;
+
+        unsafe {
+            // Get a mutable slice of `mem_size` from `load_addr`.
+            // This is safe because we mapped it before.
+            let mut slice = slice::from_raw_parts_mut(load_addr, mem_size);
+            slice.write_all(&code).unwrap();
+        }
+
+        // Get CS Register
+        let mut cs_reg = hv_register_assoc {
+            name: hv_register_name_HV_X64_REGISTER_CS,
+            ..Default::default()
+        };
+        vcpu.get_reg(slice::from_mut(&mut cs_reg)).unwrap();
+
+        unsafe {
+            assert_ne!({ cs_reg.value.segment.base }, 0);
+            assert_ne!({ cs_reg.value.segment.selector }, 0);
+        };
+
+        cs_reg.value.segment.base = 0;
+        cs_reg.value.segment.selector = 0;
+
+        vcpu.set_reg(&[
+            cs_reg,
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_RAX,
+                value: hv_register_value { reg64: 2 },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_RBX,
+                value: hv_register_value { reg64: 2 },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_RIP,
+                value: hv_register_value { reg64: 0x1000 },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_RFLAGS,
+                value: hv_register_value { reg64: 0x2 },
+                ..Default::default()
+            },
+        ])
+        .unwrap();
+
+        unsafe {
+            assert!((*reg_page).version == HV_VP_REGISTER_PAGE_VERSION_1 as u16);
+            assert!((*reg_page).isvalid == 1);
+            assert!((*reg_page).dirty == 0);
+        }
+
+        loop {
+            vcpu.run().unwrap();
+            let msg_header = unsafe { (*hv_msg_page).header };
+            match msg_header.message_type {
+                hv_message_type_HVMSG_X64_HALT => {
+                    println!("VM Halted!");
+                    break;
+                }
+                hv_message_type_HVMSG_X64_IO_PORT_INTERCEPT => {
+                    let io_message = unsafe { (*hv_msg_page).to_ioport_info().unwrap() };
+                    assert!(io_message.port_number == 0x3f8);
+                    unsafe {
+                        assert!(io_message.access_info.__bindgen_anon_1.string_op() == 0);
+                        assert!(io_message.access_info.__bindgen_anon_1.access_size() == 1);
+                    }
+                    if !done {
+                        assert!(io_message.rax == b'4' as u64);
+                        assert!(io_message.port_number == 0x3f8);
+                        unsafe {
+                            assert!(io_message.access_info.__bindgen_anon_1.string_op() == 0);
+                            assert!(io_message.access_info.__bindgen_anon_1.access_size() == 1);
+                        }
+                        assert!(
+                            io_message.header.intercept_access_type == /*HV_INTERCEPT_ACCESS_WRITE*/ 1_u8
+                        );
+                        done = true;
+                        /* Advance rip */
+                        unsafe {
+                            (*reg_page).__bindgen_anon_1.__bindgen_anon_1.rip =
+                                io_message.header.rip + 1;
+                        }
+                        unsafe {
+                            (*reg_page).dirty = 1 << HV_X64_REGISTER_CLASS_IP;
+                        }
+                    } else {
+                        assert!(io_message.rax == b'\0' as u64);
+                        assert!(
+                            io_message.header.intercept_access_type == /*HV_INTERCEPT_ACCESS_WRITE*/ 1_u8
+                        );
+                        break;
+                    }
+                }
+                _ => {
+                    println!("Message type: 0x{:x?}", { msg_header.message_type });
+                    panic!("Unexpected Exit Type");
+                }
+            };
+        }
+        assert!(done);
+
+        vm.unmap_user_memory(mem_region).unwrap();
+        unsafe { libc::munmap(load_addr as *mut c_void, mem_size) };
+        unsafe { libc::munmap(registers_addr as *mut c_void, 0x1000) };
+        unsafe { libc::munmap(hv_msg_addr as *mut c_void, 0x1000) };
+    }
     #[test]
     fn test_set_get_msrs() {
         let hv = Mshv::new().unwrap();
