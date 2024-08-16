@@ -1147,3 +1147,42 @@ impl Default for svm_ghcb_base {
         }
     }
 }
+
+#[allow(unused_macros)]
+#[macro_export]
+macro_rules! set_svm_field_u64_ptr {
+    ($this: ident, $name: ident, $value: expr) => {
+        #[allow(clippy::macro_metavars_in_unsafe)]
+        unsafe {
+            (*$this).$name = $value
+        };
+        let qword_offset = std::mem::offset_of!(svm_ghcb_base, $name) / 8;
+        let arr_idx = qword_offset / 64;
+        let bit_index = qword_offset % 64;
+        let mut bitmap = unsafe { (*$this).valid_bitmap };
+        bitmap[arr_idx] |= (1 << bit_index);
+        unsafe { (*$this).valid_bitmap = bitmap };
+    };
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_svm_macro() {
+        let mut st: svm_ghcb_base = svm_ghcb_base::default();
+        println!("{}", std::mem::size_of::<svm_ghcb_base>());
+        let pptr: *mut svm_ghcb_base = &mut st;
+        set_svm_field_u64_ptr!(pptr, cpl, 100);
+        let mut val = st.cpl as u64;
+        let mut bitmap = st.valid_bitmap;
+        assert!(100 == val);
+        assert!((33554432 == bitmap[0]));
+        set_svm_field_u64_ptr!(pptr, xfem, 0x100);
+        val = st.xfem;
+        assert!(0x100 == val);
+        bitmap = st.valid_bitmap;
+        assert!(0x2000000000000000 == bitmap[1]);
+    }
+}
