@@ -732,3 +732,418 @@ pub fn get_sev_control_register(vmsa_pfn: u64) -> u64 {
         sev_control.as_uint64
     }
 }
+
+#[repr(C, packed)]
+#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct svm_ghcb_base {
+    pub unused: [__u8; 203usize],
+    pub cpl: __u8,
+    pub unused2: [__u8; 116usize],
+    pub xss: __u64,
+    pub unused3: [__u8; 24usize],
+    pub dr7: __u64,
+    pub unused4: [__u8; 144usize],
+    pub rax: __u64,
+    pub unused5: [__u8; 264usize],
+    pub rcx: __u64,
+    pub rdx: __u64,
+    pub rbx: __u64,
+    pub unused6: __u64,
+    pub rbp: __u64,
+    pub rsi: __u64,
+    pub rdi: __u64,
+    pub r8: __u64,
+    pub r9: __u64,
+    pub r10: __u64,
+    pub r11: __u64,
+    pub r12: __u64,
+    pub r13: __u64,
+    pub r14: __u64,
+    pub r15: __u64,
+    pub unused7: [__u8; 16usize],
+    pub exit_code: __u64,
+    pub exit_info1: __u64,
+    pub exit_info2: __u64,
+    pub scratch: __u64,
+    pub unused8: [__u8; 56usize],
+    pub xfem: __u64,
+    pub valid_bitmap: [__u64; 2usize],
+    pub x87_state_gpa: __u64,
+    pub reserved: [__u64; 127usize],
+    pub shared: [__u64; 254usize],
+}
+
+#[test]
+fn bindgen_test_layout_svm_ghcb_base() {
+    const UNINIT: ::std::mem::MaybeUninit<svm_ghcb_base> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<svm_ghcb_base>(),
+        4080usize,
+        concat!("Size of: ", stringify!(svm_ghcb_base))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<svm_ghcb_base>(),
+        1usize,
+        concat!("Alignment of ", stringify!(svm_ghcb_base))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).unused) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(unused)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).cpl) as usize - ptr as usize },
+        203usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(cpl)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).unused2) as usize - ptr as usize },
+        204usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(unused2)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).xss) as usize - ptr as usize },
+        320usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(xss)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).unused3) as usize - ptr as usize },
+        328usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(unused3)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).dr7) as usize - ptr as usize },
+        352usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(dr7)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).unused4) as usize - ptr as usize },
+        360usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(unused4)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).rax) as usize - ptr as usize },
+        504usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(rax)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).unused5) as usize - ptr as usize },
+        512usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(unused5)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).rcx) as usize - ptr as usize },
+        776usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(rcx)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).rdx) as usize - ptr as usize },
+        784usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(rdx)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).rbx) as usize - ptr as usize },
+        792usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(rbx)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).unused6) as usize - ptr as usize },
+        800usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(unused6)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).rbp) as usize - ptr as usize },
+        808usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(rbp)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).rsi) as usize - ptr as usize },
+        816usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(rsi)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).rdi) as usize - ptr as usize },
+        824usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(rdi)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).r8) as usize - ptr as usize },
+        832usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(r8)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).r9) as usize - ptr as usize },
+        840usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(r9)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).r10) as usize - ptr as usize },
+        848usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(r10)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).r11) as usize - ptr as usize },
+        856usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(r11)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).r12) as usize - ptr as usize },
+        864usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(r12)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).r13) as usize - ptr as usize },
+        872usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(r13)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).r14) as usize - ptr as usize },
+        880usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(r14)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).r15) as usize - ptr as usize },
+        888usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(r15)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).unused7) as usize - ptr as usize },
+        896usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(unused7)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).exit_code) as usize - ptr as usize },
+        912usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(rxit_code)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).exit_info1) as usize - ptr as usize },
+        920usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(exit_info1)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).exit_info2) as usize - ptr as usize },
+        928usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(exit_info2)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).scratch) as usize - ptr as usize },
+        936usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(scratch)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).unused8) as usize - ptr as usize },
+        944usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(unused8)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).xfem) as usize - ptr as usize },
+        1000usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(xfem)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).valid_bitmap) as usize - ptr as usize },
+        1008usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(valid_bitmap)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).x87_state_gpa) as usize - ptr as usize },
+        1024usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(x87_state_gpa)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).reserved) as usize - ptr as usize },
+        1032usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(reserved)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).shared) as usize - ptr as usize },
+        2048usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(svm_ghcb_base),
+            "::",
+            stringify!(shared)
+        )
+    );
+}
+impl Default for svm_ghcb_base {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
