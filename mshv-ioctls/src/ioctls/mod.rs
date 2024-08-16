@@ -47,7 +47,6 @@ impl MshvError {
     /// * `error` - errno from the ioctl; usually errno:Error::last()
     /// * `ret_args` - MSHV_ROOT_HVCALL args struct, after the ioctl completed
     pub fn from_hvcall(error: errno::Error, ret_args: mshv_root_hvcall) -> Self {
-        use std::convert::TryFrom;
         if ret_args.status != HV_STATUS_SUCCESS as u16 {
             let hv_err = HvError::try_from(ret_args.status);
             return MshvError::Hypercall {
