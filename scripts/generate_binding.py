@@ -129,7 +129,12 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Generate Rust bindings from Hyper-V headers from Linux kernel"
+        description="Generate Rust bindings from Hyper-V headers from Linux kernel",
+        epilog="example:\n"
+        "./generate_binding.py  -k /opt/linux-dom0\n"
+        "./generate_binding.py  -k /opt/linux-dom0 --arch x86\n"
+        "./generate_binding.py --bindgen=\"--with-derive-eq --with-derive-partialeq --with-derive-ord\"  -k /opt/linux-dom0",
+        formatter_class=argparse.RawTextHelpFormatter
     )
 
     parser.add_argument(
