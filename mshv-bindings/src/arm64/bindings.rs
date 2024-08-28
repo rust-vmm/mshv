@@ -14171,7 +14171,8 @@ fn bindgen_test_layout_hv_input_set_partition_property() {
 }
 pub const hv_vp_state_page_type_HV_VP_STATE_PAGE_REGISTERS: hv_vp_state_page_type = 0;
 pub const hv_vp_state_page_type_HV_VP_STATE_PAGE_INTERCEPT_MESSAGE: hv_vp_state_page_type = 1;
-pub const hv_vp_state_page_type_HV_VP_STATE_PAGE_COUNT: hv_vp_state_page_type = 2;
+pub const hv_vp_state_page_type_HV_VP_STATE_PAGE_GHCB: hv_vp_state_page_type = 2;
+pub const hv_vp_state_page_type_HV_VP_STATE_PAGE_COUNT: hv_vp_state_page_type = 3;
 pub type hv_vp_state_page_type = ::std::os::raw::c_uint;
 #[repr(C, packed)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
@@ -20803,6 +20804,11 @@ fn bindgen_test_layout_mshv_root_hvcall() {
         )
     );
 }
+pub const MSHV_VP_MMAP_OFFSET_REGISTERS: _bindgen_ty_12 = 0;
+pub const MSHV_VP_MMAP_OFFSET_INTERCEPT_MESSAGE: _bindgen_ty_12 = 1;
+pub const MSHV_VP_MMAP_OFFSET_GHCB: _bindgen_ty_12 = 2;
+pub const MSHV_VP_MMAP_OFFSET_COUNT: _bindgen_ty_12 = 3;
+pub type _bindgen_ty_12 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_run_vp {
