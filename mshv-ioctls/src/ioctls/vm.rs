@@ -644,7 +644,7 @@ impl VmFd {
         base_pfn: u64,
         nr_pfns: u32,
         flags: u64,
-    ) -> Result<mshv_get_gpa_pages_access_state> {
+    ) -> Result<Vec<hv_gpa_page_access_state>> {
         let mut states: Vec<hv_gpa_page_access_state> =
             vec![hv_gpa_page_access_state { as_uint8: 0 }; nr_pfns as usize];
         let mut gpa_pages_access_state: mshv_get_gpa_pages_access_state =
@@ -664,7 +664,7 @@ impl VmFd {
             )
         };
         if ret == 0 {
-            Ok(gpa_pages_access_state)
+            Ok(states)
         } else {
             Err(errno::Error::last().into())
         }
@@ -707,11 +707,7 @@ impl VmFd {
             current_size = cmp::min(PAGE_ACCESS_STATES_BATCH_SIZE, remaining);
             let page_states =
                 self.get_gpa_access_state(base_pfn + processed as u64, current_size, flags)?;
-            // SAFETY: we're sure states and count meet the requirements for from_raw_parts
-            let slices: &[hv_gpa_page_access_state] = unsafe {
-                std::slice::from_raw_parts(page_states.states, page_states.count as usize)
-            };
-            for item in slices.iter() {
+            for item in page_states.iter() {
                 let bits = &mut bitmap[bitmap_index];
                 mask = 1 << bit_index;
                 // SAFETY: access union field
@@ -723,7 +719,9 @@ impl VmFd {
                 bitmap_index = processed / 64;
                 bit_index = processed % 64;
             }
-            remaining -= page_states.count;
+            // There is no risk of overflow on this cast, since
+            // page_states.len() is at most PAGE_ACCESS_STATES_BATCH_SIZE
+            remaining -= page_states.len() as u32;
         }
         Ok(bitmap)
     }
