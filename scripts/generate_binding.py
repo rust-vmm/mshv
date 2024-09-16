@@ -9,12 +9,17 @@ import tempfile
 from pathlib import Path
 from shutil import rmtree, which
 
+crate_dir = Path(__file__).resolve().parent.parent
+
 mshv_header_files = [
-    "include/hyperv/hvgdk_mini.h",
-    "include/hyperv/hvgdk.h",
-    "include/hyperv/hvhdk_mini.h",
-    "include/hyperv/hvhdk.h",
     "include/linux/mshv.h",
+]
+
+hv_header_files = [
+    "hvgdk_mini.h",
+    "hvgdk.h",
+    "hvhdk_mini.h",
+    "hvhdk.h",
 ]
 
 
@@ -40,12 +45,18 @@ def install_kernel_headers(kernel_src_path, arch):
     return kernel_hdr_path
 
 
-def generate_unified_mshv_headers(kernel_hdr_path):
+def generate_unified_mshv_headers(kernel_hdr_path, hv_hdrs_path):
     logging.debug("Start generating unified header file")
 
     with open(f"{kernel_hdr_path}/combined_mshv.h", "w") as fp:
         fp.write("typedef _Bool bool;\n")
         data = ""
+
+        for header in hv_header_files:
+            header_path = f"{hv_hdrs_path}/{header}"
+
+            with open(header_path, "r") as f:
+                data += f.read()
 
         for header in mshv_header_files:
             header_path = f"{kernel_hdr_path}/{header}"
@@ -53,8 +64,7 @@ def generate_unified_mshv_headers(kernel_hdr_path):
             with open(header_path, "r") as f:
                 data += f.read()
 
-        for header in mshv_header_files:
-            header_name = Path(header).name
+        for header_name in hv_header_files:
             regexp = f".*{header_name}.*"
             data = re.sub(regexp, "", data, flags=re.M)
 
@@ -113,7 +123,7 @@ def main(args):
         return -1
 
     kernel_hdr_path = install_kernel_headers(args.kernel_src_path, args.arch)
-    generate_unified_mshv_headers(kernel_hdr_path)
+    generate_unified_mshv_headers(kernel_hdr_path, args.hv_hdrs_path)
 
     bindgen_args = "--no-doc-comments --with-derive-default "
 
@@ -133,7 +143,7 @@ if __name__ == "__main__":
         epilog="example:\n"
         "./generate_binding.py  -k /opt/linux-dom0\n"
         "./generate_binding.py  -k /opt/linux-dom0 --arch x86\n"
-        "./generate_binding.py --bindgen=\"--with-derive-eq --with-derive-partialeq --with-derive-ord\"  -k /opt/linux-dom0",
+        "./generate_binding.py  -k /opt/linux-dom0 --bindgen=\"--with-derive-eq --with-derive-partialeq --with-derive-ord\"",
         formatter_class=argparse.RawTextHelpFormatter
     )
 
@@ -147,11 +157,20 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
+        "--headers",
+        "-H",
+        type=str,
+        dest="hv_hdrs_path",
+        default=str(crate_dir.joinpath("hv-headers")),
+        help="Hypervisor headers path",
+    )
+
+    parser.add_argument(
         "--output",
         "-o",
         type=str,
         dest="output",
-        default="mshv-bindings/src",
+        default=str(crate_dir.joinpath("mshv-bindings/src")),
         help="Directory to store bindgen.rs",
     )
 
