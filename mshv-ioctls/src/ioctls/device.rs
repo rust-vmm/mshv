@@ -48,7 +48,7 @@ impl DeviceFd {
     /// # use mshv_ioctls::Mshv;
     /// # use mshv_bindings::{
     ///    mshv_device_type_MSHV_DEV_TYPE_VFIO,
-    ///    MSHV_DEV_VFIO_GROUP, MSHV_DEV_VFIO_GROUP_ADD, MSHV_CREATE_DEVICE_TEST
+    ///    MSHV_DEV_VFIO_FILE, MSHV_DEV_VFIO_FILE_ADD, MSHV_CREATE_DEVICE_TEST
     /// };
     /// let mshv = Mshv::new().unwrap();
     /// let vm = mshv.create_vm().unwrap();
@@ -64,8 +64,8 @@ impl DeviceFd {
     ///     .expect("Cannot create MSHV device");
     ///
     /// let dist_attr = mshv_bindings::mshv_device_attr {
-    ///     group: MSHV_DEV_VFIO_GROUP,
-    ///     attr: u64::from(MSHV_DEV_VFIO_GROUP_ADD),
+    ///     group: MSHV_DEV_VFIO_FILE,
+    ///     attr: u64::from(MSHV_DEV_VFIO_FILE_ADD),
     ///     addr: 0,
     ///     flags: 0,
     /// };
@@ -143,7 +143,7 @@ mod tests {
     use crate::ioctls::system::Mshv;
     #[cfg(target_arch = "x86_64")]
     use mshv_bindings::{
-        mshv_device_type_MSHV_DEV_TYPE_VFIO, MSHV_DEV_VFIO_GROUP, MSHV_DEV_VFIO_GROUP_ADD,
+        mshv_device_type_MSHV_DEV_TYPE_VFIO, MSHV_DEV_VFIO_FILE, MSHV_DEV_VFIO_FILE_ADD,
     };
 
     #[test]
@@ -170,8 +170,8 @@ mod tests {
         let device = unsafe { DeviceFd::from_raw_fd(raw_fd) };
 
         let dist_attr = mshv_bindings::mshv_device_attr {
-            group: MSHV_DEV_VFIO_GROUP,
-            attr: u64::from(MSHV_DEV_VFIO_GROUP_ADD),
+            group: MSHV_DEV_VFIO_FILE,
+            attr: u64::from(MSHV_DEV_VFIO_FILE_ADD),
             addr: 0,
             flags: 0,
         };
