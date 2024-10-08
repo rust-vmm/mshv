@@ -11,10 +11,10 @@ use std::convert::TryFrom;
 use std::fmt;
 use std::ptr;
 use vmm_sys_util::errno;
-use zerocopy::{AsBytes, FromBytes, FromZeroes};
+use zerocopy::{FromBytes, IntoBytes};
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, IntoBytes, FromBytes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct StandardRegisters {
     pub rax: u64,
@@ -38,7 +38,7 @@ pub struct StandardRegisters {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, AsBytes, FromBytes, FromZeroes)]
+#[derive(Debug, Default, Copy, Clone, IntoBytes, FromBytes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct SegmentRegister {
     /* segment register + descriptor */
@@ -141,7 +141,7 @@ impl From<SegmentRegister> for hv_x64_segment_register {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, FromBytes, FromZeroes)]
+#[derive(Debug, Default, Copy, Clone, FromBytes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct TableRegister {
     pub base: u64,
@@ -168,7 +168,7 @@ impl From<TableRegister> for hv_x64_table_register {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, FromBytes, FromZeroes)]
+#[derive(Debug, Default, Copy, Clone, FromBytes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct SpecialRegisters {
     pub cs: SegmentRegister,
@@ -192,7 +192,7 @@ pub struct SpecialRegisters {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, IntoBytes, FromBytes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct DebugRegisters {
     pub dr0: u64,
@@ -204,7 +204,7 @@ pub struct DebugRegisters {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, IntoBytes, FromBytes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct FloatingPointUnit {
     pub fpr: [[u8; 16usize]; 8usize],
@@ -352,7 +352,7 @@ pub fn msr_to_hv_reg_name(msr: u32) -> Result<::std::os::raw::c_uint, &'static s
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, IntoBytes, FromBytes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct msr_entry {
     pub index: u32,
@@ -379,7 +379,7 @@ pub struct msr_list {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, IntoBytes, FromBytes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct VcpuEvents {
     pub pending_interruption: u64,
@@ -390,14 +390,14 @@ pub struct VcpuEvents {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, IntoBytes, FromBytes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct Xcrs {
     pub xcr0: u64,
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, IntoBytes, FromBytes)]
 pub struct hv_cpuid_entry {
     pub function: __u32,
     pub index: __u32,
@@ -492,7 +492,7 @@ impl Drop for Buffer {
 }
 
 #[repr(C)]
-#[derive(Copy, Clone, Debug, AsBytes, FromBytes, FromZeroes)]
+#[derive(Copy, Clone, Debug, IntoBytes, FromBytes)]
 /// Fixed buffer for lapic state
 pub struct LapicState {
     pub regs: [::std::os::raw::c_char; 1024usize],
@@ -505,7 +505,7 @@ impl Default for LapicState {
 }
 
 #[repr(C)]
-#[derive(Copy, Clone, Debug, AsBytes, FromBytes, FromZeroes)]
+#[derive(Copy, Clone, Debug, IntoBytes, FromBytes)]
 /// Fixed buffer for xsave state
 pub struct XSave {
     pub buffer: [u8; 4096usize],
@@ -670,7 +670,7 @@ impl fmt::Display for XSave {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, IntoBytes, FromBytes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct SuspendRegisters {
     pub explicit_register: u64,
@@ -678,7 +678,7 @@ pub struct SuspendRegisters {
 }
 
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, AsBytes, FromBytes, FromZeroes)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, IntoBytes, FromBytes)]
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct MiscRegs {
     pub hypercall: u64,
@@ -726,7 +726,7 @@ fn get_vp_state_comp_start_offset(index: usize) -> usize {
 // Local APIC, Xsave, Synthetic Message Page, Synthetic Event Flags Page
 // and Synthetic Timers.
 #[repr(C)]
-#[derive(Copy, Clone, Debug, AsBytes, FromBytes, FromZeroes)]
+#[derive(Copy, Clone, Debug, IntoBytes, FromBytes)]
 /// Fixed buffer for VP state components
 pub struct AllVpStateComponents {
     pub buffer: [u8; VP_STATE_COMPONENTS_BUFFER_SIZE],
