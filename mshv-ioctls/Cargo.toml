@@ -11,5 +11,5 @@ description = "Safe wrappers over MSHV ioctl"
 
 [dependencies]
 libc = ">=0.2.39"
-mshv-bindings = {path = "../mshv-bindings", features = ["fam-wrappers"]}
+mshv-bindings = {version = "=0.1.1", path = "../mshv-bindings", features = ["fam-wrappers"]}
 vmm-sys-util = ">=0.12.1"
