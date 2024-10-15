@@ -5,7 +5,7 @@ authors = ["Microsoft Authors"]
 edition = "2018"
 license = "Apache-2.0 OR BSD-3-Clause"
 readme = "README.md"
-keywords = ["mshv", "Microsoft Hypervisor"]
+keywords = ["mshv"]
 repository = "https://github.com/rust-vmm/mshv"
 description = "Safe wrappers over MSHV ioctl"
 
