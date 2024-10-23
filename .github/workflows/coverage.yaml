@@ -1,0 +1,23 @@
+name: Test Coverage
+on: [pull_request, create]
+jobs:
+  Coverage-test-job:
+    if: github.event_name == 'pull_request'
+    name: Test Coverate
+    runs-on: ubuntu-latest
+    container:
+      image: rustvmm/dev:v47
+      env:
+        NODE_ENV: development
+      ports:
+        - 80
+      options: --cpus 1
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v1
+        with:
+          submodules: 'true'
+      - name: Listing files
+        run: ls -ltr rust-vmm-ci
+      - name: Check for dockerenv file
+        run: pytest rust-vmm-ci/integration_tests/test_coverage.py
