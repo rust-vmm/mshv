@@ -5,7 +5,7 @@ authors = ["Microsoft Authors"]
 edition = "2021"
 license = "Apache-2.0 OR BSD-3-Clause"
 readme = "README.md"
-keywords = ["mshv", "Microsoft Hypervisor"]
+keywords = ["mshv", "Microsoft", "Hypervisor", "MSHV"]
 repository = "https://github.com/rust-vmm/mshv"
 description = "Rust FFI bindings to MSHV headers generated using Rust bindgen"
 
