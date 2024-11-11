@@ -773,6 +773,10 @@ pub struct svm_ghcb_base {
     pub shared: [__u64; 254usize],
 }
 
+// SAFETY: struct is based on GHCB page in the hypervisor,
+// safe to send across threads
+unsafe impl Send for svm_ghcb_base {}
+
 #[test]
 fn bindgen_test_layout_svm_ghcb_base() {
     const UNINIT: ::std::mem::MaybeUninit<svm_ghcb_base> = ::std::mem::MaybeUninit::uninit();
