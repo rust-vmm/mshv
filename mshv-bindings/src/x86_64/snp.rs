@@ -1173,7 +1173,7 @@ mod tests {
     fn test_svm_macro() {
         let mut st: svm_ghcb_base = svm_ghcb_base::default();
         println!("{}", std::mem::size_of::<svm_ghcb_base>());
-        let pptr: *mut svm_ghcb_base = &mut st;
+        let pptr: *mut svm_ghcb_base = core::ptr::addr_of_mut!(st);
         set_svm_field_u64_ptr!(pptr, cpl, 100);
         let mut val = st.cpl as u64;
         let mut bitmap = st.valid_bitmap;
