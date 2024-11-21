@@ -9,6 +9,20 @@
 
 ### Fixed
 
+# v0.3.2
+
+### Added
+- [[178]](https://github.com/rust-vmm/mshv/pull/178) mshv-bindings: implement send for svm_ghcb_base
+
+### Changed
+
+### Deprecated
+
+### Fixed
+
+- [[179]](https://github.com/rust-vmm/mshv/pull/179) Fix UB with Tree Borrows aliasing model in test suite
+- [[177]](https://github.com/rust-vmm/mshv/pull/177) build(deps): update thiserror requirement from 1.0 to 2.0
+
 # v0.3.1
 
 ## Added
