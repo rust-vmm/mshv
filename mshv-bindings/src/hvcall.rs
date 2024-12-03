@@ -11,7 +11,7 @@ use std::vec::Vec;
 /// MSHV_ROOT_HVCALL is basically a 'passthrough' hypercall. The kernel makes a
 /// hypercall on behalf of the VMM without interpreting the arguments or result
 /// or changing any state in the kernel.
-
+///
 /// RepInput<T> wraps a buffer containing the input for a "rep"[1] hypercall.
 /// Rep hypercalls have rep-eated data, i.e. a variable length array as part of
 /// the input structure e.g.:
@@ -83,7 +83,7 @@ impl<T: Default> RepInput<T> {
     pub fn input_with_arr_field_as_vec(t: T, entry_size: usize, count: usize) -> Vec<T> {
         let element_space = count * entry_size;
         let vec_size_bytes = size_of::<T>() + element_space;
-        let rounded_size = (vec_size_bytes + size_of::<T>() - 1) / size_of::<T>();
+        let rounded_size = vec_size_bytes.div_ceil(size_of::<T>());
         let mut v = Vec::with_capacity(rounded_size);
         v.resize_with(rounded_size, T::default);
         v[0] = t;

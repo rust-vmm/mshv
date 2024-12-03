@@ -703,7 +703,7 @@ impl VmFd {
         // For ease of access we are saving the bitmap in a u64 vector. We are using ceil to
         // make sure we count all dirty pages even when `memory_size` is not a multiple of
         // `page_size * 64`.
-        let div_ceil = |dividend, divisor| (dividend + divisor - 1) / divisor;
+        let div_ceil = |dividend: usize, divisor| dividend.div_ceil(divisor);
         let bitmap_size = div_ceil(memory_size, HV_PAGE_SIZE * 64);
         let mut bitmap: Vec<u64> = Vec::with_capacity(bitmap_size);
         let mut completed = 0;

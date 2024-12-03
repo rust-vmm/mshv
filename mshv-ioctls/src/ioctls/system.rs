@@ -52,7 +52,7 @@ impl Mshv {
     pub fn open_with_cloexec(close_on_exec: bool) -> Result<RawFd> {
         let open_flags = O_NONBLOCK | if close_on_exec { O_CLOEXEC } else { 0 };
         // SAFETY: we give a constant null-terminated string and verify the result.
-        let ret = unsafe { open("/dev/mshv\0".as_ptr() as *const c_char, open_flags) };
+        let ret = unsafe { open(c"/dev/mshv".as_ptr() as *const c_char, open_flags) };
         if ret < 0 {
             Err(errno::Error::last().into())
         } else {
