@@ -69,6 +69,13 @@ impl AsRawFd for VcpuFd {
 }
 
 impl VcpuFd {
+    /// Get mut reference of VP register page
+    pub fn get_vp_reg_page(&self) -> *mut hv_vp_register_page {
+        // This API should not be called if the VM is encrypted
+        assert!(self.vp_page.is_some());
+        self.vp_page.as_ref().unwrap().0
+    }
+
     /// Get the register values by providing an array of register names
     #[cfg(not(target_arch = "aarch64"))]
     pub fn get_reg(&self, reg_names: &mut [hv_register_assoc]) -> Result<()> {
