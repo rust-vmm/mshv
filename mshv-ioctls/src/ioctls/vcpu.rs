@@ -69,6 +69,11 @@ impl AsRawFd for VcpuFd {
 }
 
 impl VcpuFd {
+    /// Get the reference of VP register page
+    pub fn get_vp_reg_page(&self) -> Option<&RegisterPage> {
+        self.vp_page.as_ref()
+    }
+
     /// Get the register values by providing an array of register names
     #[cfg(not(target_arch = "aarch64"))]
     pub fn get_reg(&self, reg_names: &mut [hv_register_assoc]) -> Result<()> {
