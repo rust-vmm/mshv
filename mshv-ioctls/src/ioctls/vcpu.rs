@@ -165,6 +165,7 @@ impl VcpuFd {
 
         Ok(())
     }
+
     /// Sets the vCPU general purpose registers
     #[cfg(not(target_arch = "aarch64"))]
     pub fn set_regs(&self, regs: &StandardRegisters) -> Result<()> {
@@ -261,6 +262,38 @@ impl VcpuFd {
             },
         ];
         self.set_reg(&reg_assocs)?;
+        Ok(())
+    }
+
+    /// Sets the vCPU general purpose registers using VP register page
+    #[cfg(not(target_arch = "aarch64"))]
+    pub fn set_vp_page_standard_regs(&self, regs: &StandardRegisters) -> Result<()> {
+        let vp_reg_page = self.get_vp_reg_page();
+        set_gp_regs_field_ptr!(vp_reg_page, rax, regs.rax);
+        set_gp_regs_field_ptr!(vp_reg_page, rbx, regs.rbx);
+        set_gp_regs_field_ptr!(vp_reg_page, rcx, regs.rcx);
+        set_gp_regs_field_ptr!(vp_reg_page, rdx, regs.rdx);
+        set_gp_regs_field_ptr!(vp_reg_page, rsi, regs.rsi);
+        set_gp_regs_field_ptr!(vp_reg_page, rdi, regs.rdi);
+        set_gp_regs_field_ptr!(vp_reg_page, rsp, regs.rsp);
+        set_gp_regs_field_ptr!(vp_reg_page, rbp, regs.rbp);
+        set_gp_regs_field_ptr!(vp_reg_page, r8, regs.r8);
+        set_gp_regs_field_ptr!(vp_reg_page, r9, regs.r9);
+        set_gp_regs_field_ptr!(vp_reg_page, r10, regs.r10);
+        set_gp_regs_field_ptr!(vp_reg_page, r11, regs.r11);
+        set_gp_regs_field_ptr!(vp_reg_page, r12, regs.r12);
+        set_gp_regs_field_ptr!(vp_reg_page, r13, regs.r13);
+        set_gp_regs_field_ptr!(vp_reg_page, r14, regs.r14);
+        set_gp_regs_field_ptr!(vp_reg_page, r15, regs.r15);
+
+        // SAFETY: access union fields
+        unsafe {
+            (*vp_reg_page).dirty |= 1 << HV_X64_REGISTER_CLASS_GENERAL;
+            (*vp_reg_page).__bindgen_anon_1.__bindgen_anon_1.rip = regs.rip;
+            (*vp_reg_page).dirty |= 1 << HV_X64_REGISTER_CLASS_IP;
+            (*vp_reg_page).__bindgen_anon_1.__bindgen_anon_1.rflags = regs.rflags;
+            (*vp_reg_page).dirty |= 1 << HV_X64_REGISTER_CLASS_FLAGS;
+        }
         Ok(())
     }
 
