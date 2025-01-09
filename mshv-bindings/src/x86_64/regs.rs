@@ -759,6 +759,22 @@ impl AllVpStateComponents {
     }
 }
 
+#[macro_export]
+macro_rules! set_gp_regs_field_ptr {
+    ($this: ident, $name: ident, $value: expr) => {
+        #[allow(clippy::macro_metavars_in_unsafe)]
+        // SAFETY: access union fields
+        unsafe {
+            (*$this)
+                .__bindgen_anon_1
+                .__bindgen_anon_1
+                .__bindgen_anon_1
+                .__bindgen_anon_1
+                .$name = $value;
+        }
+    };
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
