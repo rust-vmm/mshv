@@ -23,3 +23,15 @@ pub use hvdef::*;
 
 pub mod hvcall;
 pub use hvcall::*;
+
+#[derive(Debug)]
+pub struct RegisterPage(pub *mut hv_vp_register_page);
+
+// SAFETY: struct is based on register page in the hypervisor,
+// safe to Send across threads
+unsafe impl Send for RegisterPage {}
+
+// SAFETY: struct is based on Register page in the hypervisor,
+// safe to Sync across threads as this is only required for Vcpu trait
+// functionally not used anyway
+unsafe impl Sync for RegisterPage {}
