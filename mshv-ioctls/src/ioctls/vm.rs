@@ -225,7 +225,27 @@ impl VmFd {
         // SAFETY: we're sure vcpu_fd is valid.
         let vcpu = unsafe { File::from_raw_fd(vcpu_fd) };
 
-        Ok(new_vcpu(id as u32, vcpu))
+        // SAFETY: Safe to call as VCPU has this map already available upon creation
+        let addr = unsafe {
+            libc::mmap(
+                std::ptr::null_mut(),
+                HV_PAGE_SIZE,
+                libc::PROT_READ | libc::PROT_WRITE,
+                libc::MAP_SHARED,
+                vcpu_fd,
+                MSHV_VP_MMAP_OFFSET_REGISTERS as i64 * libc::sysconf(libc::_SC_PAGE_SIZE),
+            )
+        };
+        let vp_page = if addr == libc::MAP_FAILED {
+            // No point of continuing, without this mmap VMGEXIT will fail anyway
+            // Return error
+            println!("mmap error: {:?}", errno::Error::last());
+            None
+        } else {
+            Some(RegisterPage(addr as *mut hv_vp_register_page))
+        };
+
+        Ok(new_vcpu(id as u32, vcpu, vp_page))
     }
 
     /// Inject an interrupt into the guest..
