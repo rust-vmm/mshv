@@ -225,7 +225,31 @@ impl VmFd {
         // SAFETY: we're sure vcpu_fd is valid.
         let vcpu = unsafe { File::from_raw_fd(vcpu_fd) };
 
-        Ok(new_vcpu(id as u32, vcpu))
+        // SAFETY: Safe to call as VCPU has this map already available upon creation
+        let addr = unsafe {
+            libc::mmap(
+                std::ptr::null_mut(),
+                HV_PAGE_SIZE,
+                libc::PROT_READ | libc::PROT_WRITE,
+                libc::MAP_SHARED,
+                vcpu_fd,
+                MSHV_VP_MMAP_OFFSET_REGISTERS as i64 * libc::sysconf(libc::_SC_PAGE_SIZE),
+            )
+        };
+        let vp_page = if addr == libc::MAP_FAILED {
+            // If the MSHV driver returns ENODEV that means it is not supported
+            // We just set None in that case.
+            // Otherise there is an error with mmap, return the error.
+            let err_no = errno::Error::last();
+            if err_no.errno() != libc::ENODEV {
+                return Err(errno::Error::last().into());
+            }
+            None
+        } else {
+            Some(RegisterPage(addr as *mut hv_vp_register_page))
+        };
+
+        Ok(new_vcpu(id as u32, vcpu, vp_page))
     }
 
     /// Inject an interrupt into the guest..

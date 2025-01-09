@@ -46,6 +46,7 @@ macro_rules! set_registers_64 {
 pub struct VcpuFd {
     index: u32,
     vcpu: File,
+    vp_page: Option<RegisterPage>,
 }
 
 /// Helper function to create a new `VcpuFd`.
@@ -53,8 +54,12 @@ pub struct VcpuFd {
 /// This should not be exported as a public function because the preferred way is to use
 /// `create_vcpu` from `VmFd`. The function cannot be part of the `VcpuFd` implementation because
 /// then it would be exported with the public `VcpuFd` interface.
-pub fn new_vcpu(index: u32, vcpu: File) -> VcpuFd {
-    VcpuFd { index, vcpu }
+pub fn new_vcpu(index: u32, vcpu: File, vp_page: Option<RegisterPage>) -> VcpuFd {
+    VcpuFd {
+        index,
+        vcpu,
+        vp_page,
+    }
 }
 
 impl AsRawFd for VcpuFd {
