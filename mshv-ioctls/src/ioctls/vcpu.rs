@@ -379,6 +379,16 @@ impl VcpuFd {
     /// Returns the vCPU general purpose registers.
     #[cfg(target_arch = "x86_64")]
     pub fn get_regs(&self) -> Result<StandardRegisters> {
+        if self.vp_page.is_some() {
+            self.get_standard_regs_vp_page()
+        } else {
+            self.get_standard_regs_ioctl()
+        }
+    }
+
+    /// Returns the vCPU general purpose registers using IOCTL
+    #[cfg(not(target_arch = "aarch64"))]
+    fn get_standard_regs_ioctl(&self) -> Result<StandardRegisters> {
         let reg_names = [
             hv_register_name_HV_X64_REGISTER_RAX,
             hv_register_name_HV_X64_REGISTER_RBX,
@@ -499,6 +509,37 @@ impl VcpuFd {
         }
         Ok(ret_regs)
     }
+
+    /// Returns the vCPU general purpose registers using VP register page
+    #[cfg(not(target_arch = "aarch64"))]
+    pub fn get_standard_regs_vp_page(&self) -> Result<StandardRegisters> {
+        let vp_reg_page = self.get_vp_reg_page().unwrap().0;
+        let mut ret_regs = StandardRegisters::default();
+        // SAFETY: access union fields
+        unsafe {
+            ret_regs.rax = get_gp_regs_field_ptr!(vp_reg_page, rax);
+            ret_regs.rbx = get_gp_regs_field_ptr!(vp_reg_page, rbx);
+            ret_regs.rcx = get_gp_regs_field_ptr!(vp_reg_page, rcx);
+            ret_regs.rdx = get_gp_regs_field_ptr!(vp_reg_page, rdx);
+            ret_regs.rsi = get_gp_regs_field_ptr!(vp_reg_page, rsi);
+            ret_regs.rdi = get_gp_regs_field_ptr!(vp_reg_page, rdi);
+            ret_regs.rsp = get_gp_regs_field_ptr!(vp_reg_page, rsp);
+            ret_regs.rbp = get_gp_regs_field_ptr!(vp_reg_page, rbp);
+            ret_regs.r8 = get_gp_regs_field_ptr!(vp_reg_page, r8);
+            ret_regs.r9 = get_gp_regs_field_ptr!(vp_reg_page, r9);
+            ret_regs.r10 = get_gp_regs_field_ptr!(vp_reg_page, r10);
+            ret_regs.r11 = get_gp_regs_field_ptr!(vp_reg_page, r11);
+            ret_regs.r12 = get_gp_regs_field_ptr!(vp_reg_page, r12);
+            ret_regs.r13 = get_gp_regs_field_ptr!(vp_reg_page, r13);
+            ret_regs.r14 = get_gp_regs_field_ptr!(vp_reg_page, r14);
+            ret_regs.r15 = get_gp_regs_field_ptr!(vp_reg_page, r15);
+            ret_regs.rip = (*vp_reg_page).__bindgen_anon_1.__bindgen_anon_1.rip;
+            ret_regs.rflags = (*vp_reg_page).__bindgen_anon_1.__bindgen_anon_1.rflags;
+        }
+
+        Ok(ret_regs)
+    }
+
     /// Returns the vCPU special registers.
     #[cfg(not(target_arch = "aarch64"))]
     pub fn get_sregs(&self) -> Result<SpecialRegisters> {
@@ -570,6 +611,7 @@ impl VcpuFd {
 
         Ok(ret_regs)
     }
+
     /// Sets the vCPU special registers
     #[cfg(not(target_arch = "aarch64"))]
     pub fn set_sregs(&self, sregs: &SpecialRegisters) -> Result<()> {
