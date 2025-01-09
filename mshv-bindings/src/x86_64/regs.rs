@@ -775,6 +775,18 @@ macro_rules! set_gp_regs_field_ptr {
     };
 }
 
+#[macro_export]
+macro_rules! get_gp_regs_field_ptr {
+    ($this: ident, $name: ident) => {
+        (*$this)
+            .__bindgen_anon_1
+            .__bindgen_anon_1
+            .__bindgen_anon_1
+            .__bindgen_anon_1
+            .$name
+    };
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
