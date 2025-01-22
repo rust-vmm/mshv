@@ -47,14 +47,14 @@ impl DeviceFd {
     /// # extern crate mshv_bindings;
     /// # use mshv_ioctls::Mshv;
     /// # use mshv_bindings::{
-    ///    mshv_device_type_MSHV_DEV_TYPE_VFIO,
+    ///    MSHV_DEV_TYPE_VFIO,
     ///    MSHV_DEV_VFIO_FILE, MSHV_DEV_VFIO_FILE_ADD, MSHV_CREATE_DEVICE_TEST
     /// };
     /// let mshv = Mshv::new().unwrap();
     /// let vm = mshv.create_vm().unwrap();
     ///
     /// let mut device = mshv_bindings::mshv_create_device {
-    ///     type_: mshv_device_type_MSHV_DEV_TYPE_VFIO,
+    ///     type_: MSHV_DEV_TYPE_VFIO,
     ///     fd: 0,
     ///     flags: MSHV_CREATE_DEVICE_TEST,
     /// };
@@ -142,9 +142,7 @@ mod tests {
     use super::*;
     use crate::ioctls::system::Mshv;
     #[cfg(target_arch = "x86_64")]
-    use mshv_bindings::{
-        mshv_device_type_MSHV_DEV_TYPE_VFIO, MSHV_DEV_VFIO_FILE, MSHV_DEV_VFIO_FILE_ADD,
-    };
+    use mshv_bindings::{MSHV_DEV_TYPE_VFIO, MSHV_DEV_VFIO_FILE, MSHV_DEV_VFIO_FILE_ADD};
 
     #[test]
     #[cfg(target_arch = "x86_64")]
@@ -153,7 +151,7 @@ mod tests {
         let vm = mshv.create_vm().unwrap();
 
         let mut device = mshv_bindings::mshv_create_device {
-            type_: mshv_device_type_MSHV_DEV_TYPE_VFIO,
+            type_: MSHV_DEV_TYPE_VFIO,
             fd: 0,
             flags: 0,
         };
