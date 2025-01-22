@@ -73,6 +73,18 @@ impl Mshv {
         }
     }
 
+    /// Retrieve the host partition property given a property code.
+    pub fn get_host_partition_property(&self, property_code: u64) -> Result<i32> {
+        // SAFETY: IOCTL call with the correct types.
+        let ret =
+            unsafe { ioctl_with_ref(&self.hv, MSHV_GET_HOST_PARTITION_PROPERTY(), &property_code) };
+        if ret >= 0 {
+            Ok(ret)
+        } else {
+            Err(errno::Error::last().into())
+        }
+    }
+
     /// Helper function to creates a VM fd using the MSHV fd with provided configuration.
     pub fn create_vm_with_type(&self, vm_type: VmType) -> Result<VmFd> {
         let mut features: hv_partition_synthetic_processor_features = Default::default();
@@ -229,6 +241,15 @@ mod tests {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm();
         assert!(vm.is_ok());
+    }
+
+    #[test]
+    fn test_get_host_ipa_limit() {
+        let hv = Mshv::new().unwrap();
+        let host_ipa_limit = hv.get_host_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_PHYSICAL_ADDRESS_WIDTH as u64,
+        );
+        assert!(host_ipa_limit.is_ok());
     }
 
     #[test]
