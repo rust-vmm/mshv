@@ -13,6 +13,7 @@ ioctl_iow_nr!(
     0x00,
     mshv_create_partition
 );
+ioctl_ior_nr!(MSHV_GET_HOST_PARTITION_PROPERTY, MSHV_IOCTL, 0x01, u64);
 
 // partition fd
 ioctl_io_nr!(MSHV_INITIALIZE_PARTITION, MSHV_IOCTL, 0x00);
