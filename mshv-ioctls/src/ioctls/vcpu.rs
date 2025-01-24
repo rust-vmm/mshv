@@ -1454,6 +1454,49 @@ mod tests {
         }
     }
 
+    #[cfg(target_arch = "aarch64")]
+    #[test]
+    fn test_set_get_regs() {
+        let set_regs_assocs = [
+            hv_register_assoc {
+                name: hv_register_name_HV_ARM64_REGISTER_PC,
+                value: hv_register_value { reg64: 0x1000 },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_ARM64_REGISTER_ELR_EL1,
+                value: hv_register_value { reg64: 0x2 },
+                ..Default::default()
+            },
+        ];
+
+        let get_reg_assocs = [
+            hv_register_assoc {
+                name: hv_register_name_HV_ARM64_REGISTER_PC,
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_ARM64_REGISTER_ELR_EL1,
+                ..Default::default()
+            },
+        ];
+
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        vcpu.hvcall_set_reg(&set_regs_assocs).unwrap();
+
+        let mut get_regs = get_reg_assocs;
+        vcpu.hvcall_get_reg(&mut get_regs).unwrap();
+
+        // SAFETY: access union fields
+        unsafe {
+            assert!(get_regs[0].value.reg64 == 0x1000);
+            assert!(get_regs[1].value.reg64 == 0x2);
+        }
+    }
+
     #[cfg(target_arch = "x86_64")]
     #[test]
     fn test_set_get_sregs() {
