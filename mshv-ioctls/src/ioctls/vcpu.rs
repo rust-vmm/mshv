@@ -1263,6 +1263,7 @@ mod tests {
     use super::*;
     use crate::ioctls::system::Mshv;
 
+    #[cfg(target_arch = "x86_64")]
     #[test]
     fn test_set_get_regs() {
         let set_reg_assocs: [hv_register_assoc; 2] = [
@@ -1315,6 +1316,7 @@ mod tests {
         }
     }
 
+    #[cfg(target_arch = "x86_64")]
     #[test]
     fn test_set_get_sregs() {
         let hv = Mshv::new().unwrap();
@@ -1333,6 +1335,7 @@ mod tests {
         assert!(g_sregs.efer == s_sregs.efer);
     }
 
+    #[cfg(target_arch = "x86_64")]
     #[test]
     fn test_set_get_standardregisters() {
         let hv = Mshv::new().unwrap();
@@ -1348,6 +1351,7 @@ mod tests {
         assert!(g_regs.rdx == s_regs.rdx);
     }
 
+    #[cfg(target_arch = "x86_64")]
     #[test]
     fn test_set_get_debug_gisters() {
         let hv = Mshv::new().unwrap();
