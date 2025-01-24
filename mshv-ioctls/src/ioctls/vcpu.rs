@@ -154,7 +154,7 @@ impl VcpuFd {
         Ok(())
     }
     /// Sets the vCPU general purpose registers
-    #[cfg(not(target_arch = "aarch64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn set_regs(&self, regs: &StandardRegisters) -> Result<()> {
         let reg_assocs = [
             hv_register_assoc {
@@ -251,9 +251,80 @@ impl VcpuFd {
         self.set_reg(&reg_assocs)?;
         Ok(())
     }
+    /// Sets the vCPU general purpose registers on ARM64
+    #[cfg(target_arch = "aarch64")]
+    pub fn set_regs(&self, regs: &StandardRegisters) -> Result<()> {
+        let mut reg_assocs = Vec::with_capacity(38);
 
+        for i in 0..29 as usize {
+            reg_assocs.push(hv_register_assoc {
+                name: hv_register_name_HV_ARM64_REGISTER_X0 + i as u32,
+                value: hv_register_value { reg64: regs.gpr[i] },
+                ..Default::default()
+            });
+        }
+
+        reg_assocs.push(hv_register_assoc {
+            name: hv_register_name_HV_ARM64_REGISTER_FP,
+            value: hv_register_value { reg64: regs.fp },
+            ..Default::default()
+        });
+
+        reg_assocs.push(hv_register_assoc {
+            name: hv_register_name_HV_ARM64_REGISTER_LR,
+            value: hv_register_value { reg64: regs.lr },
+            ..Default::default()
+        });
+
+        reg_assocs.push(hv_register_assoc {
+            name: hv_register_name_HV_ARM64_REGISTER_SP,
+            value: hv_register_value { reg64: regs.sp },
+            ..Default::default()
+        });
+
+        reg_assocs.push(hv_register_assoc {
+            name: hv_register_name_HV_ARM64_REGISTER_PC,
+            value: hv_register_value { reg64: regs.pc },
+            ..Default::default()
+        });
+
+        reg_assocs.push(hv_register_assoc {
+            name: hv_register_name_HV_ARM64_REGISTER_PSTATE,
+            value: hv_register_value { reg64: regs.pstate },
+            ..Default::default()
+        });
+
+        reg_assocs.push(hv_register_assoc {
+            name: hv_register_name_HV_ARM64_REGISTER_SP_EL1,
+            value: hv_register_value { reg64: regs.sp_el1 },
+            ..Default::default()
+        });
+
+        reg_assocs.push(hv_register_assoc {
+            name: hv_register_name_HV_ARM64_REGISTER_ELR_EL1,
+            value: hv_register_value {
+                reg64: regs.elr_el1,
+            },
+            ..Default::default()
+        });
+
+        reg_assocs.push(hv_register_assoc {
+            name: hv_register_name_HV_ARM64_REGISTER_FPSR,
+            value: hv_register_value { reg64: regs.fpsr },
+            ..Default::default()
+        });
+
+        reg_assocs.push(hv_register_assoc {
+            name: hv_register_name_HV_ARM64_REGISTER_FPCR,
+            value: hv_register_value { reg64: regs.fpcr },
+            ..Default::default()
+        });
+
+        self.hvcall_set_reg(&reg_assocs)?;
+        Ok(())
+    }
     /// Returns the vCPU general purpose registers.
-    #[cfg(not(target_arch = "aarch64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn get_regs(&self) -> Result<StandardRegisters> {
         let reg_names = [
             hv_register_name_HV_X64_REGISTER_RAX,
@@ -306,6 +377,73 @@ impl VcpuFd {
             ret_regs.rflags = reg_assocs[17].value.reg64;
         }
 
+        Ok(ret_regs)
+    }
+    /// Returns the vCPU general purpose registers on ARM64.
+    #[cfg(target_arch = "aarch64")]
+    pub fn get_regs(&self) -> Result<StandardRegisters> {
+        let mut reg_assocs: Vec<hv_register_assoc> = Vec::with_capacity(38);
+        for i in 0..29 as usize {
+            reg_assocs.push(hv_register_assoc {
+                name: hv_register_name_HV_ARM64_REGISTER_X0 + i as u32,
+                ..Default::default()
+            });
+        }
+        reg_assocs.push(hv_register_assoc {
+            name: hv_register_name_HV_ARM64_REGISTER_FP,
+            ..Default::default()
+        });
+        reg_assocs.push(hv_register_assoc {
+            name: hv_register_name_HV_ARM64_REGISTER_LR,
+            ..Default::default()
+        });
+        reg_assocs.push(hv_register_assoc {
+            name: hv_register_name_HV_ARM64_REGISTER_SP,
+            ..Default::default()
+        });
+        reg_assocs.push(hv_register_assoc {
+            name: hv_register_name_HV_ARM64_REGISTER_PC,
+            ..Default::default()
+        });
+        reg_assocs.push(hv_register_assoc {
+            name: hv_register_name_HV_ARM64_REGISTER_PSTATE,
+            ..Default::default()
+        });
+        reg_assocs.push(hv_register_assoc {
+            name: hv_register_name_HV_ARM64_REGISTER_SP_EL1,
+            ..Default::default()
+        });
+        reg_assocs.push(hv_register_assoc {
+            name: hv_register_name_HV_ARM64_REGISTER_ELR_EL1,
+            ..Default::default()
+        });
+        reg_assocs.push(hv_register_assoc {
+            name: hv_register_name_HV_ARM64_REGISTER_FPSR,
+            ..Default::default()
+        });
+        reg_assocs.push(hv_register_assoc {
+            name: hv_register_name_HV_ARM64_REGISTER_FPCR,
+            ..Default::default()
+        });
+
+        self.hvcall_get_reg(&mut reg_assocs)?;
+        let mut ret_regs = StandardRegisters::default();
+        // SAFETY: access union fields
+        unsafe {
+            for i in 0..29 as usize {
+                ret_regs.gpr[i] = reg_assocs[i].value.reg64;
+            }
+
+            ret_regs.fp = reg_assocs[29].value.reg64;
+            ret_regs.lr = reg_assocs[30].value.reg64;
+            ret_regs.sp = reg_assocs[31].value.reg64;
+            ret_regs.pc = reg_assocs[32].value.reg64;
+            ret_regs.pstate = reg_assocs[33].value.reg64;
+            ret_regs.sp_el1 = reg_assocs[34].value.reg64;
+            ret_regs.elr_el1 = reg_assocs[35].value.reg64;
+            ret_regs.fpsr = reg_assocs[36].value.reg64;
+            ret_regs.fpcr = reg_assocs[37].value.reg64;
+        }
         Ok(ret_regs)
     }
     /// Returns the vCPU special registers.
