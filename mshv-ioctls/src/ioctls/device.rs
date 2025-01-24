@@ -139,7 +139,9 @@ impl FromRawFd for DeviceFd {
 
 #[cfg(test)]
 mod tests {
+    #[cfg(target_arch = "x86_64")]
     use super::*;
+    #[cfg(target_arch = "x86_64")]
     use crate::ioctls::system::Mshv;
     #[cfg(target_arch = "x86_64")]
     use mshv_bindings::{MSHV_DEV_TYPE_VFIO, MSHV_DEV_VFIO_FILE, MSHV_DEV_VFIO_FILE_ADD};
