@@ -1337,7 +1337,7 @@ mod tests {
 
     #[cfg(target_arch = "x86_64")]
     #[test]
-    fn test_set_get_standardregisters() {
+    fn test_set_get_standard_registers() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
@@ -1353,7 +1353,7 @@ mod tests {
 
     #[cfg(target_arch = "x86_64")]
     #[test]
-    fn test_set_get_debug_gisters() {
+    fn test_set_get_debug_registers() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
