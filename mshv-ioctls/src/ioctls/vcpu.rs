@@ -259,20 +259,26 @@ impl VcpuFd {
         for i in 0..29 as usize {
             reg_assocs.push(hv_register_assoc {
                 name: hv_register_name_HV_ARM64_REGISTER_X0 + i as u32,
-                value: hv_register_value { reg64: regs.gpr[i] },
+                value: hv_register_value {
+                    reg64: regs.regs[i],
+                },
                 ..Default::default()
             });
         }
 
         reg_assocs.push(hv_register_assoc {
             name: hv_register_name_HV_ARM64_REGISTER_FP,
-            value: hv_register_value { reg64: regs.fp },
+            value: hv_register_value {
+                reg64: regs.regs[29],
+            },
             ..Default::default()
         });
 
         reg_assocs.push(hv_register_assoc {
             name: hv_register_name_HV_ARM64_REGISTER_LR,
-            value: hv_register_value { reg64: regs.lr },
+            value: hv_register_value {
+                reg64: regs.regs[30],
+            },
             ..Default::default()
         });
 
@@ -430,12 +436,10 @@ impl VcpuFd {
         let mut ret_regs = StandardRegisters::default();
         // SAFETY: access union fields
         unsafe {
-            for i in 0..29 as usize {
-                ret_regs.gpr[i] = reg_assocs[i].value.reg64;
+            for i in 0..31 as usize {
+                ret_regs.regs[i] = reg_assocs[i].value.reg64;
             }
 
-            ret_regs.fp = reg_assocs[29].value.reg64;
-            ret_regs.lr = reg_assocs[30].value.reg64;
             ret_regs.sp = reg_assocs[31].value.reg64;
             ret_regs.pc = reg_assocs[32].value.reg64;
             ret_regs.pstate = reg_assocs[33].value.reg64;
