@@ -1,6 +1,3 @@
 [workspace]
-members = [
-    "mshv-bindings",
-    "mshv-ioctls",
-]
+members = ["mshv-bindings", "mshv-ioctls"]
 resolver = "2"
