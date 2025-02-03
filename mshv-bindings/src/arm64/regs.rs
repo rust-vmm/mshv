@@ -32,3 +32,7 @@ pub struct StandardRegisters {
 pub struct MshvRegList {
     pub reg_list: Vec<hv_register_name>,
 }
+
+#[derive(Debug, Default, Copy, Clone, PartialEq, Eq, IntoBytes, FromBytes)]
+#[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
+pub struct MshvVcpuInit;
