@@ -1396,6 +1396,49 @@ impl VcpuFd {
             Err(MshvError::from_hvcall(errno::Error::last(), *args))
         }
     }
+
+    /// Get the list of system/synthetic registers supported by MSHV.
+    #[cfg(target_arch = "aarch64")]
+    pub fn get_reg_list(&self) -> Result<MshvRegList> {
+        let mut reg_list = MshvRegList::default();
+        reg_list.reg_list = vec![
+            hv_register_name_HV_ARM64_REGISTER_CNTVCT_EL0,
+            hv_register_name_HV_ARM64_REGISTER_PAR_EL1,
+            hv_register_name_HV_ARM64_REGISTER_SPSR_EL1,
+            hv_register_name_HV_ARM64_REGISTER_MPIDR_EL1,
+            hv_register_name_HV_ARM64_REGISTER_MIDR_EL1,
+            hv_register_name_HV_ARM64_REGISTER_SCTLR_EL1,
+            hv_register_name_HV_ARM64_REGISTER_ACTLR_EL1,
+            hv_register_name_HV_ARM64_REGISTER_TCR_EL1,
+            hv_register_name_HV_ARM64_REGISTER_MAIR_EL1,
+            hv_register_name_HV_ARM64_REGISTER_TPIDR_EL1,
+            hv_register_name_HV_ARM64_REGISTER_AMAIR_EL1,
+            hv_register_name_HV_ARM64_REGISTER_TPIDRRO_EL0,
+            hv_register_name_HV_ARM64_REGISTER_TPIDR_EL0,
+            hv_register_name_HV_ARM64_REGISTER_CONTEXTIDR_EL1,
+            hv_register_name_HV_ARM64_REGISTER_CPACR_EL1,
+            hv_register_name_HV_ARM64_REGISTER_CSSELR_EL1,
+            hv_register_name_HV_ARM64_REGISTER_CNTKCTL_EL1,
+            hv_register_name_HV_ARM64_REGISTER_CNTV_CTL_EL0,
+            hv_register_name_HV_ARM64_REGISTER_CNTV_CVAL_EL0,
+            hv_register_name_HV_ARM64_REGISTER_TTBR0_EL1,
+            hv_register_name_HV_ARM64_REGISTER_TTBR1_EL1,
+            hv_register_name_HV_ARM64_REGISTER_VBAR_EL1,
+            hv_register_name_HV_ARM64_REGISTER_ESR_EL1,
+            hv_register_name_HV_ARM64_REGISTER_FAR_EL1,
+            hv_register_name_HV_ARM64_REGISTER_PAR_EL1,
+            hv_register_name_HV_ARM64_REGISTER_SP_EL0,
+            hv_register_name_HV_ARM64_REGISTER_SP_EL1,
+            hv_register_name_HV_ARM64_REGISTER_AFSR0_EL1,
+            hv_register_name_HV_ARM64_REGISTER_AFSR1_EL1,
+            hv_register_name_HV_ARM64_REGISTER_SYNTHETIC_VBAR_EL1,
+            hv_register_name_HV_REGISTER_PENDING_EVENT0,
+            hv_register_name_HV_REGISTER_PENDING_EVENT1,
+            hv_register_name_HV_REGISTER_DELIVERABILITY_NOTIFICATIONS,
+            hv_register_name_HV_REGISTER_INTERNAL_ACTIVITY_STATE,
+        ];
+        Ok(reg_list)
+    }
 }
 
 #[allow(dead_code)]
