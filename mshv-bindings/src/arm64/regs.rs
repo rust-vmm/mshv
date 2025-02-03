@@ -7,6 +7,8 @@
 use serde_derive::{Deserialize, Serialize};
 use zerocopy::{FromBytes, IntoBytes};
 
+use super::hv_register_name;
+
 /*
 * Note: Only add fields to the end of this struct otherwise it will
 * break the get/set_reg function in the Vcpu trait.
@@ -23,4 +25,10 @@ pub struct StandardRegisters {
     pub elr_el1: u64,         // Exception Link register for EL1
     pub fpsr: u64,            // Floating point status register
     pub fpcr: u64,            // Floating point control register
+}
+
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
+pub struct MshvRegList {
+    pub reg_list: Vec<hv_register_name>,
 }
