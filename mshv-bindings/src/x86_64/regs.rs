@@ -271,6 +271,14 @@ pub const IA32_MSR_SPEC_CTRL: u32 = 0x00000048;
 pub const IA32_MSR_TSC_ADJUST: u32 = 0x0000003b;
 
 pub const IA32_MSR_MISC_ENABLE: u32 = 0x000001a0;
+pub const MSR_IA32_SSP: u32 = 0x000007a0;
+pub const MSR_IA32_U_CET: u32 = 0x000006a0; /* user mode cet */
+pub const MSR_IA32_S_CET: u32 = 0x000006a2; /* kernel mode cet */
+pub const MSR_IA32_PL0_SSP: u32 = 0x000006a4; /* ring-0 shadow stack pointer */
+pub const MSR_IA32_PL1_SSP: u32 = 0x000006a5; /* ring-1 shadow stack pointer */
+pub const MSR_IA32_PL2_SSP: u32 = 0x000006a6; /* ring-2 shadow stack pointer */
+pub const MSR_IA32_PL3_SSP: u32 = 0x000006a7; /* ring-3 shadow stack pointer */
+pub const MSR_IA32_INTERRUPT_SSP_TABLE_ADDR: u32 = 0x000006A8;
 
 pub fn msr_to_hv_reg_name(msr: u32) -> Result<::std::os::raw::c_uint, &'static str> {
     match msr {
@@ -347,6 +355,15 @@ pub fn msr_to_hv_reg_name(msr: u32) -> Result<::std::os::raw::c_uint, &'static s
         HV_X64_MSR_SIMP => Ok(hv_register_name_HV_REGISTER_SIMP),
         HV_X64_MSR_REFERENCE_TSC => Ok(hv_register_name_HV_REGISTER_REFERENCE_TSC),
         HV_X64_MSR_EOM => Ok(hv_register_name_HV_REGISTER_EOM),
+        MSR_IA32_U_CET => Ok(hv_register_name_HV_X64_REGISTER_U_CET),
+        MSR_IA32_S_CET => Ok(hv_register_name_HV_X64_REGISTER_S_CET),
+        MSR_IA32_SSP => Ok(hv_register_name_HV_X64_REGISTER_SSP),
+        MSR_IA32_PL0_SSP => Ok(hv_register_name_HV_X64_REGISTER_PL0_SSP),
+        MSR_IA32_PL1_SSP => Ok(hv_register_name_HV_X64_REGISTER_PL1_SSP),
+        MSR_IA32_PL2_SSP => Ok(hv_register_name_HV_X64_REGISTER_PL2_SSP),
+        MSR_IA32_PL3_SSP => Ok(hv_register_name_HV_X64_REGISTER_PL3_SSP),
+        MSR_IA32_INTERRUPT_SSP_TABLE_ADDR => Ok(hv_register_name_HV_X64_REGISTER_INTERRUPT_SSP_TABLE_ADDR),
+
         _ => Err("Not a supported hv_register_name msr"),
     }
 }

@@ -143,6 +143,21 @@ impl Mshv {
 
     #[cfg(target_arch = "x86_64")]
     /// X86 specific call to get list of supported MSRS
+    pub fn get_cet_msr_index_list(&self) -> Result<MsrList> {
+        Ok(MsrList::from_entries(&[
+            MSR_IA32_U_CET,
+            MSR_IA32_S_CET,
+            MSR_IA32_SSP,
+            MSR_IA32_PL0_SSP,
+            MSR_IA32_PL1_SSP,
+            MSR_IA32_PL2_SSP,
+            MSR_IA32_PL3_SSP,
+            MSR_IA32_INTERRUPT_SSP_TABLE_ADDR,
+        ])
+        .unwrap())
+    }
+    #[cfg(target_arch = "x86_64")]
+    /// X86 specific call to get list of supported MSRS
     pub fn get_msr_index_list(&self) -> Result<MsrList> {
         /* return all the MSRs we currently support */
         Ok(MsrList::from_entries(&[
@@ -224,6 +239,14 @@ impl Mshv {
             HV_X64_MSR_SIMP,
             HV_X64_MSR_REFERENCE_TSC,
             HV_X64_MSR_EOM,
+            MSR_IA32_U_CET,
+            MSR_IA32_S_CET,
+            MSR_IA32_SSP,
+            MSR_IA32_PL0_SSP,
+            MSR_IA32_PL1_SSP,
+            MSR_IA32_PL2_SSP,
+            MSR_IA32_PL3_SSP,
+            MSR_IA32_INTERRUPT_SSP_TABLE_ADDR,
         ])
         .unwrap())
     }
@@ -266,7 +289,7 @@ mod tests {
     fn test_get_msr_index_list() {
         let hv = Mshv::new().unwrap();
         let msr_list = hv.get_msr_index_list().unwrap();
-        assert!(msr_list.as_fam_struct_ref().nmsrs == 64);
+        assert!(msr_list.as_fam_struct_ref().nmsrs == 72);
 
         let mut found = false;
         for index in msr_list.as_slice() {
@@ -282,6 +305,36 @@ mod tests {
         let vcpu = vm.create_vcpu(0).unwrap();
         let mut num_errors = 0;
         for idx in hv.get_msr_index_list().unwrap().as_slice().iter() {
+            let mut get_set_msrs = Msrs::from_entries(&[msr_entry {
+                index: *idx,
+                ..Default::default()
+            }])
+            .unwrap();
+            vcpu.get_msrs(&mut get_set_msrs).unwrap_or_else(|_| {
+                println!("Error getting MSR: 0x{:x}", *idx);
+                num_errors += 1;
+                0
+            });
+            vcpu.set_msrs(&get_set_msrs).unwrap_or_else(|_| {
+                println!("Error setting MSR: 0x{:x}", *idx);
+                num_errors += 1;
+                0
+            });
+        }
+        assert!(num_errors == 0);
+    }
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    fn test_get_cet_msr_index_list() {
+        let hv = Mshv::new().unwrap();
+        let msr_list = hv.get_cet_msr_index_list().unwrap();
+        assert!(msr_list.as_fam_struct_ref().nmsrs == 8);
+
+        /* Test all MSRs in the list individually and determine which can be get/set */
+        let vm = hv.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        let mut num_errors = 0;
+        for idx in hv.get_cet_msr_index_list().unwrap().as_slice().iter() {
             let mut get_set_msrs = Msrs::from_entries(&[msr_entry {
                 index: *idx,
                 ..Default::default()
