@@ -3501,6 +3501,14 @@ pub const hv_register_name_HV_X64_REGISTER_SGX_LAUNCH_CONTROL3: hv_register_name
 pub const hv_register_name_HV_X64_REGISTER_SPEC_CTRL: hv_register_name = 524420;
 pub const hv_register_name_HV_X64_REGISTER_PRED_CMD: hv_register_name = 524421;
 pub const hv_register_name_HV_X64_REGISTER_VIRT_SPEC_CTRL: hv_register_name = 524422;
+pub const hv_register_name_HV_X64_REGISTER_U_CET: hv_register_name = 524428;
+pub const hv_register_name_HV_X64_REGISTER_S_CET: hv_register_name = 524429;
+pub const hv_register_name_HV_X64_REGISTER_SSP: hv_register_name = 524430;
+pub const hv_register_name_HV_X64_REGISTER_PL0_SSP: hv_register_name = 524431;
+pub const hv_register_name_HV_X64_REGISTER_PL1_SSP: hv_register_name = 524432;
+pub const hv_register_name_HV_X64_REGISTER_PL2_SSP: hv_register_name = 524433;
+pub const hv_register_name_HV_X64_REGISTER_PL3_SSP: hv_register_name = 524434;
+pub const hv_register_name_HV_X64_REGISTER_INTERRUPT_SSP_TABLE_ADDR: hv_register_name = 524435;
 pub const hv_register_name_HV_X64_REGISTER_TSC_ADJUST: hv_register_name = 524438;
 pub const hv_register_name_HV_X64_REGISTER_MSR_IA32_MISC_ENABLE: hv_register_name = 524448;
 pub const hv_register_name_HV_X64_REGISTER_IA32_FEATURE_CONTROL: hv_register_name = 524449;
