@@ -90,6 +90,17 @@ fn update_interrupt_bitmap(ret_regs: &mut SpecialRegisters, pending_reg: u64) {
     }
 }
 
+#[cfg(not(target_arch = "aarch64"))]
+static NON_VP_PAGE_SP_REGS: &[::std::os::raw::c_uint; 7] = &[
+    hv_register_name_HV_X64_REGISTER_TR,
+    hv_register_name_HV_X64_REGISTER_LDTR,
+    hv_register_name_HV_X64_REGISTER_GDTR,
+    hv_register_name_HV_X64_REGISTER_IDTR,
+    hv_register_name_HV_X64_REGISTER_CR2,
+    hv_register_name_HV_X64_REGISTER_APIC_BASE,
+    hv_register_name_HV_REGISTER_PENDING_INTERRUPTION,
+];
+
 impl VcpuFd {
     /// Get the reference of VP register page
     pub fn get_vp_reg_page(&self) -> Option<&RegisterPage> {
@@ -566,6 +577,49 @@ impl VcpuFd {
         Ok(ret_regs)
     }
 
+    /// Returns the vCPU special registers using VP register page
+    #[cfg(not(target_arch = "aarch64"))]
+    fn get_special_regs_vp_page(&self) -> Result<SpecialRegisters> {
+        let vp_reg_page = match self.get_vp_reg_page() {
+            Some(page) => page.0,
+            None => return Err(libc::EINVAL.into()),
+        };
+        let mut ret_regs = SpecialRegisters::default();
+        // SAFETY: access union fields
+        unsafe {
+            ret_regs.cr0 = (*vp_reg_page).cr0;
+            ret_regs.cr3 = (*vp_reg_page).cr3;
+            ret_regs.cr4 = (*vp_reg_page).cr4;
+            ret_regs.cr8 = (*vp_reg_page).cr8;
+            ret_regs.cs = (*vp_reg_page).__bindgen_anon_3.__bindgen_anon_1.cs.into();
+            ret_regs.ds = (*vp_reg_page).__bindgen_anon_3.__bindgen_anon_1.ds.into();
+            ret_regs.es = (*vp_reg_page).__bindgen_anon_3.__bindgen_anon_1.es.into();
+            ret_regs.fs = (*vp_reg_page).__bindgen_anon_3.__bindgen_anon_1.fs.into();
+            ret_regs.gs = (*vp_reg_page).__bindgen_anon_3.__bindgen_anon_1.gs.into();
+            ret_regs.ss = (*vp_reg_page).__bindgen_anon_3.__bindgen_anon_1.ss.into();
+            ret_regs.efer = (*vp_reg_page).efer;
+        }
+
+        let mut reg_assocs: [hv_register_assoc; 7] = [hv_register_assoc::default(); 7];
+        for (it, elem) in reg_assocs.iter_mut().zip(NON_VP_PAGE_SP_REGS) {
+            it.name = *elem;
+        }
+        self.get_reg(&mut reg_assocs)?;
+        // SAFETY: access union fields
+        unsafe {
+            ret_regs.tr = SegmentRegister::from(reg_assocs[0].value.segment);
+            ret_regs.ldt = SegmentRegister::from(reg_assocs[1].value.segment);
+            ret_regs.gdt = TableRegister::from(reg_assocs[2].value.table);
+            ret_regs.idt = TableRegister::from(reg_assocs[3].value.table);
+            ret_regs.cr2 = reg_assocs[4].value.reg64;
+            ret_regs.apic_base = reg_assocs[5].value.reg64;
+            update_interrupt_bitmap(
+                &mut ret_regs,
+                reg_assocs[6].value.pending_interruption.as_uint64,
+            );
+        }
+        Ok(ret_regs)
+    }
     /// Returns the vCPU special registers.
     #[cfg(not(target_arch = "aarch64"))]
     pub fn get_sregs(&self) -> Result<SpecialRegisters> {
