@@ -1271,9 +1271,9 @@ impl VcpuFd {
         Ok(ret_regs)
     }
 
-    /// X86 specific call that returns the vcpu's current "xcrs".
+    /// X86 specific call that returns the vcpu's current "xcrs" using IOCTL
     #[cfg(not(target_arch = "aarch64"))]
-    pub fn get_xcrs(&self) -> Result<Xcrs> {
+    fn get_xcrs_ioctl(&self) -> Result<Xcrs> {
         let mut reg_assocs: [hv_register_assoc; 1] = [hv_register_assoc {
             name: hv_register_name_HV_X64_REGISTER_XFEM,
             ..Default::default()
@@ -1289,6 +1289,17 @@ impl VcpuFd {
 
         Ok(ret_regs)
     }
+
+    /// X86 specific call that returns the vcpu's current "xcrs".
+    #[cfg(not(target_arch = "aarch64"))]
+    pub fn get_xcrs(&self) -> Result<Xcrs> {
+        if self.vp_page.is_some() {
+            self.get_xcrs_vp_page()
+        } else {
+            self.get_xcrs_ioctl()
+        }
+    }
+
     /// X86 specific call to set XCRs
     #[cfg(not(target_arch = "aarch64"))]
     pub fn set_xcrs(&self, xcrs: &Xcrs) -> Result<()> {
