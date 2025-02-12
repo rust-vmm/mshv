@@ -634,9 +634,10 @@ impl VcpuFd {
         }
         Ok(ret_regs)
     }
-    /// Returns the vCPU special registers.
+
+    /// Returns the vCPU special registers using IOCTL
     #[cfg(not(target_arch = "aarch64"))]
-    pub fn get_sregs(&self) -> Result<SpecialRegisters> {
+    fn get_special_regs_ioctl(&self) -> Result<SpecialRegisters> {
         let mut reg_names: [::std::os::raw::c_uint; 18] = [0u32; 18];
         reg_names[..11].copy_from_slice(VP_PAGE_SP_REGS);
         reg_names[11..].copy_from_slice(NON_VP_PAGE_SP_REGS);
@@ -644,6 +645,7 @@ impl VcpuFd {
         for (it, elem) in reg_assocs.iter_mut().zip(reg_names) {
             it.name = elem;
         }
+
         self.get_reg(&mut reg_assocs)?;
         let mut ret_regs = SpecialRegisters::default();
         /*
@@ -694,6 +696,16 @@ impl VcpuFd {
         };
 
         Ok(ret_regs)
+    }
+
+    /// Returns the vCPU special registers.
+    #[cfg(not(target_arch = "aarch64"))]
+    pub fn get_sregs(&self) -> Result<SpecialRegisters> {
+        if self.vp_page.is_some() {
+            self.get_special_regs_vp_page()
+        } else {
+            self.get_special_regs_ioctl()
+        }
     }
 
     /// Sets the vCPU special registers
