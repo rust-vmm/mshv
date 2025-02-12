@@ -1255,6 +1255,22 @@ impl VcpuFd {
         self.set_reg(&reg_assocs)?;
         Ok(())
     }
+
+    /// X86 specific call that returns the vcpu's current "xcrs" using VP register page
+    /// This is a private API for internal use, not publicly available
+    #[cfg(not(target_arch = "aarch64"))]
+    fn get_xcrs_vp_page(&self) -> Result<Xcrs> {
+        let vp_reg_page = self.get_vp_reg_page().unwrap().0;
+        // SAFETY: access union fields
+        let ret_regs = unsafe {
+            Xcrs {
+                xcr0: (*vp_reg_page).xfem,
+            }
+        };
+
+        Ok(ret_regs)
+    }
+
     /// X86 specific call that returns the vcpu's current "xcrs".
     #[cfg(not(target_arch = "aarch64"))]
     pub fn get_xcrs(&self) -> Result<Xcrs> {
