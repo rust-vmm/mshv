@@ -68,6 +68,28 @@ impl AsRawFd for VcpuFd {
     }
 }
 
+// Helper function to update interrupt bitmap in the SpecialRegisters struct
+// This function is used by the two functions
+// that get special registers.
+#[cfg(not(target_arch = "aarch64"))]
+fn update_interrupt_bitmap(ret_regs: &mut SpecialRegisters, pending_reg: u64) {
+    if (pending_reg & 0x1) == 1 && // interruption pending
+    (pending_reg >> 1).trailing_zeros() >= 3
+    {
+        // interrupt type external
+        let interrupt_nr = pending_reg >> 16;
+        if interrupt_nr > 255 {
+            panic!("Invalid interrupt vector number > 255");
+        }
+        // we have a bit array of 4 u64s, so we can split it to get the array index and the
+        // bit index
+        let bit_offset = pending_reg & 0x3F; // 6 bits = 0-63
+        let index = pending_reg >> 6;
+        // shift from the left
+        ret_regs.interrupt_bitmap[index as usize] = 1 << (63 - bit_offset);
+    }
+}
+
 impl VcpuFd {
     /// Get the reference of VP register page
     pub fn get_vp_reg_page(&self) -> Option<&RegisterPage> {
@@ -595,22 +617,10 @@ impl VcpuFd {
             ret_regs.cr8 = reg_assocs[14].value.reg64;
             ret_regs.efer = reg_assocs[15].value.reg64;
             ret_regs.apic_base = reg_assocs[16].value.reg64;
-            let pending_reg = reg_assocs[17].value.pending_interruption.as_uint64;
-            if (pending_reg & 0x1) == 1 && // interruption pending
-            (pending_reg >> 1).trailing_zeros() >= 3
-            {
-                // interrupt type external
-                let interrupt_nr = pending_reg >> 16;
-                if interrupt_nr > 255 {
-                    panic!("Invalid interrupt vector number > 255");
-                }
-                // we have a bit array of 4 u64s, so we can split it to get the array index and the
-                // bit index
-                let bit_offset = pending_reg & 0x3F; // 6 bits = 0-63
-                let index = pending_reg >> 6;
-                ret_regs.interrupt_bitmap[index as usize] = 1 << (63 - bit_offset);
-                // shift from the left
-            }
+            update_interrupt_bitmap(
+                &mut ret_regs,
+                reg_assocs[17].value.pending_interruption.as_uint64,
+            );
         };
 
         Ok(ret_regs)
