@@ -708,6 +708,99 @@ impl VcpuFd {
         }
     }
 
+    /// Sets the vCPU special registers using VP register page
+    #[cfg(not(target_arch = "aarch64"))]
+    fn set_special_regs_vp_page(&self, sregs: &SpecialRegisters) -> Result<()> {
+        let vp_reg_page = self.get_vp_reg_page().unwrap().0;
+        unsafe {
+            (*vp_reg_page).__bindgen_anon_3.__bindgen_anon_1.cs = sregs.cs.into();
+            (*vp_reg_page).__bindgen_anon_3.__bindgen_anon_1.ds = sregs.ds.into();
+            (*vp_reg_page).__bindgen_anon_3.__bindgen_anon_1.es = sregs.es.into();
+            (*vp_reg_page).__bindgen_anon_3.__bindgen_anon_1.fs = sregs.fs.into();
+            (*vp_reg_page).__bindgen_anon_3.__bindgen_anon_1.gs = sregs.gs.into();
+            (*vp_reg_page).__bindgen_anon_3.__bindgen_anon_1.ss = sregs.ss.into();
+            // Update dirty bits
+            (*vp_reg_page).dirty |= 1 << HV_X64_REGISTER_CLASS_SEGMENT;
+        }
+        let reg_assocs = [
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_TR,
+                value: hv_register_value {
+                    segment: sregs.tr.into(),
+                },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_LDTR,
+                value: hv_register_value {
+                    segment: sregs.ldt.into(),
+                },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_GDTR,
+                value: hv_register_value {
+                    table: sregs.gdt.into(),
+                },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_IDTR,
+                value: hv_register_value {
+                    table: sregs.idt.into(),
+                },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_CR0,
+                value: hv_register_value { reg64: sregs.cr0 },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_CR2,
+                value: hv_register_value { reg64: sregs.cr2 },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_CR3,
+                value: hv_register_value { reg64: sregs.cr3 },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_CR4,
+                value: hv_register_value { reg64: sregs.cr4 },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_CR8,
+                value: hv_register_value { reg64: sregs.cr8 },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_EFER,
+                value: hv_register_value { reg64: sregs.efer },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_APIC_BASE,
+                value: hv_register_value {
+                    reg64: sregs.apic_base,
+                },
+                ..Default::default()
+            },
+        ];
+
+        // TODO support asserting an interrupt using interrupt_bitmap
+        // we can't do this without the vm fd which isn't available here
+        for bits in &sregs.interrupt_bitmap {
+            if *bits != 0 {
+                return Err(libc::EINVAL.into());
+            }
+        }
+        self.set_reg(&reg_assocs)?;
+        Ok(())
+    }
+
     /// Sets the vCPU special registers
     #[cfg(not(target_arch = "aarch64"))]
     pub fn set_sregs(&self, sregs: &SpecialRegisters) -> Result<()> {
