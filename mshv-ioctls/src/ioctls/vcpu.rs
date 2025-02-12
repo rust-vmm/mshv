@@ -801,9 +801,9 @@ impl VcpuFd {
         Ok(())
     }
 
-    /// Sets the vCPU special registers
+    /// Sets the vCPU special registers using IOCTL
     #[cfg(not(target_arch = "aarch64"))]
-    pub fn set_sregs(&self, sregs: &SpecialRegisters) -> Result<()> {
+    fn set_special_regs_ioctl(&self, sregs: &SpecialRegisters) -> Result<()> {
         let reg_names: [hv_register_name; 17] = [
             hv_register_name_HV_X64_REGISTER_CS,
             hv_register_name_HV_X64_REGISTER_DS,
@@ -884,6 +884,16 @@ impl VcpuFd {
             .collect();
         self.set_reg(&reg_assocs)?;
         Ok(())
+    }
+
+    /// Public API to set the vCPU special registers
+    #[cfg(not(target_arch = "aarch64"))]
+    pub fn set_sregs(&self, sregs: &SpecialRegisters) -> Result<()> {
+        if self.vp_page.is_some() {
+            self.set_special_regs_vp_page(sregs)
+        } else {
+            self.set_special_regs_ioctl(sregs)
+        }
     }
 
     #[cfg(not(target_arch = "aarch64"))]
