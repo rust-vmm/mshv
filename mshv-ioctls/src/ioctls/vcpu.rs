@@ -101,6 +101,21 @@ static NON_VP_PAGE_SP_REGS: &[::std::os::raw::c_uint; 7] = &[
     hv_register_name_HV_REGISTER_PENDING_INTERRUPTION,
 ];
 
+#[cfg(not(target_arch = "aarch64"))]
+static VP_PAGE_SP_REGS: &[::std::os::raw::c_uint; 11] = &[
+    hv_register_name_HV_X64_REGISTER_CS,
+    hv_register_name_HV_X64_REGISTER_DS,
+    hv_register_name_HV_X64_REGISTER_ES,
+    hv_register_name_HV_X64_REGISTER_FS,
+    hv_register_name_HV_X64_REGISTER_GS,
+    hv_register_name_HV_X64_REGISTER_SS,
+    hv_register_name_HV_X64_REGISTER_CR0,
+    hv_register_name_HV_X64_REGISTER_CR3,
+    hv_register_name_HV_X64_REGISTER_CR4,
+    hv_register_name_HV_X64_REGISTER_CR8,
+    hv_register_name_HV_X64_REGISTER_EFER,
+];
+
 impl VcpuFd {
     /// Get the reference of VP register page
     pub fn get_vp_reg_page(&self) -> Option<&RegisterPage> {
@@ -622,35 +637,37 @@ impl VcpuFd {
     /// Returns the vCPU special registers.
     #[cfg(not(target_arch = "aarch64"))]
     pub fn get_sregs(&self) -> Result<SpecialRegisters> {
-        let reg_names: [::std::os::raw::c_uint; 18] = [
-            hv_register_name_HV_X64_REGISTER_CS,
-            hv_register_name_HV_X64_REGISTER_DS,
-            hv_register_name_HV_X64_REGISTER_ES,
-            hv_register_name_HV_X64_REGISTER_FS,
-            hv_register_name_HV_X64_REGISTER_GS,
-            hv_register_name_HV_X64_REGISTER_SS,
-            hv_register_name_HV_X64_REGISTER_TR,
-            hv_register_name_HV_X64_REGISTER_LDTR,
-            hv_register_name_HV_X64_REGISTER_GDTR,
-            hv_register_name_HV_X64_REGISTER_IDTR,
-            hv_register_name_HV_X64_REGISTER_CR0,
-            hv_register_name_HV_X64_REGISTER_CR2,
-            hv_register_name_HV_X64_REGISTER_CR3,
-            hv_register_name_HV_X64_REGISTER_CR4,
-            hv_register_name_HV_X64_REGISTER_CR8,
-            hv_register_name_HV_X64_REGISTER_EFER,
-            hv_register_name_HV_X64_REGISTER_APIC_BASE,
-            hv_register_name_HV_REGISTER_PENDING_INTERRUPTION,
-        ];
-        let mut reg_assocs: Vec<hv_register_assoc> = reg_names
-            .iter()
-            .map(|name| hv_register_assoc {
-                name: *name,
-                ..Default::default()
-            })
-            .collect();
+        let mut reg_names: [::std::os::raw::c_uint; 18] = [0u32; 18];
+        reg_names[..11].copy_from_slice(VP_PAGE_SP_REGS);
+        reg_names[11..].copy_from_slice(NON_VP_PAGE_SP_REGS);
+        let mut reg_assocs: [hv_register_assoc; 18] = [hv_register_assoc::default(); 18];
+        for (it, elem) in reg_assocs.iter_mut().zip(reg_names) {
+            it.name = elem;
+        }
         self.get_reg(&mut reg_assocs)?;
         let mut ret_regs = SpecialRegisters::default();
+        /*
+            ** Sequence of the register names;
+
+            0: hv_register_name_HV_X64_REGISTER_CS,
+            1: hv_register_name_HV_X64_REGISTER_DS,
+            2: hv_register_name_HV_X64_REGISTER_ES,
+            3: hv_register_name_HV_X64_REGISTER_FS,
+            4: hv_register_name_HV_X64_REGISTER_GS,
+            5: hv_register_name_HV_X64_REGISTER_SS,
+            6: hv_register_name_HV_X64_REGISTER_CR0,
+            7: hv_register_name_HV_X64_REGISTER_CR3,
+            8: hv_register_name_HV_X64_REGISTER_CR4,
+            9: hv_register_name_HV_X64_REGISTER_CR8,
+            10: hv_register_name_HV_X64_REGISTER_EFER,
+            11: hv_register_name_HV_X64_REGISTER_TR,
+            12: hv_register_name_HV_X64_REGISTER_LDTR,
+            13: hv_register_name_HV_X64_REGISTER_GDTR,
+            14: hv_register_name_HV_X64_REGISTER_IDTR,
+            15: hv_register_name_HV_X64_REGISTER_CR2,
+            16: hv_register_name_HV_X64_REGISTER_APIC_BASE,
+            17: hv_register_name_HV_REGISTER_PENDING_INTERRUPTION,
+        */
         // SAFETY: access union fields
         unsafe {
             ret_regs.cs = SegmentRegister::from(reg_assocs[0].value.segment);
@@ -659,16 +676,16 @@ impl VcpuFd {
             ret_regs.fs = SegmentRegister::from(reg_assocs[3].value.segment);
             ret_regs.gs = SegmentRegister::from(reg_assocs[4].value.segment);
             ret_regs.ss = SegmentRegister::from(reg_assocs[5].value.segment);
-            ret_regs.tr = SegmentRegister::from(reg_assocs[6].value.segment);
-            ret_regs.ldt = SegmentRegister::from(reg_assocs[7].value.segment);
-            ret_regs.gdt = TableRegister::from(reg_assocs[8].value.table);
-            ret_regs.idt = TableRegister::from(reg_assocs[9].value.table);
-            ret_regs.cr0 = reg_assocs[10].value.reg64;
-            ret_regs.cr2 = reg_assocs[11].value.reg64;
-            ret_regs.cr3 = reg_assocs[12].value.reg64;
-            ret_regs.cr4 = reg_assocs[13].value.reg64;
-            ret_regs.cr8 = reg_assocs[14].value.reg64;
-            ret_regs.efer = reg_assocs[15].value.reg64;
+            ret_regs.tr = SegmentRegister::from(reg_assocs[11].value.segment);
+            ret_regs.ldt = SegmentRegister::from(reg_assocs[12].value.segment);
+            ret_regs.gdt = TableRegister::from(reg_assocs[13].value.table);
+            ret_regs.idt = TableRegister::from(reg_assocs[14].value.table);
+            ret_regs.cr0 = reg_assocs[6].value.reg64;
+            ret_regs.cr2 = reg_assocs[15].value.reg64;
+            ret_regs.cr3 = reg_assocs[7].value.reg64;
+            ret_regs.cr4 = reg_assocs[8].value.reg64;
+            ret_regs.cr8 = reg_assocs[9].value.reg64;
+            ret_regs.efer = reg_assocs[10].value.reg64;
             ret_regs.apic_base = reg_assocs[16].value.reg64;
             update_interrupt_bitmap(
                 &mut ret_regs,
