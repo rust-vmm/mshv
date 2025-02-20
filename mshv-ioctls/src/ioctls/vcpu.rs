@@ -448,13 +448,12 @@ impl VcpuFd {
             hv_register_name_HV_X64_REGISTER_RIP,
             hv_register_name_HV_X64_REGISTER_RFLAGS,
         ];
-        let mut reg_assocs: Vec<hv_register_assoc> = reg_names
-            .iter()
-            .map(|name| hv_register_assoc {
-                name: *name,
-                ..Default::default()
-            })
-            .collect();
+
+        let mut reg_assocs: [hv_register_assoc; 18] = [hv_register_assoc::default(); 18];
+        for (it, elem) in reg_assocs.iter_mut().zip(reg_names) {
+            it.name = elem;
+        }
+
         self.get_reg(&mut reg_assocs)?;
         let mut ret_regs = StandardRegisters::default();
         // SAFETY: access union fields
