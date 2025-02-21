@@ -353,4 +353,18 @@ mod tests {
         }
         assert!(num_errors == 0);
     }
+
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    fn test_get_proc_features() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        let prop0 = vm.get_partition_property(hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES0).unwrap();
+        let prop1 = vm.get_partition_property(hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES1).unwrap();
+        let xsave_data_size = vm.get_partition_property(hv_partition_property_code_HV_PARTITION_PROPERTY_MAX_XSAVE_DATA_SIZE).unwrap();
+        println!("Processor features[0]: {:0x}", prop0);
+        println!("Processor features[1]: {:0x}", prop1);
+        println!("xsave data size: {}", xsave_data_size);
+    }
+
 }
