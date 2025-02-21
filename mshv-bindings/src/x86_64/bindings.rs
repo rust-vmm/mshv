@@ -3501,6 +3501,7 @@ pub const hv_register_name_HV_X64_REGISTER_SGX_LAUNCH_CONTROL3: hv_register_name
 pub const hv_register_name_HV_X64_REGISTER_SPEC_CTRL: hv_register_name = 524420;
 pub const hv_register_name_HV_X64_REGISTER_PRED_CMD: hv_register_name = 524421;
 pub const hv_register_name_HV_X64_REGISTER_VIRT_SPEC_CTRL: hv_register_name = 524422;
+pub const hv_register_name_HV_X64_REGISTER_U_XSS: hv_register_name = 524427;
 pub const hv_register_name_HV_X64_REGISTER_U_CET: hv_register_name = 524428;
 pub const hv_register_name_HV_X64_REGISTER_S_CET: hv_register_name = 524429;
 pub const hv_register_name_HV_X64_REGISTER_SSP: hv_register_name = 524430;
