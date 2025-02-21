@@ -279,6 +279,7 @@ pub const MSR_IA32_PL1_SSP: u32 = 0x000006a5; /* ring-1 shadow stack pointer */
 pub const MSR_IA32_PL2_SSP: u32 = 0x000006a6; /* ring-2 shadow stack pointer */
 pub const MSR_IA32_PL3_SSP: u32 = 0x000006a7; /* ring-3 shadow stack pointer */
 pub const MSR_IA32_INTERRUPT_SSP_TABLE_ADDR: u32 = 0x000006A8;
+pub const MSR_IA32_XSS: u32 = 0x00000da0;
 
 pub fn msr_to_hv_reg_name(msr: u32) -> Result<::std::os::raw::c_uint, &'static str> {
     match msr {
@@ -363,6 +364,7 @@ pub fn msr_to_hv_reg_name(msr: u32) -> Result<::std::os::raw::c_uint, &'static s
         MSR_IA32_PL2_SSP => Ok(hv_register_name_HV_X64_REGISTER_PL2_SSP),
         MSR_IA32_PL3_SSP => Ok(hv_register_name_HV_X64_REGISTER_PL3_SSP),
         MSR_IA32_INTERRUPT_SSP_TABLE_ADDR => Ok(hv_register_name_HV_X64_REGISTER_INTERRUPT_SSP_TABLE_ADDR),
+        MSR_IA32_XSS => Ok(hv_register_name_HV_X64_REGISTER_U_XSS),
 
         _ => Err("Not a supported hv_register_name msr"),
     }

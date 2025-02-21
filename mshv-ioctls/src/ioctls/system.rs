@@ -145,6 +145,7 @@ impl Mshv {
     /// X86 specific call to get list of supported MSRS
     pub fn get_cet_msr_index_list(&self) -> Result<MsrList> {
         Ok(MsrList::from_entries(&[
+            MSR_IA32_XSS,
             MSR_IA32_U_CET,
             MSR_IA32_S_CET,
             MSR_IA32_SSP,
@@ -239,6 +240,7 @@ impl Mshv {
             HV_X64_MSR_SIMP,
             HV_X64_MSR_REFERENCE_TSC,
             HV_X64_MSR_EOM,
+            MSR_IA32_XSS,
             MSR_IA32_U_CET,
             MSR_IA32_S_CET,
             MSR_IA32_SSP,
@@ -247,6 +249,7 @@ impl Mshv {
             MSR_IA32_PL2_SSP,
             MSR_IA32_PL3_SSP,
             MSR_IA32_INTERRUPT_SSP_TABLE_ADDR,
+            
         ])
         .unwrap())
     }
@@ -328,7 +331,7 @@ mod tests {
     fn test_get_cet_msr_index_list() {
         let hv = Mshv::new().unwrap();
         let msr_list = hv.get_cet_msr_index_list().unwrap();
-        assert!(msr_list.as_fam_struct_ref().nmsrs == 8);
+        assert!(msr_list.as_fam_struct_ref().nmsrs == 9);
 
         /* Test all MSRs in the list individually and determine which can be get/set */
         let vm = hv.create_vm().unwrap();
