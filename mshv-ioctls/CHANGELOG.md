@@ -9,6 +9,11 @@
 
 ### Fixed
 
+## [v0.3.4]
+
+### Added
+* [[191]](https://github.com/rust-vmm/mshv/pull/191) Use VP register page to get/set Special and extended registers  
+
 ## [v0.3.3]
 
 ### Added
