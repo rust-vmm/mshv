@@ -1221,6 +1221,7 @@ impl VcpuFd {
             };
             self.get_vp_state_ioctl(&mut vp_state)?;
             states.copy_to_or_from_buffer(i as usize, &mut buffer, false);
+            println!("get_all_vp_state_components: index {}, buff size: {}", i, buffer.size());
         }
         Ok(states)
     }
@@ -1239,6 +1240,7 @@ impl VcpuFd {
                 buf_ptr: buffer.buf as u64,
                 ..Default::default()
             };
+            println!("set_all_vp_state_components: index {}, buff size: {}", i, buffer.size());
             self.set_vp_state_ioctl(&vp_state)?;
         }
         Ok(())
