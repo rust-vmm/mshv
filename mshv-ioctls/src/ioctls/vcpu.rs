@@ -122,6 +122,16 @@ impl VcpuFd {
         self.vp_page.as_ref()
     }
 
+    /// Check if the VP register page is valid
+    #[cfg(not(target_arch = "aarch64"))]
+    fn is_valid_vp_reg_page(&self) -> bool {
+        let vp_reg_page = match self.get_vp_reg_page() {
+            Some(page) => page.0,
+            None => return false,
+        };
+        unsafe { (*vp_reg_page).isvalid != 0 }
+    }
+
     /// Get the register values by providing an array of register names
     pub fn get_reg(&self, reg_names: &mut [hv_register_assoc]) -> Result<()> {
         //TODO: Error if input register len is zero
@@ -421,7 +431,7 @@ impl VcpuFd {
     /// Sets the vCPU general purpose registers
     #[cfg(not(target_arch = "aarch64"))]
     pub fn set_regs(&self, regs: &StandardRegisters) -> Result<()> {
-        if self.vp_page.is_some() {
+        if self.is_valid_vp_reg_page() {
             self.set_standard_regs_vp_page(regs)
         } else {
             self.set_standard_regs_ioctl(regs)
@@ -431,7 +441,7 @@ impl VcpuFd {
     /// Returns the vCPU general purpose registers.
     #[cfg(target_arch = "x86_64")]
     pub fn get_regs(&self) -> Result<StandardRegisters> {
-        if self.vp_page.is_some() {
+        if self.is_valid_vp_reg_page() {
             self.get_standard_regs_vp_page()
         } else {
             self.get_standard_regs_ioctl()
@@ -699,7 +709,7 @@ impl VcpuFd {
     /// Returns the vCPU special registers.
     #[cfg(not(target_arch = "aarch64"))]
     pub fn get_sregs(&self) -> Result<SpecialRegisters> {
-        if self.vp_page.is_some() {
+        if self.is_valid_vp_reg_page() {
             self.get_special_regs_vp_page()
         } else {
             self.get_special_regs_ioctl()
@@ -887,7 +897,7 @@ impl VcpuFd {
     /// Public API to set the vCPU special registers
     #[cfg(not(target_arch = "aarch64"))]
     pub fn set_sregs(&self, sregs: &SpecialRegisters) -> Result<()> {
-        if self.vp_page.is_some() {
+        if self.is_valid_vp_reg_page() {
             self.set_special_regs_vp_page(sregs)
         } else {
             self.set_special_regs_ioctl(sregs)
@@ -1291,7 +1301,7 @@ impl VcpuFd {
     /// X86 specific call that returns the vcpu's current "xcrs".
     #[cfg(not(target_arch = "aarch64"))]
     pub fn get_xcrs(&self) -> Result<Xcrs> {
-        if self.vp_page.is_some() {
+        if self.is_valid_vp_reg_page() {
             self.get_xcrs_vp_page()
         } else {
             self.get_xcrs_ioctl()
