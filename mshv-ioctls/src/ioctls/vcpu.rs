@@ -122,6 +122,16 @@ impl VcpuFd {
         self.vp_page.as_ref()
     }
 
+    /// Check if the VP register page is valid
+    #[cfg(not(target_arch = "aarch64"))]
+    fn is_valid_vp_reg_page(&self) -> bool {
+        let vp_reg_page = match self.get_vp_reg_page() {
+            Some(page) => page.0,
+            None => return false,
+        };
+        unsafe { (*vp_reg_page).isvalid != 0 }
+    }
+
     /// Get the register values by providing an array of register names
     pub fn get_reg(&self, reg_names: &mut [hv_register_assoc]) -> Result<()> {
         //TODO: Error if input register len is zero
