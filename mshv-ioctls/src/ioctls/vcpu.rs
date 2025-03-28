@@ -1446,7 +1446,7 @@ impl VcpuFd {
             vp_index: self.index,
             control_flags: flags,
             gva_page: gva >> HV_HYP_PAGE_SHIFT,
-            ..Default::default() // NOTE: kernel will populate partition_id field
+            ..Default::default() // NOTE: Kernel will populate partition_id field
         };
         let mut output = hv_output_translate_virtual_address {
             ..Default::default()
@@ -1543,6 +1543,61 @@ impl VcpuFd {
 
         Ok(())
     }
+
+    #[cfg(target_arch = "x86_64")]
+    /// Register override CPUID values for one leaf.
+    pub fn hvcall_register_intercept_result_cpuid_entry(
+        &self,
+        entry: &hv_cpuid_entry,
+        always_override: Option<u8>,
+        subleaf_specific: Option<u8>,
+    ) -> Result<()> {
+        let mshv_cpuid = hv_register_x64_cpuid_result_parameters {
+            input: hv_register_x64_cpuid_result_parameters__bindgen_ty_1 {
+                eax: entry.function,
+                // Subleaf index, default is 0. Further subleafs can be
+                // overwritten by a repeated call to this function with a desired
+                // index passed. Refer to the Intel Dev Manual for a particular
+                // EAX input for the further details.
+                ecx: entry.index,
+                // Whether the intercept result is to be applied to all
+                // the subleafs (0) or just to the specific subleaf (1).
+                subleaf_specific: subleaf_specific.unwrap_or(0),
+                // Override even if the hypervisor computed value is zero.
+                // If set to 1, the registered result will be still applied.
+                always_override: always_override.unwrap_or(1),
+                // Not relevant, bindgen specific struct padding.
+                padding: 0,
+            },
+            // With regard to masks - these are to specify bits to be overwritten.
+            // The current CpuidEntry structure wouldn't allow to carry the masks
+            // in addition to the actual register values. For this reason, the
+            // masks are set to the exact values of the corresponding register bits
+            // to be registered for an overwrite. To view resulting values the
+            // hypervisor would return, HvCallGetVpCpuidValues hypercall can be used.
+            result: hv_register_x64_cpuid_result_parameters__bindgen_ty_2 {
+                eax: entry.eax,
+                eax_mask: entry.eax,
+                ebx: entry.ebx,
+                ebx_mask: entry.ebx,
+                ecx: entry.ecx,
+                ecx_mask: entry.ecx,
+                edx: entry.edx,
+                edx_mask: entry.edx,
+            },
+        };
+        let input = hv_input_register_intercept_result {
+            vp_index: self.index,
+            intercept_type: hv_intercept_type_HV_INTERCEPT_TYPE_X64_CPUID,
+            parameters: hv_register_intercept_result_parameters { cpuid: mshv_cpuid },
+            ..Default::default() // NOTE: Kernel will populate partition_id field
+        };
+        let mut args = make_args!(HVCALL_REGISTER_INTERCEPT_RESULT, input);
+        self.hvcall(&mut args)?;
+
+        Ok(())
+    }
+
     #[cfg(target_arch = "x86_64")]
     /// Extend CPUID values delivered by hypervisor.
     pub fn register_intercept_result_cpuid(&self, cpuid: &CpuId) -> Result<()> {
@@ -1649,6 +1704,28 @@ impl VcpuFd {
 
         Ok(*input)
     }
+
+    /// Generic hvcall version of gpa_read
+    pub fn hvcall_gpa_read(
+        &self,
+        byte_count: u32,
+        gpa: u64,
+        flags: hv_access_gpa_control_flags,
+    ) -> Result<hv_output_read_gpa> {
+        let input = hv_input_read_gpa {
+            vp_index: self.index,
+            byte_count,
+            base_gpa: gpa,
+            control_flags: flags,
+            ..Default::default() // NOTE: Kernel will populate partition_id field
+        };
+        let mut output = hv_output_read_gpa::default();
+        let mut args = make_args!(HVCALL_READ_GPA, input, output);
+        self.hvcall(&mut args)?;
+
+        Ok(output)
+    }
+
     /// Write GPA
     pub fn gpa_write(&self, input: &mut mshv_read_write_gpa) -> Result<mshv_read_write_gpa> {
         // SAFETY: we know that our file is a vCPU fd, we know the kernel honours its ABI.
@@ -1659,6 +1736,29 @@ impl VcpuFd {
 
         Ok(*input)
     }
+    /// Generic hvcall version of gpa_write
+    pub fn hvcall_gpa_write(
+        &self,
+        byte_count: u32,
+        gpa: u64,
+        flags: hv_access_gpa_control_flags,
+        data: [__u8; 16usize],
+    ) -> Result<hv_output_write_gpa> {
+        let input = hv_input_write_gpa {
+            vp_index: self.index,
+            byte_count,
+            base_gpa: gpa,
+            control_flags: flags,
+            data,
+            ..Default::default() // NOTE: Kernel will populate partition_id field
+        };
+        let mut output = hv_output_write_gpa::default();
+        let mut args = make_args!(HVCALL_WRITE_GPA, input, output);
+        self.hvcall(&mut args)?;
+
+        Ok(output)
+    }
+
     /// Sets the sev control register
     #[cfg(not(target_arch = "aarch64"))]
     pub fn set_sev_control_register(&self, reg: u64) -> Result<()> {
