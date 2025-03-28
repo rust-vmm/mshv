@@ -114,11 +114,11 @@ macro_rules! make_rep_input {
     ($struct_expr:expr, $field_ident:ident, $arr_expr:expr) => {{
         let s = $struct_expr;
         let a = $arr_expr;
-        let el_size = __IncompleteArrayField::entry_size(std::ptr::addr_of!(s.$field_ident));
+        let el_size = __IncompleteArrayField::entry_size(&raw const s.$field_ident);
         let struct_size = std::mem::size_of_val(&s);
         let mut vec = RepInput::input_with_arr_field_as_vec(s, el_size, a.len());
         let ptr =
-            __IncompleteArrayField::as_entry_ptr_mut(std::ptr::addr_of_mut!(vec[0].$field_ident));
+            __IncompleteArrayField::as_entry_ptr_mut(&raw mut vec[0].$field_ident);
         for (i, el) in a.iter().enumerate() {
             // SAFETY: we know the vector is large enough to hold the data
             unsafe {
@@ -145,7 +145,7 @@ macro_rules! make_rep_args {
             out_sz: (std::mem::size_of_val(&$output_slice_ident[0]) * $output_slice_ident.len())
                 as u16,
             in_ptr: $input_ident.as_struct_ptr() as u64,
-            out_ptr: std::ptr::addr_of_mut!($output_slice_ident[0]) as u64,
+            out_ptr: (&raw mut $output_slice_ident[0]) as u64,
             ..Default::default()
         }
     }};
@@ -172,8 +172,8 @@ macro_rules! make_args {
             code: $code_expr as u16,
             in_sz: std::mem::size_of_val(&$input_ident) as u16,
             out_sz: std::mem::size_of_val(&$output_ident) as u16,
-            in_ptr: std::ptr::addr_of!($input_ident) as u64,
-            out_ptr: std::ptr::addr_of!($output_ident) as u64,
+            in_ptr: (&raw const $input_ident) as u64,
+            out_ptr: (&raw mut $output_ident) as u64,
             ..Default::default()
         }
     }};
@@ -181,7 +181,7 @@ macro_rules! make_args {
         mshv_root_hvcall {
             code: $code_expr as u16,
             in_sz: std::mem::size_of_val(&$input_ident) as u16,
-            in_ptr: std::ptr::addr_of!($input_ident) as u64,
+            in_ptr: (&raw const $input_ident) as u64,
             ..Default::default()
         }
     }};
