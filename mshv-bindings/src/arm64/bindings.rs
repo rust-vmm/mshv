@@ -217,8 +217,10 @@ pub const HV_TRANSLATE_GVA_PAN_SET: u32 = 256;
 pub const HV_TRANSLATE_GVA_PAN_CLEAR: u32 = 512;
 pub const HV_PSP_CPUID_LEAF_COUNT_MAX: u32 = 64;
 pub const HV_READ_WRITE_GPA_MAX_SIZE: u32 = 16;
+pub const HV_PARTITION_PROCESSOR_FEATURES_BANKS: u32 = 2;
 pub const MSHV_IOCTL: u32 = 184;
 pub const MSHV_VP_MAX_REGISTERS: u32 = 128;
+pub const MSHV_NUM_CPU_FEATURES_BANKS: u32 = 2;
 pub const MSHV_RUN_VP_BUF_SZ: u32 = 256;
 pub const MSHV_CREATE_DEVICE_TEST: u32 = 1;
 pub const MSHV_DEV_VFIO_FILE: u32 = 1;
@@ -10776,6 +10778,2568 @@ fn bindgen_test_layout_hv_input_issue_psp_guest_request() {
     );
 }
 #[repr(C)]
+#[derive(Copy, Clone)]
+pub union hv_partition_processor_xsave_features {
+    pub __bindgen_anon_1: hv_partition_processor_xsave_features__bindgen_ty_1,
+    pub as_uint64: __u64,
+}
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_partition_processor_xsave_features__bindgen_ty_1 {
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
+}
+#[test]
+fn bindgen_test_layout_hv_partition_processor_xsave_features__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_partition_processor_xsave_features__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_partition_processor_xsave_features__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_partition_processor_xsave_features__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_partition_processor_xsave_features__bindgen_ty_1)
+        )
+    );
+}
+impl hv_partition_processor_xsave_features__bindgen_ty_1 {
+    #[inline]
+    pub fn xsave_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_xsave_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn xsaveopt_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_xsaveopt_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(2usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(2usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx2_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(3usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx2_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(3usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn fma_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(4usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_fma_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(4usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn mpx_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(5usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_mpx_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(5usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx512_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(6usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx512_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(6usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx512_dq_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(7usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx512_dq_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(7usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx512_cd_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(8usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx512_cd_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(8usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx512_bw_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(9usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx512_bw_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(9usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx512_vl_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(10usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx512_vl_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(10usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn xsave_comp_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(11usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_xsave_comp_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(11usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn xsave_supervisor_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(12usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_xsave_supervisor_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(12usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn xcr1_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(13usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_xcr1_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(13usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx512_bitalg_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(14usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx512_bitalg_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(14usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx512_i_fma_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(15usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx512_i_fma_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(15usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx512_v_bmi_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(16usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx512_v_bmi_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(16usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx512_v_bmi2_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(17usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx512_v_bmi2_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(17usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx512_vnni_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(18usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx512_vnni_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(18usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn gfni_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(19usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_gfni_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(19usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn vaes_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(20usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_vaes_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(20usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx512_v_popcntdq_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(21usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx512_v_popcntdq_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(21usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn vpclmulqdq_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(22usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_vpclmulqdq_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(22usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx512_bf16_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(23usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx512_bf16_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(23usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx512_vp2_intersect_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(24usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx512_vp2_intersect_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(24usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx512_fp16_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(25usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx512_fp16_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(25usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn xfd_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(26usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_xfd_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(26usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn amx_tile_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(27usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_amx_tile_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(27usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn amx_bf16_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(28usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_amx_bf16_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(28usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn amx_int8_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(29usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_amx_int8_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(29usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx_vnni_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(30usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx_vnni_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(30usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx_ifma_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(31usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx_ifma_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(31usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx_ne_convert_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(32usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx_ne_convert_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(32usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx_vnni_int8_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(33usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx_vnni_int8_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(33usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx_vnni_int16_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(34usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx_vnni_int16_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(34usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx10_1_256_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(35usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx10_1_256_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(35usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn avx10_1_512_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(36usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx10_1_512_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(36usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn amx_fp16_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(37usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_amx_fp16_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(37usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved1(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(38usize, 26u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved1(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(38usize, 26u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        xsave_support: __u64,
+        xsaveopt_support: __u64,
+        avx_support: __u64,
+        avx2_support: __u64,
+        fma_support: __u64,
+        mpx_support: __u64,
+        avx512_support: __u64,
+        avx512_dq_support: __u64,
+        avx512_cd_support: __u64,
+        avx512_bw_support: __u64,
+        avx512_vl_support: __u64,
+        xsave_comp_support: __u64,
+        xsave_supervisor_support: __u64,
+        xcr1_support: __u64,
+        avx512_bitalg_support: __u64,
+        avx512_i_fma_support: __u64,
+        avx512_v_bmi_support: __u64,
+        avx512_v_bmi2_support: __u64,
+        avx512_vnni_support: __u64,
+        gfni_support: __u64,
+        vaes_support: __u64,
+        avx512_v_popcntdq_support: __u64,
+        vpclmulqdq_support: __u64,
+        avx512_bf16_support: __u64,
+        avx512_vp2_intersect_support: __u64,
+        avx512_fp16_support: __u64,
+        xfd_support: __u64,
+        amx_tile_support: __u64,
+        amx_bf16_support: __u64,
+        amx_int8_support: __u64,
+        avx_vnni_support: __u64,
+        avx_ifma_support: __u64,
+        avx_ne_convert_support: __u64,
+        avx_vnni_int8_support: __u64,
+        avx_vnni_int16_support: __u64,
+        avx10_1_256_support: __u64,
+        avx10_1_512_support: __u64,
+        amx_fp16_support: __u64,
+        reserved1: __u64,
+    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let xsave_support: u64 = unsafe { ::std::mem::transmute(xsave_support) };
+            xsave_support as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 1u8, {
+            let xsaveopt_support: u64 = unsafe { ::std::mem::transmute(xsaveopt_support) };
+            xsaveopt_support as u64
+        });
+        __bindgen_bitfield_unit.set(2usize, 1u8, {
+            let avx_support: u64 = unsafe { ::std::mem::transmute(avx_support) };
+            avx_support as u64
+        });
+        __bindgen_bitfield_unit.set(3usize, 1u8, {
+            let avx2_support: u64 = unsafe { ::std::mem::transmute(avx2_support) };
+            avx2_support as u64
+        });
+        __bindgen_bitfield_unit.set(4usize, 1u8, {
+            let fma_support: u64 = unsafe { ::std::mem::transmute(fma_support) };
+            fma_support as u64
+        });
+        __bindgen_bitfield_unit.set(5usize, 1u8, {
+            let mpx_support: u64 = unsafe { ::std::mem::transmute(mpx_support) };
+            mpx_support as u64
+        });
+        __bindgen_bitfield_unit.set(6usize, 1u8, {
+            let avx512_support: u64 = unsafe { ::std::mem::transmute(avx512_support) };
+            avx512_support as u64
+        });
+        __bindgen_bitfield_unit.set(7usize, 1u8, {
+            let avx512_dq_support: u64 = unsafe { ::std::mem::transmute(avx512_dq_support) };
+            avx512_dq_support as u64
+        });
+        __bindgen_bitfield_unit.set(8usize, 1u8, {
+            let avx512_cd_support: u64 = unsafe { ::std::mem::transmute(avx512_cd_support) };
+            avx512_cd_support as u64
+        });
+        __bindgen_bitfield_unit.set(9usize, 1u8, {
+            let avx512_bw_support: u64 = unsafe { ::std::mem::transmute(avx512_bw_support) };
+            avx512_bw_support as u64
+        });
+        __bindgen_bitfield_unit.set(10usize, 1u8, {
+            let avx512_vl_support: u64 = unsafe { ::std::mem::transmute(avx512_vl_support) };
+            avx512_vl_support as u64
+        });
+        __bindgen_bitfield_unit.set(11usize, 1u8, {
+            let xsave_comp_support: u64 = unsafe { ::std::mem::transmute(xsave_comp_support) };
+            xsave_comp_support as u64
+        });
+        __bindgen_bitfield_unit.set(12usize, 1u8, {
+            let xsave_supervisor_support: u64 =
+                unsafe { ::std::mem::transmute(xsave_supervisor_support) };
+            xsave_supervisor_support as u64
+        });
+        __bindgen_bitfield_unit.set(13usize, 1u8, {
+            let xcr1_support: u64 = unsafe { ::std::mem::transmute(xcr1_support) };
+            xcr1_support as u64
+        });
+        __bindgen_bitfield_unit.set(14usize, 1u8, {
+            let avx512_bitalg_support: u64 =
+                unsafe { ::std::mem::transmute(avx512_bitalg_support) };
+            avx512_bitalg_support as u64
+        });
+        __bindgen_bitfield_unit.set(15usize, 1u8, {
+            let avx512_i_fma_support: u64 = unsafe { ::std::mem::transmute(avx512_i_fma_support) };
+            avx512_i_fma_support as u64
+        });
+        __bindgen_bitfield_unit.set(16usize, 1u8, {
+            let avx512_v_bmi_support: u64 = unsafe { ::std::mem::transmute(avx512_v_bmi_support) };
+            avx512_v_bmi_support as u64
+        });
+        __bindgen_bitfield_unit.set(17usize, 1u8, {
+            let avx512_v_bmi2_support: u64 =
+                unsafe { ::std::mem::transmute(avx512_v_bmi2_support) };
+            avx512_v_bmi2_support as u64
+        });
+        __bindgen_bitfield_unit.set(18usize, 1u8, {
+            let avx512_vnni_support: u64 = unsafe { ::std::mem::transmute(avx512_vnni_support) };
+            avx512_vnni_support as u64
+        });
+        __bindgen_bitfield_unit.set(19usize, 1u8, {
+            let gfni_support: u64 = unsafe { ::std::mem::transmute(gfni_support) };
+            gfni_support as u64
+        });
+        __bindgen_bitfield_unit.set(20usize, 1u8, {
+            let vaes_support: u64 = unsafe { ::std::mem::transmute(vaes_support) };
+            vaes_support as u64
+        });
+        __bindgen_bitfield_unit.set(21usize, 1u8, {
+            let avx512_v_popcntdq_support: u64 =
+                unsafe { ::std::mem::transmute(avx512_v_popcntdq_support) };
+            avx512_v_popcntdq_support as u64
+        });
+        __bindgen_bitfield_unit.set(22usize, 1u8, {
+            let vpclmulqdq_support: u64 = unsafe { ::std::mem::transmute(vpclmulqdq_support) };
+            vpclmulqdq_support as u64
+        });
+        __bindgen_bitfield_unit.set(23usize, 1u8, {
+            let avx512_bf16_support: u64 = unsafe { ::std::mem::transmute(avx512_bf16_support) };
+            avx512_bf16_support as u64
+        });
+        __bindgen_bitfield_unit.set(24usize, 1u8, {
+            let avx512_vp2_intersect_support: u64 =
+                unsafe { ::std::mem::transmute(avx512_vp2_intersect_support) };
+            avx512_vp2_intersect_support as u64
+        });
+        __bindgen_bitfield_unit.set(25usize, 1u8, {
+            let avx512_fp16_support: u64 = unsafe { ::std::mem::transmute(avx512_fp16_support) };
+            avx512_fp16_support as u64
+        });
+        __bindgen_bitfield_unit.set(26usize, 1u8, {
+            let xfd_support: u64 = unsafe { ::std::mem::transmute(xfd_support) };
+            xfd_support as u64
+        });
+        __bindgen_bitfield_unit.set(27usize, 1u8, {
+            let amx_tile_support: u64 = unsafe { ::std::mem::transmute(amx_tile_support) };
+            amx_tile_support as u64
+        });
+        __bindgen_bitfield_unit.set(28usize, 1u8, {
+            let amx_bf16_support: u64 = unsafe { ::std::mem::transmute(amx_bf16_support) };
+            amx_bf16_support as u64
+        });
+        __bindgen_bitfield_unit.set(29usize, 1u8, {
+            let amx_int8_support: u64 = unsafe { ::std::mem::transmute(amx_int8_support) };
+            amx_int8_support as u64
+        });
+        __bindgen_bitfield_unit.set(30usize, 1u8, {
+            let avx_vnni_support: u64 = unsafe { ::std::mem::transmute(avx_vnni_support) };
+            avx_vnni_support as u64
+        });
+        __bindgen_bitfield_unit.set(31usize, 1u8, {
+            let avx_ifma_support: u64 = unsafe { ::std::mem::transmute(avx_ifma_support) };
+            avx_ifma_support as u64
+        });
+        __bindgen_bitfield_unit.set(32usize, 1u8, {
+            let avx_ne_convert_support: u64 =
+                unsafe { ::std::mem::transmute(avx_ne_convert_support) };
+            avx_ne_convert_support as u64
+        });
+        __bindgen_bitfield_unit.set(33usize, 1u8, {
+            let avx_vnni_int8_support: u64 =
+                unsafe { ::std::mem::transmute(avx_vnni_int8_support) };
+            avx_vnni_int8_support as u64
+        });
+        __bindgen_bitfield_unit.set(34usize, 1u8, {
+            let avx_vnni_int16_support: u64 =
+                unsafe { ::std::mem::transmute(avx_vnni_int16_support) };
+            avx_vnni_int16_support as u64
+        });
+        __bindgen_bitfield_unit.set(35usize, 1u8, {
+            let avx10_1_256_support: u64 = unsafe { ::std::mem::transmute(avx10_1_256_support) };
+            avx10_1_256_support as u64
+        });
+        __bindgen_bitfield_unit.set(36usize, 1u8, {
+            let avx10_1_512_support: u64 = unsafe { ::std::mem::transmute(avx10_1_512_support) };
+            avx10_1_512_support as u64
+        });
+        __bindgen_bitfield_unit.set(37usize, 1u8, {
+            let amx_fp16_support: u64 = unsafe { ::std::mem::transmute(amx_fp16_support) };
+            amx_fp16_support as u64
+        });
+        __bindgen_bitfield_unit.set(38usize, 26u8, {
+            let reserved1: u64 = unsafe { ::std::mem::transmute(reserved1) };
+            reserved1 as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[test]
+fn bindgen_test_layout_hv_partition_processor_xsave_features() {
+    const UNINIT: ::std::mem::MaybeUninit<hv_partition_processor_xsave_features> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<hv_partition_processor_xsave_features>(),
+        8usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_partition_processor_xsave_features)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_partition_processor_xsave_features>(),
+        8usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_partition_processor_xsave_features)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).as_uint64) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_partition_processor_xsave_features),
+            "::",
+            stringify!(as_uint64)
+        )
+    );
+}
+impl Default for hv_partition_processor_xsave_features {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union hv_partition_processor_features {
+    pub as_uint64: [__u64; 2usize],
+    pub __bindgen_anon_1: hv_partition_processor_features__bindgen_ty_1,
+}
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_partition_processor_features__bindgen_ty_1 {
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 16usize]>,
+}
+#[test]
+fn bindgen_test_layout_hv_partition_processor_features__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<hv_partition_processor_features__bindgen_ty_1>(),
+        16usize,
+        concat!(
+            "Size of: ",
+            stringify!(hv_partition_processor_features__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_partition_processor_features__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(hv_partition_processor_features__bindgen_ty_1)
+        )
+    );
+}
+impl hv_partition_processor_features__bindgen_ty_1 {
+    #[inline]
+    pub fn asid16(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_asid16(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn t_gran16(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_t_gran16(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn t_gran64(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(2usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_t_gran64(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(2usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn haf(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(3usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_haf(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(3usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn hdbs(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(4usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_hdbs(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(4usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn pan(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(5usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_pan(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(5usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn at_s1e1(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(6usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_at_s1e1(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(6usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn uao(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(7usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_uao(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(7usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn el0_aarch32(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(8usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_el0_aarch32(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(8usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn fp(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(9usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_fp(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(9usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn fp_hp(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(10usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_fp_hp(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(10usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn adv_simd(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(11usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_adv_simd(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(11usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn adv_simd_hp(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(12usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_adv_simd_hp(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(12usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn gic_v3v4(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(13usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_gic_v3v4(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(13usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn gic_v4p1(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(14usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_gic_v4p1(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(14usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn ras(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(15usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_ras(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(15usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn pmu_v3(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(16usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_pmu_v3(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(16usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn pmu_v3_arm_v81(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(17usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_pmu_v3_arm_v81(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(17usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn pmu_v3_arm_v84(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(18usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_pmu_v3_arm_v84(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(18usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn pmu_v3_arm_v85(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(19usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_pmu_v3_arm_v85(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(19usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn aes(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(20usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_aes(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(20usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn poly_mul(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(21usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_poly_mul(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(21usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn sha1(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(22usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_sha1(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(22usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn sha256(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(23usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_sha256(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(23usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn sha512(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(24usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_sha512(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(24usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn crc32(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(25usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_crc32(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(25usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn atomic(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(26usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_atomic(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(26usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn rdm(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(27usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_rdm(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(27usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn sha3(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(28usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_sha3(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(28usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn sm3(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(29usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_sm3(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(29usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn sm4(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(30usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_sm4(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(30usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn dp(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(31usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_dp(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(31usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn fhm(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(32usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_fhm(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(32usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn dc_cvap(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(33usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_dc_cvap(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(33usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn dc_cvadp(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(34usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_dc_cvadp(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(34usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn apa_base(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(35usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_apa_base(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(35usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn apa_ep(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(36usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_apa_ep(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(36usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn apa_ep2(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(37usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_apa_ep2(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(37usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn apa_ep2_fp(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(38usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_apa_ep2_fp(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(38usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn apa_ep2_fpc(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(39usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_apa_ep2_fpc(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(39usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn jscvt(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(40usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_jscvt(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(40usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn fcma(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(41usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_fcma(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(41usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn rcpc_v83(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(42usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_rcpc_v83(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(42usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn rcpc_v84(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(43usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_rcpc_v84(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(43usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn gpa(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(44usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_gpa(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(44usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn l1ip_pipt(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(45usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_l1ip_pipt(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(45usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn dz_permitted(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(46usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_dz_permitted(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(46usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn ssbs(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(47usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_ssbs(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(47usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn ssbs_rw(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(48usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_ssbs_rw(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(48usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn smccc_w1_supported(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(49usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_smccc_w1_supported(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(49usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn smccc_w1_mitigated(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(50usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_smccc_w1_mitigated(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(50usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn smccc_w2_supported(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(51usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_smccc_w2_supported(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(51usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn smccc_w2_mitigated(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(52usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_smccc_w2_mitigated(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(52usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn csv2(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(53usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_csv2(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(53usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn csv3(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(54usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_csv3(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(54usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn sb(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(55usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_sb(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(55usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn idc(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(56usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_idc(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(56usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn dic(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(57usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_dic(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(57usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn tlbi_os(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(58usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_tlbi_os(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(58usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn tlbi_os_range(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(59usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_tlbi_os_range(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(59usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn flags_m(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(60usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_flags_m(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(60usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn flags_m2(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(61usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_flags_m2(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(61usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn bf16(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(62usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_bf16(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(62usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn ebf16(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(63usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_ebf16(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(63usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn sve_bf16(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(64usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_sve_bf16(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(64usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn sve_ebf16(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(65usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_sve_ebf16(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(65usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn i8mm(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(66usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_i8mm(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(66usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn sve_i8mm(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(67usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_sve_i8mm(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(67usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn frintts(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(68usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_frintts(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(68usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn specres(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(69usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_specres(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(69usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn mtpmu(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(70usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_mtpmu(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(70usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn rpres(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(71usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_rpres(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(71usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn exs(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(72usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_exs(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(72usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn spec_sei(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(73usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_spec_sei(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(73usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn ets(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(74usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_ets(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(74usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn afp(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(75usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_afp(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(75usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn iesb(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(76usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_iesb(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(76usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn rng(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(77usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_rng(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(77usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn lse2(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(78usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_lse2(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(78usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn idst(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(79usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_idst(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(79usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn ras_v1p1(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(80usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_ras_v1p1(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(80usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn ras_frac_v1p1(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(81usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_ras_frac_v1p1(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(81usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn sel2(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(82usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_sel2(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(82usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn amu_v1(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(83usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_amu_v1(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(83usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn amu_v1p1(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(84usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_amu_v1p1(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(84usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn dit(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(85usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_dit(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(85usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn ccidx(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(86usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_ccidx(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(86usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn fgt_for_intercepts(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(87usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_fgt_for_intercepts(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(87usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn l1ip_vpipt(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(88usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_l1ip_vpipt(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(88usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn l1ip_vipt(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(89usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_l1ip_vipt(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(89usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn debug_v8(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(90usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_debug_v8(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(90usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn debug_v8p2(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(91usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_debug_v8p2(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(91usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn debug_v8p4(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(92usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_debug_v8p4(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(92usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn pmu_v3_arm_v87(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(93usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_pmu_v3_arm_v87(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(93usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn double_lock(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(94usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_double_lock(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(94usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn clrbhb(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(95usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_clrbhb(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(95usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn spe(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(96usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_spe(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(96usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn spe_v1p1(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(97usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_spe_v1p1(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(97usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn spe_v1p2(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(98usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_spe_v1p2(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(98usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn tt_cnp(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(99usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_tt_cnp(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(99usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn hpds(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(100usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_hpds(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(100usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn sve(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(101usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_sve(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(101usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn sve_v2(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(102usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_sve_v2(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(102usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn sve_v2p1(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(103usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_sve_v2p1(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(103usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn spec_fpacc(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(104usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_spec_fpacc(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(104usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn sve_aes(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(105usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_sve_aes(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(105usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn sve_bit_perm(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(106usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_sve_bit_perm(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(106usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn sve_sha3(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(107usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_sve_sha3(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(107usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn sve_sm4(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(108usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_sve_sm4(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(108usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn e0_pd(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(109usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_e0_pd(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(109usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn reserved_bank1(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(110usize, 18u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved_bank1(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(110usize, 18u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        asid16: __u64,
+        t_gran16: __u64,
+        t_gran64: __u64,
+        haf: __u64,
+        hdbs: __u64,
+        pan: __u64,
+        at_s1e1: __u64,
+        uao: __u64,
+        el0_aarch32: __u64,
+        fp: __u64,
+        fp_hp: __u64,
+        adv_simd: __u64,
+        adv_simd_hp: __u64,
+        gic_v3v4: __u64,
+        gic_v4p1: __u64,
+        ras: __u64,
+        pmu_v3: __u64,
+        pmu_v3_arm_v81: __u64,
+        pmu_v3_arm_v84: __u64,
+        pmu_v3_arm_v85: __u64,
+        aes: __u64,
+        poly_mul: __u64,
+        sha1: __u64,
+        sha256: __u64,
+        sha512: __u64,
+        crc32: __u64,
+        atomic: __u64,
+        rdm: __u64,
+        sha3: __u64,
+        sm3: __u64,
+        sm4: __u64,
+        dp: __u64,
+        fhm: __u64,
+        dc_cvap: __u64,
+        dc_cvadp: __u64,
+        apa_base: __u64,
+        apa_ep: __u64,
+        apa_ep2: __u64,
+        apa_ep2_fp: __u64,
+        apa_ep2_fpc: __u64,
+        jscvt: __u64,
+        fcma: __u64,
+        rcpc_v83: __u64,
+        rcpc_v84: __u64,
+        gpa: __u64,
+        l1ip_pipt: __u64,
+        dz_permitted: __u64,
+        ssbs: __u64,
+        ssbs_rw: __u64,
+        smccc_w1_supported: __u64,
+        smccc_w1_mitigated: __u64,
+        smccc_w2_supported: __u64,
+        smccc_w2_mitigated: __u64,
+        csv2: __u64,
+        csv3: __u64,
+        sb: __u64,
+        idc: __u64,
+        dic: __u64,
+        tlbi_os: __u64,
+        tlbi_os_range: __u64,
+        flags_m: __u64,
+        flags_m2: __u64,
+        bf16: __u64,
+        ebf16: __u64,
+        sve_bf16: __u64,
+        sve_ebf16: __u64,
+        i8mm: __u64,
+        sve_i8mm: __u64,
+        frintts: __u64,
+        specres: __u64,
+        mtpmu: __u64,
+        rpres: __u64,
+        exs: __u64,
+        spec_sei: __u64,
+        ets: __u64,
+        afp: __u64,
+        iesb: __u64,
+        rng: __u64,
+        lse2: __u64,
+        idst: __u64,
+        ras_v1p1: __u64,
+        ras_frac_v1p1: __u64,
+        sel2: __u64,
+        amu_v1: __u64,
+        amu_v1p1: __u64,
+        dit: __u64,
+        ccidx: __u64,
+        fgt_for_intercepts: __u64,
+        l1ip_vpipt: __u64,
+        l1ip_vipt: __u64,
+        debug_v8: __u64,
+        debug_v8p2: __u64,
+        debug_v8p4: __u64,
+        pmu_v3_arm_v87: __u64,
+        double_lock: __u64,
+        clrbhb: __u64,
+        spe: __u64,
+        spe_v1p1: __u64,
+        spe_v1p2: __u64,
+        tt_cnp: __u64,
+        hpds: __u64,
+        sve: __u64,
+        sve_v2: __u64,
+        sve_v2p1: __u64,
+        spec_fpacc: __u64,
+        sve_aes: __u64,
+        sve_bit_perm: __u64,
+        sve_sha3: __u64,
+        sve_sm4: __u64,
+        e0_pd: __u64,
+        reserved_bank1: __u64,
+    ) -> __BindgenBitfieldUnit<[u8; 16usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 16usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let asid16: u64 = unsafe { ::std::mem::transmute(asid16) };
+            asid16 as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 1u8, {
+            let t_gran16: u64 = unsafe { ::std::mem::transmute(t_gran16) };
+            t_gran16 as u64
+        });
+        __bindgen_bitfield_unit.set(2usize, 1u8, {
+            let t_gran64: u64 = unsafe { ::std::mem::transmute(t_gran64) };
+            t_gran64 as u64
+        });
+        __bindgen_bitfield_unit.set(3usize, 1u8, {
+            let haf: u64 = unsafe { ::std::mem::transmute(haf) };
+            haf as u64
+        });
+        __bindgen_bitfield_unit.set(4usize, 1u8, {
+            let hdbs: u64 = unsafe { ::std::mem::transmute(hdbs) };
+            hdbs as u64
+        });
+        __bindgen_bitfield_unit.set(5usize, 1u8, {
+            let pan: u64 = unsafe { ::std::mem::transmute(pan) };
+            pan as u64
+        });
+        __bindgen_bitfield_unit.set(6usize, 1u8, {
+            let at_s1e1: u64 = unsafe { ::std::mem::transmute(at_s1e1) };
+            at_s1e1 as u64
+        });
+        __bindgen_bitfield_unit.set(7usize, 1u8, {
+            let uao: u64 = unsafe { ::std::mem::transmute(uao) };
+            uao as u64
+        });
+        __bindgen_bitfield_unit.set(8usize, 1u8, {
+            let el0_aarch32: u64 = unsafe { ::std::mem::transmute(el0_aarch32) };
+            el0_aarch32 as u64
+        });
+        __bindgen_bitfield_unit.set(9usize, 1u8, {
+            let fp: u64 = unsafe { ::std::mem::transmute(fp) };
+            fp as u64
+        });
+        __bindgen_bitfield_unit.set(10usize, 1u8, {
+            let fp_hp: u64 = unsafe { ::std::mem::transmute(fp_hp) };
+            fp_hp as u64
+        });
+        __bindgen_bitfield_unit.set(11usize, 1u8, {
+            let adv_simd: u64 = unsafe { ::std::mem::transmute(adv_simd) };
+            adv_simd as u64
+        });
+        __bindgen_bitfield_unit.set(12usize, 1u8, {
+            let adv_simd_hp: u64 = unsafe { ::std::mem::transmute(adv_simd_hp) };
+            adv_simd_hp as u64
+        });
+        __bindgen_bitfield_unit.set(13usize, 1u8, {
+            let gic_v3v4: u64 = unsafe { ::std::mem::transmute(gic_v3v4) };
+            gic_v3v4 as u64
+        });
+        __bindgen_bitfield_unit.set(14usize, 1u8, {
+            let gic_v4p1: u64 = unsafe { ::std::mem::transmute(gic_v4p1) };
+            gic_v4p1 as u64
+        });
+        __bindgen_bitfield_unit.set(15usize, 1u8, {
+            let ras: u64 = unsafe { ::std::mem::transmute(ras) };
+            ras as u64
+        });
+        __bindgen_bitfield_unit.set(16usize, 1u8, {
+            let pmu_v3: u64 = unsafe { ::std::mem::transmute(pmu_v3) };
+            pmu_v3 as u64
+        });
+        __bindgen_bitfield_unit.set(17usize, 1u8, {
+            let pmu_v3_arm_v81: u64 = unsafe { ::std::mem::transmute(pmu_v3_arm_v81) };
+            pmu_v3_arm_v81 as u64
+        });
+        __bindgen_bitfield_unit.set(18usize, 1u8, {
+            let pmu_v3_arm_v84: u64 = unsafe { ::std::mem::transmute(pmu_v3_arm_v84) };
+            pmu_v3_arm_v84 as u64
+        });
+        __bindgen_bitfield_unit.set(19usize, 1u8, {
+            let pmu_v3_arm_v85: u64 = unsafe { ::std::mem::transmute(pmu_v3_arm_v85) };
+            pmu_v3_arm_v85 as u64
+        });
+        __bindgen_bitfield_unit.set(20usize, 1u8, {
+            let aes: u64 = unsafe { ::std::mem::transmute(aes) };
+            aes as u64
+        });
+        __bindgen_bitfield_unit.set(21usize, 1u8, {
+            let poly_mul: u64 = unsafe { ::std::mem::transmute(poly_mul) };
+            poly_mul as u64
+        });
+        __bindgen_bitfield_unit.set(22usize, 1u8, {
+            let sha1: u64 = unsafe { ::std::mem::transmute(sha1) };
+            sha1 as u64
+        });
+        __bindgen_bitfield_unit.set(23usize, 1u8, {
+            let sha256: u64 = unsafe { ::std::mem::transmute(sha256) };
+            sha256 as u64
+        });
+        __bindgen_bitfield_unit.set(24usize, 1u8, {
+            let sha512: u64 = unsafe { ::std::mem::transmute(sha512) };
+            sha512 as u64
+        });
+        __bindgen_bitfield_unit.set(25usize, 1u8, {
+            let crc32: u64 = unsafe { ::std::mem::transmute(crc32) };
+            crc32 as u64
+        });
+        __bindgen_bitfield_unit.set(26usize, 1u8, {
+            let atomic: u64 = unsafe { ::std::mem::transmute(atomic) };
+            atomic as u64
+        });
+        __bindgen_bitfield_unit.set(27usize, 1u8, {
+            let rdm: u64 = unsafe { ::std::mem::transmute(rdm) };
+            rdm as u64
+        });
+        __bindgen_bitfield_unit.set(28usize, 1u8, {
+            let sha3: u64 = unsafe { ::std::mem::transmute(sha3) };
+            sha3 as u64
+        });
+        __bindgen_bitfield_unit.set(29usize, 1u8, {
+            let sm3: u64 = unsafe { ::std::mem::transmute(sm3) };
+            sm3 as u64
+        });
+        __bindgen_bitfield_unit.set(30usize, 1u8, {
+            let sm4: u64 = unsafe { ::std::mem::transmute(sm4) };
+            sm4 as u64
+        });
+        __bindgen_bitfield_unit.set(31usize, 1u8, {
+            let dp: u64 = unsafe { ::std::mem::transmute(dp) };
+            dp as u64
+        });
+        __bindgen_bitfield_unit.set(32usize, 1u8, {
+            let fhm: u64 = unsafe { ::std::mem::transmute(fhm) };
+            fhm as u64
+        });
+        __bindgen_bitfield_unit.set(33usize, 1u8, {
+            let dc_cvap: u64 = unsafe { ::std::mem::transmute(dc_cvap) };
+            dc_cvap as u64
+        });
+        __bindgen_bitfield_unit.set(34usize, 1u8, {
+            let dc_cvadp: u64 = unsafe { ::std::mem::transmute(dc_cvadp) };
+            dc_cvadp as u64
+        });
+        __bindgen_bitfield_unit.set(35usize, 1u8, {
+            let apa_base: u64 = unsafe { ::std::mem::transmute(apa_base) };
+            apa_base as u64
+        });
+        __bindgen_bitfield_unit.set(36usize, 1u8, {
+            let apa_ep: u64 = unsafe { ::std::mem::transmute(apa_ep) };
+            apa_ep as u64
+        });
+        __bindgen_bitfield_unit.set(37usize, 1u8, {
+            let apa_ep2: u64 = unsafe { ::std::mem::transmute(apa_ep2) };
+            apa_ep2 as u64
+        });
+        __bindgen_bitfield_unit.set(38usize, 1u8, {
+            let apa_ep2_fp: u64 = unsafe { ::std::mem::transmute(apa_ep2_fp) };
+            apa_ep2_fp as u64
+        });
+        __bindgen_bitfield_unit.set(39usize, 1u8, {
+            let apa_ep2_fpc: u64 = unsafe { ::std::mem::transmute(apa_ep2_fpc) };
+            apa_ep2_fpc as u64
+        });
+        __bindgen_bitfield_unit.set(40usize, 1u8, {
+            let jscvt: u64 = unsafe { ::std::mem::transmute(jscvt) };
+            jscvt as u64
+        });
+        __bindgen_bitfield_unit.set(41usize, 1u8, {
+            let fcma: u64 = unsafe { ::std::mem::transmute(fcma) };
+            fcma as u64
+        });
+        __bindgen_bitfield_unit.set(42usize, 1u8, {
+            let rcpc_v83: u64 = unsafe { ::std::mem::transmute(rcpc_v83) };
+            rcpc_v83 as u64
+        });
+        __bindgen_bitfield_unit.set(43usize, 1u8, {
+            let rcpc_v84: u64 = unsafe { ::std::mem::transmute(rcpc_v84) };
+            rcpc_v84 as u64
+        });
+        __bindgen_bitfield_unit.set(44usize, 1u8, {
+            let gpa: u64 = unsafe { ::std::mem::transmute(gpa) };
+            gpa as u64
+        });
+        __bindgen_bitfield_unit.set(45usize, 1u8, {
+            let l1ip_pipt: u64 = unsafe { ::std::mem::transmute(l1ip_pipt) };
+            l1ip_pipt as u64
+        });
+        __bindgen_bitfield_unit.set(46usize, 1u8, {
+            let dz_permitted: u64 = unsafe { ::std::mem::transmute(dz_permitted) };
+            dz_permitted as u64
+        });
+        __bindgen_bitfield_unit.set(47usize, 1u8, {
+            let ssbs: u64 = unsafe { ::std::mem::transmute(ssbs) };
+            ssbs as u64
+        });
+        __bindgen_bitfield_unit.set(48usize, 1u8, {
+            let ssbs_rw: u64 = unsafe { ::std::mem::transmute(ssbs_rw) };
+            ssbs_rw as u64
+        });
+        __bindgen_bitfield_unit.set(49usize, 1u8, {
+            let smccc_w1_supported: u64 = unsafe { ::std::mem::transmute(smccc_w1_supported) };
+            smccc_w1_supported as u64
+        });
+        __bindgen_bitfield_unit.set(50usize, 1u8, {
+            let smccc_w1_mitigated: u64 = unsafe { ::std::mem::transmute(smccc_w1_mitigated) };
+            smccc_w1_mitigated as u64
+        });
+        __bindgen_bitfield_unit.set(51usize, 1u8, {
+            let smccc_w2_supported: u64 = unsafe { ::std::mem::transmute(smccc_w2_supported) };
+            smccc_w2_supported as u64
+        });
+        __bindgen_bitfield_unit.set(52usize, 1u8, {
+            let smccc_w2_mitigated: u64 = unsafe { ::std::mem::transmute(smccc_w2_mitigated) };
+            smccc_w2_mitigated as u64
+        });
+        __bindgen_bitfield_unit.set(53usize, 1u8, {
+            let csv2: u64 = unsafe { ::std::mem::transmute(csv2) };
+            csv2 as u64
+        });
+        __bindgen_bitfield_unit.set(54usize, 1u8, {
+            let csv3: u64 = unsafe { ::std::mem::transmute(csv3) };
+            csv3 as u64
+        });
+        __bindgen_bitfield_unit.set(55usize, 1u8, {
+            let sb: u64 = unsafe { ::std::mem::transmute(sb) };
+            sb as u64
+        });
+        __bindgen_bitfield_unit.set(56usize, 1u8, {
+            let idc: u64 = unsafe { ::std::mem::transmute(idc) };
+            idc as u64
+        });
+        __bindgen_bitfield_unit.set(57usize, 1u8, {
+            let dic: u64 = unsafe { ::std::mem::transmute(dic) };
+            dic as u64
+        });
+        __bindgen_bitfield_unit.set(58usize, 1u8, {
+            let tlbi_os: u64 = unsafe { ::std::mem::transmute(tlbi_os) };
+            tlbi_os as u64
+        });
+        __bindgen_bitfield_unit.set(59usize, 1u8, {
+            let tlbi_os_range: u64 = unsafe { ::std::mem::transmute(tlbi_os_range) };
+            tlbi_os_range as u64
+        });
+        __bindgen_bitfield_unit.set(60usize, 1u8, {
+            let flags_m: u64 = unsafe { ::std::mem::transmute(flags_m) };
+            flags_m as u64
+        });
+        __bindgen_bitfield_unit.set(61usize, 1u8, {
+            let flags_m2: u64 = unsafe { ::std::mem::transmute(flags_m2) };
+            flags_m2 as u64
+        });
+        __bindgen_bitfield_unit.set(62usize, 1u8, {
+            let bf16: u64 = unsafe { ::std::mem::transmute(bf16) };
+            bf16 as u64
+        });
+        __bindgen_bitfield_unit.set(63usize, 1u8, {
+            let ebf16: u64 = unsafe { ::std::mem::transmute(ebf16) };
+            ebf16 as u64
+        });
+        __bindgen_bitfield_unit.set(64usize, 1u8, {
+            let sve_bf16: u64 = unsafe { ::std::mem::transmute(sve_bf16) };
+            sve_bf16 as u64
+        });
+        __bindgen_bitfield_unit.set(65usize, 1u8, {
+            let sve_ebf16: u64 = unsafe { ::std::mem::transmute(sve_ebf16) };
+            sve_ebf16 as u64
+        });
+        __bindgen_bitfield_unit.set(66usize, 1u8, {
+            let i8mm: u64 = unsafe { ::std::mem::transmute(i8mm) };
+            i8mm as u64
+        });
+        __bindgen_bitfield_unit.set(67usize, 1u8, {
+            let sve_i8mm: u64 = unsafe { ::std::mem::transmute(sve_i8mm) };
+            sve_i8mm as u64
+        });
+        __bindgen_bitfield_unit.set(68usize, 1u8, {
+            let frintts: u64 = unsafe { ::std::mem::transmute(frintts) };
+            frintts as u64
+        });
+        __bindgen_bitfield_unit.set(69usize, 1u8, {
+            let specres: u64 = unsafe { ::std::mem::transmute(specres) };
+            specres as u64
+        });
+        __bindgen_bitfield_unit.set(70usize, 1u8, {
+            let mtpmu: u64 = unsafe { ::std::mem::transmute(mtpmu) };
+            mtpmu as u64
+        });
+        __bindgen_bitfield_unit.set(71usize, 1u8, {
+            let rpres: u64 = unsafe { ::std::mem::transmute(rpres) };
+            rpres as u64
+        });
+        __bindgen_bitfield_unit.set(72usize, 1u8, {
+            let exs: u64 = unsafe { ::std::mem::transmute(exs) };
+            exs as u64
+        });
+        __bindgen_bitfield_unit.set(73usize, 1u8, {
+            let spec_sei: u64 = unsafe { ::std::mem::transmute(spec_sei) };
+            spec_sei as u64
+        });
+        __bindgen_bitfield_unit.set(74usize, 1u8, {
+            let ets: u64 = unsafe { ::std::mem::transmute(ets) };
+            ets as u64
+        });
+        __bindgen_bitfield_unit.set(75usize, 1u8, {
+            let afp: u64 = unsafe { ::std::mem::transmute(afp) };
+            afp as u64
+        });
+        __bindgen_bitfield_unit.set(76usize, 1u8, {
+            let iesb: u64 = unsafe { ::std::mem::transmute(iesb) };
+            iesb as u64
+        });
+        __bindgen_bitfield_unit.set(77usize, 1u8, {
+            let rng: u64 = unsafe { ::std::mem::transmute(rng) };
+            rng as u64
+        });
+        __bindgen_bitfield_unit.set(78usize, 1u8, {
+            let lse2: u64 = unsafe { ::std::mem::transmute(lse2) };
+            lse2 as u64
+        });
+        __bindgen_bitfield_unit.set(79usize, 1u8, {
+            let idst: u64 = unsafe { ::std::mem::transmute(idst) };
+            idst as u64
+        });
+        __bindgen_bitfield_unit.set(80usize, 1u8, {
+            let ras_v1p1: u64 = unsafe { ::std::mem::transmute(ras_v1p1) };
+            ras_v1p1 as u64
+        });
+        __bindgen_bitfield_unit.set(81usize, 1u8, {
+            let ras_frac_v1p1: u64 = unsafe { ::std::mem::transmute(ras_frac_v1p1) };
+            ras_frac_v1p1 as u64
+        });
+        __bindgen_bitfield_unit.set(82usize, 1u8, {
+            let sel2: u64 = unsafe { ::std::mem::transmute(sel2) };
+            sel2 as u64
+        });
+        __bindgen_bitfield_unit.set(83usize, 1u8, {
+            let amu_v1: u64 = unsafe { ::std::mem::transmute(amu_v1) };
+            amu_v1 as u64
+        });
+        __bindgen_bitfield_unit.set(84usize, 1u8, {
+            let amu_v1p1: u64 = unsafe { ::std::mem::transmute(amu_v1p1) };
+            amu_v1p1 as u64
+        });
+        __bindgen_bitfield_unit.set(85usize, 1u8, {
+            let dit: u64 = unsafe { ::std::mem::transmute(dit) };
+            dit as u64
+        });
+        __bindgen_bitfield_unit.set(86usize, 1u8, {
+            let ccidx: u64 = unsafe { ::std::mem::transmute(ccidx) };
+            ccidx as u64
+        });
+        __bindgen_bitfield_unit.set(87usize, 1u8, {
+            let fgt_for_intercepts: u64 = unsafe { ::std::mem::transmute(fgt_for_intercepts) };
+            fgt_for_intercepts as u64
+        });
+        __bindgen_bitfield_unit.set(88usize, 1u8, {
+            let l1ip_vpipt: u64 = unsafe { ::std::mem::transmute(l1ip_vpipt) };
+            l1ip_vpipt as u64
+        });
+        __bindgen_bitfield_unit.set(89usize, 1u8, {
+            let l1ip_vipt: u64 = unsafe { ::std::mem::transmute(l1ip_vipt) };
+            l1ip_vipt as u64
+        });
+        __bindgen_bitfield_unit.set(90usize, 1u8, {
+            let debug_v8: u64 = unsafe { ::std::mem::transmute(debug_v8) };
+            debug_v8 as u64
+        });
+        __bindgen_bitfield_unit.set(91usize, 1u8, {
+            let debug_v8p2: u64 = unsafe { ::std::mem::transmute(debug_v8p2) };
+            debug_v8p2 as u64
+        });
+        __bindgen_bitfield_unit.set(92usize, 1u8, {
+            let debug_v8p4: u64 = unsafe { ::std::mem::transmute(debug_v8p4) };
+            debug_v8p4 as u64
+        });
+        __bindgen_bitfield_unit.set(93usize, 1u8, {
+            let pmu_v3_arm_v87: u64 = unsafe { ::std::mem::transmute(pmu_v3_arm_v87) };
+            pmu_v3_arm_v87 as u64
+        });
+        __bindgen_bitfield_unit.set(94usize, 1u8, {
+            let double_lock: u64 = unsafe { ::std::mem::transmute(double_lock) };
+            double_lock as u64
+        });
+        __bindgen_bitfield_unit.set(95usize, 1u8, {
+            let clrbhb: u64 = unsafe { ::std::mem::transmute(clrbhb) };
+            clrbhb as u64
+        });
+        __bindgen_bitfield_unit.set(96usize, 1u8, {
+            let spe: u64 = unsafe { ::std::mem::transmute(spe) };
+            spe as u64
+        });
+        __bindgen_bitfield_unit.set(97usize, 1u8, {
+            let spe_v1p1: u64 = unsafe { ::std::mem::transmute(spe_v1p1) };
+            spe_v1p1 as u64
+        });
+        __bindgen_bitfield_unit.set(98usize, 1u8, {
+            let spe_v1p2: u64 = unsafe { ::std::mem::transmute(spe_v1p2) };
+            spe_v1p2 as u64
+        });
+        __bindgen_bitfield_unit.set(99usize, 1u8, {
+            let tt_cnp: u64 = unsafe { ::std::mem::transmute(tt_cnp) };
+            tt_cnp as u64
+        });
+        __bindgen_bitfield_unit.set(100usize, 1u8, {
+            let hpds: u64 = unsafe { ::std::mem::transmute(hpds) };
+            hpds as u64
+        });
+        __bindgen_bitfield_unit.set(101usize, 1u8, {
+            let sve: u64 = unsafe { ::std::mem::transmute(sve) };
+            sve as u64
+        });
+        __bindgen_bitfield_unit.set(102usize, 1u8, {
+            let sve_v2: u64 = unsafe { ::std::mem::transmute(sve_v2) };
+            sve_v2 as u64
+        });
+        __bindgen_bitfield_unit.set(103usize, 1u8, {
+            let sve_v2p1: u64 = unsafe { ::std::mem::transmute(sve_v2p1) };
+            sve_v2p1 as u64
+        });
+        __bindgen_bitfield_unit.set(104usize, 1u8, {
+            let spec_fpacc: u64 = unsafe { ::std::mem::transmute(spec_fpacc) };
+            spec_fpacc as u64
+        });
+        __bindgen_bitfield_unit.set(105usize, 1u8, {
+            let sve_aes: u64 = unsafe { ::std::mem::transmute(sve_aes) };
+            sve_aes as u64
+        });
+        __bindgen_bitfield_unit.set(106usize, 1u8, {
+            let sve_bit_perm: u64 = unsafe { ::std::mem::transmute(sve_bit_perm) };
+            sve_bit_perm as u64
+        });
+        __bindgen_bitfield_unit.set(107usize, 1u8, {
+            let sve_sha3: u64 = unsafe { ::std::mem::transmute(sve_sha3) };
+            sve_sha3 as u64
+        });
+        __bindgen_bitfield_unit.set(108usize, 1u8, {
+            let sve_sm4: u64 = unsafe { ::std::mem::transmute(sve_sm4) };
+            sve_sm4 as u64
+        });
+        __bindgen_bitfield_unit.set(109usize, 1u8, {
+            let e0_pd: u64 = unsafe { ::std::mem::transmute(e0_pd) };
+            e0_pd as u64
+        });
+        __bindgen_bitfield_unit.set(110usize, 18u8, {
+            let reserved_bank1: u64 = unsafe { ::std::mem::transmute(reserved_bank1) };
+            reserved_bank1 as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[test]
+fn bindgen_test_layout_hv_partition_processor_features() {
+    const UNINIT: ::std::mem::MaybeUninit<hv_partition_processor_features> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<hv_partition_processor_features>(),
+        16usize,
+        concat!("Size of: ", stringify!(hv_partition_processor_features))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<hv_partition_processor_features>(),
+        8usize,
+        concat!("Alignment of ", stringify!(hv_partition_processor_features))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).as_uint64) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(hv_partition_processor_features),
+            "::",
+            stringify!(as_uint64)
+        )
+    );
+}
+impl Default for hv_partition_processor_features {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
 #[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_vp_registers {
     pub count: ::std::os::raw::c_int,
@@ -11635,7 +14199,8 @@ fn bindgen_test_layout_mshv_vtl_capabilities() {
 pub const MSHV_PT_BIT_LAPIC: _bindgen_ty_2 = 0;
 pub const MSHV_PT_BIT_X2APIC: _bindgen_ty_2 = 1;
 pub const MSHV_PT_BIT_GPA_SUPER_PAGES: _bindgen_ty_2 = 2;
-pub const MSHV_PT_BIT_COUNT: _bindgen_ty_2 = 3;
+pub const MSHV_PT_BIT_CPU_AND_XSAVE_FEATURES: _bindgen_ty_2 = 3;
+pub const MSHV_PT_BIT_COUNT: _bindgen_ty_2 = 4;
 pub type _bindgen_ty_2 = ::std::os::raw::c_uint;
 pub const MSHV_PT_ISOLATION_NONE: _bindgen_ty_3 = 0;
 pub const MSHV_PT_ISOLATION_SNP: _bindgen_ty_3 = 1;
@@ -11680,6 +14245,92 @@ fn bindgen_test_layout_mshv_create_partition() {
             stringify!(mshv_create_partition),
             "::",
             stringify!(pt_isolation)
+        )
+    );
+}
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_create_partition_v2 {
+    pub pt_flags: __u64,
+    pub pt_isolation: __u64,
+    pub pt_num_cpu_fbanks: __u16,
+    pub pt_rsvd: [__u8; 6usize],
+    pub pt_cpu_fbanks: [__u64; 2usize],
+    pub pt_rsvd1: [__u64; 2usize],
+}
+#[test]
+fn bindgen_test_layout_mshv_create_partition_v2() {
+    const UNINIT: ::std::mem::MaybeUninit<mshv_create_partition_v2> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<mshv_create_partition_v2>(),
+        56usize,
+        concat!("Size of: ", stringify!(mshv_create_partition_v2))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<mshv_create_partition_v2>(),
+        1usize,
+        concat!("Alignment of ", stringify!(mshv_create_partition_v2))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pt_flags) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_create_partition_v2),
+            "::",
+            stringify!(pt_flags)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pt_isolation) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_create_partition_v2),
+            "::",
+            stringify!(pt_isolation)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pt_num_cpu_fbanks) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_create_partition_v2),
+            "::",
+            stringify!(pt_num_cpu_fbanks)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pt_rsvd) as usize - ptr as usize },
+        18usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_create_partition_v2),
+            "::",
+            stringify!(pt_rsvd)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pt_cpu_fbanks) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_create_partition_v2),
+            "::",
+            stringify!(pt_cpu_fbanks)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pt_rsvd1) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_create_partition_v2),
+            "::",
+            stringify!(pt_rsvd1)
         )
     );
 }
