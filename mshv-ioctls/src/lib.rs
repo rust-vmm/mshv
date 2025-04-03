@@ -6,6 +6,7 @@
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
 #![deny(missing_docs)]
+#![allow(clippy::doc_lazy_continuation)]
 
 //! A safe wrapper around the kernel's MSHV interface.
 //!
