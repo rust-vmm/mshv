@@ -11,7 +11,8 @@
     clippy::non_canonical_clone_impl,
     non_camel_case_types,
     non_snake_case,
-    non_upper_case_globals
+    non_upper_case_globals,
+    clippy::ptr_offset_with_cast
 )]
 pub mod bindings;
 #[allow(ambiguous_glob_reexports, unused_imports)]
