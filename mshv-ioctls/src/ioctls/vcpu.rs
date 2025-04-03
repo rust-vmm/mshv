@@ -1448,7 +1448,7 @@ impl VcpuFd {
             gva_page: gva >> HV_HYP_PAGE_SHIFT,
             ..Default::default() // NOTE: kernel will populate partition_id field
         };
-        let output = hv_output_translate_virtual_address {
+        let mut output = hv_output_translate_virtual_address {
             ..Default::default()
         };
         let mut args = make_args!(HVCALL_TRANSLATE_VIRTUAL_ADDRESS, input, output);
