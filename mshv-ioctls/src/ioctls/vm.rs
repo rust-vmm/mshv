@@ -538,11 +538,11 @@ impl VmFd {
     /// # Arguments
     ///
     /// * `fd` - `EventFd` which will be signaled. When signaling, the usual `vmexit` to userspace
-    ///           is prevented.
+    ///  is prevented.
     /// * `addr` - Address being written to.
     /// * `datamatch` - Limits signaling `fd` to only the cases where the value being written is
-    ///                 equal to this parameter. The size of `datamatch` is important and it must
-    ///                 match the expected size of the guest's write.
+    /// equal to this parameter. The size of `datamatch` is important and it must
+    /// match the expected size of the guest's write.
     ///
     /// # Example
     /// ```no_run
@@ -693,7 +693,7 @@ impl VmFd {
         access_type: u8,
         access_op: u8,
     ) -> Result<Vec<u64>> {
-        let buf_sz = (page_count + 63) / 64;
+        let buf_sz = page_count.div_ceil(64);
         let mut bitmap: Vec<u64> = vec![0u64; buf_sz as usize];
         let mut args = mshv_gpap_access_bitmap {
             access_type,
