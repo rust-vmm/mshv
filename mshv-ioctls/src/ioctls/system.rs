@@ -41,6 +41,68 @@ fn make_synthetic_features_mask() -> u64 {
     unsafe { features.as_uint64[0] }
 }
 
+/// Helper function to make partition creation argument
+fn make_partition_create_arg(vm_type: VmType) -> mshv_create_partition_v2 {
+    let pt_flags: u64 = set_bits!(
+        u64,
+        MSHV_PT_BIT_LAPIC,
+        MSHV_PT_BIT_X2APIC,
+        MSHV_PT_BIT_GPA_SUPER_PAGES,
+        MSHV_PT_BIT_CPU_AND_XSAVE_FEATURES
+    );
+    let mut pt_isolation: u64 = MSHV_PT_ISOLATION_NONE as u64;
+
+    if vm_type == VmType::Snp {
+        pt_isolation = MSHV_PT_ISOLATION_SNP as u64;
+    }
+
+    let mut create_args = mshv_create_partition_v2 {
+        pt_flags,
+        pt_isolation,
+        pt_num_cpu_fbanks: MSHV_NUM_CPU_FEATURES_BANKS as u16,
+        ..Default::default()
+    };
+
+    let mut proc_features = hv_partition_processor_features::default();
+    let mut xsave_features = hv_partition_processor_xsave_features::default();
+    for i in 0..MSHV_NUM_CPU_FEATURES_BANKS {
+        // SAFETY: access union fields
+        unsafe {
+            proc_features.as_uint64[i as usize] = 0xFFFFFFFFFFFFFFFF;
+        }
+    }
+    xsave_features.as_uint64 = 0xFFFFFFFFFFFFFFFF;
+
+    #[cfg(target_arch = "x86_64")]
+    // SAFETY: access union fields
+    unsafe {
+        // Enable default XSave features that are known to be supported
+        xsave_features.__bindgen_anon_1.set_xsave_support(0u64);
+        xsave_features.__bindgen_anon_1.set_xsaveopt_support(0u64);
+        xsave_features.__bindgen_anon_1.set_avx_support(0u64);
+        xsave_features
+            .__bindgen_anon_1
+            .set_xsave_supervisor_support(0u64);
+        xsave_features.__bindgen_anon_1.set_xsave_comp_support(0u64);
+        create_args.pt_disabled_xsave = xsave_features.as_uint64;
+
+        // Enable default processor features that are known to be supported
+        proc_features.__bindgen_anon_1.set_cet_ibt_support(0u64);
+        proc_features.__bindgen_anon_1.set_cet_ss_support(0u64);
+        proc_features.__bindgen_anon_1.set_smep_support(0u64);
+        proc_features.__bindgen_anon_1.set_rdtscp_support(0u64);
+    }
+
+    // SAFETY: access union fields
+    unsafe {
+        for i in 0..MSHV_NUM_CPU_FEATURES_BANKS {
+            create_args.pt_cpu_fbanks[i as usize] = proc_features.as_uint64[i as usize];
+        }
+    }
+
+    create_args
+}
+
 /// Wrapper over MSHV system ioctls.
 #[derive(Debug)]
 pub struct Mshv {
@@ -88,7 +150,7 @@ impl Mshv {
     }
 
     /// Creates a VM fd using the MSHV fd and prepared mshv partition.
-    pub fn create_vm_with_args(&self, args: &mshv_create_partition) -> Result<VmFd> {
+    pub fn create_vm_with_args(&self, args: &mshv_create_partition_v2) -> Result<VmFd> {
         // SAFETY: IOCTL call with the correct types.
         let ret = unsafe { ioctl_with_ref(&self.hv, MSHV_CREATE_PARTITION(), args) };
         if ret >= 0 {
@@ -114,22 +176,7 @@ impl Mshv {
 
     /// Helper function to creates a VM fd using the MSHV fd with provided configuration.
     pub fn create_vm_with_type(&self, vm_type: VmType) -> Result<VmFd> {
-        let pt_flags: u64 = set_bits!(
-            u64,
-            MSHV_PT_BIT_LAPIC,
-            MSHV_PT_BIT_X2APIC,
-            MSHV_PT_BIT_GPA_SUPER_PAGES
-        );
-        let mut pt_isolation: u64 = MSHV_PT_ISOLATION_NONE as u64;
-
-        if vm_type == VmType::Snp {
-            pt_isolation = MSHV_PT_ISOLATION_SNP as u64;
-        }
-
-        let create_args = mshv_create_partition {
-            pt_flags,
-            pt_isolation,
-        };
+        let create_args = make_partition_create_arg(vm_type);
 
         let vm = self.create_vm_with_args(&create_args)?;
 
@@ -263,7 +310,7 @@ mod tests {
     #[test]
     #[ignore]
     fn test_create_vm_with_default_config() {
-        let pr: mshv_create_partition = Default::default();
+        let pr: mshv_create_partition_v2 = make_partition_create_arg(VmType::Normal);
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm_with_args(&pr);
         assert!(vm.is_ok());
