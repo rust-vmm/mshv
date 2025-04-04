@@ -14,6 +14,33 @@ use std::os::unix::io::{FromRawFd, RawFd};
 use vmm_sys_util::errno;
 use vmm_sys_util::ioctl::ioctl_with_ref;
 
+/// Helper function to populate synthetic features for the partition to create
+fn make_synthetic_features_mask() -> u64 {
+    let mut features: hv_partition_synthetic_processor_features = Default::default();
+    // SAFETY: access union fields
+    unsafe {
+        let feature_bits = &mut features.__bindgen_anon_1;
+        feature_bits.set_hypervisor_present(1);
+        feature_bits.set_hv1(1);
+        feature_bits.set_access_partition_reference_counter(1);
+        feature_bits.set_access_synic_regs(1);
+        feature_bits.set_access_synthetic_timer_regs(1);
+        feature_bits.set_access_partition_reference_tsc(1);
+        feature_bits.set_access_frequency_regs(1);
+        feature_bits.set_access_intr_ctrl_regs(1);
+        feature_bits.set_access_vp_index(1);
+        feature_bits.set_access_hypercall_regs(1);
+        #[cfg(not(target_arch = "aarch64"))]
+        feature_bits.set_access_guest_idle_reg(1);
+        feature_bits.set_tb_flush_hypercalls(1);
+        feature_bits.set_synthetic_cluster_ipi(1);
+        feature_bits.set_direct_synthetic_timers(1);
+    }
+
+    // SAFETY: access union fields
+    unsafe { features.as_uint64[0] }
+}
+
 /// Wrapper over MSHV system ioctls.
 #[derive(Debug)]
 pub struct Mshv {
@@ -87,25 +114,6 @@ impl Mshv {
 
     /// Helper function to creates a VM fd using the MSHV fd with provided configuration.
     pub fn create_vm_with_type(&self, vm_type: VmType) -> Result<VmFd> {
-        let mut features: hv_partition_synthetic_processor_features = Default::default();
-        unsafe {
-            let feature_bits = &mut features.__bindgen_anon_1;
-            feature_bits.set_hypervisor_present(1);
-            feature_bits.set_hv1(1);
-            feature_bits.set_access_partition_reference_counter(1);
-            feature_bits.set_access_synic_regs(1);
-            feature_bits.set_access_synthetic_timer_regs(1);
-            feature_bits.set_access_partition_reference_tsc(1);
-            feature_bits.set_access_frequency_regs(1);
-            feature_bits.set_access_intr_ctrl_regs(1);
-            feature_bits.set_access_vp_index(1);
-            feature_bits.set_access_hypercall_regs(1);
-            #[cfg(not(target_arch = "aarch64"))]
-            feature_bits.set_access_guest_idle_reg(1);
-            feature_bits.set_tb_flush_hypercalls(1);
-            feature_bits.set_synthetic_cluster_ipi(1);
-            feature_bits.set_direct_synthetic_timers(1);
-        }
         let pt_flags: u64 = set_bits!(
             u64,
             MSHV_PT_BIT_LAPIC,
@@ -128,7 +136,7 @@ impl Mshv {
         // This is an 'early' property that must be set between creation and initialization
         vm.hvcall_set_partition_property(
             hv_partition_property_code_HV_PARTITION_PROPERTY_SYNTHETIC_PROC_FEATURES,
-            unsafe { features.as_uint64[0] },
+            make_synthetic_features_mask(),
         )?;
 
         vm.initialize()?;
