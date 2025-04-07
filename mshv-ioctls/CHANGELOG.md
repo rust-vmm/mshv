@@ -9,6 +9,14 @@
 
 ### Fixed
 
+## [v0.3.5]
+
+### Added
+* [[197]](https://github.com/rust-vmm/mshv/pull/197) mshv-ioctls: Implement get/set reg for aarch64
+
+### Changed
+* [[200]](https://github.com/rust-vmm/mshv/pull/200) Validate VP register page before using it
+
 ## [v0.3.4]
 
 ### Added

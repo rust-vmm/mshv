@@ -9,6 +9,16 @@
 
 ### Fixed
 
+## [v0.3.5]
+
+### Added
+* [[196]](https://github.com/rust-vmm/mshv/pull/196) mshv-bindings: Add support for unmarshaling memory intercept
+* [[198]](https://github.com/rust-vmm/mshv/pull/198) Add more xsave related registers
+
+### Changed
+* [[195]](https://github.com/rust-vmm/mshv/pull/195) mshv-bindings: Update bindings for ARM64 guest
+* [[203]](https://github.com/rust-vmm/mshv/pull/203) Add new struct and generate new bindings
+
 ## [v0.3.4]
 
 ## [v0.3.3]
