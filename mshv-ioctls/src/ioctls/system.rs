@@ -191,8 +191,6 @@ impl Mshv {
             make_synthetic_features_mask(),
         )?;
 
-        vm.initialize()?;
-
         Ok(vm)
     }
 
