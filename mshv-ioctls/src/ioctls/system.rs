@@ -131,8 +131,6 @@ impl Mshv {
             unsafe { features.as_uint64[0] },
         )?;
 
-        vm.initialize()?;
-
         Ok(vm)
     }
 
