@@ -2560,6 +2560,7 @@ mod tests {
         assert!(max_function >= 1);
         let res_1 = vcpu.hvcall_get_cpuid_values(0, 0, 0, 0).unwrap();
         assert!(res_1[0] >= 1);
+        assert!(res_0[0] == res_1[0]);
     }
 
     #[cfg(target_arch = "x86_64")]
