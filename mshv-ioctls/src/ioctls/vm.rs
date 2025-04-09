@@ -974,6 +974,7 @@ mod tests {
             long_mode: false,
         };
         vm.request_virtual_interrupt(&cfg).unwrap();
+        vm.hvcall_assert_virtual_interrupt(&cfg).unwrap();
     }
 
     #[cfg(target_arch = "x86_64")]
@@ -987,6 +988,13 @@ mod tests {
             intercept_parameter: hv_intercept_parameters { cpuid_index: 0x100 },
         };
         assert!(vm.install_intercept(intercept_args).is_ok());
+        assert!(vm
+            .hvcall_install_intercept(
+                HV_INTERCEPT_ACCESS_MASK_EXECUTE,
+                hv_intercept_type_HV_INTERCEPT_TYPE_X64_CPUID,
+                hv_intercept_parameters { cpuid_index: 0x101 },
+            )
+            .is_ok());
     }
 
     #[cfg(target_arch = "x86_64")]
@@ -1000,18 +1008,36 @@ mod tests {
                 hv_partition_property_code_HV_PARTITION_PROPERTY_MAX_XSAVE_DATA_SIZE,
             )
             .unwrap();
+        let mut hvcall_val = vm
+            .hvcall_get_partition_property(
+                hv_partition_property_code_HV_PARTITION_PROPERTY_MAX_XSAVE_DATA_SIZE,
+            )
+            .unwrap();
+        assert!(val == hvcall_val);
         println!("Max xsave data size: {val} bytes");
         val = vm
             .get_partition_property(
                 hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_XSAVE_FEATURES,
             )
             .unwrap();
+        hvcall_val = vm
+            .hvcall_get_partition_property(
+                hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_XSAVE_FEATURES,
+            )
+            .unwrap();
+        assert!(val == hvcall_val);
         println!("Xsave feature: {val}");
         val = vm
             .get_partition_property(
                 hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_CLOCK_FREQUENCY,
             )
             .unwrap();
+        hvcall_val = vm
+            .hvcall_get_partition_property(
+                hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_CLOCK_FREQUENCY,
+            )
+            .unwrap();
+        assert!(val == hvcall_val);
         println!("Processor frequency: {val}");
         vm.set_partition_property(
             hv_partition_property_code_HV_PARTITION_PROPERTY_UNIMPLEMENTED_MSR_ACTION,
@@ -1027,6 +1053,12 @@ mod tests {
             val == hv_unimplemented_msr_action_HV_UNIMPLEMENTED_MSR_ACTION_IGNORE_WRITE_READ_ZERO
                 .into()
         );
+        hvcall_val = vm
+            .hvcall_get_partition_property(
+                hv_partition_property_code_HV_PARTITION_PROPERTY_UNIMPLEMENTED_MSR_ACTION,
+            )
+            .unwrap();
+        assert!(val == hvcall_val);
     }
 
     #[cfg(target_arch = "x86_64")]
@@ -1195,6 +1227,7 @@ mod tests {
         let vm = hv.create_vm().unwrap();
         let _vcpu = vm.create_vcpu(0).unwrap();
         vm.signal_event_direct(0, 0, 1).unwrap();
+        vm.hvcall_signal_event_direct(0, 0, 1).unwrap();
     }
 
     #[test]
@@ -1207,6 +1240,7 @@ mod tests {
         let _vcpu = vm.create_vcpu(0).unwrap();
         let hv_message: [u8; mem::size_of::<HvMessage>()] = [0; mem::size_of::<HvMessage>()];
         vm.post_message_direct(0, 0, &hv_message).unwrap();
+        vm.hvcall_post_message_direct(0, 0, &hv_message).unwrap();
     }
 
     #[test]
@@ -1216,10 +1250,30 @@ mod tests {
         let vm = hv.create_vm().unwrap();
         let _vcpu = vm.create_vcpu(0).unwrap();
         vm.register_deliverabilty_notifications(0, 0).unwrap();
+        vm.hvcall_register_deliverability_notifications(0, 0)
+            .unwrap();
         let res = vm.register_deliverabilty_notifications(0, 1);
         assert!(res.is_err());
         if let Err(e) = res {
             assert!(e == MshvError::from(libc::EINVAL))
+        }
+        let hvcall_res = vm.hvcall_register_deliverability_notifications(0, 1);
+        assert!(hvcall_res.is_err());
+        if let Err(e) = hvcall_res {
+            assert!(matches!(e, MshvError::Hypercall { .. }));
+            assert!(e.errno() == libc::EIO);
+            match e {
+                MshvError::Hypercall {
+                    code,
+                    status_raw,
+                    status,
+                } => {
+                    assert!(code == HVCALL_SET_VP_REGISTERS as u16);
+                    assert!(status_raw == HV_STATUS_INVALID_PARAMETER as u16);
+                    assert!(status.unwrap() as u32 == HV_STATUS_INVALID_PARAMETER);
+                }
+                _ => unreachable!(),
+            }
         }
     }
 }
