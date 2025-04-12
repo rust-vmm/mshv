@@ -12,7 +12,7 @@ use std::fs::File;
 use std::os::raw::c_char;
 use std::os::unix::io::{FromRawFd, RawFd};
 use vmm_sys_util::errno;
-use vmm_sys_util::ioctl::ioctl_with_ref;
+use vmm_sys_util::ioctl::{ioctl_with_mut_ref, ioctl_with_ref};
 
 /// Helper function to populate synthetic features for the partition to create
 fn make_synthetic_features_mask() -> u64 {
@@ -163,12 +163,17 @@ impl Mshv {
     }
 
     /// Retrieve the host partition property given a property code.
-    pub fn get_host_partition_property(&self, property_code: u64) -> Result<i32> {
+    pub fn get_host_partition_property(&self, property_code: u32) -> Result<u64> {
+        let mut property = mshv_partition_property {
+            property_code: property_code as u64,
+            ..Default::default()
+        };
         // SAFETY: IOCTL call with the correct types.
-        let ret =
-            unsafe { ioctl_with_ref(&self.hv, MSHV_GET_HOST_PARTITION_PROPERTY(), &property_code) };
-        if ret >= 0 {
-            Ok(ret)
+        let ret = unsafe {
+            ioctl_with_mut_ref(&self.hv, MSHV_GET_HOST_PARTITION_PROPERTY(), &mut property)
+        };
+        if ret == 0 {
+            Ok(property.property_value)
         } else {
             Err(errno::Error::last().into())
         }
@@ -226,7 +231,7 @@ mod tests {
     fn test_get_host_ipa_limit() {
         let hv = Mshv::new().unwrap();
         let host_ipa_limit = hv.get_host_partition_property(
-            hv_partition_property_code_HV_PARTITION_PROPERTY_PHYSICAL_ADDRESS_WIDTH as u64,
+            hv_partition_property_code_HV_PARTITION_PROPERTY_PHYSICAL_ADDRESS_WIDTH,
         );
         assert!(host_ipa_limit.is_ok());
     }
