@@ -613,7 +613,7 @@ impl VmFd {
     /// For more of the codes, please see the hv_partition_property_code type definitions in the bindings.rs
     pub fn get_partition_property(&self, code: u32) -> Result<u64> {
         let mut property = mshv_partition_property {
-            property_code: code,
+            property_code: code as u64,
             ..Default::default()
         };
         // SAFETY: IOCTL with correct types
@@ -629,7 +629,7 @@ impl VmFd {
     /// Sets a partion property
     pub fn set_partition_property(&self, code: u32, value: u64) -> Result<()> {
         let property: mshv_partition_property = mshv_partition_property {
-            property_code: code,
+            property_code: code as u64,
             property_value: value,
         };
         // SAFETY: IOCTL with correct types
