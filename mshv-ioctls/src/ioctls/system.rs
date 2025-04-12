@@ -74,12 +74,12 @@ impl Mshv {
     }
 
     /// Retrieve the host partition property given a property code.
-    pub fn get_host_partition_property(&self, property_code: u64) -> Result<i32> {
+    pub fn get_host_partition_property(&self, property_code: u64) -> Result<u64> {
         // SAFETY: IOCTL call with the correct types.
         let ret =
             unsafe { ioctl_with_ref(&self.hv, MSHV_GET_HOST_PARTITION_PROPERTY(), &property_code) };
-        if ret >= 0 {
-            Ok(ret)
+        if ret == 0 {
+            Ok(property_code)
         } else {
             Err(errno::Error::last().into())
         }
