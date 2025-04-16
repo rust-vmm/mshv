@@ -892,6 +892,13 @@ pub static MSRS_OTHER: &[u32; 4] = &[
     HV_X64_MSR_GUEST_OS_ID,
 ];
 
+#[derive(Default, Copy, Clone)]
+pub struct VpFeatures {
+    pub proc_features: hv_partition_processor_features,
+    pub xsave_features: hv_partition_processor_xsave_features,
+    pub synthetic_features: hv_partition_synthetic_processor_features,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
