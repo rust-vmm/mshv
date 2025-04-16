@@ -772,6 +772,41 @@ impl VmFd {
             Err(MshvError::from_hvcall(errno::Error::last(), *args))
         }
     }
+
+    #[cfg(target_arch = "x86_64")]
+    /// X86 specific call to get list of supported MSRs
+    pub fn get_msr_index_list(&self) -> Result<Vec<u32>> {
+        let xsave_feature_val = self.get_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_XSAVE_FEATURES,
+        )?;
+        let proc_features0 = self.get_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES0,
+        )?;
+        let proc_features1 = self.get_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES1,
+        )?;
+        let syn_feature = self.get_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_SYNTHETIC_PROC_FEATURES,
+        )?;
+        let mut proc_features = hv_partition_processor_features::default();
+        // SAFETY: access union fields
+        unsafe {
+            proc_features.as_uint64[0] = proc_features0;
+            proc_features.as_uint64[1] = proc_features1;
+        }
+        let synthetic_features = hv_partition_synthetic_processor_features {
+            as_uint64: [syn_feature],
+        };
+        let xsave_features = hv_partition_processor_xsave_features {
+            as_uint64: xsave_feature_val,
+        };
+        let vp_features: VpFeatures = VpFeatures {
+            proc_features,
+            xsave_features,
+            synthetic_features,
+        };
+        Ok(get_partition_supported_msrs(&vp_features))
+    }
 }
 /// Helper function to create a new `VmFd`.
 ///
