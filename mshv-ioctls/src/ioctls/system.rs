@@ -142,90 +142,14 @@ impl Mshv {
     }
 
     #[cfg(target_arch = "x86_64")]
-    /// X86 specific call to get list of supported MSRS
-    pub fn get_msr_index_list(&self) -> Result<MsrList> {
-        /* return all the MSRs we currently support */
-        Ok(MsrList::from_entries(&[
-            IA32_MSR_TSC,
-            IA32_MSR_EFER,
-            IA32_MSR_KERNEL_GS_BASE,
-            IA32_MSR_APIC_BASE,
-            IA32_MSR_PAT,
-            IA32_MSR_SYSENTER_CS,
-            IA32_MSR_SYSENTER_ESP,
-            IA32_MSR_SYSENTER_EIP,
-            IA32_MSR_STAR,
-            IA32_MSR_LSTAR,
-            IA32_MSR_CSTAR,
-            IA32_MSR_SFMASK,
-            IA32_MSR_MTRR_DEF_TYPE,
-            IA32_MSR_MTRR_PHYSBASE0,
-            IA32_MSR_MTRR_PHYSMASK0,
-            IA32_MSR_MTRR_PHYSBASE1,
-            IA32_MSR_MTRR_PHYSMASK1,
-            IA32_MSR_MTRR_PHYSBASE2,
-            IA32_MSR_MTRR_PHYSMASK2,
-            IA32_MSR_MTRR_PHYSBASE3,
-            IA32_MSR_MTRR_PHYSMASK3,
-            IA32_MSR_MTRR_PHYSBASE4,
-            IA32_MSR_MTRR_PHYSMASK4,
-            IA32_MSR_MTRR_PHYSBASE5,
-            IA32_MSR_MTRR_PHYSMASK5,
-            IA32_MSR_MTRR_PHYSBASE6,
-            IA32_MSR_MTRR_PHYSMASK6,
-            IA32_MSR_MTRR_PHYSBASE7,
-            IA32_MSR_MTRR_PHYSMASK7,
-            IA32_MSR_MTRR_FIX64K_00000,
-            IA32_MSR_MTRR_FIX16K_80000,
-            IA32_MSR_MTRR_FIX16K_A0000,
-            IA32_MSR_MTRR_FIX4K_C0000,
-            IA32_MSR_MTRR_FIX4K_C8000,
-            IA32_MSR_MTRR_FIX4K_D0000,
-            IA32_MSR_MTRR_FIX4K_D8000,
-            IA32_MSR_MTRR_FIX4K_E0000,
-            IA32_MSR_MTRR_FIX4K_E8000,
-            IA32_MSR_MTRR_FIX4K_F0000,
-            IA32_MSR_MTRR_FIX4K_F8000,
-            IA32_MSR_TSC_AUX,
-            /*
-                IA32_MSR_BNDCFGS MSR can be accessed if any of the following features enabled
-                HV_X64_PROCESSOR_FEATURE0_IBRS
-                HV_X64_PROCESSOR_FEATURE0_STIBP
-                HV_X64_PROCESSOR_FEATURE0_MDD
-                HV_X64_PROCESSOR_FEATURE1_PSFD
-            */
-            //IA32_MSR_BNDCFGS,
-            IA32_MSR_DEBUG_CTL,
-            /*
-                MPX support needed for this MSR
-                Currently feature is not enabled
-            */
-            //IA32_MSR_SPEC_CTRL,
-            //IA32_MSR_TSC_ADJUST, // Current hypervisor version does not allow to get this MSR, need to check later
-            HV_X64_MSR_GUEST_OS_ID,
-            HV_X64_MSR_SINT0,
-            HV_X64_MSR_SINT1,
-            HV_X64_MSR_SINT2,
-            HV_X64_MSR_SINT3,
-            HV_X64_MSR_SINT4,
-            HV_X64_MSR_SINT5,
-            HV_X64_MSR_SINT6,
-            HV_X64_MSR_SINT7,
-            HV_X64_MSR_SINT8,
-            HV_X64_MSR_SINT9,
-            HV_X64_MSR_SINT10,
-            HV_X64_MSR_SINT11,
-            HV_X64_MSR_SINT12,
-            HV_X64_MSR_SINT13,
-            HV_X64_MSR_SINT14,
-            HV_X64_MSR_SINT15,
-            HV_X64_MSR_SCONTROL,
-            HV_X64_MSR_SIEFP,
-            HV_X64_MSR_SIMP,
-            HV_X64_MSR_REFERENCE_TSC,
-            HV_X64_MSR_EOM,
-        ])
-        .unwrap())
+    /// X86 specific call to get list of supported MSRs
+    pub fn get_msr_index_list(&self) -> Result<Vec<u32>> {
+        let mut msrs: Vec<u32> = Vec::new();
+        msrs.extend_from_slice(MSRS_COMMON);
+        msrs.extend_from_slice(MSRS_CET_SS);
+        msrs.extend_from_slice(MSRS_SYNIC);
+        msrs.extend_from_slice(MSRS_OTHER);
+        Ok(msrs)
     }
 }
 
@@ -266,11 +190,11 @@ mod tests {
     fn test_get_msr_index_list() {
         let hv = Mshv::new().unwrap();
         let msr_list = hv.get_msr_index_list().unwrap();
-        assert!(msr_list.as_fam_struct_ref().nmsrs == 64);
+        assert!(msr_list.len() == 73);
 
         let mut found = false;
-        for index in msr_list.as_slice() {
-            if *index == IA32_MSR_SYSENTER_CS {
+        for index in msr_list {
+            if index == IA32_MSR_SYSENTER_CS {
                 found = true;
                 break;
             }
@@ -281,19 +205,19 @@ mod tests {
         let vm = hv.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
         let mut num_errors = 0;
-        for idx in hv.get_msr_index_list().unwrap().as_slice().iter() {
+        for idx in hv.get_msr_index_list().unwrap() {
             let mut get_set_msrs = Msrs::from_entries(&[msr_entry {
-                index: *idx,
+                index: idx,
                 ..Default::default()
             }])
             .unwrap();
             vcpu.get_msrs(&mut get_set_msrs).unwrap_or_else(|_| {
-                println!("Error getting MSR: 0x{:x}", *idx);
+                println!("Error getting MSR: 0x{:x}", idx);
                 num_errors += 1;
                 0
             });
             vcpu.set_msrs(&get_set_msrs).unwrap_or_else(|_| {
-                println!("Error setting MSR: 0x{:x}", *idx);
+                println!("Error setting MSR: 0x{:x}", idx);
                 num_errors += 1;
                 0
             });
