@@ -173,7 +173,7 @@ macro_rules! make_args {
             in_sz: std::mem::size_of_val(&$input_ident) as u16,
             out_sz: std::mem::size_of_val(&$output_ident) as u16,
             in_ptr: std::ptr::addr_of!($input_ident) as u64,
-            out_ptr: std::ptr::addr_of!($output_ident) as u64,
+            out_ptr: std::ptr::addr_of_mut!($output_ident) as u64,
             ..Default::default()
         }
     }};
