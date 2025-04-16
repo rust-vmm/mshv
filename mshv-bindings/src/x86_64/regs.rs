@@ -899,6 +899,57 @@ pub struct VpFeatures {
     pub synthetic_features: hv_partition_synthetic_processor_features,
 }
 
+/// Return the MSR indexes based on supported CPU features
+pub fn get_partition_supported_msrs(features: &VpFeatures) -> Vec<u32> {
+    let mut msrs: Vec<u32> = Vec::new();
+    msrs.extend_from_slice(MSRS_COMMON);
+
+    // SAFETY: access union fields
+    unsafe {
+        if features.proc_features.__bindgen_anon_1.cet_ss_support() == 1u64 {
+            msrs.extend_from_slice(MSRS_CET_SS);
+        }
+        if features.proc_features.__bindgen_anon_1.rdtscp_support() == 1u64 {
+            msrs.push(IA32_MSR_TSC_AUX);
+        }
+        if features
+            .xsave_features
+            .__bindgen_anon_1
+            .xsave_supervisor_support()
+            == 1u64
+        {
+            msrs.push(MSR_IA32_REGISTER_U_XSS);
+        }
+        if features
+            .synthetic_features
+            .__bindgen_anon_1
+            .access_synic_regs()
+            == 1u64
+        {
+            msrs.extend_from_slice(MSRS_SYNIC);
+        }
+        if features
+            .synthetic_features
+            .__bindgen_anon_1
+            .access_partition_reference_tsc()
+            == 1u64
+        {
+            msrs.push(HV_X64_MSR_REFERENCE_TSC);
+        }
+        if features
+            .synthetic_features
+            .__bindgen_anon_1
+            .access_hypercall_regs()
+            == 1u64
+        {
+            msrs.push(HV_X64_MSR_GUEST_OS_ID);
+        }
+    }
+
+    /* return all the MSRs we currently support */
+    msrs
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
