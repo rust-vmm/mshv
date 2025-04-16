@@ -356,6 +356,17 @@ pub fn msr_to_hv_reg_name(msr: u32) -> Result<::std::os::raw::c_uint, &'static s
         HV_X64_MSR_SIMP => Ok(hv_register_name_HV_REGISTER_SIMP),
         HV_X64_MSR_REFERENCE_TSC => Ok(hv_register_name_HV_REGISTER_REFERENCE_TSC),
         HV_X64_MSR_EOM => Ok(hv_register_name_HV_REGISTER_EOM),
+        MSR_IA32_REGISTER_U_XSS => Ok(hv_register_name_HV_X64_REGISTER_U_XSS),
+        MSR_IA32_U_CET => Ok(hv_register_name_HV_X64_REGISTER_U_CET),
+        MSR_IA32_S_CET => Ok(hv_register_name_HV_X64_REGISTER_S_CET),
+        MSR_IA32_SSP => Ok(hv_register_name_HV_X64_REGISTER_SSP),
+        MSR_IA32_PL0_SSP => Ok(hv_register_name_HV_X64_REGISTER_PL0_SSP),
+        MSR_IA32_PL1_SSP => Ok(hv_register_name_HV_X64_REGISTER_PL1_SSP),
+        MSR_IA32_PL2_SSP => Ok(hv_register_name_HV_X64_REGISTER_PL2_SSP),
+        MSR_IA32_PL3_SSP => Ok(hv_register_name_HV_X64_REGISTER_PL3_SSP),
+        MSR_IA32_INTERRUPT_SSP_TABLE_ADDR => {
+            Ok(hv_register_name_HV_X64_REGISTER_INTERRUPT_SSP_TABLE_ADDR)
+        }
         _ => Err("Not a supported hv_register_name msr"),
     }
 }
