@@ -5685,6 +5685,15 @@ pub const hv_partition_property_code_HV_PARTITION_PROPERTY_GICD_BASE_ADDRESS:
     hv_partition_property_code = 327720;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_GITS_TRANSLATER_BASE_ADDRESS:
     hv_partition_property_code = 327721;
+pub const hv_partition_property_code_HV_PARTITION_PROPERTY_GIC_LPI_INT_ID_BITS:
+    hv_partition_property_code = 327722;
+pub const hv_partition_property_code_HV_PARTITION_PROPERTY_GIC_PPI_OVERFLOW_INTERRUPT_FROM_CNTV:
+    hv_partition_property_code = 327723;
+pub const hv_partition_property_code_HV_PARTITION_PROPERTY_GIC_PPI_OVERFLOW_INTERRUPT_FROM_CNTP:
+    hv_partition_property_code = 327724;
+pub const hv_partition_property_code_HV_PARTITION_PROPERTY_GIC_PPI_PERFORMANCE_MONITORS_INTERRUPT : hv_partition_property_code = 327725 ;
+pub const hv_partition_property_code_HV_PARTITION_PROPERTY_GIC_PPI_PMBIRQ:
+    hv_partition_property_code = 327726;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_VENDOR:
     hv_partition_property_code = 393216;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES_DEPRECATED:
