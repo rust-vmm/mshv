@@ -31,6 +31,26 @@ jobs:
           repository: cloud-hypervisor/cloud-hypervisor
           path: cloud-hypervisor
 
+      - name: Cloning vfio Repo
+        uses: actions/checkout@v4
+        with:
+          repository: rust-vmm/vfio
+          path: vfio
+
+      - name: Cloning vfio-user Repo
+        uses: actions/checkout@v4
+        with:
+          repository: rust-vmm/vfio-user
+          path: vfio-user
+
+      - name: Copying script to vfio directory
+        working-directory: ./mshv
+        run: cp scripts/use-local-mshv-for-vfio-build.sh ../vfio/
+
+      - name: Copying script to vfio-user directory
+        working-directory: ./mshv
+        run: cp scripts/use-local-vfio-for-vfio-user-build.sh ../vfio-user/
+
       - name: Copying script to CLH directory
         working-directory: ./mshv
         run: cp scripts/use-local-mshv-for-clh-build.sh ../cloud-hypervisor/
@@ -38,6 +58,14 @@ jobs:
       - name: Applying patch(to use local mshv crates) with script
         working-directory: ./cloud-hypervisor
         run: ./use-local-mshv-for-clh-build.sh
+
+      - name: Applying patch(to use local mshv crates) with script
+        working-directory: ./vfio
+        run: ./use-local-mshv-for-vfio-build.sh
+
+      - name: Applying patch(to use local vfio-binding crate) with script
+        working-directory: ./vfio-user
+        run: ./use-local-vfio-for-vfio-user-build.sh
 
       - name: Build Cloud-Hypervisor(mshv,kvm)
         working-directory: ./cloud-hypervisor
