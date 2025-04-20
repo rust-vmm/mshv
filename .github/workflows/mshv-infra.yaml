@@ -1,0 +1,251 @@
+name: MSHV Infra Setup
+on: 
+  workflow_call:
+    inputs:
+      ARCH:
+        description: 'Architecture for the VM'
+        required: true
+        type: string
+      RG:
+        description: 'Resource Group Name'
+        required: true
+        type: string
+      SKU:
+        description: 'VM SKU'
+        required: true
+        type: string
+    secrets:
+      MI_CLIENT_ID:
+        required: true
+      RUNNER_RG:
+        required: true
+      RUNNER:
+        required: true
+      STORAGE_ACCOUNT_PATHS:
+        required: true
+      AARCH64_SOURCE_PATH:
+        required: true
+      X86_SOURCE_PATH:
+        required: true
+      USERNAME:
+        required: true
+    outputs:
+      PRIVATE_IP:
+        description: 'Private IP of the VM'
+        value: ${{ jobs.infra-setup.outputs.PRIVATE_IP }}
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.ARCH }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  infra-setup:
+    name: Provision VM for ${{ inputs.ARCH }}
+    runs-on: 
+      - self-hosted
+      - Linux
+    outputs:
+      PRIVATE_IP: ${{ steps.get-vm-ip.outputs.PRIVATE_IP }}
+    steps:
+      - name: Install & login to AZ CLI
+        env:
+          MI_CLIENT_ID: ${{ secrets.MI_CLIENT_ID }}
+        run: |
+          set -e
+          echo "Installing Azure CLI if not already installed"
+          if ! command -v az &>/dev/null; then
+            curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+          else
+            echo "Azure CLI already installed"
+          fi
+          az --version
+          echo "Logging into Azure CLI using Managed Identity"
+          az login --identity --client-id ${MI_CLIENT_ID}
+
+      - name: Create Resource Group
+        id: rg-setup
+        env:
+          RG: ${{ inputs.RG }}
+          STORAGE_ACCOUNT_PATHS: ${{ secrets.STORAGE_ACCOUNT_PATHS }}
+        run: |
+          set -e
+          echo "Creating Resource Group: $RG"
+          #  Extract the location from the storage account paths
+          LOCATION=$(echo "$STORAGE_ACCOUNT_PATHS" | jq -r 'to_entries[0].key')
+          if [[ -z "$LOCATION" ]]; then
+            echo "ERROR: Failed to extract location from storage account paths."
+            exit 1
+          fi
+          echo "LOCATION=$LOCATION" >> $GITHUB_ENV
+          # Create the resource group
+          echo "Creating resource group in location: $LOCATION"
+          az group create --name ${RG} --location ${LOCATION}
+          echo "Resource group created successfully."
+
+      - name: Copy/Upload VHD to Azure Storage Account based on architecture
+        env:
+          ARCH: ${{ inputs.ARCH }}
+          IMAGE_NAME: ${{ inputs.ARCH }}-image
+          MI_CLIENT_ID: ${{ secrets.MI_CLIENT_ID }}
+          RG: ${{ inputs.RG }}
+          LOCATION: ${{ env.LOCATION }}
+          SOURCE_PATH_X86: ${{ secrets.X86_SOURCE_PATH }}
+          SOURCE_PATH_AARCH64: ${{ secrets.AARCH64_SOURCE_PATH }}
+          STORAGE_ACCOUNT_PATHS: ${{ secrets.STORAGE_ACCOUNT_PATHS }}
+        run: |
+          set -e
+          echo "Installing AzCopy if not already installed"
+          if ! command -v azcopy &> /dev/null; then
+            wget -O azcopy.tar.gz https://aka.ms/downloadazcopy-v10-linux
+            tar -xvf azcopy.tar.gz
+            sudo mv azcopy*/azcopy /usr/local/bin/
+            sudo chmod +x /usr/local/bin/azcopy
+          fi
+          azcopy --version
+          echo "Logging into AzCopy"
+          azcopy login --identity --identity-client-id ${MI_CLIENT_ID}
+
+          # Retrieve the storage account path
+          STORAGE_ACCOUNT_PATH=$(echo "$STORAGE_ACCOUNT_PATHS" | jq -r 'to_entries[0].value')
+
+          # Determine the source path based on architecture
+          if [ "${ARCH}" == "x86_64" ]; then
+            SOURCE_PATH=${SOURCE_PATH_X86}
+            BLOB_URL="${STORAGE_ACCOUNT_PATH}/${GITHUB_RUN_ID}/x86.vhd"
+          elif [ "${ARCH}" == "aarch64" ]; then
+            SOURCE_PATH=${SOURCE_PATH_AARCH64}
+            BLOB_URL="${STORAGE_ACCOUNT_PATH}/${GITHUB_RUN_ID}/aarch64.vhd"
+          else
+            echo "ERROR: Unsupported architecture: ${ARCH}"
+            exit 1
+          fi
+
+          echo "Uploading VHD to Azure Storage Account"
+          azcopy copy ${SOURCE_PATH} ${BLOB_URL}
+          echo "VHD upload complete"
+
+          # Create Image from the VHD
+          echo "Creating Image"
+          az image create \
+            --resource-group ${RG} \
+            --name ${IMAGE_NAME} \
+            --source $BLOB_URL \
+            --os-type Linux \
+            --location ${LOCATION} \
+            --hyper-v-generation V2 || true
+          echo "Image creation complete"
+
+      - name: Generate SSH Key
+        run: |
+          # Check if SSH key already exists, if not, generate a new one
+          mkdir -p ~/.ssh
+          if [ ! -f ~/.ssh/azure_key ]; then
+            ssh-keygen -t rsa -b 4096 -f ~/.ssh/azure_key -N ""
+          fi
+
+      - name: Create VM
+        id: vm-setup
+        env:
+          IMAGE_NAME: ${{ inputs.ARCH }}-image
+          LOCATION: ${{ env.LOCATION }}
+          OS_DISK_SIZE: 512
+          RG: ${{ inputs.RG }}
+          RUNNER_RG: ${{ secrets.RUNNER_RG }}
+          RUNNER: ${{ secrets.RUNNER }}
+          VM_SKU: ${{ inputs.SKU }}
+          VM_NAME: ${{ inputs.ARCH }}_${{ github.run_id }}
+          USERNAME: ${{ secrets.USERNAME }}
+        run: |
+          set -e
+          echo "Starting VM creation process..."
+          # Extract subnet ID from the runner VM
+          echo "Retrieving subnet ID..."
+          SUBNET_ID=$(az network vnet list --resource-group ${RUNNER_RG} --query "[?contains(location, '${LOCATION}')].{SUBNETS:subnets}" | jq -r ".[0].SUBNETS[0].id")
+          if [[ -z "$SUBNET_ID" ]]; then
+            echo "ERROR: Failed to retrieve Subnet ID."
+            exit 1
+          fi
+          echo "Successfully retrieved Subnet ID: $SUBNET_ID."
+          # Create VM
+          echo "Creating VM: $VM_NAME"
+          echo "Using Image: $IMAGE_NAME"
+          echo "Using VM SKU: $VM_SKU"
+          az vm create \
+            --resource-group ${RG} \
+            --name ${VM_NAME} \
+            --subnet $SUBNET_ID \
+            --size ${VM_SKU} \
+            --location ${LOCATION} \
+            --image ${IMAGE_NAME} \
+            --os-disk-size-gb ${OS_DISK_SIZE} \
+            --public-ip-sku Standard \
+            --storage-sku Premium_LRS \
+            --public-ip-address "" \
+            --admin-username ${USERNAME} \
+            --ssh-key-value ~/.ssh/azure_key.pub \
+            --security-type Standard \
+            --output json
+
+          echo "VM creation process completed successfully."
+
+      - name: Get VM Private IP
+        id: get-vm-ip
+        env:
+          RG: ${{ inputs.RG }}
+          VM_NAME: ${{ inputs.ARCH }}_${{ github.run_id }}
+        run: |
+          set -e
+          echo "Retrieving VM Private IP address..."
+          # Retrieve VM Private IP address
+          PRIVATE_IP=$(az vm show -g ${RG} -n ${VM_NAME} -d --query privateIps -o tsv)
+          if [[ -z "$PRIVATE_IP" ]]; then
+            echo "ERROR: Failed to retrieve private IP address."
+            exit 1
+          fi
+          echo "PRIVATE_IP=$PRIVATE_IP" >> $GITHUB_OUTPUT
+
+      - name: Wait for SSH availability
+        run: |
+          echo "Waiting for SSH to be accessible..."
+          sleep 30
+
+      - name: Remove Old Host Key
+        env:
+          PRIVATE_IP: ${{ steps.get-vm-ip.outputs.PRIVATE_IP }}
+        run: |
+          set -e
+          echo "Removing the old host key"
+          ssh-keygen -R $PRIVATE_IP
+
+      - name: SSH into VM and Install Dependencies
+        env:
+          PRIVATE_IP: ${{ steps.get-vm-ip.outputs.PRIVATE_IP }}
+          USERNAME: ${{ secrets.USERNAME }}
+        run: |
+          set -e
+          set +x
+          ssh -i ~/.ssh/azure_key -o StrictHostKeyChecking=no ${USERNAME}@${PRIVATE_IP} << EOF
+            set -e
+            echo "Logged in successfully."
+            echo "Installing dependencies..."
+            sudo tdnf install -y git moby-engine moby-cli clang llvm pkg-config make gcc glibc-devel
+            echo "Cloning the repository..."
+            git clone https://github.com/rust-vmm/mshv.git
+            echo "Installing Rust..."
+            curl -sSf https://sh.rustup.rs | sh -s -- --default-toolchain stable --profile default -y
+            export PATH="\$HOME/.cargo/bin:\$PATH"
+            cargo --version || { echo "Cargo installation failed"; exit 1; }
+            sudo chown -R ${USERNAME} mshv
+            cd mshv
+
+            # Configure Docker
+            sudo mkdir -p /etc/docker/
+            echo '{"default-ulimits":{"nofile":{"Hard":65535,"Name":"nofile","Soft":65535}}}' | sudo tee /etc/docker/daemon.json
+
+            sudo systemctl stop docker
+            sudo systemctl enable docker.service
+            sudo systemctl enable containerd.service
+            sudo systemctl start docker
+
+            sudo groupadd -f docker
+            sudo usermod -a -G docker ${USERNAME}
+            sudo systemctl restart docker
+          EOF
