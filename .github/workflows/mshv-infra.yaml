@@ -2,42 +2,56 @@ name: MSHV Infra Setup
 on: 
   workflow_call:
     inputs:
+      ARCH:
+        description: 'Architecture for the VM'
+        required: true
+        type: string
+      KEY:
+        description: 'SSH Key Name'
+        required: true
+        type: string
+      OS_DISK_SIZE:
+        description: 'OS Disk Size in GB'
+        required: true
+        type: string
       RG:
         description: 'Resource Group Name'
         required: true
         type: string
-      SKU: 
+      VM_SKU:
         description: 'VM SKU'
         required: true
         type: string
     secrets:
-      MSHV_MI_CLIENT_ID:
+      MI_CLIENT_ID:
         required: true
-      MSHV_STORAGE_ACCOUNT_PATHS:
+      RUNNER_RG:
         required: true
-      MSHV_USERNAME:
+      STORAGE_ACCOUNT_PATHS:
         required: true
-      MSHV_PASSWORD:
+      ARCH_SOURCE_PATH:
         required: true
-      MSHV_X86_SOURCE_PATH:
+      USERNAME:
         required: true
-      MSHV_RUNNER_RG:
-        required: true
-      MSHV_RUNNER:
-        required: true
+    outputs:
+      PRIVATE_IP:
+        description: 'Private IP of the VM'
+        value: ${{ jobs.infra-setup.outputs.PRIVATE_IP }}
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  infrasetup:
-    name: MSHV Infra Setup
+  infra-setup:
+    name: ${{ inputs.ARCH }} VM Provision
     runs-on: 
       - self-hosted
       - Linux
+    outputs:
+      PRIVATE_IP: ${{ steps.get-vm-ip.outputs.PRIVATE_IP }}
     steps:
       - name: Install & login to AZ CLI
         env:
-          MI_CLIENT_ID: ${{ secrets.MSHV_MI_CLIENT_ID }}
+          MI_CLIENT_ID: ${{ secrets.MI_CLIENT_ID }}
         run: |
           set -e
           echo "Installing Azure CLI if not already installed"
@@ -50,140 +64,166 @@ jobs:
           echo "Logging into Azure CLI using Managed Identity"
           az login --identity --client-id ${MI_CLIENT_ID}
 
+      - name: Get Location
+        id: get-location
+        env:
+          SKU: ${{ inputs.VM_SKU }}
+          STORAGE_ACCOUNT_PATHS: ${{ secrets.STORAGE_ACCOUNT_PATHS }}
+        run: |
+          set -e
+          # Extract vCPU count from SKU (e.g., "Standard_D2s_v3" => 2)
+          vcpu=$(echo "$SKU" | sed -n 's/^Standard_[A-Za-z]\+\([0-9]\+\).*/\1/p')
+          if [[ -z "$vcpu" ]]; then
+            echo "Cannot extract vCPU count from SKU: $SKU"
+            exit 1
+          fi
+
+          SUPPORTED_LOCATIONS=$(echo "$STORAGE_ACCOUNT_PATHS" | jq -r 'to_entries[] | .key')
+
+          for location in $SUPPORTED_LOCATIONS; do
+            family=$(az vm list-skus --size "$SKU" --location "$location" --resource-type "virtualMachines" --query '[0].family' -o tsv)
+            if [[ -z "$family" ]]; then
+              echo "Cannot determine VM family for SKU: $SKU in $location"
+              continue
+            fi
+
+            usage=$(az vm list-usage --location "$location" --query "[?name.value=='$family'] | [0]" -o json)
+            current=$(echo "$usage" | jq -r '.currentValue')
+            limit=$(echo "$usage" | jq -r '.limit')
+
+            if [[ $((limit - current)) -ge $vcpu ]]; then
+              echo "Sufficient quota found in $location"
+              echo "location=$location" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+
+          echo "No location found with sufficient vCPU quota for SKU: $SKU"
+          exit 1
+
       - name: Create Resource Group
         id: rg-setup
         env:
+          LOCATION: ${{ steps.get-location.outputs.location }}
           RG: ${{ inputs.RG }}
-          STORAGE_ACCOUNT_PATHS: ${{ secrets.MSHV_STORAGE_ACCOUNT_PATHS }}
+          STORAGE_ACCOUNT_PATHS: ${{ secrets.STORAGE_ACCOUNT_PATHS }}
         run: |
           set -e
           echo "Creating Resource Group: $RG"
-
-          #  Extract the location from the storage account paths
-          LOCATION=$(echo "$STORAGE_ACCOUNT_PATHS" | jq -r 'to_entries[0].key')
-          if [[ -z "$LOCATION" ]]; then
-            echo "ERROR: Failed to extract location from storage account paths."
-            exit 1
-          fi
-          echo "LOCATION=$LOCATION" >> $GITHUB_ENV
-
           # Create the resource group
-          echo "Creating resource group in location: $LOCATION"
+          echo "Creating resource group in location: ${LOCATION}"
           az group create --name ${RG} --location ${LOCATION}
           echo "Resource group created successfully."
 
-      - name: Copy/Upload VHD to Azure Storage Account
+      - name: Generate SSH Key
+        id: generate-ssh-key
         env:
-          IMAGE_NAME: "vhd-image"
-          MI_CLIENT_ID: ${{ secrets.MSHV_MI_CLIENT_ID }}
-          RG: ${{ inputs.RG }}
-          LOCATION: ${{ env.LOCATION }}
-          SOURCE_PATH_X86: ${{ secrets.MSHV_X86_SOURCE_PATH }}
-          STORAGE_ACCOUNT_PATHS: ${{ secrets.MSHV_STORAGE_ACCOUNT_PATHS }}
+          KEY: ${{ inputs.KEY }}
         run: |
           set -e
-          echo "Installing AzCopy if not already installed"
-          if ! command -v azcopy &> /dev/null; then
-            wget -O azcopy.tar.gz https://aka.ms/downloadazcopy-v10-linux
-            tar -xvf azcopy.tar.gz
-            sudo mv azcopy*/azcopy /usr/local/bin/
-            sudo chmod +x /usr/local/bin/azcopy
-          fi
-          azcopy --version
-
-          echo "Logging into AzCopy"
-          azcopy login --identity --identity-client-id ${MI_CLIENT_ID}
-
-          echo "Uploading VHD to Azure Storage Account"
-          STORAGE_ACCOUNT_PATH=$(echo "$STORAGE_ACCOUNT_PATHS" | jq -r 'to_entries[0].value')
-          BLOB_URL="${STORAGE_ACCOUNT_PATH}/${GITHUB_RUN_ID}/x86.vhd"
-          azcopy copy ${SOURCE_PATH_X86} ${BLOB_URL}
-          echo "VHD upload complete"
-
-          # Create Image from the VHD
-          echo "Creating Image"
-          az image create \
-            --resource-group ${RG} \
-            --name ${IMAGE_NAME} \
-            --source $BLOB_URL \
-            --os-type Linux \
-            --location ${LOCATION} \
-            --hyper-v-generation V2 || true
-          echo "Image creation complete"
+          echo "Generating SSH key: $KEY"
+          mkdir -p ~/.ssh
+          ssh-keygen -t rsa -b 4096 -f ~/.ssh/${KEY} -N ""
 
       - name: Create VM
+        id: vm-setup
         env:
-          LOCATION: ${{ env.LOCATION }}
-          OS_DISK_SIZE: 512
+          KEY: ${{ inputs.KEY }}
+          LOCATION: ${{ steps.get-location.outputs.location }}
+          OS_DISK_SIZE: ${{ inputs.OS_DISK_SIZE }}
           RG: ${{ inputs.RG }}
-          RUNNER_RG: ${{ secrets.MSHV_RUNNER_RG }}
-          RUNNER: ${{ secrets.MSHV_RUNNER }}
-          SKU: ${{ inputs.SKU }}
-          VM_NAME: x86_${{ github.run_id }}
-          USERNAME: ${{ secrets.MSHV_USERNAME }}
-          PASSWORD: ${{ secrets.MSHV_PASSWORD }}
+          RUNNER_RG: ${{ secrets.RUNNER_RG }}
+          USERNAME: ${{ secrets.USERNAME }}
+          VM_SKU: ${{ inputs.VM_SKU }}
+          VM_IMAGE_NAME: ${{ inputs.ARCH }}_${{ steps.get-location.outputs.location }}_image
+          VM_NAME: ${{ inputs.ARCH }}_${{ steps.get-location.outputs.location }}_${{ github.run_id }}
         run: |
           set -e
-          echo "Starting VM creation process..."
+          echo "Creating $VM_SKU VM: $VM_NAME"
 
           # Extract subnet ID from the runner VM
           echo "Retrieving subnet ID..."
           SUBNET_ID=$(az network vnet list --resource-group ${RUNNER_RG} --query "[?contains(location, '${LOCATION}')].{SUBNETS:subnets}" | jq -r ".[0].SUBNETS[0].id")
-          if [[ -z "$SUBNET_ID" ]]; then
+          if [[ -z "${SUBNET_ID}" ]]; then
             echo "ERROR: Failed to retrieve Subnet ID."
             exit 1
           fi
-          echo "Successfully retrieved Subnet ID: $SUBNET_ID."
+
+          # Extract image ID from the runner VM
+          echo "Retrieving image ID..."
+          IMAGE_ID=$(az image show --resource-group ${RUNNER_RG} --name ${VM_IMAGE_NAME} --query "id" -o tsv)
+          if [[ -z "${IMAGE_ID}" ]]; then
+            echo "ERROR: Failed to retrieve Image ID."
+            exit 1
+          fi
 
           # Create VM
-          echo "Creating VM: $VM_NAME"
-          
           az vm create \
             --resource-group ${RG} \
             --name ${VM_NAME} \
-            --subnet $SUBNET_ID \
-            --size ${SKU} \
+            --subnet ${SUBNET_ID} \
+            --size ${VM_SKU} \
             --location ${LOCATION} \
-            --image vhd-image \
+            --image ${IMAGE_ID} \
             --os-disk-size-gb ${OS_DISK_SIZE} \
             --public-ip-sku Standard \
             --storage-sku Premium_LRS \
             --public-ip-address "" \
             --admin-username ${USERNAME} \
-            --admin-password ${PASSWORD} \
+            --ssh-key-value  ~/.ssh/${KEY}.pub \
             --security-type Standard \
             --output json
+
           echo "VM creation process completed successfully."
 
-          # SSH into the VM via sshpass
-          echo "Installing sshpass"
-          sudo apt install sshpass -y
-
-          # Retrieve VM Private IP address
+      - name: Get VM Private IP
+        id: get-vm-ip
+        env:
+          RG: ${{ inputs.RG }}
+          VM_NAME: ${{ inputs.ARCH }}_${{ steps.get-location.outputs.location }}_${{ github.run_id }}
+        run: |
+          set -e
           echo "Retrieving VM Private IP address..."
+          # Retrieve VM Private IP address
           PRIVATE_IP=$(az vm show -g ${RG} -n ${VM_NAME} -d --query privateIps -o tsv)
           if [[ -z "$PRIVATE_IP" ]]; then
             echo "ERROR: Failed to retrieve private IP address."
             exit 1
           fi
-          echo "Successfully retrieved Private IP: $PRIVATE_IP"
+          echo "PRIVATE_IP=$PRIVATE_IP" >> $GITHUB_OUTPUT
 
-          # Remove old host key
+      - name: Wait for SSH availability
+        env:
+          KEY: ${{ inputs.KEY }}
+          PRIVATE_IP: ${{ steps.get-vm-ip.outputs.PRIVATE_IP }}
+          USERNAME: ${{ secrets.USERNAME }}
+        run: |
+          echo "Waiting for SSH to be accessible..."
+          timeout 120 bash -c 'until ssh -o StrictHostKeyChecking=no -i ~/.ssh/${KEY} ${USERNAME}@${PRIVATE_IP} "exit" 2>/dev/null; do sleep 5; done'
+          echo "VM is accessible!"
+
+      - name: Remove Old Host Key
+        env:
+          PRIVATE_IP: ${{ steps.get-vm-ip.outputs.PRIVATE_IP }}
+        run: |
+          set -e
           echo "Removing the old host key"
           ssh-keygen -R $PRIVATE_IP
 
-          sleep 30
-          echo "SSH is now accessible. Connecting..."
-          sshpass -p ${PASSWORD} ssh -o StrictHostKeyChecking=no ${USERNAME}@$PRIVATE_IP << EOF
+      - name: SSH into VM and Install Dependencies
+        env:
+          KEY: ${{ inputs.KEY }}
+          PRIVATE_IP: ${{ steps.get-vm-ip.outputs.PRIVATE_IP }}
+          USERNAME: ${{ secrets.USERNAME }}
+        run: |
+          set -e
+          ssh -i ~/.ssh/${KEY} -o StrictHostKeyChecking=no ${USERNAME}@${PRIVATE_IP} << EOF
             set -e
             echo "Logged in successfully."
-
-            # Install Dependencies
             echo "Installing dependencies..."
-            sudo tdnf install -y git clang llvm pkg-config make gcc glibc-devel
-
-            # Clone mshv repo
-            echo "Cloning mshv repo..."
-            git clone  https://github.com/rust-vmm/mshv.git
-            echo "Clone succeeded for mshv"
+            sudo tdnf install -y git moby-engine moby-cli clang llvm pkg-config make gcc glibc-devel
+            echo "Installing Rust..."
+            curl -sSf https://sh.rustup.rs | sh -s -- --default-toolchain stable --profile default -y
+            export PATH="\$HOME/.cargo/bin:\$PATH"
+            cargo --version
           EOF
