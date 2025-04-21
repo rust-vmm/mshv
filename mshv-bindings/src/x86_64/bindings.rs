@@ -6568,6 +6568,15 @@ pub const hv_partition_property_code_HV_PARTITION_PROPERTY_GICD_BASE_ADDRESS:
     hv_partition_property_code = 327720;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_GITS_TRANSLATER_BASE_ADDRESS:
     hv_partition_property_code = 327721;
+pub const hv_partition_property_code_HV_PARTITION_PROPERTY_GIC_LPI_INT_ID_BITS:
+    hv_partition_property_code = 327722;
+pub const hv_partition_property_code_HV_PARTITION_PROPERTY_GIC_PPI_OVERFLOW_INTERRUPT_FROM_CNTV:
+    hv_partition_property_code = 327723;
+pub const hv_partition_property_code_HV_PARTITION_PROPERTY_GIC_PPI_OVERFLOW_INTERRUPT_FROM_CNTP:
+    hv_partition_property_code = 327724;
+pub const hv_partition_property_code_HV_PARTITION_PROPERTY_GIC_PPI_PERFORMANCE_MONITORS_INTERRUPT : hv_partition_property_code = 327725 ;
+pub const hv_partition_property_code_HV_PARTITION_PROPERTY_GIC_PPI_PMBIRQ:
+    hv_partition_property_code = 327726;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_VENDOR:
     hv_partition_property_code = 393216;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES_DEPRECATED:
@@ -20374,31 +20383,6 @@ impl Default for mshv_assert_interrupt {
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_partition_property {
-    pub property_code: hv_partition_property_code,
-    pub property_value: __u64,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_partition_property"][::std::mem::size_of::<mshv_partition_property>() - 16usize];
-    ["Alignment of mshv_partition_property"]
-        [::std::mem::align_of::<mshv_partition_property>() - 8usize];
-    ["Offset of field: mshv_partition_property::property_code"]
-        [::std::mem::offset_of!(mshv_partition_property, property_code) - 0usize];
-    ["Offset of field: mshv_partition_property::property_value"]
-        [::std::mem::offset_of!(mshv_partition_property, property_value) - 8usize];
-};
-impl Default for mshv_partition_property {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_translate_gva {
     pub gva: __u64,
     pub flags: __u64,
@@ -20721,6 +20705,22 @@ const _: () = {
         [::std::mem::offset_of!(mshv_create_partition_v2, pt_rsvd1) - 40usize];
     ["Offset of field: mshv_create_partition_v2::pt_disabled_xsave"]
         [::std::mem::offset_of!(mshv_create_partition_v2, pt_disabled_xsave) - 56usize];
+};
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_partition_property {
+    pub property_code: __u64,
+    pub property_value: __u64,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_partition_property"][::std::mem::size_of::<mshv_partition_property>() - 16usize];
+    ["Alignment of mshv_partition_property"]
+        [::std::mem::align_of::<mshv_partition_property>() - 8usize];
+    ["Offset of field: mshv_partition_property::property_code"]
+        [::std::mem::offset_of!(mshv_partition_property, property_code) - 0usize];
+    ["Offset of field: mshv_partition_property::property_value"]
+        [::std::mem::offset_of!(mshv_partition_property, property_value) - 8usize];
 };
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]

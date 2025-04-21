@@ -13535,57 +13535,6 @@ impl Default for mshv_assert_interrupt {
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_partition_property {
-    pub property_code: hv_partition_property_code,
-    pub property_value: __u64,
-}
-#[test]
-fn bindgen_test_layout_mshv_partition_property() {
-    const UNINIT: ::std::mem::MaybeUninit<mshv_partition_property> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<mshv_partition_property>(),
-        16usize,
-        concat!("Size of: ", stringify!(mshv_partition_property))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<mshv_partition_property>(),
-        8usize,
-        concat!("Alignment of ", stringify!(mshv_partition_property))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).property_code) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_partition_property),
-            "::",
-            stringify!(property_code)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).property_value) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(mshv_partition_property),
-            "::",
-            stringify!(property_value)
-        )
-    );
-}
-impl Default for mshv_partition_property {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_translate_gva {
     pub gva: __u64,
     pub flags: __u64,
@@ -14340,6 +14289,48 @@ fn bindgen_test_layout_mshv_create_partition_v2() {
             stringify!(mshv_create_partition_v2),
             "::",
             stringify!(pt_rsvd1)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_partition_property {
+    pub property_code: __u64,
+    pub property_value: __u64,
+}
+#[test]
+fn bindgen_test_layout_mshv_partition_property() {
+    const UNINIT: ::std::mem::MaybeUninit<mshv_partition_property> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<mshv_partition_property>(),
+        16usize,
+        concat!("Size of: ", stringify!(mshv_partition_property))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<mshv_partition_property>(),
+        8usize,
+        concat!("Alignment of ", stringify!(mshv_partition_property))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).property_code) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_partition_property),
+            "::",
+            stringify!(property_code)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).property_value) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(mshv_partition_property),
+            "::",
+            stringify!(property_value)
         )
     );
 }
