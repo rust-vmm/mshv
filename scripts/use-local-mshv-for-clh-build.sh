@@ -14,6 +14,6 @@ replace_crate() {
 
 replace_crate mshv-bindings mshv/mshv-bindings
 replace_crate mshv-ioctls mshv/mshv-ioctls 
-replace_crate vfio-bindings vfio/crates/vfio-bindings
-replace_crate vfio-ioctls vfio/crates/vfio-ioctls
+replace_crate vfio-bindings vfio/vfio-bindings
+replace_crate vfio-ioctls vfio/vfio-ioctls
 replace_crate vfio_user vfio-user

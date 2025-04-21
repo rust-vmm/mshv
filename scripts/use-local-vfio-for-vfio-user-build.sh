@@ -7,6 +7,6 @@ if [ -z $line ]; then
         echo "vfio-bindings not found in the Cargo.toml file"
         exit 1
 fi
-sed -i "$line i vfio-bindings = { path = \"../vfio/crates/vfio-bindings\" }" $filename
+sed -i "$line i vfio-bindings = { path = \"../vfio/vfio-bindings\" }" $filename
 line=$((line+1))
 sed -i "${line}d" $filename
