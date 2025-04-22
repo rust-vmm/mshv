@@ -9,6 +9,16 @@
 
 ### Fixed
 
+## [v0.4.0]
+
+### Added
+* [[207]] (https://github.com/rust-vmm/mshv/pull/207) hvcall ioctls
+* [[210]] (https://github.com/rust-vmm/mshv/pull/210) mshv-bindings: Add new constants for partition property
+
+### Changed
+* [[209]] (https://github.com/rust-vmm/mshv/pull/209) filter MSRs before returing to VMM
+* [[208]] https://github.com/rust-vmm/mshv/pull/208) property value is 64 bits
+
 ## [v0.3.5]
 
 ### Added

@@ -9,6 +9,16 @@
 
 ### Fixed
 
+## [v0.4.0]
+
+### Added
+* [[207]] (https://github.com/rust-vmm/mshv/pull/207) hvcall ioctls
+
+### Changed
+* [[209]] (https://github.com/rust-vmm/mshv/pull/209) filter MSRs before returing to VMM
+* [[208]] https://github.com/rust-vmm/mshv/pull/208) property value is 64 bits
+* [[204]] https://github.com/rust-vmm/mshv/pull/204 Rework Create Partition IOCTL
+
 ## [v0.3.5]
 
 ### Added
