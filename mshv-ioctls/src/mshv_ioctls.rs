@@ -119,26 +119,6 @@ ioctl_iowr_nr!(MSHV_SET_VP_STATE, MSHV_IOCTL, 0x02, mshv_get_set_vp_state);
 // NOTE: defined above, also used with VP fd:
 // ioctl_iowr_nr!(MSHV_ROOT_HVCALL, MSHV_IOCTL, 0x07, mshv_root_hvcall);
 
-// deprecated
-ioctl_iowr_nr!(MSHV_GET_VP_REGISTERS, MSHV_IOCTL, 0xF0, mshv_vp_registers);
-ioctl_iow_nr!(MSHV_SET_VP_REGISTERS, MSHV_IOCTL, 0xF1, mshv_vp_registers);
-ioctl_iowr_nr!(MSHV_VP_TRANSLATE_GVA, MSHV_IOCTL, 0xF2, mshv_translate_gva);
-#[cfg(target_arch = "x86_64")]
-ioctl_iow_nr!(
-    MSHV_VP_REGISTER_INTERCEPT_RESULT,
-    MSHV_IOCTL,
-    0xF3,
-    mshv_register_intercept_result
-);
-ioctl_iowr_nr!(
-    MSHV_GET_VP_CPUID_VALUES,
-    MSHV_IOCTL,
-    0xF4,
-    mshv_get_vp_cpuid_values
-);
-ioctl_iowr_nr!(MSHV_READ_GPA, MSHV_IOCTL, 0xF5, mshv_read_write_gpa);
-ioctl_iow_nr!(MSHV_WRITE_GPA, MSHV_IOCTL, 0xF6, mshv_read_write_gpa);
-
 // device fd
 ioctl_iow_nr!(MSHV_SET_DEVICE_ATTR, MSHV_IOCTL, 0x00, mshv_device_attr);
 ioctl_iow_nr!(MSHV_GET_DEVICE_ATTR, MSHV_IOCTL, 0x01, mshv_device_attr);

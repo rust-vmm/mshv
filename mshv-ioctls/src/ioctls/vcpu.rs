@@ -134,20 +134,7 @@ impl VcpuFd {
 
     /// Get the register values by providing an array of register names
     pub fn get_reg(&self, reg_names: &mut [hv_register_assoc]) -> Result<()> {
-        //TODO: Error if input register len is zero
-        let mut mshv_vp_register_args = mshv_vp_registers {
-            count: reg_names.len() as i32,
-            regs: reg_names.as_mut_ptr(),
-        };
-        // SAFETY: we know that our file is a vCPU fd, we know the kernel will only read the
-        // correct amount of memory from our pointer, and we verify the return result.
-        let ret = unsafe {
-            ioctl_with_mut_ref(self, MSHV_GET_VP_REGISTERS(), &mut mshv_vp_register_args)
-        };
-        if ret != 0 {
-            return Err(errno::Error::last().into());
-        }
-        Ok(())
+        self.hvcall_get_reg(reg_names)
     }
     /// Generic hvcall version of get_reg
     pub fn hvcall_get_reg(&self, reg_assocs: &mut [hv_register_assoc]) -> Result<()> {
@@ -188,17 +175,7 @@ impl VcpuFd {
     }
     /// Set vcpu register values by providing an array of register assocs
     pub fn set_reg(&self, regs: &[hv_register_assoc]) -> Result<()> {
-        let hv_vp_register_args = mshv_vp_registers {
-            count: regs.len() as i32,
-            regs: regs.as_ptr() as *mut hv_register_assoc,
-        };
-        // SAFETY: IOCTL call with correct types.
-        let ret = unsafe { ioctl_with_ref(self, MSHV_SET_VP_REGISTERS(), &hv_vp_register_args) };
-        if ret != 0 {
-            return Err(errno::Error::last().into());
-        }
-
-        Ok(())
+        self.hvcall_set_reg(regs)
     }
     /// Generic hypercall version of set_reg
     pub fn hvcall_set_reg(&self, reg_assocs: &[hv_register_assoc]) -> Result<()> {
@@ -1419,22 +1396,7 @@ impl VcpuFd {
     }
     /// Translate guest virtual address to guest physical address
     pub fn translate_gva(&self, gva: u64, flags: u64) -> Result<(u64, hv_translate_gva_result)> {
-        let gpa: u64 = 0;
-        let result = hv_translate_gva_result { as_uint64: 0 };
-
-        let mut args = mshv_translate_gva {
-            gva,
-            flags,
-            gpa: &gpa as *const _ as *mut u64,
-            result: &result as *const _ as *mut hv_translate_gva_result,
-        };
-        // SAFETY: we know that our file is a vCPU fd, we know the kernel honours its ABI.
-        let ret = unsafe { ioctl_with_mut_ref(self, MSHV_VP_TRANSLATE_GVA(), &mut args) };
-        if ret != 0 {
-            return Err(errno::Error::last().into());
-        }
-
-        Ok((gpa, result))
+        self.hvcall_translate_gva(gva, flags)
     }
     /// Generic hvcall version of translate guest virtual address
     pub fn hvcall_translate_gva(
@@ -1495,53 +1457,7 @@ impl VcpuFd {
         always_override: Option<u8>,
         subleaf_specific: Option<u8>,
     ) -> Result<()> {
-        let subleaf_specific_param = subleaf_specific.unwrap_or(0);
-        let always_override_param = always_override.unwrap_or(1);
-
-        let mshv_cpuid = hv_register_x64_cpuid_result_parameters {
-            input: hv_register_x64_cpuid_result_parameters__bindgen_ty_1 {
-                eax: entry.function,
-                // Subleaf index, default is 0. Further subleafs can be
-                // overwritten by a repeated call to this function with a desired
-                // index passed. Refer to the Intel Dev Manual for a particular
-                // EAX input for the further details.
-                ecx: entry.index,
-                // Whether the intercept result is to be applied to all
-                // the subleafs (0) or just to the specific subleaf (1).
-                subleaf_specific: subleaf_specific_param,
-                // Override even if the hypervisor computed value is zero.
-                // If set to 1, the registered result will be still applied.
-                always_override: always_override_param,
-                // Not relevant, bindgen specific struct padding.
-                padding: 0,
-            },
-            // With regard to masks - these are to specify bits to be overwritten.
-            // The current CpuidEntry structure wouldn't allow to carry the masks
-            // in addition to the actual register values. For this reason, the
-            // masks are set to the exact values of the corresponding register bits
-            // to be registered for an overwrite. To view resulting values the
-            // hypervisor would return, HvCallGetVpCpuidValues hypercall can be used.
-            result: hv_register_x64_cpuid_result_parameters__bindgen_ty_2 {
-                eax: entry.eax,
-                eax_mask: entry.eax,
-                ebx: entry.ebx,
-                ebx_mask: entry.ebx,
-                ecx: entry.ecx,
-                ecx_mask: entry.ecx,
-                edx: entry.edx,
-                edx_mask: entry.edx,
-            },
-        };
-        let args = mshv_register_intercept_result {
-            intercept_type: hv_intercept_type_HV_INTERCEPT_TYPE_X64_CPUID,
-            parameters: hv_register_intercept_result_parameters { cpuid: mshv_cpuid },
-        };
-        let ret = unsafe { ioctl_with_ref(self, MSHV_VP_REGISTER_INTERCEPT_RESULT(), &args) };
-        if ret != 0 {
-            return Err(errno::Error::last().into());
-        }
-
-        Ok(())
+        self.hvcall_register_intercept_result_cpuid_entry(entry, always_override, subleaf_specific)
     }
 
     #[cfg(target_arch = "x86_64")]
@@ -1637,20 +1553,7 @@ impl VcpuFd {
     /// leaf as observed on the virtual processor.
     #[cfg(not(target_arch = "aarch64"))]
     pub fn get_cpuid_values(&self, eax: u32, ecx: u32, xfem: u64, xss: u64) -> Result<[u32; 4]> {
-        let mut parms = mshv_get_vp_cpuid_values {
-            function: eax,
-            index: ecx,
-            xfem,
-            xss,
-            ..Default::default()
-        };
-        // SAFETY: we know that our file is a vCPU fd, we know the kernel will only read the
-        // correct amount of memory from our pointer, and we verify the return result.
-        let ret = unsafe { ioctl_with_mut_ref(self, MSHV_GET_VP_CPUID_VALUES(), &mut parms) };
-        if ret != 0 {
-            return Err(errno::Error::last().into());
-        }
-        Ok([parms.eax, parms.ebx, parms.ecx, parms.edx])
+        self.hvcall_get_cpuid_values(eax, ecx, xfem, xss)
     }
     /// Generic hvcall version of get cpuid values
     #[cfg(not(target_arch = "aarch64"))]
@@ -1696,12 +1599,11 @@ impl VcpuFd {
     }
     /// Read GPA
     pub fn gpa_read(&self, input: &mut mshv_read_write_gpa) -> Result<mshv_read_write_gpa> {
-        // SAFETY: we know that our file is a vCPU fd, we know the kernel honours its ABI.
-        let ret = unsafe { ioctl_with_mut_ref(self, MSHV_READ_GPA(), input) };
-        if ret != 0 {
-            return Err(errno::Error::last().into());
-        }
-
+        let flags = hv_access_gpa_control_flags {
+            as_uint64: input.flags as u64,
+        };
+        let res = self.hvcall_gpa_read(input.byte_count, input.base_gpa, flags)?;
+        input.data = res.data;
         Ok(*input)
     }
 
@@ -1728,12 +1630,11 @@ impl VcpuFd {
 
     /// Write GPA
     pub fn gpa_write(&self, input: &mut mshv_read_write_gpa) -> Result<mshv_read_write_gpa> {
-        // SAFETY: we know that our file is a vCPU fd, we know the kernel honours its ABI.
-        let ret = unsafe { ioctl_with_mut_ref(self, MSHV_WRITE_GPA(), input) };
-        if ret != 0 {
-            return Err(errno::Error::last().into());
-        }
-
+        let flags = hv_access_gpa_control_flags {
+            as_uint64: input.flags as u64,
+        };
+        // The old ioctl just drops the access result on the floor, so we do the same.
+        self.hvcall_gpa_write(input.byte_count, input.base_gpa, flags, input.data)?;
         Ok(*input)
     }
     /// Generic hvcall version of gpa_write
