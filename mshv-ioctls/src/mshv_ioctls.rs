@@ -50,30 +50,6 @@ ioctl_iow_nr!(
 
 // deprecated
 ioctl_iow_nr!(
-    MSHV_INSTALL_INTERCEPT,
-    MSHV_IOCTL,
-    0xF0,
-    mshv_install_intercept
-);
-ioctl_iow_nr!(
-    MSHV_ASSERT_INTERRUPT,
-    MSHV_IOCTL,
-    0xF1,
-    mshv_assert_interrupt
-);
-ioctl_iow_nr!(
-    MSHV_SET_PARTITION_PROPERTY,
-    MSHV_IOCTL,
-    0xF2,
-    mshv_partition_property
-);
-ioctl_iowr_nr!(
-    MSHV_GET_PARTITION_PROPERTY,
-    MSHV_IOCTL,
-    0xF3,
-    mshv_partition_property
-);
-ioctl_iow_nr!(
     MSHV_COMPLETE_ISOLATED_IMPORT,
     MSHV_IOCTL,
     0xF4,
@@ -90,24 +66,6 @@ ioctl_iow_nr!(
     MSHV_IOCTL,
     0xF6,
     mshv_sev_snp_ap_create
-);
-ioctl_iowr_nr!(
-    MSHV_SIGNAL_EVENT_DIRECT,
-    MSHV_IOCTL,
-    0xF7,
-    mshv_signal_event_direct
-);
-ioctl_iow_nr!(
-    MSHV_POST_MESSAGE_DIRECT,
-    MSHV_IOCTL,
-    0xF8,
-    mshv_post_message_direct
-);
-ioctl_iow_nr!(
-    MSHV_REGISTER_DELIVERABILITY_NOTIFICATIONS,
-    MSHV_IOCTL,
-    0xF9,
-    mshv_register_deliverabilty_notifications
 );
 
 // VP fd
