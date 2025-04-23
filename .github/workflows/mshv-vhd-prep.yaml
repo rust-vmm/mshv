@@ -1,0 +1,109 @@
+name: MSHV VHD Preparation
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:  # ----------------------------------
+
+jobs:
+  azcopy:
+    runs-on: 
+      - self-hosted
+      - Linux
+    env:
+      AZCOPY_VERSION: "v10"
+    steps:
+      - name: Cache AzCopy
+        id: cache-azcopy
+        uses: actions/cache@v4
+        with:
+          path: ~/azcopy
+          key: azcopy-${{ env.AZCOPY_VERSION }}
+
+      - name: Download AzCopy if not cached
+        if: steps.cache-azcopy.outputs.cache-hit != 'true'
+        run: |
+          set -e
+          echo "Downloading AzCopy version ${AZCOPY_VERSION}..."
+          wget -O azcopy.tar.gz https://aka.ms/downloadazcopy-${AZCOPY_VERSION}-linux
+          mkdir -p ~/azcopy
+          tar -xvf azcopy.tar.gz
+          sudo mv azcopy*/azcopy ~/azcopy/azcopy
+          sudo chmod +x ~/azcopy/azcopy
+          azcopy --version
+
+  vhd-prep:
+    needs: azcopy
+    runs-on:
+      - self-hosted
+      - Linux
+    steps:
+      - name: Install & login to AZ CLI
+        env:
+          MI_CLIENT_ID: ${{ secrets.MSHV_MI_CLIENT_ID }}
+        run: |
+          set -e
+          echo "Installing Azure CLI if not already installed"
+          if ! command -v az &>/dev/null; then
+            curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+          else
+            echo "Azure CLI already installed"
+          fi
+          az --version
+          echo "Logging into Azure CLI using Managed Identity"
+          az login --identity --client-id ${MI_CLIENT_ID}
+
+      - name: Copy/Upload VHD to Azure Storage Account
+        env:
+          MI_CLIENT_ID: ${{ secrets.MSHV_MI_CLIENT_ID }}
+          RG: ${{ inputs.RG }}
+          SOURCE_PATH_X86: ${{ secrets.MSHV_X86_SOURCE_PATH }}
+          STORAGE_ACCOUNT_PATHS: ${{ secrets.MSHV_STORAGE_ACCOUNT_PATHS }}
+        run: |
+          set -x
+          set -e
+          echo "Logging into AzCopy"
+          azcopy login --identity --identity-client-id ${MI_CLIENT_ID}
+
+          echo "Uploading VHD to Azure Storage Account"
+          SUPPORTED_LOCATIONS=$(echo "${STORAGE_ACCOUNT_PATHS}" | jq -r 'keys[]' | tr '\n' ',' | sed 's/,$//')
+          echo "SUPPORTED_LOCATIONS=$SUPPORTED_LOCATIONS" >> $GITHUB_ENV
+
+          IFS=',' read -ra LOCATIONS <<< "$SUPPORTED_LOCATIONS"
+          for LOCATION in "${LOCATIONS[@]}"; do
+            echo "Location: $LOCATION"
+            STORAGE_ACCOUNT_PATH=$(echo ${STORAGE_ACCOUNT_PATHS} | jq -r ".\"$LOCATION\"")
+            azcopy copy ${SOURCE_PATH_X86} ${STORAGE_ACCOUNT_PATH}/$LOCATION/x86_64.vhd --recursive=true --overwrite=true
+            echo "VHD upload completed for location: $LOCATION"
+          done
+
+      - name: Create Image from VHD
+        env:
+          RG: ${{ secrets.MSHV_RUNNER_RG }}
+          STORAGE_ACCOUNT_PATHS: ${{ secrets.MSHV_STORAGE_ACCOUNT_PATHS }}
+        run: |
+          set -x  # ----------------------------------------------------
+          set -e
+          IFS=',' read -ra SUPPORTED_LOCATIONS <<< "$SUPPORTED_LOCATIONS"
+          for LOCATION in "${SUPPORTED_LOCATIONS[@]}"; do
+            echo "Location: $LOCATION"
+            STORAGE_ACCOUNT_PATH=$(echo ${STORAGE_ACCOUNT_PATHS} | jq -r ".\"$LOCATION\"")
+            BLOB_URL="${STORAGE_ACCOUNT_PATH}/$LOCATION/x86_64.vhd"
+            IMAGE_NAME="x86_64_${LOCATION}_image"
+
+            echo "Deleting existing image if it exists"
+            if az image show --name $IMAGE_NAME --resource-group ${RG} &>/dev/null; then
+              az image delete --name $IMAGE_NAME --resource-group ${RG}
+            else
+              echo "$IMAGE_NAME does not exist. Skipping deletion."
+            fi
+
+            echo "Creating image from VHD for location: $LOCATION"
+            az image create \
+              --resource-group ${RG} \
+              --name $IMAGE_NAME \
+              --source $BLOB_URL \
+              --os-type Linux \
+              --location $LOCATION \
+              --hyper-v-generation V2 || true
+            echo "Image creation complete"
+          done
