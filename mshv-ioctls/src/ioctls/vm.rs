@@ -113,18 +113,15 @@ impl VmFd {
 
     /// Install intercept to enable some VM exits like MSR, CPUId etc
     pub fn install_intercept(&self, install_intercept_args: mshv_install_intercept) -> Result<()> {
-        // SAFETY: IOCTL with correct types
-        let ret =
-            unsafe { ioctl_with_ref(self, MSHV_INSTALL_INTERCEPT(), &install_intercept_args) };
-        if ret == 0 {
-            Ok(())
-        } else {
-            Err(errno::Error::last().into())
-        }
+        self.hvcall_install_intercept(
+            install_intercept_args.access_type_mask,
+            install_intercept_args.intercept_type,
+            install_intercept_args.intercept_parameter,
+        )
     }
 
     /// Generic hvcall version of install_intercept
-    pub fn hvcall_install_intercept(
+    fn hvcall_install_intercept(
         &self,
         access_type_mask: u32,
         intercept_type: u32,
@@ -274,37 +271,12 @@ impl VmFd {
     /// Inject an interrupt into the guest..
     #[cfg(target_arch = "x86_64")]
     pub fn request_virtual_interrupt(&self, request: &InterruptRequest) -> Result<()> {
-        let mut control_flags: u32 = 0;
-        if request.level_triggered {
-            control_flags |= 0x1;
-        }
-        if request.logical_destination_mode {
-            control_flags |= 0x2;
-        }
-        if request.long_mode {
-            control_flags |= 1 << 30;
-        }
-
-        let interrupt_arg = mshv_assert_interrupt {
-            control: hv_interrupt_control {
-                as_uint64: request.interrupt_type as u64 | ((control_flags as u64) << 32),
-            },
-            dest_addr: request.apic_id,
-            vector: request.vector,
-            ..Default::default()
-        };
-        // SAFETY: IOCTL with correct types
-        let ret = unsafe { ioctl_with_ref(&self.vm, MSHV_ASSERT_INTERRUPT(), &interrupt_arg) };
-        if ret == 0 {
-            Ok(())
-        } else {
-            Err(errno::Error::last().into())
-        }
+        self.hvcall_assert_virtual_interrupt(request)
     }
 
     /// MSHV_ROOT_HVCALL version of request_virtual_interrupt
     #[cfg(target_arch = "x86_64")]
-    pub fn hvcall_assert_virtual_interrupt(&self, request: &InterruptRequest) -> Result<()> {
+    fn hvcall_assert_virtual_interrupt(&self, request: &InterruptRequest) -> Result<()> {
         let mut control_flags: u32 = 0;
         if request.level_triggered {
             control_flags |= 0x1;
@@ -332,25 +304,12 @@ impl VmFd {
     /// signal_event_direct: Send a sint signal event to the vp.
     #[cfg(target_arch = "x86_64")]
     pub fn signal_event_direct(&self, vp: u32, sint: u8, flag: u16) -> Result<bool> {
-        let mut event_info = mshv_signal_event_direct {
-            vp,
-            vtl: 0,
-            sint,
-            flag,
-            ..Default::default()
-        };
-
-        let ret = unsafe { ioctl_with_mut_ref(self, MSHV_SIGNAL_EVENT_DIRECT(), &mut event_info) };
-        if ret == 0 {
-            Ok(event_info.newly_signaled != 0)
-        } else {
-            Err(errno::Error::last().into())
-        }
+        self.hvcall_signal_event_direct(vp, sint, flag)
     }
 
     /// MSHV_ROOT_HVCALL version of signal_event_direct
     #[cfg(target_arch = "x86_64")]
-    pub fn hvcall_signal_event_direct(&self, vp: u32, sint: u8, flag: u16) -> Result<bool> {
+    fn hvcall_signal_event_direct(&self, vp: u32, sint: u8, flag: u16) -> Result<bool> {
         let input = hv_input_signal_event_direct {
             target_vp: vp,
             target_vtl: 0,
@@ -372,25 +331,12 @@ impl VmFd {
     /// post_message_direct: Post a message to the vp using a given sint.
     #[cfg(target_arch = "x86_64")]
     pub fn post_message_direct(&self, vp: u32, sint: u8, msg: &[u8]) -> Result<()> {
-        let message_info = mshv_post_message_direct {
-            vp,
-            vtl: 0,
-            sint,
-            length: u16::try_from(msg.len()).expect("failed to convert message length"),
-            message: msg.as_ptr(),
-        };
-
-        let ret = unsafe { ioctl_with_ref(self, MSHV_POST_MESSAGE_DIRECT(), &message_info) };
-        if ret == 0 {
-            Ok(())
-        } else {
-            Err(errno::Error::last().into())
-        }
+        self.hvcall_post_message_direct(vp, sint, msg)
     }
 
     /// MSHV_ROOT_HVCALL version of post_message_direct
     #[cfg(target_arch = "x86_64")]
-    pub fn hvcall_post_message_direct(&self, vp: u32, sint: u8, msg: &[u8]) -> Result<()> {
+    fn hvcall_post_message_direct(&self, vp: u32, sint: u8, msg: &[u8]) -> Result<()> {
         let mut input = hv_input_post_message_direct {
             vp_index: vp,
             vtl: 0,
@@ -410,28 +356,11 @@ impl VmFd {
     /// register_deliverabilty_notifications: Register for a notification when
     /// hypervisor is ready to process more post_message_direct(s).
     pub fn register_deliverabilty_notifications(&self, vp: u32, flag: u64) -> Result<()> {
-        let notifications_info = mshv_register_deliverabilty_notifications {
-            vp,
-            flag,
-            ..Default::default()
-        };
-        let ret = unsafe {
-            ioctl_with_ref(
-                self,
-                MSHV_REGISTER_DELIVERABILITY_NOTIFICATIONS(),
-                &notifications_info,
-            )
-        };
-
-        if ret == 0 {
-            Ok(())
-        } else {
-            Err(errno::Error::last().into())
-        }
+        self.hvcall_register_deliverability_notifications(vp, flag)
     }
 
     /// Generic hypercall version of set_reg, with vp specified by index
-    pub fn hvcall_set_reg(&self, vp: u32, reg_assocs: &[hv_register_assoc]) -> Result<()> {
+    fn hvcall_set_reg(&self, vp: u32, reg_assocs: &[hv_register_assoc]) -> Result<()> {
         let input = make_rep_input!(
             hv_input_set_vp_registers {
                 vp_index: vp,
@@ -451,7 +380,7 @@ impl VmFd {
     }
 
     /// MSHV_ROOT_HVCALL version of register_deliverability_notifications
-    pub fn hvcall_register_deliverability_notifications(&self, vp: u32, flag: u64) -> Result<()> {
+    fn hvcall_register_deliverability_notifications(&self, vp: u32, flag: u64) -> Result<()> {
         self.hvcall_set_reg(
             vp,
             &[hv_register_assoc {
@@ -730,22 +659,11 @@ impl VmFd {
     /// Get property of the VM partition: For example , CPU Frequency, Size of the Xsave state and more.
     /// For more of the codes, please see the hv_partition_property_code type definitions in the bindings.rs
     pub fn get_partition_property(&self, code: u32) -> Result<u64> {
-        let mut property = mshv_partition_property {
-            property_code: code as u64,
-            ..Default::default()
-        };
-        // SAFETY: IOCTL with correct types
-        let ret =
-            unsafe { ioctl_with_mut_ref(&self.vm, MSHV_GET_PARTITION_PROPERTY(), &mut property) };
-        if ret == 0 {
-            Ok(property.property_value)
-        } else {
-            Err(errno::Error::last().into())
-        }
+        self.hvcall_get_partition_property(code)
     }
 
     /// Generic hvcall version of get_partition_property
-    pub fn hvcall_get_partition_property(&self, code: u32) -> Result<u64> {
+    fn hvcall_get_partition_property(&self, code: u32) -> Result<u64> {
         let input = hv_input_get_partition_property {
             property_code: code,
             ..Default::default() // NOTE: Kernel will populate partition_id field
@@ -761,21 +679,11 @@ impl VmFd {
 
     /// Sets a partion property
     pub fn set_partition_property(&self, code: u32, value: u64) -> Result<()> {
-        let property: mshv_partition_property = mshv_partition_property {
-            property_code: code as u64,
-            property_value: value,
-        };
-        // SAFETY: IOCTL with correct types
-        let ret = unsafe { ioctl_with_ref(&self.vm, MSHV_SET_PARTITION_PROPERTY(), &property) };
-        if ret == 0 {
-            Ok(())
-        } else {
-            Err(errno::Error::last().into())
-        }
+        self.hvcall_set_partition_property(code, value)
     }
 
     /// Generic hvcall version of set_partition_property
-    pub fn hvcall_set_partition_property(&self, code: u32, value: u64) -> Result<()> {
+    fn hvcall_set_partition_property(&self, code: u32, value: u64) -> Result<()> {
         let input = hv_input_set_partition_property {
             property_code: code,
             property_value: value,
@@ -1296,11 +1204,6 @@ mod tests {
         let res = vm.register_deliverabilty_notifications(0, 1);
         assert!(res.is_err());
         if let Err(e) = res {
-            assert!(e == MshvError::from(libc::EINVAL))
-        }
-        let hvcall_res = vm.hvcall_register_deliverability_notifications(0, 1);
-        assert!(hvcall_res.is_err());
-        if let Err(e) = hvcall_res {
             assert!(matches!(e, MshvError::Hypercall { .. }));
             assert!(e.errno() == libc::EIO);
             match e {

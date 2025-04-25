@@ -193,7 +193,7 @@ impl Mshv {
         let vm = self.create_vm_with_args(&create_args)?;
 
         // This is an 'early' property that must be set between creation and initialization
-        vm.hvcall_set_partition_property(
+        vm.set_partition_property(
             hv_partition_property_code_HV_PARTITION_PROPERTY_SYNTHETIC_PROC_FEATURES,
             make_synthetic_features_mask(),
         )?;
