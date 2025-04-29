@@ -140,6 +140,11 @@ jobs:
           fi
 
           PUB_KEY=$(az keyvault secret show --name ${PUBLIC_KEY} --vault-name ${KEY_VAULT} --query value -o tsv)
+          echo "pub_key: $PUB_KEY"
+          if [[ -z "${PUB_KEY}" ]]; then
+            echo "ERROR: Failed to retrieve public key."
+            exit 1
+          fi
 
           # Create VM
           az vm create \
@@ -196,6 +201,7 @@ jobs:
 
       - name: SSH into VM and Install Dependencies
         env:
+          KEY_VAULT: ${{ secrets.KEY_VAULT }}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           PRIVATE_IP: ${{ steps.get-vm-ip.outputs.PRIVATE_IP }}
           SSH_KEY: ${{ inputs.SSH_KEY }}
@@ -203,8 +209,6 @@ jobs:
         run: |
           set -e
           PRIV_KEY=$(az keyvault secret show --name ${PRIVATE_KEY} --vault-name ${KEY_VAULT} --query value -o tsv | sed -E 's/(-----BEGIN [^-]+-----)/\n\1\n/; s/(-----END [^-]+-----)/\n\1\n/' | tr ' ' '\n' | sed '/^$/d')
-          cat private.pem
-          chmod 600 private.pem
           ssh -i $PRIV_KEY -o StrictHostKeyChecking=no ${USERNAME}@${PRIVATE_IP} << EOF
             set -e
             echo "Logged in successfully."
