@@ -702,6 +702,7 @@ pub struct SuspendRegisters {
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct MiscRegs {
     pub hypercall: u64,
+    pub int_vec: u64,
 }
 
 const fn initialize_comp_sizes() -> [usize; MSHV_VP_STATE_COUNT as usize] {

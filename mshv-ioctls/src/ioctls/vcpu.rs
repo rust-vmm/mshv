@@ -1327,17 +1327,32 @@ impl VcpuFd {
         self.get_reg(&mut reg_assocs)?;
 
         // SAFETY: access union fields
-        let ret_regs = unsafe {
+        let mut ret_regs = unsafe {
             MiscRegs {
                 hypercall: reg_assocs[0].value.reg64,
+                ..Default::default()
             }
         };
-
+        if let Some(vp_page) = self.get_vp_reg_page() {
+            let vp_reg_page = vp_page.0;
+            // SAFETY: access union fields
+            unsafe {
+                ret_regs.int_vec = (*vp_reg_page).interrupt_vectors.as_uint64;
+            }
+        }
         Ok(ret_regs)
     }
     /// X86 specific call that sets the vcpu's current "misc registers".
     #[cfg(not(target_arch = "aarch64"))]
     pub fn set_misc_regs(&self, misc: &MiscRegs) -> Result<()> {
+        if let Some(vp_page) = self.get_vp_reg_page() {
+            let vp_reg_page = vp_page.0;
+            // SAFETY: access union fields
+            unsafe {
+                (*vp_reg_page).interrupt_vectors.as_uint64 = misc.int_vec;
+            }
+        }
+
         self.set_reg(&[hv_register_assoc {
             name: hv_register_name_HV_X64_REGISTER_HYPERCALL,
             value: hv_register_value {
