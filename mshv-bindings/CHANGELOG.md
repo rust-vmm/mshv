@@ -9,6 +9,11 @@
 
 ### Fixed
 
+## [v0.5.0]
+
+### Changed
+* [[216]] (https://github.com/rust-vmm/mshv/pull/216) mshv-bindings: Regenerate ARM bindings using latest bindgen-cli
+
 ## [v0.4.0]
 
 ### Added

@@ -9,6 +9,11 @@
 
 ### Fixed
 
+## [v0.5.0]
+
+### Changed
+* [[206]] (https://github.com/rust-vmm/mshv/pull/206) mshv-ioctls: Don't initialize partition after creation
+
 ## [v0.4.0]
 
 ### Added
