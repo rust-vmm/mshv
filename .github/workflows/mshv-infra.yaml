@@ -72,23 +72,55 @@ jobs:
           echo "Logging into Azure CLI using Managed Identity"
           az login --identity --client-id ${MI_CLIENT_ID}
 
+      - name: Get Location
+        id: get-location
+        env:
+          SKU: ${{ inputs.VM_SKU }}
+          STORAGE_ACCOUNT_PATHS: ${{ secrets.STORAGE_ACCOUNT_PATHS }}
+        run: |
+          set -x
+          set -e
+          # Extract vCPU count from SKU (e.g., "Standard_D2s_v3" => 2)
+          vcpu=$(echo "$SKU" | sed -n 's/^Standard_[A-Za-z]\+\([0-9]\+\).*/\1/p')
+          if [[ -z "$vcpu" ]]; then
+            echo "Cannot extract vCPU count from SKU: $SKU"
+            exit 1
+          fi
+
+          SUPPORTED_LOCATIONS=$(echo "$STORAGE_ACCOUNT_PATHS" | jq -r 'to_entries[] | .key')
+
+          for location in $SUPPORTED_LOCATIONS; do
+            family=$(az vm list-skus --size "$SKU" --location "$location" --resource-type "virtualMachines" --query '[0].family' -o tsv)
+            if [[ -z "$family" ]]; then
+              echo "Cannot determine VM family for SKU: $SKU in $location"
+              continue
+            fi
+
+            usage=$(az vm list-usage --location "$location" --query "[?name.value=='$family'] | [0]" -o json)
+            current=$(echo "$usage" | jq -r '.currentValue')
+            limit=$(echo "$usage" | jq -r '.limit')
+
+            if [[ $((limit - current)) -ge $vcpu ]]; then
+              echo "Sufficient quota found in $location"
+              echo "location=$location" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+
+          echo "No location found with sufficient vCPU quota for SKU: $SKU"
+          exit 1
+
       - name: Create Resource Group
         id: rg-setup
         env:
+          LOCATION: ${{ steps.get-location.outputs.location }}
           RG: ${{ inputs.RG }}
           STORAGE_ACCOUNT_PATHS: ${{ secrets.STORAGE_ACCOUNT_PATHS }}
         run: |
           set -e
           echo "Creating Resource Group: $RG"
-          #  Extract the location from the storage account paths
-          LOCATION=$(echo "$STORAGE_ACCOUNT_PATHS" | jq -r 'to_entries[0].key')
-          if [[ -z "$LOCATION" ]]; then
-            echo "ERROR: Failed to extract location from storage account paths."
-            exit 1
-          fi
-          echo "LOCATION=$LOCATION" >> $GITHUB_ENV
           # Create the resource group
-          echo "Creating resource group in location: $LOCATION"
+          echo "Creating resource group in location: ${LOCATION}"
           az group create --name ${RG} --location ${LOCATION}
           echo "Resource group created successfully."
 
@@ -109,7 +141,7 @@ jobs:
         env:
           KEY_VAULT: ${{ secrets.KEY_VAULT }}
           PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
-          LOCATION: ${{ env.LOCATION }}
+          LOCATION: ${{ steps.get-location.outputs.location }}
           OS_DISK_SIZE: ${{ inputs.OS_DISK_SIZE }}
           RG: ${{ inputs.RG }}
           RUNNER_RG: ${{ secrets.RUNNER_RG }}
@@ -117,8 +149,8 @@ jobs:
           SSH_KEY_NAME: ${{ inputs.SSH_KEY_NAME }}
           USERNAME: ${{ secrets.USERNAME }}
           VM_SKU: ${{ inputs.VM_SKU }}
-          VM_IMAGE_NAME: ${{ inputs.ARCH }}_${{ env.LOCATION }}_image
-          VM_NAME: ${{ inputs.ARCH }}_${{ env.LOCATION }}_${{ github.run_id }}
+          VM_IMAGE_NAME: ${{ inputs.ARCH }}_${{ steps.get-location.outputs.location }}_image
+          VM_NAME: ${{ inputs.ARCH }}_${{ steps.get-location.outputs.location }}_${{ github.run_id }}
         run: |
           set -e
           echo "Creating $VM_SKU VM: $VM_NAME"
@@ -159,7 +191,7 @@ jobs:
             --storage-sku Premium_LRS \
             --public-ip-address "" \
             --admin-username ${USERNAME} \
-            --ssh-key-value $PUB_KEY \
+            --ssh-key-values ${PUB_KEY} \
             --security-type Standard \
             --output json
 
@@ -169,7 +201,7 @@ jobs:
         id: get-vm-ip
         env:
           RG: ${{ inputs.RG }}
-          VM_NAME: ${{ inputs.ARCH }}_${{ env.LOCATION }}_${{ github.run_id }}
+          VM_NAME: ${{ inputs.ARCH }}_${{ steps.get-location.outputs.location }}_${{ github.run_id }}
         run: |
           set -e
           echo "Retrieving VM Private IP address..."

@@ -33,14 +33,17 @@ jobs:
     steps:
       - name: Build & Run tests on remote VM
         env:
+          KEY_VAULT: ${{ secrets.KEY_VAULT }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           PRIVATE_IP: ${{ needs.infra-setup.outputs.PRIVATE_IP }}
           RG: MSHV-${{ github.run_id }}
-          SSH_KEY_NAME: azure_key_${{ github.run_id }}_${{ github.workflow_sha }}
           USERNAME: ${{ secrets.MSHV_USERNAME }}
         run: |
           set -e
           echo "Connecting to the VM via SSH..."
+          PRIV_KEY=$(az keyvault secret show --name ${PRIVATE_KEY} --vault-name ${KEY_VAULT} --query value -o tsv | sed -E 's/(-----BEGIN [^-]+-----)/\n\1\n/; s/(-----END [^-]+-----)/\n\1\n/' | tr ' ' '\n' | sed '/^$/d')
+          ssh -i $PRIV_KEY -o StrictHostKeyChecking=no ${USERNAME}@${PRIVATE_IP} << EOF
           ssh -i ~/.ssh/${SSH_KEY_NAME} -o StrictHostKeyChecking=no ${USERNAME}@${PRIVATE_IP} << EOF
             set -e
             echo "Logged in successfully."
@@ -48,7 +51,7 @@ jobs:
             cd mshv
             # conditional on pr etc
             cargo build --all-features --workspace
-            cargo test --all-features --workspace
+            sudo -E ~/.cargo/bin/cargo test --all-features --workspace
           EOF
           echo "Build and test completed successfully."
 
