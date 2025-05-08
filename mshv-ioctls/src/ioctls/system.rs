@@ -93,6 +93,13 @@ fn make_partition_create_arg(vm_type: VmType) -> mshv_create_partition_v2 {
         proc_features.__bindgen_anon_1.set_rdtscp_support(0u64);
     }
 
+    #[cfg(target_arch = "aarch64")]
+    // SAFETY: access union fields
+    unsafe {
+        // This must always be enabled for ARM64 guests.
+        proc_features.__bindgen_anon_1.set_gic_v3v4(0u64);
+    }
+
     // SAFETY: access union fields
     unsafe {
         for i in 0..MSHV_NUM_CPU_FEATURES_BANKS {
