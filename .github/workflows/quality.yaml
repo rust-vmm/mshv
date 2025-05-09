@@ -36,3 +36,11 @@ jobs:
           pip3 install flake8
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
+  typos:
+    if: github.event_name == 'pull_request'
+    name: Typos / Spellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Executes "typos ."
+      - uses: crate-ci/typos@v1.16.11
