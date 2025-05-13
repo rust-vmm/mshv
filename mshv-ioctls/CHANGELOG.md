@@ -9,6 +9,15 @@
 
 ### Fixed
 
+## [v0.5.1]
+
+### Added
+* [[218 ]] (https://github.com/rust-vmm/mshv/pull/218) save and restore interrupt vectors
+* [[219 ]] (https://github.com/rust-vmm/mshv/pull/219) use new hvcall_ versions for ioctls
+
+### Fixed
+* [[220 ]] https://github.com/rust-vmm/mshv/pull/220 Fix ARM64 guest default processor feature set
+
 ## [v0.5.0]
 
 ### Changed

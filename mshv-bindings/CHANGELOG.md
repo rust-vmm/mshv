@@ -9,6 +9,11 @@
 
 ### Fixed
 
+## [v0.5.1]
+
+### Added
+* [[218 ]] (https://github.com/rust-vmm/mshv/pull/218) save and restore interrupt vectors
+
 ## [v0.5.0]
 
 ### Changed
