@@ -268,6 +268,7 @@ mod tests {
 
         /* Test all MSRs in the list individually and determine which can be get/set */
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
         let mut num_errors = 0;
         for idx in hv.get_msr_index_list().unwrap() {
