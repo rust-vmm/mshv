@@ -871,6 +871,7 @@ mod tests {
     fn test_user_memory() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let addr = unsafe {
             libc::mmap(
                 std::ptr::null_mut(),
@@ -898,6 +899,7 @@ mod tests {
     fn test_create_vcpu() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0);
         assert!(vcpu.is_ok());
     }
@@ -908,6 +910,7 @@ mod tests {
         /* TODO better test with some code */
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
         let state = vcpu.get_lapic().unwrap();
         let buffer = Buffer::try_from(&state).unwrap();
@@ -929,6 +932,7 @@ mod tests {
     fn test_install_intercept() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let intercept_args = mshv_install_intercept {
             access_type_mask: HV_INTERCEPT_ACCESS_MASK_EXECUTE,
             intercept_type: hv_intercept_type_HV_INTERCEPT_TYPE_X64_CPUID,
@@ -949,6 +953,7 @@ mod tests {
     fn test_get_property() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
 
         let mut val = vm
             .get_partition_property(
@@ -1013,6 +1018,7 @@ mod tests {
     fn test_set_property() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
 
         let code = hv_partition_property_code_HV_PARTITION_PROPERTY_UNIMPLEMENTED_MSR_ACTION;
         let ignore =
@@ -1041,6 +1047,7 @@ mod tests {
     fn test_set_partition_property_invalid() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let code = hv_partition_property_code_HV_PARTITION_PROPERTY_PRIVILEGE_FLAGS;
 
         // old IOCTL
@@ -1062,6 +1069,7 @@ mod tests {
         use libc::EFD_NONBLOCK;
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let efd = EventFd::new(EFD_NONBLOCK).unwrap();
         vm.register_irqfd(&efd, 30).unwrap();
         vm.unregister_irqfd(&efd, 30).unwrap();
@@ -1073,6 +1081,7 @@ mod tests {
         let addr = IoEventAddress::Mmio(0xe7e85004);
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         vm.register_ioevent(&efd, &addr, NoDatamatch).unwrap();
         vm.unregister_ioevent(&efd, &addr, NoDatamatch).unwrap();
     }
@@ -1081,6 +1090,7 @@ mod tests {
     fn test_set_msi_routing() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let msi_routing = mshv_user_irq_table::default();
         assert!(vm.set_msi_routing(&msi_routing).is_ok());
     }
@@ -1088,6 +1098,7 @@ mod tests {
     fn _test_clear_set_get_dirty_log(mem_size: usize) {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         // Try to allocate 32 MB memory
         let load_addr = unsafe {
             libc::mmap(
@@ -1173,6 +1184,7 @@ mod tests {
         // Enable the test once synic is implemented.
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let _vcpu = vm.create_vcpu(0).unwrap();
         vm.signal_event_direct(0, 0, 1).unwrap();
         vm.hvcall_signal_event_direct(0, 0, 1).unwrap();
@@ -1186,6 +1198,7 @@ mod tests {
         // Enable the test once synic is implemented.
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let _vcpu = vm.create_vcpu(0).unwrap();
         let hv_message: [u8; mem::size_of::<HvMessage>()] = [0; mem::size_of::<HvMessage>()];
         vm.post_message_direct(0, 0, &hv_message).unwrap();
@@ -1197,6 +1210,7 @@ mod tests {
     fn test_register_deliverabilty_notifications() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let _vcpu = vm.create_vcpu(0).unwrap();
         vm.register_deliverabilty_notifications(0, 0).unwrap();
         vm.hvcall_register_deliverability_notifications(0, 0)

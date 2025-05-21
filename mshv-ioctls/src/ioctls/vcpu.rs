@@ -1808,6 +1808,7 @@ mod tests {
         for i in [0, 1] {
             let hv = Mshv::new().unwrap();
             let vm = hv.create_vm().unwrap();
+            vm.initialize().unwrap();
             let vcpu = vm.create_vcpu(0).unwrap();
 
             if i == 0 {
@@ -1861,6 +1862,7 @@ mod tests {
 
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
         vcpu.hvcall_set_reg(&set_regs_assocs).unwrap();
@@ -1880,6 +1882,7 @@ mod tests {
     fn test_set_get_sregs() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
         let s_sregs = vcpu.get_sregs().unwrap();
         vcpu.set_sregs(&s_sregs).unwrap();
@@ -1899,6 +1902,7 @@ mod tests {
     fn test_set_get_standard_registers() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
         let s_regs = vcpu.get_regs().unwrap();
@@ -1915,6 +1919,7 @@ mod tests {
     fn test_set_get_debug_registers() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
         let s_regs = vcpu.get_debug_regs().unwrap();
@@ -1933,6 +1938,7 @@ mod tests {
     fn test_set_get_fpu() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
         let s_regs = vcpu.get_fpu().unwrap();
@@ -1969,6 +1975,7 @@ mod tests {
 
         let mshv = Mshv::new().unwrap();
         let vm = mshv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
         // This example is based on https://lwn.net/Articles/658511/
         #[rustfmt::skip]
@@ -2118,6 +2125,7 @@ mod tests {
 
         let mshv = Mshv::new().unwrap();
         let vm = mshv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
         // This example is based on https://lwn.net/Articles/658511/
         #[rustfmt::skip]
@@ -2306,6 +2314,7 @@ mod tests {
     fn test_set_get_msrs() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
         let s_regs = Msrs::from_entries(&[
@@ -2344,6 +2353,7 @@ mod tests {
     fn test_set_get_vcpu_events() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
         let s_regs = vcpu.get_vcpu_events().unwrap();
@@ -2363,6 +2373,7 @@ mod tests {
     fn test_set_get_xcrs() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
         let s_regs = vcpu.get_xcrs().unwrap();
@@ -2376,6 +2387,7 @@ mod tests {
     fn test_set_get_lapic() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
         let state = vcpu.get_lapic().unwrap();
@@ -2391,6 +2403,7 @@ mod tests {
     fn test_set_registers_64() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
         let arr_reg_name_value = [
             (hv_register_name_HV_X64_REGISTER_RIP, 0x1000),
@@ -2422,6 +2435,7 @@ mod tests {
     fn test_get_set_xsave() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
         let state = vcpu.get_xsave().unwrap();
@@ -2434,6 +2448,7 @@ mod tests {
     fn test_get_suspend_regs() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
         let regs = vcpu.get_suspend_regs().unwrap();
@@ -2447,6 +2462,7 @@ mod tests {
     fn test_set_get_misc_regs() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
         let s_regs = vcpu.get_misc_regs().unwrap();
@@ -2460,6 +2476,7 @@ mod tests {
     fn test_get_cpuid_values() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
         let res_0 = vcpu.get_cpuid_values(0, 0, 0, 0).unwrap();
         let max_function = res_0[0];
@@ -2474,6 +2491,7 @@ mod tests {
     fn test_get_set_vp_state_components() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
         let mut states = vcpu.get_all_vp_state_components().unwrap();
         vcpu.set_all_vp_state_components(&mut states).unwrap();
