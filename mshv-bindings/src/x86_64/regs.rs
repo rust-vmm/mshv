@@ -792,6 +792,7 @@ macro_rules! set_gp_regs_field_ptr {
                 .__bindgen_anon_1
                 .__bindgen_anon_1
                 .$name = $value;
+            (*$this).dirty |= 1 << HV_X64_REGISTER_CLASS_GENERAL;
         }
     };
 }
