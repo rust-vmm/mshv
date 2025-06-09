@@ -10,7 +10,6 @@ jobs:
       ARCH: x86_64
       OS_DISK_SIZE: 512
       RG: MSHV-${{ github.run_id }}
-      SSH_KEY: ~/.ssh/azure_key_${{ github.run_id }}_${{ github.workflow_sha }}
       VM_SKU: Standard_D16s_v5
     secrets:
       KEY_VAULT: ${{ secrets.MSHV_KV}}
@@ -42,14 +41,21 @@ jobs:
         run: |
           set -e
           echo "Connecting to the VM via SSH..."
-          PRIV_KEY=$(az keyvault secret show --name ${PRIVATE_KEY} --vault-name ${KEY_VAULT} --query value -o tsv | sed -E 's/(-----BEGIN [^-]+-----)/\n\1\n/; s/(-----END [^-]+-----)/\n\1\n/' | tr ' ' '\n' | sed '/^$/d')
-          ssh -i $PRIV_KEY -o StrictHostKeyChecking=no ${USERNAME}@${PRIVATE_IP} << EOF
-          ssh -i ~/.ssh/${SSH_KEY_NAME} -o StrictHostKeyChecking=no ${USERNAME}@${PRIVATE_IP} << EOF
+          ssh -i ~/.ssh/azure_key -o StrictHostKeyChecking=no ${USERNAME}@${PRIVATE_IP} << EOF
             set -e
             echo "Logged in successfully."
             export PATH="\$HOME/.cargo/bin:\$PATH"
+
+            if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+              BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+            else
+              BRANCH_NAME="${{ github.ref_name }}"
+            fi
+            echo "Using branch: \$BRANCH"
+              git clone --depth 1 --single-branch --branch "$BRANCH_NAME" https://github.com/${{ github.repository }} repo
+
             cd mshv
-            # conditional on pr etc
+
             cargo build --all-features --workspace
             sudo -E ~/.cargo/bin/cargo test --all-features --workspace
           EOF
@@ -75,13 +81,11 @@ jobs:
           echo "Cleanup process completed."
 
       - name: Delete SSH Key
-        env:
-          SSH_KEY: ~/.ssh/azure_key_${{ github.run_id }}_${{ github.workflow_sha }}
         run: |
-          echo "::add-mask::$SSH_KEY"
-          if [[ -f ${SSH_KEY} ]]; then
-            rm -f ${SSH_KEY} ${SSH_KEY}.pub
-            echo "SSH key '${SSH_KEY}' deleted successfully."
+          if [ -f ~/.ssh/azure_key ]; then
+            rm -f ~/.ssh/azure_key
+            echo "SSH key deleted successfully."
           else
-            echo "SSH key not found. Nothing to delete."
+            echo "SSH key does not exist. Skipping deletion."
           fi
+          echo "Cleanup process completed."

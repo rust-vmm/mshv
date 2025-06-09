@@ -14,10 +14,6 @@ on:
         description: 'Resource Group Name'
         required: true
         type: string
-      SSH_KEY:
-        description: 'SSH Key'
-        required: true
-        type: string
       VM_SKU:
         description: 'VM SKU'
         required: true
@@ -126,15 +122,12 @@ jobs:
 
       - name: Generate SSH Key
         id: generate-ssh-key
-        env:
-          SSH_KEY: ${{ inputs.SSH_KEY }}
         run: |
           # Check if SSH key already exists, if not, generate a new one
-          # echo "ssh key: $SSH_KEY"
-          # mkdir -p ~/.ssh
-          # if [ ! -f "${SSH_KEY}" ]; then
-          #   ssh-keygen -t rsa -b 4096 -f "${SSH_KEY}" -N ""
-          # fi
+          mkdir -p ~/.ssh
+          if [ ! -f ~/.ssh/azure_key ]; then
+            ssh-keygen -t rsa -b 4096 -f ~/.ssh/azure_key -N ""
+          fi
 
       - name: Create VM
         id: vm-setup
@@ -146,7 +139,6 @@ jobs:
           RG: ${{ inputs.RG }}
           RUNNER_RG: ${{ secrets.RUNNER_RG }}
           RUNNER: ${{ secrets.RUNNER }}
-          SSH_KEY_NAME: ${{ inputs.SSH_KEY_NAME }}
           USERNAME: ${{ secrets.USERNAME }}
           VM_SKU: ${{ inputs.VM_SKU }}
           VM_IMAGE_NAME: ${{ inputs.ARCH }}_${{ steps.get-location.outputs.location }}_image
@@ -171,13 +163,6 @@ jobs:
             exit 1
           fi
 
-          PUB_KEY=$(az keyvault secret show --name ${PUBLIC_KEY} --vault-name ${KEY_VAULT} --query value -o tsv)
-          echo "pub_key: $PUB_KEY"
-          if [[ -z "${PUB_KEY}" ]]; then
-            echo "ERROR: Failed to retrieve public key."
-            exit 1
-          fi
-
           # Create VM
           az vm create \
             --resource-group ${RG} \
@@ -191,7 +176,7 @@ jobs:
             --storage-sku Premium_LRS \
             --public-ip-address "" \
             --admin-username ${USERNAME} \
-            --ssh-key-values ${PUB_KEY} \
+            --ssh-key-value  ~/.ssh/azure_key.pub \
             --security-type Standard \
             --output json
 
@@ -213,15 +198,14 @@ jobs:
           fi
           echo "PRIVATE_IP=$PRIVATE_IP" >> $GITHUB_OUTPUT
 
-      # - name: Wait for SSH availability
-      #   env:
-      #     PRIVATE_IP: ${{ steps.get-vm-ip.outputs.PRIVATE_IP }}
-      #     SSH_KEY: ${{ inputs.SSH_KEY }}
-      #     USERNAME: ${{ secrets.USERNAME }}
-      #   run: |
-      #     echo "Waiting for SSH to be accessible..."
-      #     timeout 120 bash -c 'until ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ${USERNAME}@${PRIVATE_KEY} "echo VM is up" 2>/dev/null; do sleep 5; done'
-      #     echo "VM is accessible!"
+      - name: Wait for SSH availability
+        env:
+          PRIVATE_IP: ${{ steps.get-vm-ip.outputs.PRIVATE_IP }}
+          USERNAME: ${{ secrets.USERNAME }}
+        run: |
+          echo "Waiting for SSH to be accessible..."
+          timeout 120 bash -c 'until ssh -o StrictHostKeyChecking=no -i ~/.ssh/azure_key ${USERNAME}@${PRIVATE_IP} "exit" 2>/dev/null; do sleep 5; done'
+          echo "VM is accessible!"
 
       - name: Remove Old Host Key
         env:
@@ -236,18 +220,14 @@ jobs:
           KEY_VAULT: ${{ secrets.KEY_VAULT }}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           PRIVATE_IP: ${{ steps.get-vm-ip.outputs.PRIVATE_IP }}
-          SSH_KEY: ${{ inputs.SSH_KEY }}
           USERNAME: ${{ secrets.USERNAME }}
         run: |
           set -e
-          PRIV_KEY=$(az keyvault secret show --name ${PRIVATE_KEY} --vault-name ${KEY_VAULT} --query value -o tsv | sed -E 's/(-----BEGIN [^-]+-----)/\n\1\n/; s/(-----END [^-]+-----)/\n\1\n/' | tr ' ' '\n' | sed '/^$/d')
-          ssh -i $PRIV_KEY -o StrictHostKeyChecking=no ${USERNAME}@${PRIVATE_IP} << EOF
+          ssh -i ~/.ssh/azure_key -o StrictHostKeyChecking=no ${USERNAME}@${PRIVATE_IP} << EOF
             set -e
             echo "Logged in successfully."
             echo "Installing dependencies..."
             sudo tdnf install -y git moby-engine moby-cli clang llvm pkg-config make gcc glibc-devel
-            echo "Cloning the repository..."
-            git clone https://github.com/rust-vmm/mshv.git
             echo "Installing Rust..."
             curl -sSf https://sh.rustup.rs | sh -s -- --default-toolchain stable --profile default -y
             export PATH="\$HOME/.cargo/bin:\$PATH"
