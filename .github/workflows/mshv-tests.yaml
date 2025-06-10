@@ -2,6 +2,11 @@ name: Build & Test MSHV Crate
 on: 
   pull_request:
   workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build and test'
+        required: true
+        default: 'main'
 jobs:
   infra-setup:
     name: MSHV Infra Setup
@@ -12,9 +17,6 @@ jobs:
       RG: MSHV-${{ github.run_id }}
       VM_SKU: Standard_D16s_v5
     secrets:
-      KEY_VAULT: ${{ secrets.MSHV_KV}}
-      PRIVATE_KEY: ${{ secrets.MSHV_PRIVATE_KEY }}
-      PUBLIC_KEY: ${{ secrets.MSHV_PUBLIC_KEY }}
       MI_CLIENT_ID: ${{ secrets.MSHV_MI_CLIENT_ID }}
       RUNNER_RG: ${{ secrets.MSHV_RUNNER_RG }}
       RUNNER: ${{ secrets.MSHV_RUNNER }}
@@ -30,11 +32,19 @@ jobs:
       - self-hosted
       - Linux
     steps:
+      - name: Determine branch to build
+        run: |
+          echo "Determining branch to build and test..."
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+              echo "BRANCH=${{ github.event.pull_request.head.ref }}" >> $GITHUB_ENV
+          else
+            echo "BRANCH=${{ inputs.branch }}" >> $GITHUB_ENV
+          fi
+
       - name: Build & Run tests on remote VM
         env:
-          KEY_VAULT: ${{ secrets.KEY_VAULT }}
+          BRANCH_NAME: ${{ env.BRANCH }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           PRIVATE_IP: ${{ needs.infra-setup.outputs.PRIVATE_IP }}
           RG: MSHV-${{ github.run_id }}
           USERNAME: ${{ secrets.MSHV_USERNAME }}
@@ -45,19 +55,11 @@ jobs:
             set -e
             echo "Logged in successfully."
             export PATH="\$HOME/.cargo/bin:\$PATH"
-
-            if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-              BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
-            else
-              BRANCH_NAME="${{ github.ref_name }}"
-            fi
-            echo "Using branch: \$BRANCH"
-              git clone --depth 1 --single-branch --branch "$BRANCH_NAME" https://github.com/${{ github.repository }} repo
-
+            echo "${BRANCH_NAME}"
+            git clone --depth 1 --single-branch --branch "$BRANCH_NAME" https://github.com/rust-vmm/mshv.git
             cd mshv
-
             cargo build --all-features --workspace
-            sudo -E ~/.cargo/bin/cargo test --all-features --workspace
+            cargo test --all-features --workspace
           EOF
           echo "Build and test completed successfully."
 

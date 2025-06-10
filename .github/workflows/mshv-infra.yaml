@@ -19,12 +19,6 @@ on:
         required: true
         type: string
     secrets:
-      KEY_VAULT:
-        required: true
-      PRIVATE_KEY:
-        required: true
-      PUBLIC_KEY:
-        required: true
       MI_CLIENT_ID:
         required: true
       RUNNER_RG:
@@ -74,7 +68,6 @@ jobs:
           SKU: ${{ inputs.VM_SKU }}
           STORAGE_ACCOUNT_PATHS: ${{ secrets.STORAGE_ACCOUNT_PATHS }}
         run: |
-          set -x
           set -e
           # Extract vCPU count from SKU (e.g., "Standard_D2s_v3" => 2)
           vcpu=$(echo "$SKU" | sed -n 's/^Standard_[A-Za-z]\+\([0-9]\+\).*/\1/p')
@@ -132,8 +125,6 @@ jobs:
       - name: Create VM
         id: vm-setup
         env:
-          KEY_VAULT: ${{ secrets.KEY_VAULT }}
-          PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
           LOCATION: ${{ steps.get-location.outputs.location }}
           OS_DISK_SIZE: ${{ inputs.OS_DISK_SIZE }}
           RG: ${{ inputs.RG }}
@@ -217,8 +208,6 @@ jobs:
 
       - name: SSH into VM and Install Dependencies
         env:
-          KEY_VAULT: ${{ secrets.KEY_VAULT }}
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           PRIVATE_IP: ${{ steps.get-vm-ip.outputs.PRIVATE_IP }}
           USERNAME: ${{ secrets.USERNAME }}
         run: |
