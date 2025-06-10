@@ -15,4 +15,4 @@ mshv-bindings = { version = "=0.5.1", path = "../mshv-bindings", features = [
   "fam-wrappers",
 ] }
 thiserror = "2.0"
-vmm-sys-util = ">=0.12.1"
+vmm-sys-util = ">=0.14.0"
