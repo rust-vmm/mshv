@@ -13,6 +13,7 @@ jobs:
     uses: ./.github/workflows/mshv-infra.yaml
     with:
       ARCH: x86_64
+      KEY: azure_key_${{ github.run_id }}
       OS_DISK_SIZE: 512
       RG: MSHV-${{ github.run_id }}
       VM_SKU: Standard_D16s_v5
@@ -44,6 +45,7 @@ jobs:
       - name: Build & Run tests on remote VM
         env:
           BRANCH_NAME: ${{ env.BRANCH }}
+          KEY: azure_key_${{ github.run_id }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PRIVATE_IP: ${{ needs.infra-setup.outputs.PRIVATE_IP }}
           RG: MSHV-${{ github.run_id }}
@@ -51,7 +53,7 @@ jobs:
         run: |
           set -e
           echo "Connecting to the VM via SSH..."
-          ssh -i ~/.ssh/azure_key -o StrictHostKeyChecking=no ${USERNAME}@${PRIVATE_IP} << EOF
+          ssh -i ~/.ssh/${KEY} -o StrictHostKeyChecking=no ${USERNAME}@${PRIVATE_IP} << EOF
             set -e
             echo "Logged in successfully."
             export PATH="\$HOME/.cargo/bin:\$PATH"
@@ -83,9 +85,11 @@ jobs:
           echo "Cleanup process completed."
 
       - name: Delete SSH Key
+        env:
+          KEY: azure_key_${{ github.run_id }}
         run: |
-          if [ -f ~/.ssh/azure_key ]; then
-            rm -f ~/.ssh/azure_key
+          if [ -f ~/.ssh/${KEY} ]; then
+            rm -f ~/.ssh/${KEY} ~/.ssh/${KEY}.pub
             echo "SSH key deleted successfully."
           else
             echo "SSH key does not exist. Skipping deletion."

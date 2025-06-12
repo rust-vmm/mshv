@@ -6,6 +6,10 @@ on:
         description: 'Architecture for the VM'
         required: true
         type: string
+      KEY:
+        description: 'SSH Key Name'
+        required: true
+        type: string
       OS_DISK_SIZE:
         description: 'OS Disk Size in GB'
         required: true
@@ -115,16 +119,19 @@ jobs:
 
       - name: Generate SSH Key
         id: generate-ssh-key
+        env:
+          KEY: ${{ inputs.KEY }}
         run: |
-          # Check if SSH key already exists, if not, generate a new one
+          set -e
+          echo "Generating SSH key: $KEY"
           mkdir -p ~/.ssh
-          if [ ! -f ~/.ssh/azure_key ]; then
-            ssh-keygen -t rsa -b 4096 -f ~/.ssh/azure_key -N ""
-          fi
+          ssh-keygen -t rsa -b 4096 -f ~/.ssh/${KEY} -N ""
+
 
       - name: Create VM
         id: vm-setup
         env:
+          KEY: ${{ inputs.KEY }}
           LOCATION: ${{ steps.get-location.outputs.location }}
           OS_DISK_SIZE: ${{ inputs.OS_DISK_SIZE }}
           RG: ${{ inputs.RG }}
@@ -167,7 +174,7 @@ jobs:
             --storage-sku Premium_LRS \
             --public-ip-address "" \
             --admin-username ${USERNAME} \
-            --ssh-key-value  ~/.ssh/azure_key.pub \
+            --ssh-key-value  ~/.ssh/${KEY}.pub \
             --security-type Standard \
             --output json
 
@@ -191,11 +198,12 @@ jobs:
 
       - name: Wait for SSH availability
         env:
+          KEY: ${{ inputs.KEY }}
           PRIVATE_IP: ${{ steps.get-vm-ip.outputs.PRIVATE_IP }}
           USERNAME: ${{ secrets.USERNAME }}
         run: |
           echo "Waiting for SSH to be accessible..."
-          timeout 120 bash -c 'until ssh -o StrictHostKeyChecking=no -i ~/.ssh/azure_key ${USERNAME}@${PRIVATE_IP} "exit" 2>/dev/null; do sleep 5; done'
+          timeout 120 bash -c 'until ssh -o StrictHostKeyChecking=no -i ~/.ssh/${KEY} ${USERNAME}@${PRIVATE_IP} "exit" 2>/dev/null; do sleep 5; done'
           echo "VM is accessible!"
 
       - name: Remove Old Host Key
@@ -208,11 +216,12 @@ jobs:
 
       - name: SSH into VM and Install Dependencies
         env:
+          KEY: ${{ inputs.KEY }}
           PRIVATE_IP: ${{ steps.get-vm-ip.outputs.PRIVATE_IP }}
           USERNAME: ${{ secrets.USERNAME }}
         run: |
           set -e
-          ssh -i ~/.ssh/azure_key -o StrictHostKeyChecking=no ${USERNAME}@${PRIVATE_IP} << EOF
+          ssh -i ~/.ssh/${KEY} -o StrictHostKeyChecking=no ${USERNAME}@${PRIVATE_IP} << EOF
             set -e
             echo "Logged in successfully."
             echo "Installing dependencies..."
