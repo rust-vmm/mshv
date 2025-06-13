@@ -74,7 +74,7 @@ jobs:
     steps:
       - name: Delete RG
         env:
-          RG: MSHV-${{ github.run_id }}
+          RG: RUST-VMM-MSHV-${{ github.run_id }}
         run: |
           if az group exists --name ${RG}; then
             az group delete --name ${RG} --yes --no-wait
