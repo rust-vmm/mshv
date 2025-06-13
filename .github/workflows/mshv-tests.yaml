@@ -9,20 +9,19 @@ on:
         default: 'main'
 jobs:
   infra-setup:
-    name: MSHV Infra Setup
+    name: MSHV Infra Setup (x86_64)
     uses: ./.github/workflows/mshv-infra.yaml
     with:
       ARCH: x86_64
       KEY: azure_key_${{ github.run_id }}
       OS_DISK_SIZE: 512
-      RG: MSHV-${{ github.run_id }}
+      RG: RUST-VMM-MSHV-${{ github.run_id }}
       VM_SKU: Standard_D16s_v5
     secrets:
       MI_CLIENT_ID: ${{ secrets.MSHV_MI_CLIENT_ID }}
       RUNNER_RG: ${{ secrets.MSHV_RUNNER_RG }}
-      RUNNER: ${{ secrets.MSHV_RUNNER }}
       STORAGE_ACCOUNT_PATHS: ${{ secrets.MSHV_STORAGE_ACCOUNT_PATHS }}
-      X86_SOURCE_PATH: ${{ secrets.MSHV_X86_SOURCE_PATH }}
+      ARCH_SOURCE_PATH: ${{ secrets.MSHV_X86_SOURCE_PATH }}
       USERNAME: ${{ secrets.MSHV_USERNAME }}
 
   build-test:
@@ -37,7 +36,7 @@ jobs:
         run: |
           echo "Determining branch to build and test..."
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-              echo "BRANCH=${{ github.event.pull_request.head.ref }}" >> $GITHUB_ENV
+            echo "BRANCH=${{ github.event.pull_request.head.ref }}" >> $GITHUB_ENV
           else
             echo "BRANCH=${{ inputs.branch }}" >> $GITHUB_ENV
           fi
