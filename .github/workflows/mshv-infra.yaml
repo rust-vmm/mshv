@@ -27,11 +27,9 @@ on:
         required: true
       RUNNER_RG:
         required: true
-      RUNNER:
-        required: true
       STORAGE_ACCOUNT_PATHS:
         required: true
-      X86_SOURCE_PATH:
+      ARCH_SOURCE_PATH:
         required: true
       USERNAME:
         required: true
@@ -127,7 +125,6 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keygen -t rsa -b 4096 -f ~/.ssh/${KEY} -N ""
 
-
       - name: Create VM
         id: vm-setup
         env:
@@ -136,7 +133,6 @@ jobs:
           OS_DISK_SIZE: ${{ inputs.OS_DISK_SIZE }}
           RG: ${{ inputs.RG }}
           RUNNER_RG: ${{ secrets.RUNNER_RG }}
-          RUNNER: ${{ secrets.RUNNER }}
           USERNAME: ${{ secrets.USERNAME }}
           VM_SKU: ${{ inputs.VM_SKU }}
           VM_IMAGE_NAME: ${{ inputs.ARCH }}_${{ steps.get-location.outputs.location }}_image
