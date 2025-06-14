@@ -1427,7 +1427,7 @@ impl VcpuFd {
         let mut args = make_args!(HVCALL_TRANSLATE_VIRTUAL_ADDRESS, input, output);
         self.hvcall(&mut args)?;
 
-        let gpa = (output.gpa_page << HV_HYP_PAGE_SHIFT) | (gva & !(1 << HV_HYP_PAGE_SHIFT));
+        let gpa = (output.gpa_page << HV_HYP_PAGE_SHIFT) | (gva & !(HV_HYP_PAGE_MASK as u64));
 
         Ok((gpa, output.translation_result))
     }
