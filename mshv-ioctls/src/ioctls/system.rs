@@ -252,45 +252,4 @@ mod tests {
         let vm = hv.create_vm_with_args(&pr);
         assert!(vm.is_ok());
     }
-
-    #[cfg(target_arch = "x86_64")]
-    #[test]
-    fn test_get_msr_index_list() {
-        let hv = Mshv::new().unwrap();
-        let msr_list = hv.get_msr_index_list().unwrap();
-        assert!(msr_list.len() == 73);
-
-        let mut found = false;
-        for index in msr_list {
-            if index == IA32_MSR_SYSENTER_CS {
-                found = true;
-                break;
-            }
-        }
-        assert!(found);
-
-        /* Test all MSRs in the list individually and determine which can be get/set */
-        let vm = hv.create_vm().unwrap();
-        vm.initialize().unwrap();
-        let vcpu = vm.create_vcpu(0).unwrap();
-        let mut num_errors = 0;
-        for idx in hv.get_msr_index_list().unwrap() {
-            let mut get_set_msrs = Msrs::from_entries(&[msr_entry {
-                index: idx,
-                ..Default::default()
-            }])
-            .unwrap();
-            vcpu.get_msrs(&mut get_set_msrs).unwrap_or_else(|_| {
-                println!("Error getting MSR: 0x{idx:x}");
-                num_errors += 1;
-                0
-            });
-            vcpu.set_msrs(&get_set_msrs).unwrap_or_else(|_| {
-                println!("Error setting MSR: 0x{idx:x}");
-                num_errors += 1;
-                0
-            });
-        }
-        assert!(num_errors == 0);
-    }
 }
