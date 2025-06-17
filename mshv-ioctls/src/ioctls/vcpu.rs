@@ -1770,6 +1770,23 @@ impl VcpuFd {
         ];
         Ok(reg_list)
     }
+
+    /// Causes the next call to run() to return from the kernel without
+    /// dispatching the VP.
+    pub fn set_immediate_exit(&self) -> Result<()> {
+        let args = mshv_vp_flags {
+            bits: (1 << MSHV_VP_FLAG_BIT_IMMEDIATE_EXIT) as u8,
+            ..Default::default()
+        };
+        // SAFETY: IOCTL with correct types
+        let ret = unsafe { ioctl_with_ref(self, MSHV_SET_VP_FLAGS(), args) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            errno::Error::last().into()
+        }
+    }
+
 }
 
 #[allow(dead_code)]
