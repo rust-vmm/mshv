@@ -121,6 +121,7 @@ ioctl_ior_nr!(MSHV_RUN_VP, MSHV_IOCTL, 0x00, mshv_run_vp);
 ioctl_iowr_nr!(MSHV_GET_VP_STATE, MSHV_IOCTL, 0x01, mshv_get_set_vp_state);
 #[cfg(target_arch = "x86_64")]
 ioctl_iowr_nr!(MSHV_SET_VP_STATE, MSHV_IOCTL, 0x02, mshv_get_set_vp_state);
+ioctl_io_nr!(MSHV_CANCEL_RUN_VP, MSHV_IOCTL, 0x03);
 // NOTE: defined above, also used with VP fd:
 // ioctl_iowr_nr!(MSHV_ROOT_HVCALL, MSHV_IOCTL, 0x07, mshv_root_hvcall);
 
