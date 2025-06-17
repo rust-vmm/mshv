@@ -1779,11 +1779,11 @@ impl VcpuFd {
             ..Default::default()
         };
         // SAFETY: IOCTL with correct types
-        let ret = unsafe { ioctl_with_ref(self, MSHV_SET_VP_FLAGS(), args) };
+        let ret = unsafe { ioctl_with_ref(self, MSHV_VP_SET_FLAGS(), &args) };
         if ret == 0 {
             Ok(())
         } else {
-            errno::Error::last().into()
+            Err(errno::Error::last().into())
         }
     }
 
