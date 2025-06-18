@@ -2004,6 +2004,7 @@ mod tests {
                 0,
             )
         } as *mut u8;
+
         let mem_region = mshv_user_mem_region {
             flags: set_bits!(u8, MSHV_SET_MEM_BIT_WRITABLE, MSHV_SET_MEM_BIT_EXECUTABLE),
             guest_pfn: 0x1,
@@ -2071,96 +2072,16 @@ mod tests {
     #[cfg(target_arch = "x86_64")]
     #[test]
     fn test_run_code() {
-        use libc::c_void;
-
         use super::*;
         use crate::ioctls::system::Mshv;
-        use crate::set_bits;
-        use std::io::Write;
 
         let mshv = Mshv::new().unwrap();
         let vm = mshv.create_vm().unwrap();
         vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
-        // This example is based on https://lwn.net/Articles/658511/
-        #[rustfmt::skip]
-        let code:[u8;11] = [
-            0xba, 0xf8, 0x03,  /* mov $0x3f8, %dx */
-            0x00, 0xd8,         /* add %bl, %al */
-            0x04, b'0',         /* add $'0', %al */
-            0xee,               /* out %al, (%dx) */
-            /* send a 0 to indicate we're done */
-            0xb0, b'\0',        /* mov $'\0', %al */
-            0xee,               /* out %al, (%dx) */
-        ];
 
-        let mem_size = 0x4000;
-        let load_addr = unsafe {
-            libc::mmap(
-                std::ptr::null_mut(),
-                mem_size,
-                libc::PROT_READ | libc::PROT_WRITE,
-                libc::MAP_ANONYMOUS | libc::MAP_SHARED | libc::MAP_NORESERVE,
-                -1,
-                0,
-            )
-        } as *mut u8;
-        let mem_region = mshv_user_mem_region {
-            flags: set_bits!(u8, MSHV_SET_MEM_BIT_WRITABLE, MSHV_SET_MEM_BIT_EXECUTABLE),
-            guest_pfn: 0x1,
-            size: 0x1000,
-            userspace_addr: load_addr as u64,
-            ..Default::default()
-        };
-
-        vm.map_user_memory(mem_region).unwrap();
-
-        unsafe {
-            // Get a mutable slice of `mem_size` from `load_addr`.
-            // This is safe because we mapped it before.
-            let mut slice = slice::from_raw_parts_mut(load_addr, mem_size);
-            slice.write_all(&code).unwrap();
-        }
-
-        //Get CS Register
-        let mut cs_reg = hv_register_assoc {
-            name: hv_register_name_HV_X64_REGISTER_CS,
-            ..Default::default()
-        };
-        vcpu.get_reg(slice::from_mut(&mut cs_reg)).unwrap();
-
-        unsafe {
-            assert_ne!({ cs_reg.value.segment.base }, 0);
-            assert_ne!({ cs_reg.value.segment.selector }, 0);
-        };
-
-        cs_reg.value.segment.base = 0;
-        cs_reg.value.segment.selector = 0;
-
-        vcpu.set_reg(&[
-            cs_reg,
-            hv_register_assoc {
-                name: hv_register_name_HV_X64_REGISTER_RAX,
-                value: hv_register_value { reg64: 2 },
-                ..Default::default()
-            },
-            hv_register_assoc {
-                name: hv_register_name_HV_X64_REGISTER_RBX,
-                value: hv_register_value { reg64: 2 },
-                ..Default::default()
-            },
-            hv_register_assoc {
-                name: hv_register_name_HV_X64_REGISTER_RIP,
-                value: hv_register_value { reg64: 0x1000 },
-                ..Default::default()
-            },
-            hv_register_assoc {
-                name: hv_register_name_HV_X64_REGISTER_RFLAGS,
-                value: hv_register_value { reg64: 0x2 },
-                ..Default::default()
-            },
-        ])
-        .unwrap();
+        setup_vp_test_code_page(&vm, code_serial_out).unwrap();
+        setup_vp_test_regs(&vcpu).unwrap();
 
         let mut done = false;
         loop {
@@ -2215,8 +2136,6 @@ mod tests {
             };
         }
         assert!(done);
-        vm.unmap_user_memory(mem_region).unwrap();
-        unsafe { libc::munmap(load_addr as *mut c_void, mem_size) };
     }
 
     #[cfg(target_arch = "x86_64")]
@@ -2224,44 +2143,15 @@ mod tests {
     fn test_run_code_mmap() {
         use super::*;
         use crate::ioctls::system::Mshv;
-        use crate::set_bits;
         use libc::c_void;
-        use std::io::Write;
 
         let mshv = Mshv::new().unwrap();
         let vm = mshv.create_vm().unwrap();
         vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
-        // This example is based on https://lwn.net/Articles/658511/
-        #[rustfmt::skip]
-        let code:[u8;11] = [
-            0xba, 0xf8, 0x03,  /* mov $0x3f8, %dx */
-            0x00, 0xd8,         /* add %bl, %al */
-            0x04, b'0',         /* add $'0', %al */
-            0xee,               /* out %al, (%dx) */
-            /* send a 0 to indicate we're done */
-            0xb0, b'\0',        /* mov $'\0', %al */
-            0xee,               /* out %al, (%dx) */
-        ];
 
-        let mem_size = 0x4000;
-        let load_addr = unsafe {
-            libc::mmap(
-                std::ptr::null_mut(),
-                mem_size,
-                libc::PROT_READ | libc::PROT_WRITE,
-                libc::MAP_ANONYMOUS | libc::MAP_SHARED | libc::MAP_NORESERVE,
-                -1,
-                0,
-            )
-        } as *mut u8;
-        let mem_region = mshv_user_mem_region {
-            flags: set_bits!(u8, MSHV_SET_MEM_BIT_WRITABLE, MSHV_SET_MEM_BIT_EXECUTABLE),
-            guest_pfn: 0x1,
-            size: 0x1000,
-            userspace_addr: load_addr as u64,
-            ..Default::default()
-        };
+        setup_vp_test_code_page(&vm, code_serial_out).unwrap();
+        setup_vp_test_regs(&vcpu).unwrap();
 
         let registers_addr = unsafe {
             libc::mmap(
@@ -2299,58 +2189,9 @@ mod tests {
             );
         }
 
-        vm.map_user_memory(mem_region).unwrap();
-
         let reg_page: *mut hv_vp_register_page = registers_addr as *mut hv_vp_register_page;
         let hv_msg_page: *mut hv_message = hv_msg_addr as *mut hv_message;
         let mut done = false;
-
-        unsafe {
-            // Get a mutable slice of `mem_size` from `load_addr`.
-            // This is safe because we mapped it before.
-            let mut slice = slice::from_raw_parts_mut(load_addr, mem_size);
-            slice.write_all(&code).unwrap();
-        }
-
-        // Get CS Register
-        let mut cs_reg = hv_register_assoc {
-            name: hv_register_name_HV_X64_REGISTER_CS,
-            ..Default::default()
-        };
-        vcpu.get_reg(slice::from_mut(&mut cs_reg)).unwrap();
-
-        unsafe {
-            assert_ne!({ cs_reg.value.segment.base }, 0);
-            assert_ne!({ cs_reg.value.segment.selector }, 0);
-        };
-
-        cs_reg.value.segment.base = 0;
-        cs_reg.value.segment.selector = 0;
-
-        vcpu.set_reg(&[
-            cs_reg,
-            hv_register_assoc {
-                name: hv_register_name_HV_X64_REGISTER_RAX,
-                value: hv_register_value { reg64: 2 },
-                ..Default::default()
-            },
-            hv_register_assoc {
-                name: hv_register_name_HV_X64_REGISTER_RBX,
-                value: hv_register_value { reg64: 2 },
-                ..Default::default()
-            },
-            hv_register_assoc {
-                name: hv_register_name_HV_X64_REGISTER_RIP,
-                value: hv_register_value { reg64: 0x1000 },
-                ..Default::default()
-            },
-            hv_register_assoc {
-                name: hv_register_name_HV_X64_REGISTER_RFLAGS,
-                value: hv_register_value { reg64: 0x2 },
-                ..Default::default()
-            },
-        ])
-        .unwrap();
 
         unsafe {
             assert!((*reg_page).version == HV_VP_REGISTER_PAGE_VERSION_1 as u16);
@@ -2407,11 +2248,6 @@ mod tests {
             };
         }
         assert!(done);
-
-        vm.unmap_user_memory(mem_region).unwrap();
-        unsafe { libc::munmap(load_addr as *mut c_void, mem_size) };
-        unsafe { libc::munmap(registers_addr as *mut c_void, 0x1000) };
-        unsafe { libc::munmap(hv_msg_addr as *mut c_void, 0x1000) };
     }
 
     #[cfg(target_arch = "x86_64")]
