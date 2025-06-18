@@ -1791,6 +1791,7 @@ mod tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
     use crate::ioctls::system::Mshv;
+    use crate::ioctls::vm::VmFd;
 
     #[cfg(target_arch = "x86_64")]
     #[test]
@@ -1974,6 +1975,97 @@ mod tests {
         assert!(g_regs.last_ip == s_regs.last_ip);
         assert!(g_regs.last_dp == s_regs.last_dp);
         assert!(g_regs.mxcsr == s_regs.mxcsr);
+    }
+
+    #[rustfmt::skip]
+    const code_serial_out:[u8;11] = [
+        0xba, 0xf8, 0x03,  /* mov $0x3f8, %dx */
+        0x00, 0xd8,         /* add %bl, %al */
+        0x04, b'0',         /* add $'0', %al */
+        0xee,               /* out %al, (%dx) */
+        /* send a 0 to indicate we're done */
+        0xb0, b'\0',        /* mov $'\0', %al */
+        0xee,               /* out %al, (%dx) */
+    ];
+    #[rustfmt::skip]
+    const code_loop:[u8;2] = [
+        0xeb, 0xfe          /* jmp short -2 */
+    ];
+
+    fn setup_vp_test_code_page(vm: &VmFd, code: [u8]) -> Result<()> {
+        let mem_size = HV_PAGE_SIZE;
+        let load_addr = unsafe {
+            libc::mmap(
+                std::ptr::null_mut(),
+                mem_size,
+                libc::PROT_READ | libc::PROT_WRITE,
+                libc::MAP_ANONYMOUS | libc::MAP_SHARED | libc::MAP_NORESERVE,
+                -1,
+                0,
+            )
+        } as *mut u8;
+        let mem_region = mshv_user_mem_region {
+            flags: set_bits!(u8, MSHV_SET_MEM_BIT_WRITABLE, MSHV_SET_MEM_BIT_EXECUTABLE),
+            guest_pfn: 0x1,
+            size: 0x1000,
+            userspace_addr: load_addr as u64,
+            ..Default::default()
+        };
+
+        vm.map_user_memory(mem_region).unwrap();
+
+        unsafe {
+            // Get a mutable slice of `mem_size` from `load_addr`.
+            // This is safe because we mapped it before.
+            let mut slice = slice::from_raw_parts_mut(load_addr, mem_size);
+            slice.write_all(&code).unwrap();
+        }
+
+        Ok(())
+    }
+
+    fn setup_vp_test_regs(vcpu: &VcpuFd) -> Result<()> {
+        //Get CS Register
+        let mut cs_reg = hv_register_assoc {
+            name: hv_register_name_HV_X64_REGISTER_CS,
+            ..Default::default()
+        };
+        vcpu.get_reg(slice::from_mut(&mut cs_reg)).unwrap();
+
+        unsafe {
+            assert_ne!({ cs_reg.value.segment.base }, 0);
+            assert_ne!({ cs_reg.value.segment.selector }, 0);
+        };
+
+        cs_reg.value.segment.base = 0;
+        cs_reg.value.segment.selector = 0;
+
+        vcpu.set_reg(&[
+            cs_reg,
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_RAX,
+                value: hv_register_value { reg64: 2 },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_RBX,
+                value: hv_register_value { reg64: 2 },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_RIP,
+                value: hv_register_value { reg64: 0x1000 },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_RFLAGS,
+                value: hv_register_value { reg64: 0x2 },
+                ..Default::default()
+            },
+        ])
+        .unwrap();
+
+        Ok(())
     }
 
     #[cfg(target_arch = "x86_64")]
