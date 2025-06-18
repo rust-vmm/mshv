@@ -2044,9 +2044,10 @@ mod tests {
         cs_reg.value.segment.base = 0;
         cs_reg.value.segment.selector = 0;
 
+        vcpu.set_reg(&[cs_reg]).unwrap();
         let set_regs_arr = [
             // SAFETY: Access union field with repr(C) equivalent to transmute()
-            (hv_register_name_HV_X64_REGISTER_CS, unsafe { cs_reg.value.reg64 }),
+            //(hv_register_name_HV_X64_REGISTER_CS, unsafe { cs_reg.value.reg64 }),
             (hv_register_name_HV_X64_REGISTER_RAX, 2),
             (hv_register_name_HV_X64_REGISTER_RBX, 2),
             (hv_register_name_HV_X64_REGISTER_RIP, 0x1000),
