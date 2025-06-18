@@ -2044,16 +2044,30 @@ mod tests {
         cs_reg.value.segment.base = 0;
         cs_reg.value.segment.selector = 0;
 
-        vcpu.set_reg(&[cs_reg]).unwrap();
-        let set_regs_arr = [
-            // SAFETY: Access union field with repr(C) equivalent to transmute()
-            //(hv_register_name_HV_X64_REGISTER_CS, unsafe { cs_reg.value.reg64 }),
-            (hv_register_name_HV_X64_REGISTER_RAX, 2),
-            (hv_register_name_HV_X64_REGISTER_RBX, 2),
-            (hv_register_name_HV_X64_REGISTER_RIP, 0x1000),
-            (hv_register_name_HV_X64_REGISTER_RFLAGS, 0x2),
-        ];
-        set_registers_64!(vcpu, &set_regs_arr).unwrap();
+        vcpu.set_reg(&[
+            cs_reg,
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_RAX,
+                value: hv_register_value { reg64: 2 },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_RBX,
+                value: hv_register_value { reg64: 2 },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_RIP,
+                value: hv_register_value { reg64: 0x1000 },
+                ..Default::default()
+            },
+            hv_register_assoc {
+                name: hv_register_name_HV_X64_REGISTER_RFLAGS,
+                value: hv_register_value { reg64: 0x2 },
+                ..Default::default()
+            },
+        ])
+        .unwrap();
 
         Ok(())
     }
