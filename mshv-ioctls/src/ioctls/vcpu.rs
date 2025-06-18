@@ -2443,4 +2443,28 @@ mod tests {
             .zip(ret_states.buffer)
             .all(|(a, b)| *a == b));
     }
+
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    fn test_cancel_run() {
+        use crate::ioctls::system::Mshv;
+
+        let mshv = Mshv::new().unwrap();
+        let vm = mshv.create_vm().unwrap();
+        vm.initialize().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        setup_vp_test_code_page(&vm, code_loop).unwrap();
+        setup_vp_test_regs(&vcpu).unwrap();
+
+        let res_0 = vcpu.run();
+        assert!(res_0.is_ok());
+        assert!(vcpu.cancel_run().is_ok());
+        let res_1 = vcpu.run();
+        assert!(res_1.is_err());
+        if let Err(e) = res_1 {
+            assert!(e.errno() == libc::EINTR);
+        }
+    }
+
 }
