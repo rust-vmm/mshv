@@ -2467,4 +2467,41 @@ mod tests {
         }
     }
 
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    fn test_run_code_2() {
+        use super::*;
+        use crate::ioctls::system::Mshv;
+
+        let mshv = Mshv::new().unwrap();
+        let vm = mshv.create_vm().unwrap();
+        vm.initialize().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        setup_vp_test_code_page(&vm, code_loop).unwrap();
+        setup_vp_test_regs(&vcpu).unwrap();
+
+        let mut done = false;
+        loop {
+            let ret_hv_message = vcpu.run().unwrap();
+            match ret_hv_message.header.message_type {
+                hv_message_type_HVMSG_X64_HALT => {
+                    println!("VM Halted!");
+                    break;
+                }
+                hv_message_type_HVMSG_X64_IO_PORT_INTERCEPT => {
+                    let io_message = ret_hv_message.to_ioport_info().unwrap();
+                    println!("Got IO message!");
+                }
+                _ => {
+                    println!("Message type: 0x{:x?}", {
+                        ret_hv_message.header.message_type
+                    });
+                    panic!("Unexpected Exit Type");
+                }
+            };
+        }
+        assert!(done);
+    }
+
 }
