@@ -2470,4 +2470,93 @@ mod tests {
         }
     }
 
+    fn setup_vp_test_code_page_loop(vm: &VmFd) -> Result<()> {
+        use crate::set_bits;
+        use std::io::Write;
+
+        // This example is based on https://lwn.net/Articles/658511/
+        /*#[rustfmt::skip]
+        let code:[u8;13] = [
+            0xba, 0xf8, 0x03,  /* mov $0x3f8, %dx */
+            0x00, 0xd8,         /* add %bl, %al */
+            0x04, b'0',         /* add $'0', %al */
+            0xee,               /* out %al, (%dx) */
+            /* send a 0 to indicate we're done */
+            0xb0, b'\0',        /* mov $'\0', %al */
+            0xee,               /* out %al, (%dx) */
+            0xeb, 0xf3          /* jmp short -13 */
+        ];
+        */
+        let code:[u8;2] = [
+            0xeb, 0xfe          /* jmp short -2 */
+        ];
+
+        let mem_size = 0x4000;
+        let load_addr = unsafe {
+            libc::mmap(
+                std::ptr::null_mut(),
+                mem_size,
+                libc::PROT_READ | libc::PROT_WRITE,
+                libc::MAP_ANONYMOUS | libc::MAP_SHARED | libc::MAP_NORESERVE,
+                -1,
+                0,
+            )
+        } as *mut u8;
+        let mem_region = mshv_user_mem_region {
+            flags: set_bits!(u8, MSHV_SET_MEM_BIT_WRITABLE, MSHV_SET_MEM_BIT_EXECUTABLE),
+            guest_pfn: 0x1,
+            size: 0x1000,
+            userspace_addr: load_addr as u64,
+            ..Default::default()
+        };
+
+        vm.map_user_memory(mem_region).unwrap();
+
+        unsafe {
+            // Get a mutable slice of `mem_size` from `load_addr`.
+            // This is safe because we mapped it before.
+            let mut slice = slice::from_raw_parts_mut(load_addr, mem_size);
+            slice.write_all(&code).unwrap();
+        }
+
+        Ok(())
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    fn test_run_code_2() {
+        use super::*;
+        use crate::ioctls::system::Mshv;
+
+        let mshv = Mshv::new().unwrap();
+        let vm = mshv.create_vm().unwrap();
+        vm.initialize().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        setup_vp_test_code_page(&vm).unwrap();
+        setup_vp_test_regs(&vcpu).unwrap();
+
+        let mut done = false;
+        loop {
+            let ret_hv_message = vcpu.run().unwrap();
+            match ret_hv_message.header.message_type {
+                hv_message_type_HVMSG_X64_HALT => {
+                    println!("VM Halted!");
+                    break;
+                }
+                hv_message_type_HVMSG_X64_IO_PORT_INTERCEPT => {
+                    let io_message = ret_hv_message.to_ioport_info().unwrap();
+                    println!("Got IO message!");
+                }
+                _ => {
+                    println!("Message type: 0x{:x?}", {
+                        ret_hv_message.header.message_type
+                    });
+                    panic!("Unexpected Exit Type");
+                }
+            };
+        }
+        assert!(done);
+    }
+
 }
