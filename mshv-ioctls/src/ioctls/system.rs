@@ -91,6 +91,9 @@ fn make_partition_create_arg(vm_type: VmType) -> mshv_create_partition_v2 {
         proc_features.__bindgen_anon_1.set_cet_ss_support(0u64);
         proc_features.__bindgen_anon_1.set_smep_support(0u64);
         proc_features.__bindgen_anon_1.set_rdtscp_support(0u64);
+        proc_features
+            .__bindgen_anon_1
+            .set_tsc_invariant_support(0u64);
     }
 
     #[cfg(target_arch = "aarch64")]
