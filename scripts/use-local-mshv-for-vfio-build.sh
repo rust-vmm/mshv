@@ -1,6 +1,16 @@
 #! /bin/sh
 
-sed -i 's/mshv-ioctls = { git = "https:\/\/github.com\/rust-vmm\/mshv", branch = "main", optional  = true }*/mshv-ioctls = { path = \"..\/..\/..\/mshv\/mshv-ioctls\", optional  = true }/g' ./crates/vfio-ioctls/Cargo.toml
-sed -i 's/mshv-bindings = { git = "https:\/\/github.com\/rust-vmm\/mshv", branch = "main", features = \["with-serde", "fam-wrappers"\], optional  = true }*/mshv-bindings = { path = "..\/..\/..\/mshv\/mshv-bindings", features = ["with-serde", "fam-wrappers"], optional  = true }/g' ./crates/vfio-ioctls/Cargo.toml
+filename=./vfio-ioctls/Cargo.toml
+replace_crate() {
+    line=$(grep -n "$1 = { version =" $filename | tail -n1 | cut -f1 -d:)
+    if [ -z $line ]; then
+            echo "$1 not found in the Cargo.toml file"
+            exit 1
+    fi
+    sed -i "$line i $1 = { path = \"..\/..\/mshv\/$1\" $2" $filename
+    line=$((line+1))
+    sed -i "${line}d" $filename
+}
 
-
+replace_crate mshv-ioctls ', optional  = true }'
+replace_crate mshv-bindings ', features = ['

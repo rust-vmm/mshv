@@ -110,16 +110,32 @@ impl VmFd {
             Err(errno::Error::last().into())
         }
     }
+
     /// Install intercept to enable some VM exits like MSR, CPUId etc
     pub fn install_intercept(&self, install_intercept_args: mshv_install_intercept) -> Result<()> {
-        // SAFETY: IOCTL with correct types
-        let ret =
-            unsafe { ioctl_with_ref(self, MSHV_INSTALL_INTERCEPT(), &install_intercept_args) };
-        if ret == 0 {
-            Ok(())
-        } else {
-            Err(errno::Error::last().into())
-        }
+        self.hvcall_install_intercept(
+            install_intercept_args.access_type_mask,
+            install_intercept_args.intercept_type,
+            install_intercept_args.intercept_parameter,
+        )
+    }
+
+    /// Generic hvcall version of install_intercept
+    fn hvcall_install_intercept(
+        &self,
+        access_type_mask: u32,
+        intercept_type: u32,
+        intercept_param: hv_intercept_parameters,
+    ) -> Result<()> {
+        let input = hv_input_install_intercept {
+            access_type: access_type_mask,
+            intercept_type,
+            intercept_parameter: intercept_param,
+            ..Default::default() // NOTE: Kernel will populate partition_id field
+        };
+
+        let mut args = make_args!(HVCALL_INSTALL_INTERCEPT, input);
+        self.hvcall(&mut args)
     }
 
     /// Modify host visibility for a range of GPA
@@ -253,7 +269,14 @@ impl VmFd {
     }
 
     /// Inject an interrupt into the guest..
+    #[cfg(target_arch = "x86_64")]
     pub fn request_virtual_interrupt(&self, request: &InterruptRequest) -> Result<()> {
+        self.hvcall_assert_virtual_interrupt(request)
+    }
+
+    /// MSHV_ROOT_HVCALL version of request_virtual_interrupt
+    #[cfg(target_arch = "x86_64")]
+    fn hvcall_assert_virtual_interrupt(&self, request: &InterruptRequest) -> Result<()> {
         let mut control_flags: u32 = 0;
         if request.level_triggered {
             control_flags |= 0x1;
@@ -265,83 +288,107 @@ impl VmFd {
             control_flags |= 1 << 30;
         }
 
-        let interrupt_arg = mshv_assert_interrupt {
+        let input = hv_input_assert_virtual_interrupt {
             control: hv_interrupt_control {
                 as_uint64: request.interrupt_type as u64 | ((control_flags as u64) << 32),
             },
             dest_addr: request.apic_id,
             vector: request.vector,
-            ..Default::default()
+            ..Default::default() // NOTE: Kernel will populate partition_id field
         };
-        // SAFETY: IOCTL with correct types
-        let ret = unsafe { ioctl_with_ref(&self.vm, MSHV_ASSERT_INTERRUPT(), &interrupt_arg) };
-        if ret == 0 {
-            Ok(())
-        } else {
-            Err(errno::Error::last().into())
-        }
+
+        let mut args = make_args!(HVCALL_ASSERT_VIRTUAL_INTERRUPT, input);
+        self.hvcall(&mut args)
     }
 
-    ///
     /// signal_event_direct: Send a sint signal event to the vp.
+    #[cfg(target_arch = "x86_64")]
     pub fn signal_event_direct(&self, vp: u32, sint: u8, flag: u16) -> Result<bool> {
-        let mut event_info = mshv_signal_event_direct {
-            vp,
-            vtl: 0,
-            sint,
-            flag,
+        self.hvcall_signal_event_direct(vp, sint, flag)
+    }
+
+    /// MSHV_ROOT_HVCALL version of signal_event_direct
+    #[cfg(target_arch = "x86_64")]
+    fn hvcall_signal_event_direct(&self, vp: u32, sint: u8, flag: u16) -> Result<bool> {
+        let input = hv_input_signal_event_direct {
+            target_vp: vp,
+            target_vtl: 0,
+            target_sint: sint,
+            flag_number: flag,
+            ..Default::default() // NOTE: Kernel will populate partition_id field
+        };
+        let mut output = hv_output_signal_event_direct {
+            newly_signaled: 0,
             ..Default::default()
         };
 
-        let ret = unsafe { ioctl_with_mut_ref(self, MSHV_SIGNAL_EVENT_DIRECT(), &mut event_info) };
-        if ret == 0 {
-            Ok(event_info.newly_signaled != 0)
-        } else {
-            Err(errno::Error::last().into())
-        }
+        let mut args = make_args!(HVCALL_SIGNAL_EVENT_DIRECT, input, output);
+        self.hvcall(&mut args)?;
+
+        Ok(output.newly_signaled != 0)
     }
 
-    ///
     /// post_message_direct: Post a message to the vp using a given sint.
+    #[cfg(target_arch = "x86_64")]
     pub fn post_message_direct(&self, vp: u32, sint: u8, msg: &[u8]) -> Result<()> {
-        let message_info = mshv_post_message_direct {
-            vp,
-            vtl: 0,
-            sint,
-            length: u16::try_from(msg.len()).expect("failed to convert message length"),
-            message: msg.as_ptr(),
-        };
-
-        let ret = unsafe { ioctl_with_ref(self, MSHV_POST_MESSAGE_DIRECT(), &message_info) };
-        if ret == 0 {
-            Ok(())
-        } else {
-            Err(errno::Error::last().into())
-        }
+        self.hvcall_post_message_direct(vp, sint, msg)
     }
 
-    ///
+    /// MSHV_ROOT_HVCALL version of post_message_direct
+    #[cfg(target_arch = "x86_64")]
+    fn hvcall_post_message_direct(&self, vp: u32, sint: u8, msg: &[u8]) -> Result<()> {
+        let mut input = hv_input_post_message_direct {
+            vp_index: vp,
+            vtl: 0,
+            sint_index: sint as u32,
+            ..Default::default() // NOTE: Kernel will populate partition_id field
+        };
+        if msg.len() > input.message.len() {
+            return Err(errno::Error::new(libc::EINVAL).into());
+        }
+        let len = cmp::min(msg.len(), input.message.len());
+        input.message[..len].copy_from_slice(&msg[..len]);
+
+        let mut args = make_args!(HVCALL_POST_MESSAGE_DIRECT, input);
+        self.hvcall(&mut args)
+    }
+
     /// register_deliverabilty_notifications: Register for a notification when
     /// hypervisor is ready to process more post_message_direct(s).
     pub fn register_deliverabilty_notifications(&self, vp: u32, flag: u64) -> Result<()> {
-        let notifications_info = mshv_register_deliverabilty_notifications {
-            vp,
-            flag,
-            ..Default::default()
-        };
-        let ret = unsafe {
-            ioctl_with_ref(
-                self,
-                MSHV_REGISTER_DELIVERABILITY_NOTIFICATIONS(),
-                &notifications_info,
-            )
-        };
+        self.hvcall_register_deliverability_notifications(vp, flag)
+    }
 
-        if ret == 0 {
-            Ok(())
-        } else {
-            Err(errno::Error::last().into())
+    /// Generic hypercall version of set_reg, with vp specified by index
+    fn hvcall_set_reg(&self, vp: u32, reg_assocs: &[hv_register_assoc]) -> Result<()> {
+        let input = make_rep_input!(
+            hv_input_set_vp_registers {
+                vp_index: vp,
+                ..Default::default()
+            },
+            elements,
+            reg_assocs
+        );
+        let mut args = make_rep_args!(HVCALL_SET_VP_REGISTERS, input);
+        self.hvcall(&mut args)?;
+
+        if args.reps as usize != reg_assocs.len() {
+            return Err(libc::EINTR.into());
         }
+
+        Ok(())
+    }
+
+    /// MSHV_ROOT_HVCALL version of register_deliverability_notifications
+    fn hvcall_register_deliverability_notifications(&self, vp: u32, flag: u64) -> Result<()> {
+        self.hvcall_set_reg(
+            vp,
+            &[hv_register_assoc {
+                name: hv_register_name_HV_REGISTER_DELIVERABILITY_NOTIFICATIONS,
+                value: hv_register_value { reg64: flag },
+                ..Default::default()
+            }],
+        )
     }
 
     /// irqfd: Passes in an eventfd which is to be used for injecting
@@ -612,41 +659,35 @@ impl VmFd {
     /// Get property of the VM partition: For example , CPU Frequency, Size of the Xsave state and more.
     /// For more of the codes, please see the hv_partition_property_code type definitions in the bindings.rs
     pub fn get_partition_property(&self, code: u32) -> Result<u64> {
-        let mut property = mshv_partition_property {
+        self.hvcall_get_partition_property(code)
+    }
+
+    /// Generic hvcall version of get_partition_property
+    fn hvcall_get_partition_property(&self, code: u32) -> Result<u64> {
+        let input = hv_input_get_partition_property {
             property_code: code,
+            ..Default::default() // NOTE: Kernel will populate partition_id field
+        };
+        let mut output = hv_output_get_partition_property {
             ..Default::default()
         };
-        // SAFETY: IOCTL with correct types
-        let ret =
-            unsafe { ioctl_with_mut_ref(&self.vm, MSHV_GET_PARTITION_PROPERTY(), &mut property) };
-        if ret == 0 {
-            Ok(property.property_value)
-        } else {
-            Err(errno::Error::last().into())
-        }
+        let mut args = make_args!(HVCALL_GET_PARTITION_PROPERTY, input, output);
+        self.hvcall(&mut args)?;
+
+        Ok(output.property_value)
     }
 
     /// Sets a partion property
     pub fn set_partition_property(&self, code: u32, value: u64) -> Result<()> {
-        let property: mshv_partition_property = mshv_partition_property {
-            property_code: code,
-            property_value: value,
-        };
-        // SAFETY: IOCTL with correct types
-        let ret = unsafe { ioctl_with_ref(&self.vm, MSHV_SET_PARTITION_PROPERTY(), &property) };
-        if ret == 0 {
-            Ok(())
-        } else {
-            Err(errno::Error::last().into())
-        }
+        self.hvcall_set_partition_property(code, value)
     }
 
     /// Generic hvcall version of set_partition_property
-    pub fn hvcall_set_partition_property(&self, code: u32, value: u64) -> Result<()> {
+    fn hvcall_set_partition_property(&self, code: u32, value: u64) -> Result<()> {
         let input = hv_input_set_partition_property {
             property_code: code,
             property_value: value,
-            ..Default::default() // NOTE: kernel will populate partition_id field
+            ..Default::default() // NOTE: Kernel will populate partition_id field
         };
         let mut args = make_args!(HVCALL_SET_PARTITION_PROPERTY, input);
         self.hvcall(&mut args)
@@ -772,6 +813,41 @@ impl VmFd {
             Err(MshvError::from_hvcall(errno::Error::last(), *args))
         }
     }
+
+    #[cfg(target_arch = "x86_64")]
+    /// X86 specific call to get list of supported MSRs
+    pub fn get_msr_index_list(&self) -> Result<Vec<u32>> {
+        let xsave_feature_val = self.get_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_XSAVE_FEATURES,
+        )?;
+        let proc_features0 = self.get_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES0,
+        )?;
+        let proc_features1 = self.get_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES1,
+        )?;
+        let syn_feature = self.get_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_SYNTHETIC_PROC_FEATURES,
+        )?;
+        let mut proc_features = hv_partition_processor_features::default();
+        // SAFETY: access union fields
+        unsafe {
+            proc_features.as_uint64[0] = proc_features0;
+            proc_features.as_uint64[1] = proc_features1;
+        }
+        let synthetic_features = hv_partition_synthetic_processor_features {
+            as_uint64: [syn_feature],
+        };
+        let xsave_features = hv_partition_processor_xsave_features {
+            as_uint64: xsave_feature_val,
+        };
+        let vp_features: VpFeatures = VpFeatures {
+            proc_features,
+            xsave_features,
+            synthetic_features,
+        };
+        Ok(get_partition_supported_msrs(&vp_features))
+    }
 }
 /// Helper function to create a new `VmFd`.
 ///
@@ -795,6 +871,7 @@ mod tests {
     fn test_user_memory() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let addr = unsafe {
             libc::mmap(
                 std::ptr::null_mut(),
@@ -822,6 +899,7 @@ mod tests {
     fn test_create_vcpu() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0);
         assert!(vcpu.is_ok());
     }
@@ -832,6 +910,7 @@ mod tests {
         /* TODO better test with some code */
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
         let state = vcpu.get_lapic().unwrap();
         let buffer = Buffer::try_from(&state).unwrap();
@@ -845,6 +924,7 @@ mod tests {
             long_mode: false,
         };
         vm.request_virtual_interrupt(&cfg).unwrap();
+        vm.hvcall_assert_virtual_interrupt(&cfg).unwrap();
     }
 
     #[cfg(target_arch = "x86_64")]
@@ -852,12 +932,20 @@ mod tests {
     fn test_install_intercept() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let intercept_args = mshv_install_intercept {
             access_type_mask: HV_INTERCEPT_ACCESS_MASK_EXECUTE,
             intercept_type: hv_intercept_type_HV_INTERCEPT_TYPE_X64_CPUID,
             intercept_parameter: hv_intercept_parameters { cpuid_index: 0x100 },
         };
         assert!(vm.install_intercept(intercept_args).is_ok());
+        assert!(vm
+            .hvcall_install_intercept(
+                HV_INTERCEPT_ACCESS_MASK_EXECUTE,
+                hv_intercept_type_HV_INTERCEPT_TYPE_X64_CPUID,
+                hv_intercept_parameters { cpuid_index: 0x101 },
+            )
+            .is_ok());
     }
 
     #[cfg(target_arch = "x86_64")]
@@ -865,24 +953,43 @@ mod tests {
     fn test_get_property() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
 
         let mut val = vm
             .get_partition_property(
                 hv_partition_property_code_HV_PARTITION_PROPERTY_MAX_XSAVE_DATA_SIZE,
             )
             .unwrap();
+        let mut hvcall_val = vm
+            .hvcall_get_partition_property(
+                hv_partition_property_code_HV_PARTITION_PROPERTY_MAX_XSAVE_DATA_SIZE,
+            )
+            .unwrap();
+        assert!(val == hvcall_val);
         println!("Max xsave data size: {val} bytes");
         val = vm
             .get_partition_property(
                 hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_XSAVE_FEATURES,
             )
             .unwrap();
+        hvcall_val = vm
+            .hvcall_get_partition_property(
+                hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_XSAVE_FEATURES,
+            )
+            .unwrap();
+        assert!(val == hvcall_val);
         println!("Xsave feature: {val}");
         val = vm
             .get_partition_property(
                 hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_CLOCK_FREQUENCY,
             )
             .unwrap();
+        hvcall_val = vm
+            .hvcall_get_partition_property(
+                hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_CLOCK_FREQUENCY,
+            )
+            .unwrap();
+        assert!(val == hvcall_val);
         println!("Processor frequency: {val}");
         vm.set_partition_property(
             hv_partition_property_code_HV_PARTITION_PROPERTY_UNIMPLEMENTED_MSR_ACTION,
@@ -898,6 +1005,12 @@ mod tests {
             val == hv_unimplemented_msr_action_HV_UNIMPLEMENTED_MSR_ACTION_IGNORE_WRITE_READ_ZERO
                 .into()
         );
+        hvcall_val = vm
+            .hvcall_get_partition_property(
+                hv_partition_property_code_HV_PARTITION_PROPERTY_UNIMPLEMENTED_MSR_ACTION,
+            )
+            .unwrap();
+        assert!(val == hvcall_val);
     }
 
     #[cfg(target_arch = "x86_64")]
@@ -905,6 +1018,7 @@ mod tests {
     fn test_set_property() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
 
         let code = hv_partition_property_code_HV_PARTITION_PROPERTY_UNIMPLEMENTED_MSR_ACTION;
         let ignore =
@@ -933,6 +1047,7 @@ mod tests {
     fn test_set_partition_property_invalid() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let code = hv_partition_property_code_HV_PARTITION_PROPERTY_PRIVILEGE_FLAGS;
 
         // old IOCTL
@@ -954,6 +1069,7 @@ mod tests {
         use libc::EFD_NONBLOCK;
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let efd = EventFd::new(EFD_NONBLOCK).unwrap();
         vm.register_irqfd(&efd, 30).unwrap();
         vm.unregister_irqfd(&efd, 30).unwrap();
@@ -965,6 +1081,7 @@ mod tests {
         let addr = IoEventAddress::Mmio(0xe7e85004);
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         vm.register_ioevent(&efd, &addr, NoDatamatch).unwrap();
         vm.unregister_ioevent(&efd, &addr, NoDatamatch).unwrap();
     }
@@ -973,6 +1090,7 @@ mod tests {
     fn test_set_msi_routing() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let msi_routing = mshv_user_irq_table::default();
         assert!(vm.set_msi_routing(&msi_routing).is_ok());
     }
@@ -980,6 +1098,7 @@ mod tests {
     fn _test_clear_set_get_dirty_log(mem_size: usize) {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         // Try to allocate 32 MB memory
         let load_addr = unsafe {
             libc::mmap(
@@ -1057,6 +1176,7 @@ mod tests {
         _test_clear_set_get_dirty_log(mem_size);
     }
 
+    #[cfg(target_arch = "x86_64")]
     #[test]
     #[ignore]
     fn test_signal_event_direct() {
@@ -1064,10 +1184,13 @@ mod tests {
         // Enable the test once synic is implemented.
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let _vcpu = vm.create_vcpu(0).unwrap();
         vm.signal_event_direct(0, 0, 1).unwrap();
+        vm.hvcall_signal_event_direct(0, 0, 1).unwrap();
     }
 
+    #[cfg(target_arch = "x86_64")]
     #[test]
     #[ignore]
     fn test_post_message_direct() {
@@ -1075,9 +1198,11 @@ mod tests {
         // Enable the test once synic is implemented.
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let _vcpu = vm.create_vcpu(0).unwrap();
         let hv_message: [u8; mem::size_of::<HvMessage>()] = [0; mem::size_of::<HvMessage>()];
         vm.post_message_direct(0, 0, &hv_message).unwrap();
+        vm.hvcall_post_message_direct(0, 0, &hv_message).unwrap();
     }
 
     #[test]
@@ -1085,12 +1210,28 @@ mod tests {
     fn test_register_deliverabilty_notifications() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
         let _vcpu = vm.create_vcpu(0).unwrap();
         vm.register_deliverabilty_notifications(0, 0).unwrap();
+        vm.hvcall_register_deliverability_notifications(0, 0)
+            .unwrap();
         let res = vm.register_deliverabilty_notifications(0, 1);
         assert!(res.is_err());
         if let Err(e) = res {
-            assert!(e == MshvError::from(libc::EINVAL))
+            assert!(matches!(e, MshvError::Hypercall { .. }));
+            assert!(e.errno() == libc::EIO);
+            match e {
+                MshvError::Hypercall {
+                    code,
+                    status_raw,
+                    status,
+                } => {
+                    assert!(code == HVCALL_SET_VP_REGISTERS as u16);
+                    assert!(status_raw == HV_STATUS_INVALID_PARAMETER as u16);
+                    assert!(status.unwrap() as u32 == HV_STATUS_INVALID_PARAMETER);
+                }
+                _ => unreachable!(),
+            }
         }
     }
 }

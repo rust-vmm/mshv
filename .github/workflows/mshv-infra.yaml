@@ -157,6 +157,9 @@ jobs:
             exit 1
           fi
 
+          echo "Using Subnet ID: ${SUBNET_ID}"
+          echo "Using Image ID: ${IMAGE_ID}"
+
           # Create VM
           az vm create \
             --resource-group ${RG} \
@@ -226,4 +229,5 @@ jobs:
             curl -sSf https://sh.rustup.rs | sh -s -- --default-toolchain stable --profile default -y
             export PATH="\$HOME/.cargo/bin:\$PATH"
             cargo --version
+            cat /etc/os-release
           EOF

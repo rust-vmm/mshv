@@ -1,12 +1,19 @@
 #! /bin/sh
 
-line=$(grep -n '\[dev-dependencies\]' Cargo.toml | tail -n1 | cut -f1 -d:)
+replace_crate() {
+        filename=./Cargo.toml
+        line=$(grep -n "$1 = " $filename | tail -n1 | cut -f1 -d:)
+        if [ -z $line ]; then
+                echo " $1 not found in the Cargo.toml file"
+                exit 1
+        fi
+        sed -i "$line i $1 = { path = \"../$2\" }" $filename
+        line=$((line+1))
+        sed -i "${line}d" $filename
+};
 
-sed -i "$line i [patch.\"https://github.com/rust-vmm/mshv\"]\n" ./Cargo.toml
-line=$((line+1))
-sed -i "$line i mshv-bindings = { path = \"../mshv/mshv-bindings\" }" ./Cargo.toml
-
-line=$((line+1))
-sed -i "$line i mshv-ioctls = { path = \"../mshv/mshv-ioctls\" }" ./Cargo.toml
-
-
+replace_crate mshv-bindings mshv/mshv-bindings
+replace_crate mshv-ioctls mshv/mshv-ioctls 
+replace_crate vfio-bindings vfio/vfio-bindings
+replace_crate vfio-ioctls vfio/vfio-ioctls
+replace_crate vfio_user vfio/vfio-user

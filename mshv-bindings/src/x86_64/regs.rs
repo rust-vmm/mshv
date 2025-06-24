@@ -271,6 +271,15 @@ pub const IA32_MSR_SPEC_CTRL: u32 = 0x00000048;
 pub const IA32_MSR_TSC_ADJUST: u32 = 0x0000003b;
 
 pub const IA32_MSR_MISC_ENABLE: u32 = 0x000001a0;
+pub const MSR_IA32_SSP: u32 = 0x000007a0;
+pub const MSR_IA32_U_CET: u32 = 0x000006a0; /* user mode cet */
+pub const MSR_IA32_S_CET: u32 = 0x000006a2; /* kernel mode cet */
+pub const MSR_IA32_PL0_SSP: u32 = 0x000006a4; /* ring-0 shadow stack pointer */
+pub const MSR_IA32_PL1_SSP: u32 = 0x000006a5; /* ring-1 shadow stack pointer */
+pub const MSR_IA32_PL2_SSP: u32 = 0x000006a6; /* ring-2 shadow stack pointer */
+pub const MSR_IA32_PL3_SSP: u32 = 0x000006a7; /* ring-3 shadow stack pointer */
+pub const MSR_IA32_INTERRUPT_SSP_TABLE_ADDR: u32 = 0x000006A8;
+pub const MSR_IA32_REGISTER_U_XSS: u32 = 0x8008B;
 
 pub fn msr_to_hv_reg_name(msr: u32) -> Result<::std::os::raw::c_uint, &'static str> {
     match msr {
@@ -347,6 +356,17 @@ pub fn msr_to_hv_reg_name(msr: u32) -> Result<::std::os::raw::c_uint, &'static s
         HV_X64_MSR_SIMP => Ok(hv_register_name_HV_REGISTER_SIMP),
         HV_X64_MSR_REFERENCE_TSC => Ok(hv_register_name_HV_REGISTER_REFERENCE_TSC),
         HV_X64_MSR_EOM => Ok(hv_register_name_HV_REGISTER_EOM),
+        MSR_IA32_REGISTER_U_XSS => Ok(hv_register_name_HV_X64_REGISTER_U_XSS),
+        MSR_IA32_U_CET => Ok(hv_register_name_HV_X64_REGISTER_U_CET),
+        MSR_IA32_S_CET => Ok(hv_register_name_HV_X64_REGISTER_S_CET),
+        MSR_IA32_SSP => Ok(hv_register_name_HV_X64_REGISTER_SSP),
+        MSR_IA32_PL0_SSP => Ok(hv_register_name_HV_X64_REGISTER_PL0_SSP),
+        MSR_IA32_PL1_SSP => Ok(hv_register_name_HV_X64_REGISTER_PL1_SSP),
+        MSR_IA32_PL2_SSP => Ok(hv_register_name_HV_X64_REGISTER_PL2_SSP),
+        MSR_IA32_PL3_SSP => Ok(hv_register_name_HV_X64_REGISTER_PL3_SSP),
+        MSR_IA32_INTERRUPT_SSP_TABLE_ADDR => {
+            Ok(hv_register_name_HV_X64_REGISTER_INTERRUPT_SSP_TABLE_ADDR)
+        }
         _ => Err("Not a supported hv_register_name msr"),
     }
 }
@@ -682,6 +702,7 @@ pub struct SuspendRegisters {
 #[cfg_attr(feature = "with-serde", derive(Deserialize, Serialize))]
 pub struct MiscRegs {
     pub hypercall: u64,
+    pub int_vec: u64,
 }
 
 const fn initialize_comp_sizes() -> [usize; MSHV_VP_STATE_COUNT as usize] {
@@ -785,6 +806,149 @@ macro_rules! get_gp_regs_field_ptr {
             .__bindgen_anon_1
             .$name
     };
+}
+
+pub static MSRS_SYNIC: &[u32; 19] = &[
+    HV_X64_MSR_SINT0,
+    HV_X64_MSR_SINT1,
+    HV_X64_MSR_SINT2,
+    HV_X64_MSR_SINT3,
+    HV_X64_MSR_SINT4,
+    HV_X64_MSR_SINT5,
+    HV_X64_MSR_SINT6,
+    HV_X64_MSR_SINT7,
+    HV_X64_MSR_SINT8,
+    HV_X64_MSR_SINT9,
+    HV_X64_MSR_SINT10,
+    HV_X64_MSR_SINT11,
+    HV_X64_MSR_SINT12,
+    HV_X64_MSR_SINT13,
+    HV_X64_MSR_SINT14,
+    HV_X64_MSR_SINT15,
+    HV_X64_MSR_SCONTROL,
+    HV_X64_MSR_SIEFP,
+    HV_X64_MSR_SIMP,
+];
+
+pub static MSRS_COMMON: &[u32; 42] = &[
+    IA32_MSR_TSC,
+    IA32_MSR_EFER,
+    IA32_MSR_KERNEL_GS_BASE,
+    IA32_MSR_APIC_BASE,
+    IA32_MSR_PAT,
+    IA32_MSR_SYSENTER_CS,
+    IA32_MSR_SYSENTER_ESP,
+    IA32_MSR_SYSENTER_EIP,
+    IA32_MSR_STAR,
+    IA32_MSR_LSTAR,
+    IA32_MSR_CSTAR,
+    IA32_MSR_SFMASK,
+    IA32_MSR_MTRR_DEF_TYPE,
+    IA32_MSR_MTRR_PHYSBASE0,
+    IA32_MSR_MTRR_PHYSMASK0,
+    IA32_MSR_MTRR_PHYSBASE1,
+    IA32_MSR_MTRR_PHYSMASK1,
+    IA32_MSR_MTRR_PHYSBASE2,
+    IA32_MSR_MTRR_PHYSMASK2,
+    IA32_MSR_MTRR_PHYSBASE3,
+    IA32_MSR_MTRR_PHYSMASK3,
+    IA32_MSR_MTRR_PHYSBASE4,
+    IA32_MSR_MTRR_PHYSMASK4,
+    IA32_MSR_MTRR_PHYSBASE5,
+    IA32_MSR_MTRR_PHYSMASK5,
+    IA32_MSR_MTRR_PHYSBASE6,
+    IA32_MSR_MTRR_PHYSMASK6,
+    IA32_MSR_MTRR_PHYSBASE7,
+    IA32_MSR_MTRR_PHYSMASK7,
+    IA32_MSR_MTRR_FIX64K_00000,
+    IA32_MSR_MTRR_FIX16K_80000,
+    IA32_MSR_MTRR_FIX16K_A0000,
+    IA32_MSR_MTRR_FIX4K_C0000,
+    IA32_MSR_MTRR_FIX4K_C8000,
+    IA32_MSR_MTRR_FIX4K_D0000,
+    IA32_MSR_MTRR_FIX4K_D8000,
+    IA32_MSR_MTRR_FIX4K_E0000,
+    IA32_MSR_MTRR_FIX4K_E8000,
+    IA32_MSR_MTRR_FIX4K_F0000,
+    IA32_MSR_MTRR_FIX4K_F8000,
+    IA32_MSR_DEBUG_CTL,
+    HV_X64_MSR_EOM,
+];
+
+pub static MSRS_CET_SS: &[u32; 8] = &[
+    MSR_IA32_U_CET,
+    MSR_IA32_S_CET,
+    MSR_IA32_SSP,
+    MSR_IA32_PL0_SSP,
+    MSR_IA32_PL1_SSP,
+    MSR_IA32_PL2_SSP,
+    MSR_IA32_PL3_SSP,
+    MSR_IA32_INTERRUPT_SSP_TABLE_ADDR,
+];
+
+pub static MSRS_OTHER: &[u32; 4] = &[
+    MSR_IA32_REGISTER_U_XSS,
+    IA32_MSR_TSC_AUX,
+    HV_X64_MSR_REFERENCE_TSC,
+    HV_X64_MSR_GUEST_OS_ID,
+];
+
+#[derive(Default, Copy, Clone)]
+pub struct VpFeatures {
+    pub proc_features: hv_partition_processor_features,
+    pub xsave_features: hv_partition_processor_xsave_features,
+    pub synthetic_features: hv_partition_synthetic_processor_features,
+}
+
+/// Return the MSR indexes based on supported CPU features
+pub fn get_partition_supported_msrs(features: &VpFeatures) -> Vec<u32> {
+    let mut msrs: Vec<u32> = Vec::new();
+    msrs.extend_from_slice(MSRS_COMMON);
+
+    // SAFETY: access union fields
+    unsafe {
+        if features.proc_features.__bindgen_anon_1.cet_ss_support() == 1u64 {
+            msrs.extend_from_slice(MSRS_CET_SS);
+        }
+        if features.proc_features.__bindgen_anon_1.rdtscp_support() == 1u64 {
+            msrs.push(IA32_MSR_TSC_AUX);
+        }
+        if features
+            .xsave_features
+            .__bindgen_anon_1
+            .xsave_supervisor_support()
+            == 1u64
+        {
+            msrs.push(MSR_IA32_REGISTER_U_XSS);
+        }
+        if features
+            .synthetic_features
+            .__bindgen_anon_1
+            .access_synic_regs()
+            == 1u64
+        {
+            msrs.extend_from_slice(MSRS_SYNIC);
+        }
+        if features
+            .synthetic_features
+            .__bindgen_anon_1
+            .access_partition_reference_tsc()
+            == 1u64
+        {
+            msrs.push(HV_X64_MSR_REFERENCE_TSC);
+        }
+        if features
+            .synthetic_features
+            .__bindgen_anon_1
+            .access_hypercall_regs()
+            == 1u64
+        {
+            msrs.push(HV_X64_MSR_GUEST_OS_ID);
+        }
+    }
+
+    /* return all the MSRs we currently support */
+    msrs
 }
 
 #[cfg(test)]

@@ -151,6 +151,7 @@ mod tests {
     fn test_create_device() {
         let mshv = Mshv::new().unwrap();
         let vm = mshv.create_vm().unwrap();
+        vm.initialize().unwrap();
 
         let mut device = mshv_bindings::mshv_create_device {
             type_: MSHV_DEV_TYPE_VFIO,
