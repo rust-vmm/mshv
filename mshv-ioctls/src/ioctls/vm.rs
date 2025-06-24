@@ -794,7 +794,7 @@ impl VmFd {
     /// See the documentation for `MSHV_CREATE_DEVICE`.
     pub fn create_device(&self, device: &mut mshv_create_device) -> Result<DeviceFd> {
         // SAFETY: IOCTL with correct types
-        let ret = unsafe { ioctl_with_ref(self, MSHV_CREATE_DEVICE(), device) };
+        let ret = unsafe { ioctl_with_mut_ref(self, MSHV_CREATE_DEVICE(), device) };
         if ret == 0 {
             // SAFETY: fd is valid
             Ok(new_device(unsafe { File::from_raw_fd(device.fd as i32) }))
