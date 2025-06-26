@@ -18,7 +18,7 @@ libc = ">=0.2.39"
 num_enum = { version = "0.7", default-features = false }
 serde = { version = ">=1.0.27", optional = true }
 serde_derive = { version = ">=1.0.27", optional = true }
-vmm-sys-util = ">=0.14.0"
+vmm-sys-util = ">=0.12.1"
 zerocopy = { version = "0.8", features = ["derive"] }
 
 [dev-dependencies]
