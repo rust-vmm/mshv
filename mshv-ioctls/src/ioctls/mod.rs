@@ -30,7 +30,7 @@ pub enum MshvError {
     ///
     /// In case the caller requires an errno, this variant can be still be
     /// converted to an EIO with into(), from(), or errno() for the raw value
-    #[error("Hypercall {code} failed with {status_raw:#x} : {}", status.map_or("Unknown".to_string(), |s| format!("{:?}", s)))]
+    #[error("Hypercall {code} failed with {status_raw:#x} : {}", status.map_or("Unknown".to_string(), |s| format!("{s:?}")))]
     Hypercall {
         /// The control code, i.e. what type of hypercall it was
         code: u16,
