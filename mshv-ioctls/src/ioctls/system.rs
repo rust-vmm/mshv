@@ -278,12 +278,12 @@ mod tests {
             }])
             .unwrap();
             vcpu.get_msrs(&mut get_set_msrs).unwrap_or_else(|_| {
-                println!("Error getting MSR: 0x{:x}", idx);
+                println!("Error getting MSR: 0x{idx:x}");
                 num_errors += 1;
                 0
             });
             vcpu.set_msrs(&get_set_msrs).unwrap_or_else(|_| {
-                println!("Error setting MSR: 0x{:x}", idx);
+                println!("Error setting MSR: 0x{idx:x}");
                 num_errors += 1;
                 0
             });
