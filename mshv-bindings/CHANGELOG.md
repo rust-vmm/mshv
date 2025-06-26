@@ -9,6 +9,11 @@
 
 ### Fixed
 
+## [v0.5.2]
+
+###
+* No changes
+
 ## [v0.5.1]
 
 ### Added
