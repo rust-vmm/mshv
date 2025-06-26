@@ -9,29 +9,37 @@
 
 ### Fixed
 
+## [v0.5.2]
+
+### Fixed
+* [[224]](https://github.com/rust-vmm/mshv/pull/224) Add vm.initialize() to tests
+* [[231]](https://github.com/rust-vmm/mshv/pull/231) Fix a bug in translate gva hypercall
+* [[234]](https://github.com/rust-vmm/mshv/pull/234) Fix ioctl invocations
+* [[232]](https://github.com/rust-vmm/mshv/pull/232) Move test_get_msr_index_list() to vm.rs, fix issues
+
 ## [v0.5.1]
 
 ### Added
-* [[218 ]] (https://github.com/rust-vmm/mshv/pull/218) save and restore interrupt vectors
-* [[219 ]] (https://github.com/rust-vmm/mshv/pull/219) use new hvcall_ versions for ioctls
+* [[218]](https://github.com/rust-vmm/mshv/pull/218) save and restore interrupt vectors
+* [[219]](https://github.com/rust-vmm/mshv/pull/219) use new hvcall_ versions for ioctls
 
 ### Fixed
-* [[220 ]] https://github.com/rust-vmm/mshv/pull/220 Fix ARM64 guest default processor feature set
+* [[220]](https://github.com/rust-vmm/mshv/pull/220) Fix ARM64 guest default processor feature set
 
 ## [v0.5.0]
 
 ### Changed
-* [[206]] (https://github.com/rust-vmm/mshv/pull/206) mshv-ioctls: Don't initialize partition after creation
+* [[206]](https://github.com/rust-vmm/mshv/pull/206) mshv-ioctls: Don't initialize partition after creation
 
 ## [v0.4.0]
 
 ### Added
-* [[207]] (https://github.com/rust-vmm/mshv/pull/207) hvcall ioctls
+* [[207]](https://github.com/rust-vmm/mshv/pull/207) hvcall ioctls
 
 ### Changed
-* [[209]] (https://github.com/rust-vmm/mshv/pull/209) filter MSRs before returing to VMM
-* [[208]] https://github.com/rust-vmm/mshv/pull/208) property value is 64 bits
-* [[204]] https://github.com/rust-vmm/mshv/pull/204 Rework Create Partition IOCTL
+* [[209]](https://github.com/rust-vmm/mshv/pull/209) filter MSRs before returing to VMM
+* [[208]](https://github.com/rust-vmm/mshv/pull/208) property value is 64 bits
+* [[204]](https://github.com/rust-vmm/mshv/pull/204) Rework Create Partition IOCTL
 
 ## [v0.3.5]
 
