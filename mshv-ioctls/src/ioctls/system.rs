@@ -32,6 +32,7 @@ fn make_synthetic_features_mask() -> u64 {
         feature_bits.set_access_hypercall_regs(1);
         #[cfg(not(target_arch = "aarch64"))]
         feature_bits.set_access_guest_idle_reg(1);
+        #[cfg(not(target_arch = "aarch64"))]
         feature_bits.set_tb_flush_hypercalls(1);
         feature_bits.set_synthetic_cluster_ipi(1);
         feature_bits.set_direct_synthetic_timers(1);
