@@ -36,6 +36,7 @@ fn make_synthetic_features_mask() -> u64 {
         feature_bits.set_tb_flush_hypercalls(1);
         feature_bits.set_synthetic_cluster_ipi(1);
         feature_bits.set_direct_synthetic_timers(1);
+        feature_bits.set_access_vp_regs(1);
     }
 
     // SAFETY: access union fields
