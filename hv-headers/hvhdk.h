@@ -265,12 +265,79 @@ union hv_partition_synthetic_processor_features {
 
 		/* EnlightenedVmcs nested enlightenment is supported. */
 		__u64 enlightened_vmcs:1;
+
+		__u64 nested_debug_ctl:1;
+		__u64 synthetic_time_unhalted_timer:1;
+		__u64 idle_spec_ctrl:1;
+
 #else
 		__u64 reserved_z31:1;
 		__u64 reserved_z32:1;
+		__u64 reserved_z33:1;
+		__u64 reserved_z34:1;
+		__u64 reserved_z35:1;
 #endif
 
-		__u64 reserved:30;
+#if defined(__aarch64__)
+		/* Register intercepts supported in V1. As more registers are supported in future
+		 * releases, new bits will be added here to prevent migration between incompatible hosts.
+		 *
+		 * List of registers supported in V1:
+		 * 1. TPIDRRO_EL0
+		 * 2. TPIDR_EL1
+		 * 3. SCTLR_EL1 - Supports write intercept mask.
+		 * 4. VBAR_EL1
+		 * 5. TCR_EL1 - Supports write intercept mask.
+		 * 6. MAIR_EL1 - Supports write intercept mask.
+		 * 7. CPACR_EL1 - Supports write intercept mask.
+		 * 8. CONTEXTIDR_EL1
+		 * 9. PAuth keys (total 10 registers)
+		 * 10. HvArm64RegisterSyntheticException
+		 */
+		__u64 register_intercepts_v1:1;
+#else
+		__u64 reserved_z36:1;
+#endif
+
+		/* HvCallWakeVps is supported */
+		__u64 wake_vps:1;
+
+		/* HvCallGet/SetVpRegisters is supported.
+		 * Corresponds to AccessVpRegisters privilege.
+		 * This feature only affects exo partitions.
+		 */
+		__u64 access_vp_regs:1;
+
+#if defined(__aarch64__)
+		/* HvCallSyncContext/Ex is supported. */
+		__u64 sync_context:1;
+#else
+		__u64 reserved_z39:1;
+#endif /* __aarch64__ */
+
+		/* Management VTL synic support is allowed.
+		 * Corresponds to the ManagementVtlSynicSupport privilege.
+		 */
+		__u64 management_vtl_synic_support:1;
+
+#if defined (__x86_64__)
+		/* Hypervisor supports guest mechanism to signal pending interrupts to paravisor. */
+		__u64 proxy_interrupt_doorbell_support:1;
+#else
+		__u64 reserved_z41:1;
+#endif
+
+#if defined(__aarch64__)
+		/* InterceptSystemResetAvailable is exposed. */
+		__u64 intercept_system_reset:1;
+#else
+		__u64 reserved_z42:1;
+#endif
+
+		/* Hypercalls for host MMIO operations are available. */
+		__u64 mmio_hypercalls:1;
+
+		__u64 reserved:20;
 	} __packed;
 };
 
