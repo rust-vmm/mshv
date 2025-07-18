@@ -216,6 +216,59 @@ impl Mshv {
         self.create_vm_with_type(VmType::Normal)
     }
 
+    /// Execute a hypercall targeting the host partition (self).
+    fn hvcall(&self, args: &mut mshv_root_hvcall) -> Result<()> {
+        // SAFETY: IOCTL with correct types
+        let ret = unsafe { ioctl_with_mut_ref(&self.hv, MSHV_ROOT_HVCALL(), args) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(MshvError::from_hvcall(errno::Error::last(), *args))
+        }
+    }
+
+    fn get_host_partition_property_ex(
+        &self,
+        property_code: u32,
+    ) -> Result<Box<hv_partition_property_ex>> {
+        let mut input = hv_input_get_partition_property_ex {
+            property_code,
+            ..Default::default() // NOTE: Kernel will populate partition_id field
+        };
+
+        input.__bindgen_anon_1.arg = 0;
+
+        let mut output = Box::new(hv_partition_property_ex::default());
+
+        let mut args = make_args!(HVCALL_GET_PARTITION_PROPERTY_EX, input, *output);
+
+        self.hvcall(&mut args).map(|_| output)
+    }
+
+    /// Get VMM capabilities
+    pub fn get_vmm_caps(&self) -> Result<hv_partition_property_vmm_capabilities> {
+        match self.get_host_partition_property_ex(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_VMM_CAPABILITIES,
+        ) {
+            Ok(output) => {
+                // SAFETY: accessing union fields
+                let vmm_caps = unsafe { output.vmm_capabilities };
+                Ok(vmm_caps)
+            }
+            Err(MshvError::Hypercall {
+                status: Some(HvError::AccessDenied),
+                ..
+            }) => {
+                // If the hypercall fails with AccessDenied, it means the
+                // VMM capabilities query is not supported on this MSHV version.
+                // As per the hypervisor team, we should treat this case as if
+                // none of the capabilities are set. So, return a zeroed out struct.
+                Ok(hv_partition_property_vmm_capabilities::default())
+            }
+            Err(e) => Err(e),
+        }
+    }
+
     #[cfg(target_arch = "x86_64")]
     /// X86 specific call to get list of supported MSRs
     pub fn get_msr_index_list(&self) -> Result<Vec<u32>> {
@@ -258,5 +311,12 @@ mod tests {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm_with_args(&pr);
         assert!(vm.is_ok());
+    }
+
+    #[test]
+    fn test_vmm_caps() {
+        let hv = Mshv::new().unwrap();
+        let vmm_caps = hv.get_vmm_caps();
+        assert!(vmm_caps.is_ok());
     }
 }

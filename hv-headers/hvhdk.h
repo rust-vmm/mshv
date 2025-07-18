@@ -471,6 +471,42 @@ struct hv_input_set_partition_property {
 	__u64 property_value;
 } __packed;
 
+union hv_partition_property_arg {
+	__u64 as_uint64;
+	struct {
+		union {
+			__u32 arg;
+			__u32 vp_index;
+		};
+		__u16 reserved0;
+		__u8 reserved1;
+		__u8 object_type;
+	};
+} __packed;
+
+struct hv_input_get_partition_property_ex {
+	__u64 partition_id;
+	__u32 property_code; /* enum hv_partition_property_code */
+	__u32 padding;
+	union {
+		union hv_partition_property_arg arg_data;
+		__u64 arg;
+	};
+} __packed;
+
+#define HV_PARTITION_PROPERTY_EX_MAX_VAR_SIZE \
+	(HV_HYP_PAGE_SIZE - sizeof(struct hv_input_get_partition_property_ex))
+
+union hv_partition_property_ex {
+	__u8 buffer[HV_PARTITION_PROPERTY_EX_MAX_VAR_SIZE];
+	struct hv_partition_property_vmm_capabilities vmm_capabilities;
+	/* More fields to be filled in when needed */
+} __packed;
+
+struct hv_output_get_partition_property_ex {
+	union hv_partition_property_ex property_value;
+} __packed;
+
 struct hv_cpuid_leaf_info {
 	__u32 eax;
 	__u32 ecx;
