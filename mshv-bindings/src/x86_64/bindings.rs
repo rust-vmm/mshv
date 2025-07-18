@@ -288,6 +288,7 @@ pub const HVCALL_IMPORT_ISOLATED_PAGES: u32 = 239;
 pub const HVCALL_COMPLETE_ISOLATED_IMPORT: u32 = 241;
 pub const HVCALL_ISSUE_SNP_PSP_GUEST_REQUEST: u32 = 242;
 pub const HVCALL_GET_VP_CPUID_VALUES: u32 = 244;
+pub const HVCALL_GET_PARTITION_PROPERTY_EX: u32 = 257;
 pub const HV_INTERRUPT_VECTOR_NONE: u32 = 4294967295;
 pub const HV_SYNIC_STIMER_COUNT: u32 = 4;
 pub const HV_MESSAGE_SIZE: u32 = 256;
@@ -304,6 +305,8 @@ pub const HVGDK_H_VERSION: u32 = 25125;
 pub const HVHVK_MINI_VERSION: u32 = 25294;
 pub const HV_GENERIC_SET_SHIFT: u32 = 6;
 pub const HV_GENERIC_SET_MASK: u32 = 63;
+pub const HV_PARTITION_VMM_CAPABILITIES_BANK_COUNT: u32 = 1;
+pub const HV_PARTITION_VMM_CAPABILITIES_RESERVED_BITFIELD_COUNT: u32 = 59;
 pub const HV_MAP_GPA_PERMISSIONS_NONE: u32 = 0;
 pub const HV_MAP_GPA_READABLE: u32 = 1;
 pub const HV_MAP_GPA_WRITABLE: u32 = 2;
@@ -6609,6 +6612,8 @@ pub const hv_partition_property_code_HV_PARTITION_PROPERTY_GUEST_OS_ID: hv_parti
     458752;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_VIRTUALIZATION_FEATURES:
     hv_partition_property_code = 524288;
+pub const hv_partition_property_code_HV_PARTITION_PROPERTY_VMM_CAPABILITIES:
+    hv_partition_property_code = 589831;
 pub type hv_partition_property_code = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -7195,6 +7200,314 @@ const _: () = {
         [::std::mem::offset_of!(hv_input_complete_isolated_import, import_data) - 8usize];
 };
 impl Default for hv_input_complete_isolated_import {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C, packed)]
+#[derive(Copy, Clone)]
+pub struct hv_partition_property_vmm_capabilities {
+    pub bank_count: __u16,
+    pub reserved: [__u16; 3usize],
+    pub __bindgen_anon_1: hv_partition_property_vmm_capabilities__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union hv_partition_property_vmm_capabilities__bindgen_ty_1 {
+    pub as_uint64: [__u64; 1usize],
+    pub __bindgen_anon_1: hv_partition_property_vmm_capabilities__bindgen_ty_1__bindgen_ty_1,
+}
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_partition_property_vmm_capabilities__bindgen_ty_1__bindgen_ty_1 {
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of hv_partition_property_vmm_capabilities__bindgen_ty_1__bindgen_ty_1"]
+        [::std::mem::size_of::<hv_partition_property_vmm_capabilities__bindgen_ty_1__bindgen_ty_1>(
+        ) - 8usize];
+    ["Alignment of hv_partition_property_vmm_capabilities__bindgen_ty_1__bindgen_ty_1"]
+        [::std::mem::align_of::<hv_partition_property_vmm_capabilities__bindgen_ty_1__bindgen_ty_1>(
+        ) - 1usize];
+};
+impl hv_partition_property_vmm_capabilities__bindgen_ty_1__bindgen_ty_1 {
+    #[inline]
+    pub fn map_gpa_preserve_adjustable(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_map_gpa_preserve_adjustable(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn map_gpa_preserve_adjustable_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                0usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_map_gpa_preserve_adjustable_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                0usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn vmm_can_provide_overlay_gpfn(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_vmm_can_provide_overlay_gpfn(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn vmm_can_provide_overlay_gpfn_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                1usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_vmm_can_provide_overlay_gpfn_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                1usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn vp_affinity_property(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(2usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_vp_affinity_property(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(2usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn vp_affinity_property_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                2usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_vp_affinity_property_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                2usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn reservedbit3(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(3usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reservedbit3(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(3usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn reservedbit3_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                3usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_reservedbit3_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                3usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn assignable_synthetic_proc_features(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(4usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_assignable_synthetic_proc_features(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(4usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn assignable_synthetic_proc_features_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                4usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_assignable_synthetic_proc_features_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                4usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn reserved0(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(5usize, 59u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved0(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(5usize, 59u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn reserved0_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                5usize,
+                59u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_reserved0_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                5usize,
+                59u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        map_gpa_preserve_adjustable: __u64,
+        vmm_can_provide_overlay_gpfn: __u64,
+        vp_affinity_property: __u64,
+        reservedbit3: __u64,
+        assignable_synthetic_proc_features: __u64,
+        reserved0: __u64,
+    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let map_gpa_preserve_adjustable: u64 =
+                unsafe { ::std::mem::transmute(map_gpa_preserve_adjustable) };
+            map_gpa_preserve_adjustable as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 1u8, {
+            let vmm_can_provide_overlay_gpfn: u64 =
+                unsafe { ::std::mem::transmute(vmm_can_provide_overlay_gpfn) };
+            vmm_can_provide_overlay_gpfn as u64
+        });
+        __bindgen_bitfield_unit.set(2usize, 1u8, {
+            let vp_affinity_property: u64 = unsafe { ::std::mem::transmute(vp_affinity_property) };
+            vp_affinity_property as u64
+        });
+        __bindgen_bitfield_unit.set(3usize, 1u8, {
+            let reservedbit3: u64 = unsafe { ::std::mem::transmute(reservedbit3) };
+            reservedbit3 as u64
+        });
+        __bindgen_bitfield_unit.set(4usize, 1u8, {
+            let assignable_synthetic_proc_features: u64 =
+                unsafe { ::std::mem::transmute(assignable_synthetic_proc_features) };
+            assignable_synthetic_proc_features as u64
+        });
+        __bindgen_bitfield_unit.set(5usize, 59u8, {
+            let reserved0: u64 = unsafe { ::std::mem::transmute(reserved0) };
+            reserved0 as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of hv_partition_property_vmm_capabilities__bindgen_ty_1"]
+        [::std::mem::size_of::<hv_partition_property_vmm_capabilities__bindgen_ty_1>() - 8usize];
+    ["Alignment of hv_partition_property_vmm_capabilities__bindgen_ty_1"]
+        [::std::mem::align_of::<hv_partition_property_vmm_capabilities__bindgen_ty_1>() - 8usize];
+    ["Offset of field: hv_partition_property_vmm_capabilities__bindgen_ty_1::as_uint64"][::std::mem::offset_of!(
+        hv_partition_property_vmm_capabilities__bindgen_ty_1,
+        as_uint64
+    )
+        - 0usize];
+};
+impl Default for hv_partition_property_vmm_capabilities__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of hv_partition_property_vmm_capabilities"]
+        [::std::mem::size_of::<hv_partition_property_vmm_capabilities>() - 16usize];
+    ["Alignment of hv_partition_property_vmm_capabilities"]
+        [::std::mem::align_of::<hv_partition_property_vmm_capabilities>() - 1usize];
+    ["Offset of field: hv_partition_property_vmm_capabilities::bank_count"]
+        [::std::mem::offset_of!(hv_partition_property_vmm_capabilities, bank_count) - 0usize];
+    ["Offset of field: hv_partition_property_vmm_capabilities::reserved"]
+        [::std::mem::offset_of!(hv_partition_property_vmm_capabilities, reserved) - 2usize];
+};
+impl Default for hv_partition_property_vmm_capabilities {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
         unsafe {
@@ -9611,6 +9924,198 @@ const _: () = {
     ["Offset of field: hv_input_set_partition_property::property_value"]
         [::std::mem::offset_of!(hv_input_set_partition_property, property_value) - 16usize];
 };
+#[repr(C, packed)]
+#[derive(Copy, Clone)]
+pub union hv_partition_property_arg {
+    pub as_uint64: __u64,
+    pub __bindgen_anon_1: hv_partition_property_arg__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct hv_partition_property_arg__bindgen_ty_1 {
+    pub __bindgen_anon_1: hv_partition_property_arg__bindgen_ty_1__bindgen_ty_1,
+    pub reserved0: __u16,
+    pub reserved1: __u8,
+    pub object_type: __u8,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union hv_partition_property_arg__bindgen_ty_1__bindgen_ty_1 {
+    pub arg: __u32,
+    pub vp_index: __u32,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of hv_partition_property_arg__bindgen_ty_1__bindgen_ty_1"]
+        [::std::mem::size_of::<hv_partition_property_arg__bindgen_ty_1__bindgen_ty_1>() - 4usize];
+    ["Alignment of hv_partition_property_arg__bindgen_ty_1__bindgen_ty_1"]
+        [::std::mem::align_of::<hv_partition_property_arg__bindgen_ty_1__bindgen_ty_1>() - 4usize];
+    ["Offset of field: hv_partition_property_arg__bindgen_ty_1__bindgen_ty_1::arg"][::std::mem::offset_of!(
+        hv_partition_property_arg__bindgen_ty_1__bindgen_ty_1,
+        arg
+    ) - 0usize];
+    ["Offset of field: hv_partition_property_arg__bindgen_ty_1__bindgen_ty_1::vp_index"][::std::mem::offset_of!(
+        hv_partition_property_arg__bindgen_ty_1__bindgen_ty_1,
+        vp_index
+    )
+        - 0usize];
+};
+impl Default for hv_partition_property_arg__bindgen_ty_1__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of hv_partition_property_arg__bindgen_ty_1"]
+        [::std::mem::size_of::<hv_partition_property_arg__bindgen_ty_1>() - 8usize];
+    ["Alignment of hv_partition_property_arg__bindgen_ty_1"]
+        [::std::mem::align_of::<hv_partition_property_arg__bindgen_ty_1>() - 4usize];
+    ["Offset of field: hv_partition_property_arg__bindgen_ty_1::reserved0"]
+        [::std::mem::offset_of!(hv_partition_property_arg__bindgen_ty_1, reserved0) - 4usize];
+    ["Offset of field: hv_partition_property_arg__bindgen_ty_1::reserved1"]
+        [::std::mem::offset_of!(hv_partition_property_arg__bindgen_ty_1, reserved1) - 6usize];
+    ["Offset of field: hv_partition_property_arg__bindgen_ty_1::object_type"]
+        [::std::mem::offset_of!(hv_partition_property_arg__bindgen_ty_1, object_type) - 7usize];
+};
+impl Default for hv_partition_property_arg__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of hv_partition_property_arg"]
+        [::std::mem::size_of::<hv_partition_property_arg>() - 8usize];
+    ["Alignment of hv_partition_property_arg"]
+        [::std::mem::align_of::<hv_partition_property_arg>() - 1usize];
+    ["Offset of field: hv_partition_property_arg::as_uint64"]
+        [::std::mem::offset_of!(hv_partition_property_arg, as_uint64) - 0usize];
+};
+impl Default for hv_partition_property_arg {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C, packed)]
+#[derive(Copy, Clone)]
+pub struct hv_input_get_partition_property_ex {
+    pub partition_id: __u64,
+    pub property_code: __u32,
+    pub padding: __u32,
+    pub __bindgen_anon_1: hv_input_get_partition_property_ex__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union hv_input_get_partition_property_ex__bindgen_ty_1 {
+    pub arg_data: hv_partition_property_arg,
+    pub arg: __u64,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of hv_input_get_partition_property_ex__bindgen_ty_1"]
+        [::std::mem::size_of::<hv_input_get_partition_property_ex__bindgen_ty_1>() - 8usize];
+    ["Alignment of hv_input_get_partition_property_ex__bindgen_ty_1"]
+        [::std::mem::align_of::<hv_input_get_partition_property_ex__bindgen_ty_1>() - 8usize];
+    ["Offset of field: hv_input_get_partition_property_ex__bindgen_ty_1::arg_data"][::std::mem::offset_of!(
+        hv_input_get_partition_property_ex__bindgen_ty_1,
+        arg_data
+    ) - 0usize];
+    ["Offset of field: hv_input_get_partition_property_ex__bindgen_ty_1::arg"]
+        [::std::mem::offset_of!(hv_input_get_partition_property_ex__bindgen_ty_1, arg) - 0usize];
+};
+impl Default for hv_input_get_partition_property_ex__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of hv_input_get_partition_property_ex"]
+        [::std::mem::size_of::<hv_input_get_partition_property_ex>() - 24usize];
+    ["Alignment of hv_input_get_partition_property_ex"]
+        [::std::mem::align_of::<hv_input_get_partition_property_ex>() - 1usize];
+    ["Offset of field: hv_input_get_partition_property_ex::partition_id"]
+        [::std::mem::offset_of!(hv_input_get_partition_property_ex, partition_id) - 0usize];
+    ["Offset of field: hv_input_get_partition_property_ex::property_code"]
+        [::std::mem::offset_of!(hv_input_get_partition_property_ex, property_code) - 8usize];
+    ["Offset of field: hv_input_get_partition_property_ex::padding"]
+        [::std::mem::offset_of!(hv_input_get_partition_property_ex, padding) - 12usize];
+};
+impl Default for hv_input_get_partition_property_ex {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C, packed)]
+#[derive(Copy, Clone)]
+pub union hv_partition_property_ex {
+    pub buffer: [__u8; 4072usize],
+    pub vmm_capabilities: hv_partition_property_vmm_capabilities,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of hv_partition_property_ex"]
+        [::std::mem::size_of::<hv_partition_property_ex>() - 4072usize];
+    ["Alignment of hv_partition_property_ex"]
+        [::std::mem::align_of::<hv_partition_property_ex>() - 1usize];
+    ["Offset of field: hv_partition_property_ex::buffer"]
+        [::std::mem::offset_of!(hv_partition_property_ex, buffer) - 0usize];
+    ["Offset of field: hv_partition_property_ex::vmm_capabilities"]
+        [::std::mem::offset_of!(hv_partition_property_ex, vmm_capabilities) - 0usize];
+};
+impl Default for hv_partition_property_ex {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C, packed)]
+#[derive(Copy, Clone)]
+pub struct hv_output_get_partition_property_ex {
+    pub property_value: hv_partition_property_ex,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of hv_output_get_partition_property_ex"]
+        [::std::mem::size_of::<hv_output_get_partition_property_ex>() - 4072usize];
+    ["Alignment of hv_output_get_partition_property_ex"]
+        [::std::mem::align_of::<hv_output_get_partition_property_ex>() - 1usize];
+    ["Offset of field: hv_output_get_partition_property_ex::property_value"]
+        [::std::mem::offset_of!(hv_output_get_partition_property_ex, property_value) - 0usize];
+};
+impl Default for hv_output_get_partition_property_ex {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C, packed)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct hv_cpuid_leaf_info {
