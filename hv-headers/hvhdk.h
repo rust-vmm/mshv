@@ -1086,6 +1086,22 @@ struct hv_arm64_memory_intercept_message {
 	__u64 syndrome;
 } __packed;
 
+enum hv_arm64_reset_type
+{
+    HV_ARM64_RESET_TYPE_POWER_OFF = 0,
+    HV_ARM64_RESET_TYPE_REBOOT,
+    HV_ARM64_RESET_TYPE_SYSTEM_RESET2,
+    HV_ARM64_RESET_TYPE_HIBERNATE,
+    HV_ARM64_RESET_TYPE_MAX
+};
+
+struct hv_arm64_reset_intercept_message
+{
+    struct hv_arm64_intercept_message_header header;
+    __u32 reset_type;
+    __u32 reset_code;
+};
+
 #endif /* __aarch64__ */
 
 struct hv_input_translate_virtual_address {
