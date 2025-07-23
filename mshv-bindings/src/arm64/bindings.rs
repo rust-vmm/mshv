@@ -1916,6 +1916,7 @@ pub const hv_message_type_HVMSG_X64_IOMMU_PRQ: hv_message_type = 2147549190;
 pub const hv_message_type_HVMSG_X64_HALT: hv_message_type = 2147549191;
 pub const hv_message_type_HVMSG_X64_INTERRUPTION_DELIVERABLE: hv_message_type = 2147549192;
 pub const hv_message_type_HVMSG_X64_SIPI_INTERCEPT: hv_message_type = 2147549193;
+pub const hv_message_type_HVMSG_ARM64_RESET_INTERCEPT: hv_message_type = 2147549196;
 pub const hv_message_type_HVMSG_X64_SEV_VMGEXIT_INTERCEPT: hv_message_type = 2147549203;
 pub type hv_message_type = ::std::os::raw::c_uint;
 #[repr(C)]
@@ -10808,6 +10809,41 @@ const _: () = {
         [::std::mem::offset_of!(hv_arm64_memory_intercept_message, syndrome) - 56usize];
 };
 impl Default for hv_arm64_memory_intercept_message {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub const hv_arm64_reset_type_HV_ARM64_RESET_TYPE_POWER_OFF: hv_arm64_reset_type = 0;
+pub const hv_arm64_reset_type_HV_ARM64_RESET_TYPE_REBOOT: hv_arm64_reset_type = 1;
+pub const hv_arm64_reset_type_HV_ARM64_RESET_TYPE_SYSTEM_RESET2: hv_arm64_reset_type = 2;
+pub const hv_arm64_reset_type_HV_ARM64_RESET_TYPE_HIBERNATE: hv_arm64_reset_type = 3;
+pub const hv_arm64_reset_type_HV_ARM64_RESET_TYPE_MAX: hv_arm64_reset_type = 4;
+pub type hv_arm64_reset_type = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct hv_arm64_reset_intercept_message {
+    pub header: hv_arm64_intercept_message_header,
+    pub reset_type: __u32,
+    pub reset_code: __u32,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of hv_arm64_reset_intercept_message"]
+        [::std::mem::size_of::<hv_arm64_reset_intercept_message>() - 32usize];
+    ["Alignment of hv_arm64_reset_intercept_message"]
+        [::std::mem::align_of::<hv_arm64_reset_intercept_message>() - 4usize];
+    ["Offset of field: hv_arm64_reset_intercept_message::header"]
+        [::std::mem::offset_of!(hv_arm64_reset_intercept_message, header) - 0usize];
+    ["Offset of field: hv_arm64_reset_intercept_message::reset_type"]
+        [::std::mem::offset_of!(hv_arm64_reset_intercept_message, reset_type) - 24usize];
+    ["Offset of field: hv_arm64_reset_intercept_message::reset_code"]
+        [::std::mem::offset_of!(hv_arm64_reset_intercept_message, reset_code) - 28usize];
+};
+impl Default for hv_arm64_reset_intercept_message {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
         unsafe {

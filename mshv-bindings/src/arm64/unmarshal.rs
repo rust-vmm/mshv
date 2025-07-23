@@ -21,4 +21,17 @@ impl hv_message {
             unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
         Ok(ret)
     }
+
+    #[inline]
+    pub fn to_reset_intercept_msg(&self) -> Result<hv_arm64_reset_intercept_message> {
+        if self.header.message_type != hv_message_type_HVMSG_ARM64_RESET_INTERCEPT {
+            return Err(errno::Error::new(libc::EINVAL));
+        }
+
+        // SAFETY: The payload is guaranteed to be of type `hv_arm64_reset_intercept_message`
+        // because we ensured the message type above.
+        let ret =
+            unsafe { std::ptr::read_unaligned(std::ptr::addr_of!(self.u.payload) as *const _) };
+        Ok(ret)
+    }
 }
