@@ -173,6 +173,7 @@ struct hv_u128 {
 #define HVCALL_COMPLETE_ISOLATED_IMPORT		0x00f1
 #define HVCALL_ISSUE_SNP_PSP_GUEST_REQUEST	0x00f2
 #define HVCALL_GET_VP_CPUID_VALUES		0x00f4
+#define HVCALL_GET_PARTITION_PROPERTY_EX	0x0101
 
 /* HvFlushGuestPhysicalAddressList, HvExtCallMemoryHeatHint hypercall */
 union hv_gpa_page_range {

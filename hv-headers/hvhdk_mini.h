@@ -88,7 +88,13 @@ enum hv_partition_property_code {
 
     /* Nested virtualization properties */
     HV_PARTITION_PROPERTY_PROCESSOR_VIRTUALIZATION_FEATURES	= 0x00080000,
+
+    /* Extended properties with larger property values */
+    HV_PARTITION_PROPERTY_VMM_CAPABILITIES              = 0x00090007,
 };
+
+#define HV_PARTITION_VMM_CAPABILITIES_BANK_COUNT	1
+#define HV_PARTITION_VMM_CAPABILITIES_RESERVED_BITFIELD_COUNT	59
 
 /* HV Map GPA (Guest Physical Address) Flags */
 #define HV_MAP_GPA_PERMISSIONS_NONE	       0x0
@@ -162,6 +168,26 @@ union hv_partition_complete_isolated_import_data {
 struct hv_input_complete_isolated_import {
 	__u64 partition_id;
 	union hv_partition_complete_isolated_import_data import_data;
+} __packed;
+
+struct hv_partition_property_vmm_capabilities {
+	__u16 bank_count;
+	__u16 reserved[3];
+	union {
+		__u64 as_uint64[HV_PARTITION_VMM_CAPABILITIES_BANK_COUNT];
+		struct {
+			__u64 map_gpa_preserve_adjustable : 1;
+			__u64 vmm_can_provide_overlay_gpfn : 1;
+			__u64 vp_affinity_property : 1;
+#if defined(__aarch64__)
+			__u64 vmm_can_provide_gic_overlay_locations : 1;
+#else
+			__u64 reservedbit3 : 1;
+#endif
+			__u64 assignable_synthetic_proc_features : 1;
+			__u64 reserved0 : HV_PARTITION_VMM_CAPABILITIES_RESERVED_BITFIELD_COUNT;
+		} __packed;
+	};
 } __packed;
 
 #endif /* _HVHDK_MINI_H */
