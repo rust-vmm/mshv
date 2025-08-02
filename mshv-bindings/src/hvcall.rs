@@ -167,13 +167,13 @@ macro_rules! make_rep_args {
 ///     3. hv_output_* structure (optional)
 #[macro_export]
 macro_rules! make_args {
-    ($code_expr:expr, $input_ident:ident, $output_ident:ident) => {{
+    ($code_expr:expr, $input_expr:expr, $output_expr:expr) => {{
         mshv_root_hvcall {
             code: $code_expr as u16,
-            in_sz: std::mem::size_of_val(&$input_ident) as u16,
-            out_sz: std::mem::size_of_val(&$output_ident) as u16,
-            in_ptr: std::ptr::addr_of!($input_ident) as u64,
-            out_ptr: std::ptr::addr_of_mut!($output_ident) as u64,
+            in_sz: std::mem::size_of_val(&($input_expr)) as u16,
+            out_sz: std::mem::size_of_val(&($output_expr)) as u16,
+            in_ptr: std::ptr::addr_of!($input_expr) as u64,
+            out_ptr: std::ptr::addr_of_mut!($output_expr) as u64,
             ..Default::default()
         }
     }};
