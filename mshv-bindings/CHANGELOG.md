@@ -9,6 +9,15 @@
 
 ### Fixed
 
+## [v0.6.0]
+
+### Added
+* [[243]](https://github.com/rust-vmm/mshv/pull/243) Add bindings for arm64 reset intercepts
+* [[244]](https://github.com/rust-vmm/mshv/pull/244) add function to query vmm capabilities
+
+### Fixed
+* [[241]](https://github.com/rust-vmm/mshv/pull/241) Fixes for arm64 guests
+
 ## [v0.5.2]
 
 ###
