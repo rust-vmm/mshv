@@ -1,0 +1,38 @@
+From 11cb1ec65cba380b3350b6d4836143d25fa2912a Mon Sep 17 00:00:00 2001
+From: Muminul Islam <muislam@microsoft.com>
+Date: Wed, 8 Jan 2025 23:44:20 -0800
+Subject: [PATCH] mshv-ioctls: add a new API to get standard registers
+
+This API uses VP register page to populate the registers.
+
+Signed-off-by: Muminul Islam <muislam@microsoft.com>
+---
+ mshv-bindings/src/x86_64/regs.rs | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/mshv-bindings/src/x86_64/regs.rs b/mshv-bindings/src/x86_64/regs.rs
+index 1761ffa..f0663ed 100644
+--- a/mshv-bindings/src/x86_64/regs.rs
++++ b/mshv-bindings/src/x86_64/regs.rs
+@@ -775,6 +775,18 @@ macro_rules! set_gp_regs_field_ptr {
+     };
+ }
+ 
++#[macro_export]
++macro_rules! get_gp_regs_field_ptr {
++    ($this: ident, $name: ident) => {
++        (*$this)
++            .__bindgen_anon_1
++            .__bindgen_anon_1
++            .__bindgen_anon_1
++            .__bindgen_anon_1
++            .$name
++    };
++}
++
+ #[cfg(test)]
+ mod tests {
+     use super::*;
+-- 
+2.43.0
+
