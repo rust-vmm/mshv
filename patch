@@ -1,0 +1,25 @@
+diff --git a/mshv-bindings/CHANGELOG.md b/mshv-bindings/CHANGELOG.md
+index 6f01832..635dca0 100644
+--- a/mshv-bindings/CHANGELOG.md
++++ b/mshv-bindings/CHANGELOG.md
+@@ -17,6 +17,7 @@
+ 
+ ### Changed
+ * [[209]] (https://github.com/rust-vmm/mshv/pull/209) filter MSRs before returing to VMM
++* [[208]] https://github.com/rust-vmm/mshv/pull/208) property value is 64 bits
+ 
+ ## [v0.3.5]
+ 
+diff --git a/mshv-ioctls/CHANGELOG.md b/mshv-ioctls/CHANGELOG.md
+index 05da4cf..751b093 100644
+--- a/mshv-ioctls/CHANGELOG.md
++++ b/mshv-ioctls/CHANGELOG.md
+@@ -16,6 +16,8 @@
+ 
+ ### Changed
+ * [[209]] (https://github.com/rust-vmm/mshv/pull/209) filter MSRs before returing to VMM
++* [[208]] https://github.com/rust-vmm/mshv/pull/208) property value is 64 bits
++* [[204]] https://github.com/rust-vmm/mshv/pull/204 Rework Create Partition IOCTL
+ 
+ ## [v0.3.5]
+ 

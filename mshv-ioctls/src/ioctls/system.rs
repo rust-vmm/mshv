@@ -50,7 +50,8 @@ fn make_partition_create_arg(vm_type: VmType) -> mshv_create_partition_v2 {
         MSHV_PT_BIT_LAPIC,
         MSHV_PT_BIT_X2APIC,
         MSHV_PT_BIT_GPA_SUPER_PAGES,
-        MSHV_PT_BIT_CPU_AND_XSAVE_FEATURES
+        MSHV_PT_BIT_CPU_AND_XSAVE_FEATURES,
+        MSHV_PT_BIT_NESTED_VIRTUALIZATION
     );
     let mut pt_isolation: u64 = MSHV_PT_ISOLATION_NONE as u64;
 
@@ -93,6 +94,7 @@ fn make_partition_create_arg(vm_type: VmType) -> mshv_create_partition_v2 {
         proc_features.__bindgen_anon_1.set_cet_ss_support(0u64);
         proc_features.__bindgen_anon_1.set_smep_support(0u64);
         proc_features.__bindgen_anon_1.set_rdtscp_support(0u64);
+        proc_features.__bindgen_anon_1.set_nested_virt_support(0u64);
         proc_features
             .__bindgen_anon_1
             .set_tsc_invariant_support(0u64);
