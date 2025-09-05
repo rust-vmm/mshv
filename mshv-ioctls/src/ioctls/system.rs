@@ -109,6 +109,8 @@ fn make_partition_create_arg(vm_type: VmType) -> mshv_create_partition_v2 {
         proc_features.__bindgen_anon_1.set_fp_hp(0);
         proc_features.__bindgen_anon_1.set_adv_simd(0);
         proc_features.__bindgen_anon_1.set_adv_simd_hp(0);
+
+        proc_features.__bindgen_anon_1.set_pmu_v3(0);
     }
 
     // SAFETY: access union fields
