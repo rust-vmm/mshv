@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+* [[254]](https://github.com/rust-vmm/mshv/pull/254) Enable RDRAND support for x86 guests
 
 ### Deprecated
 
