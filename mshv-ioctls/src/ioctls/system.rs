@@ -89,6 +89,7 @@ fn make_partition_create_arg(vm_type: VmType) -> mshv_create_partition_v2 {
         create_args.pt_disabled_xsave = xsave_features.as_uint64;
 
         // Enable default processor features that are known to be supported
+        proc_features.__bindgen_anon_1.set_rd_rand_support(0u64);
         proc_features.__bindgen_anon_1.set_cet_ibt_support(0u64);
         proc_features.__bindgen_anon_1.set_cet_ss_support(0u64);
         proc_features.__bindgen_anon_1.set_smep_support(0u64);
