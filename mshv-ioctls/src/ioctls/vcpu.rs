@@ -1772,6 +1772,17 @@ impl VcpuFd {
     }
 }
 
+impl Drop for VcpuFd {
+    fn drop(&mut self) {
+        if let Some(vp_page) = &self.vp_page {
+            // SAFETY: because we ensured vp_page is valid in create_vcpu.
+            unsafe {
+                let _ = libc::munmap(vp_page.0 as *mut libc::c_void, HV_PAGE_SIZE);
+            }
+        }
+    }
+}
+
 #[allow(dead_code)]
 #[cfg(test)]
 mod tests {
