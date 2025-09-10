@@ -4,13 +4,20 @@
 ### Added
 
 ### Changed
-* [[254]](https://github.com/rust-vmm/mshv/pull/254) Enable RDRAND support for x86 guests
-* [[253]](https://github.com/rust-vmm/mshv/pull/253) Enable PMU for arm64 guests
 
 ### Deprecated
 
 ### Fixed
 
+
+## [v0.6.1]
+
+### Changed
+* [[254]](https://github.com/rust-vmm/mshv/pull/254) Enable RDRAND support for x86 guests
+* [[253]](https://github.com/rust-vmm/mshv/pull/253) Enable PMU for arm64 guests
+
+### Fixed
+* [[251]](https://github.com/rust-vmm/mshv/pull/251) Munmap register page
 
 ## [v0.6.0]
 
