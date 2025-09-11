@@ -1,12 +1,9 @@
 name: Build & Test MSHV Crate
 on: 
-  pull_request:
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to build and test'
-        required: true
-        default: 'main'
+  pull_request_target:
+  push:
+    branches:
+      - main
 jobs:
   infra-setup:
     name: MSHV Infra Setup (x86_64)
@@ -32,21 +29,13 @@ jobs:
       - self-hosted
       - Linux
     steps:
-      - name: Determine branch to build
-        run: |
-          echo "Determining branch to build and test..."
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "BRANCH=${{ github.event.pull_request.head.ref }}" >> $GITHUB_ENV
-          else
-            echo "BRANCH=${{ inputs.branch }}" >> $GITHUB_ENV
-          fi
-
       - name: Build & Run tests on remote VM
         env:
-          BRANCH_NAME: ${{ env.BRANCH }}
           KEY: azure_key_${{ github.run_id }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PRIVATE_IP: ${{ needs.infra-setup.outputs.PRIVATE_IP }}
+          REPO_URL: https://github.com/rust-vmm/mshv.git
+          REPO_DIR: mshv
           RG: MSHV-${{ github.run_id }}
           USERNAME: ${{ secrets.MSHV_USERNAME }}
         run: |
@@ -56,9 +45,17 @@ jobs:
             set -e
             echo "Logged in successfully."
             export PATH="\$HOME/.cargo/bin:\$PATH"
-            echo "${BRANCH_NAME}"
-            git clone --depth 1 --single-branch --branch "$BRANCH_NAME" https://github.com/rust-vmm/mshv.git
-            cd mshv
+
+            if [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
+              git clone --depth 1 "$REPO_URL" "$REPO_DIR"
+              cd "$REPO_DIR"
+              git fetch origin pull/${{ github.event.pull_request.number }}/merge
+              git checkout FETCH_HEAD
+            else
+              git clone --depth 1 --single-branch --branch "${{ github.ref_name }}" "$REPO_URL" "$REPO_DIR"
+              cd "$REPO_DIR"
+            fi
+
             cargo build --all-features --workspace
             cargo test --all-features --workspace
           EOF
