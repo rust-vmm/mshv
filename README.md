@@ -45,7 +45,12 @@ Generally follow the guidelines [here](https://github.com/rust-vmm/community/blo
     git show mshv-bindings-v0.6.0
     git push --tags
 ```
-5. Create a release on github
+5. Create a release on github, use the generated release notes.
 6. Create a release on crates.io
+```
+    cargo login
+    cargo publish --package mshv-bindings
+    cargo publish --package mshv-ioctls
+```
 7. Bump the mshv version in upstream [vfio](https://github.com/rust-vmm/vfio)
 8. Bump the mshv version in upstream [Cloud Hypervisor](https://github.com/cloud-hypervisor/cloud-hypervisor)
