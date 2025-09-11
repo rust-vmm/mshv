@@ -31,10 +31,11 @@ jobs:
     steps:
       - name: Build & Run tests on remote VM
         env:
-          BRANCH_NAME: ${{ env.BRANCH }}
           KEY: azure_key_${{ github.run_id }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PRIVATE_IP: ${{ needs.infra-setup.outputs.PRIVATE_IP }}
+          REPO_URL: https://github.com/rust-vmm/mshv.git
+          REPO_DIR: mshv
           RG: MSHV-${{ github.run_id }}
           USERNAME: ${{ secrets.MSHV_USERNAME }}
         run: |
@@ -46,12 +47,13 @@ jobs:
             export PATH="\$HOME/.cargo/bin:\$PATH"
             
             if [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
-              git clone --depth 1 https://github.com/rust-vmm/mshv.git
-              cd mshv
-              git fetch origin pull/${{ github.event.pull_request.number }}/merge && git checkout FETCH_HEAD
+              git clone --depth 1 "$REPO_URL" "$REPO_DIR"
+              cd "$REPO_DIR"
+              git fetch origin pull/${{ github.event.pull_request.number }}/merge
+              git checkout FETCH_HEAD
             else
-              git clone --depth 1 --single-branch --branch "${{ github.ref_name }}" https://github.com/rust-vmm/mshv.git
-              cd mshv
+              git clone --depth 1 --single-branch --branch "${{ github.ref_name }}" "$REPO_URL" "$REPO_DIR"
+              cd "$REPO_DIR"
             fi
 
             cargo build --all-features --workspace
