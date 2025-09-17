@@ -50,6 +50,7 @@ jobs:
           RG: MSHV-${{ github.run_id }}
           USERNAME: ${{ secrets.MSHV_USERNAME }}
         run: |
+          echo "test"
           set -e
           echo "Connecting to the VM via SSH..."
           ssh -i ~/.ssh/${KEY} -o StrictHostKeyChecking=no ${USERNAME}@${PRIVATE_IP} << EOF
