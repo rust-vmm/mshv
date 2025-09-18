@@ -15,7 +15,7 @@ use vmm_sys_util::errno;
 use vmm_sys_util::ioctl::{ioctl_with_mut_ref, ioctl_with_ref};
 
 /// Helper function to populate synthetic features for the partition to create
-fn make_synthetic_features_mask() -> u64 {
+pub fn make_default_synthetic_features_mask() -> u64 {
     let mut features: hv_partition_synthetic_processor_features = Default::default();
     // SAFETY: access union fields
     unsafe {
@@ -44,7 +44,7 @@ fn make_synthetic_features_mask() -> u64 {
 }
 
 /// Helper function to make partition creation argument
-fn make_partition_create_arg(vm_type: VmType) -> mshv_create_partition_v2 {
+pub fn make_default_partition_create_arg(vm_type: VmType) -> mshv_create_partition_v2 {
     let pt_flags: u64 = set_bits!(
         u64,
         MSHV_PT_BIT_LAPIC,
@@ -201,14 +201,14 @@ impl Mshv {
 
     /// Helper function to creates a VM fd using the MSHV fd with provided configuration.
     pub fn create_vm_with_type(&self, vm_type: VmType) -> Result<VmFd> {
-        let create_args = make_partition_create_arg(vm_type);
+        let create_args = make_default_partition_create_arg(vm_type);
 
         let vm = self.create_vm_with_args(&create_args)?;
 
         // This is an 'early' property that must be set between creation and initialization
         vm.set_partition_property(
             hv_partition_property_code_HV_PARTITION_PROPERTY_SYNTHETIC_PROC_FEATURES,
-            make_synthetic_features_mask(),
+            make_default_synthetic_features_mask(),
         )?;
 
         Ok(vm)
@@ -310,7 +310,7 @@ mod tests {
     #[test]
     #[ignore]
     fn test_create_vm_with_default_config() {
-        let pr: mshv_create_partition_v2 = make_partition_create_arg(VmType::Normal);
+        let pr: mshv_create_partition_v2 = make_default_partition_create_arg(VmType::Normal);
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm_with_args(&pr);
         assert!(vm.is_ok());
