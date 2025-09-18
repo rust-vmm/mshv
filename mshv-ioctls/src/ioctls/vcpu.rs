@@ -1770,19 +1770,6 @@ impl VcpuFd {
         ];
         Ok(reg_list)
     }
-
-    /// Causes the next call to run() to return from the kernel without
-    /// dispatching the VP.
-    pub fn cancel_run(&self) -> Result<()> {
-        // SAFETY: IOCTL with correct types
-        let ret = unsafe { ioctl_with_ref(self, MSHV_CANCEL_RUN_VP()) };
-        if ret == 0 {
-            Ok(())
-        } else {
-            Err(errno::Error::last().into())
-        }
-    }
-
 }
 
 #[allow(dead_code)]
@@ -1992,7 +1979,10 @@ mod tests {
         0xeb, 0xfe          /* jmp short -2 */
     ];
 
-    fn setup_vp_test_code_page(vm: &VmFd, code: [u8]) -> Result<()> {
+    fn setup_vp_test_code_page(vm: &VmFd, code: &[u8]) -> Result<()> {
+        use crate::set_bits;
+        use std::io::Write;
+
         let mem_size = HV_PAGE_SIZE;
         let load_addr = unsafe {
             libc::mmap(
@@ -2019,7 +2009,7 @@ mod tests {
             // Get a mutable slice of `mem_size` from `load_addr`.
             // This is safe because we mapped it before.
             let mut slice = slice::from_raw_parts_mut(load_addr, mem_size);
-            slice.write_all(&code).unwrap();
+            slice.write_all(code).unwrap();
         }
 
         Ok(())
@@ -2080,7 +2070,7 @@ mod tests {
         vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
-        setup_vp_test_code_page(&vm, code_serial_out).unwrap();
+        setup_vp_test_code_page(&vm, &code_serial_out).unwrap();
         setup_vp_test_regs(&vcpu).unwrap();
 
         let mut done = false;
@@ -2150,7 +2140,7 @@ mod tests {
         vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
-        setup_vp_test_code_page(&vm, code_serial_out).unwrap();
+        setup_vp_test_code_page(&vm, &code_serial_out).unwrap();
         setup_vp_test_regs(&vcpu).unwrap();
 
         let registers_addr = unsafe {
@@ -2444,64 +2434,31 @@ mod tests {
             .all(|(a, b)| *a == b));
     }
 
-    #[cfg(target_arch = "x86_64")]
     #[test]
     fn test_cancel_run() {
+        use std::thread;
+        use std::time::Duration;
         use crate::ioctls::system::Mshv;
 
         let mshv = Mshv::new().unwrap();
         let vm = mshv.create_vm().unwrap();
         vm.initialize().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
+        let index = vcpu.index;
 
-        setup_vp_test_code_page(&vm, code_loop).unwrap();
+        setup_vp_test_code_page(&vm, &code_loop).unwrap();
         setup_vp_test_regs(&vcpu).unwrap();
 
-        let res_0 = vcpu.run();
-        assert!(res_0.is_ok());
-        assert!(vcpu.cancel_run().is_ok());
-        let res_1 = vcpu.run();
-        assert!(res_1.is_err());
-        if let Err(e) = res_1 {
-            assert!(e.errno() == libc::EINTR);
+        for _ in 0..1000 {
+            thread::scope(|s| {
+                let handle = s.spawn(|| {        
+                    _ = vcpu.run();
+                });
+                thread::sleep(Duration::from_millis(1));
+                assert!(vm.cancel_run_vp(index).is_ok());
+                thread::sleep(Duration::from_millis(5));
+                assert!(handle.is_finished());
+            });
         }
     }
-
-    #[cfg(target_arch = "x86_64")]
-    #[test]
-    fn test_run_code_2() {
-        use super::*;
-        use crate::ioctls::system::Mshv;
-
-        let mshv = Mshv::new().unwrap();
-        let vm = mshv.create_vm().unwrap();
-        vm.initialize().unwrap();
-        let vcpu = vm.create_vcpu(0).unwrap();
-
-        setup_vp_test_code_page(&vm, code_loop).unwrap();
-        setup_vp_test_regs(&vcpu).unwrap();
-
-        let mut done = false;
-        loop {
-            let ret_hv_message = vcpu.run().unwrap();
-            match ret_hv_message.header.message_type {
-                hv_message_type_HVMSG_X64_HALT => {
-                    println!("VM Halted!");
-                    break;
-                }
-                hv_message_type_HVMSG_X64_IO_PORT_INTERCEPT => {
-                    let io_message = ret_hv_message.to_ioport_info().unwrap();
-                    println!("Got IO message!");
-                }
-                _ => {
-                    println!("Message type: 0x{:x?}", {
-                        ret_hv_message.header.message_type
-                    });
-                    panic!("Unexpected Exit Type");
-                }
-            };
-        }
-        assert!(done);
-    }
-
 }

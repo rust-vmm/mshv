@@ -848,6 +848,21 @@ impl VmFd {
         };
         Ok(get_partition_supported_msrs(&vp_features))
     }
+
+    /// Cancel a running vp by setting explicit suspend register
+    pub fn cancel_run_vp(&self, vp: u32) -> Result<()> {
+        self.hvcall_set_reg(
+            vp,
+            &[hv_register_assoc {
+                name: hv_register_name_HV_REGISTER_EXPLICIT_SUSPEND,
+                value: hv_register_value {
+                    reg64: 1,
+                },
+                ..Default::default()
+            }]
+        )
+
+    }
 }
 /// Helper function to create a new `VmFd`.
 ///
