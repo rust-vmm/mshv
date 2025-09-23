@@ -10,6 +10,11 @@
 ### Fixed
 
 
+## [v0.6.2]
+
+### Changed
+* [[262]](https://github.com/rust-vmm/mshv/pull/262) make create feature functions public
+
 ## [v0.6.1]
 
 ### Changed
