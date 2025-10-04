@@ -14,7 +14,7 @@ jobs:
           - x86_64-unknown-linux-gnu
     steps:
       - name: Code checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: mshv
 
@@ -26,14 +26,14 @@ jobs:
           components: rustfmt, clippy
 
       - name: Cloning Cloud Hypervisor Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: cloud-hypervisor/cloud-hypervisor
           ref: ${{vars.CLH_TAG}}
           path: cloud-hypervisor
 
       - name: Cloning vfio Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: rust-vmm/vfio
           ref: ${{vars.VFIO_TAG}}
