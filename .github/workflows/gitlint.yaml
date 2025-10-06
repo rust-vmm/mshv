@@ -21,5 +21,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install --upgrade gitlint
     - name: Lint git commit messages
+      if: github.actor != 'dependabot[bot]'
       run: |
         gitlint --commits origin/$GITHUB_BASE_REF..
