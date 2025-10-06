@@ -9,6 +9,10 @@
 
 ### Fixed
 
+## [v0.6.3]
+
+### Changed
+* [[272]] (https://github.com/rust-vmm/mshv/pull/272) mshv-bindings: generate new bindings
 
 ## [v0.6.2]
 
