@@ -66,17 +66,37 @@ def get_latest_version(crate):
     raise RuntimeError("No released version found in changelog")
 
 
-def main(args):
-    crate = args.crate
-    version = args.version if args.version else get_latest_version(crate)
-    tag_name = f"{crate}-{version}"
-    changelog = extract_changelog(crate, version)
-    # create the tag with changelog as the message
-    ret = subprocess.run(["git", "tag", "-a", tag_name, "-m", changelog])
-    if ret.returncode != 0:
-        raise RuntimeError(f"Error creating tag: {tag_name}")
+def get_crates():
+    root_cargo_toml = Path(__file__).parent.parent / "Cargo.toml"
+    with open(root_cargo_toml, "r") as f:
+        content = f.read()
+    members_match = re.search(r'members\s*=\s*\[([^\]]+)\]', content)
+    if not members_match:
+        raise RuntimeError("No members found in root Cargo.toml")
 
-    print(f"Created tag: {tag_name}")
+    members_str = members_match.group(1)
+    members = [m.strip().strip('"').strip("'") for m in members_str.split(",") if m.strip()]
+    return members
+
+
+def main(args):
+    crates = []
+    if not args.crate:
+        crates = get_crates()
+    else:
+        crates = [args.crate]
+
+    for crate in crates:
+        print(f"Processing crate: {crate}")
+        version = args.version if args.version else get_latest_version(crate)
+        tag_name = f"{crate}-{version}"
+        changelog = extract_changelog(crate, version)
+        # create the tag with changelog as the message
+        ret = subprocess.run(["git", "tag", "-a", tag_name, "-m", changelog])
+        if ret.returncode != 0:
+            raise RuntimeError(f"Error creating tag: {tag_name}")
+
+        print(f"Created tag: {tag_name}")
     return 0
 
 
@@ -100,8 +120,9 @@ if __name__ == "__main__":
         "--crate",
         "-c",
         type=str,
+        required=False,
+        default=None,
         dest="crate",
-        required=True,
         help="Generate tag for a crate (mshv-ioctls or mshv-bindings)",
     )
     res = main(parser.parse_args())
