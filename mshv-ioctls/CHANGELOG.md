@@ -9,6 +9,11 @@
 
 ### Fixed
 
+## [v0.6.4]
+
+### Changed
+* [[279]](https://github.com/rust-vmm/mshv/pull/279) mshv-ioctls: expose two APIs
+
 ## [v0.6.3]
 
 ###
