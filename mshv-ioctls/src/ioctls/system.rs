@@ -65,36 +65,54 @@ pub fn make_default_partition_create_arg(vm_type: VmType) -> mshv_create_partiti
         ..Default::default()
     };
 
-    let mut proc_features = hv_partition_processor_features::default();
-    let mut xsave_features = hv_partition_processor_xsave_features::default();
+    let mut disabled_proc_features = hv_partition_processor_features::default();
+    let mut disabled_xsave_features = hv_partition_processor_xsave_features::default();
     for i in 0..MSHV_NUM_CPU_FEATURES_BANKS {
         // SAFETY: access union fields
         unsafe {
-            proc_features.as_uint64[i as usize] = 0xFFFFFFFFFFFFFFFF;
+            disabled_proc_features.as_uint64[i as usize] = 0xFFFFFFFFFFFFFFFF;
         }
     }
-    xsave_features.as_uint64 = 0xFFFFFFFFFFFFFFFF;
+    disabled_xsave_features.as_uint64 = 0xFFFFFFFFFFFFFFFF;
 
     #[cfg(target_arch = "x86_64")]
     // SAFETY: access union fields
     unsafe {
         // Enable default XSave features that are known to be supported
-        xsave_features.__bindgen_anon_1.set_xsave_support(0u64);
-        xsave_features.__bindgen_anon_1.set_xsaveopt_support(0u64);
-        xsave_features.__bindgen_anon_1.set_avx_support(0u64);
-        xsave_features
+        disabled_xsave_features
+            .__bindgen_anon_1
+            .set_xsave_support(0u64);
+        disabled_xsave_features
+            .__bindgen_anon_1
+            .set_xsaveopt_support(0u64);
+        disabled_xsave_features
+            .__bindgen_anon_1
+            .set_avx_support(0u64);
+        disabled_xsave_features
             .__bindgen_anon_1
             .set_xsave_supervisor_support(0u64);
-        xsave_features.__bindgen_anon_1.set_xsave_comp_support(0u64);
-        create_args.pt_disabled_xsave = xsave_features.as_uint64;
+        disabled_xsave_features
+            .__bindgen_anon_1
+            .set_xsave_comp_support(0u64);
+        create_args.pt_disabled_xsave = disabled_xsave_features.as_uint64;
 
         // Enable default processor features that are known to be supported
-        proc_features.__bindgen_anon_1.set_rd_rand_support(0u64);
-        proc_features.__bindgen_anon_1.set_cet_ibt_support(0u64);
-        proc_features.__bindgen_anon_1.set_cet_ss_support(0u64);
-        proc_features.__bindgen_anon_1.set_smep_support(0u64);
-        proc_features.__bindgen_anon_1.set_rdtscp_support(0u64);
-        proc_features
+        disabled_proc_features
+            .__bindgen_anon_1
+            .set_rd_rand_support(0u64);
+        disabled_proc_features
+            .__bindgen_anon_1
+            .set_cet_ibt_support(0u64);
+        disabled_proc_features
+            .__bindgen_anon_1
+            .set_cet_ss_support(0u64);
+        disabled_proc_features
+            .__bindgen_anon_1
+            .set_smep_support(0u64);
+        disabled_proc_features
+            .__bindgen_anon_1
+            .set_rdtscp_support(0u64);
+        disabled_proc_features
             .__bindgen_anon_1
             .set_tsc_invariant_support(0u64);
     }
@@ -103,20 +121,20 @@ pub fn make_default_partition_create_arg(vm_type: VmType) -> mshv_create_partiti
     // SAFETY: access union fields
     unsafe {
         // This must always be enabled for ARM64 guests.
-        proc_features.__bindgen_anon_1.set_gic_v3v4(0u64);
+        disabled_proc_features.__bindgen_anon_1.set_gic_v3v4(0u64);
 
-        proc_features.__bindgen_anon_1.set_fp(0);
-        proc_features.__bindgen_anon_1.set_fp_hp(0);
-        proc_features.__bindgen_anon_1.set_adv_simd(0);
-        proc_features.__bindgen_anon_1.set_adv_simd_hp(0);
+        disabled_proc_features.__bindgen_anon_1.set_fp(0);
+        disabled_proc_features.__bindgen_anon_1.set_fp_hp(0);
+        disabled_proc_features.__bindgen_anon_1.set_adv_simd(0);
+        disabled_proc_features.__bindgen_anon_1.set_adv_simd_hp(0);
 
-        proc_features.__bindgen_anon_1.set_pmu_v3(0);
+        disabled_proc_features.__bindgen_anon_1.set_pmu_v3(0);
     }
 
     // SAFETY: access union fields
     unsafe {
         for i in 0..MSHV_NUM_CPU_FEATURES_BANKS {
-            create_args.pt_cpu_fbanks[i as usize] = proc_features.as_uint64[i as usize];
+            create_args.pt_cpu_fbanks[i as usize] = disabled_proc_features.as_uint64[i as usize];
         }
     }
 
