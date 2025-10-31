@@ -79,24 +79,120 @@ pub fn make_default_partition_create_arg(vm_type: VmType) -> mshv_create_partiti
     // SAFETY: access union fields
     unsafe {
         // Enable default XSave features that are known to be supported
-        xsave_features.__bindgen_anon_1.set_xsave_support(0u64);
-        xsave_features.__bindgen_anon_1.set_xsaveopt_support(0u64);
         xsave_features.__bindgen_anon_1.set_avx_support(0u64);
+        xsave_features.__bindgen_anon_1.set_xsave_comp_support(0u64);
         xsave_features
             .__bindgen_anon_1
             .set_xsave_supervisor_support(0u64);
-        xsave_features.__bindgen_anon_1.set_xsave_comp_support(0u64);
+        xsave_features.__bindgen_anon_1.set_xsave_support(0u64);
+        xsave_features.__bindgen_anon_1.set_xsaveopt_support(0u64);
         create_args.pt_disabled_xsave = xsave_features.as_uint64;
 
         // Enable default processor features that are known to be supported
-        proc_features.__bindgen_anon_1.set_rd_rand_support(0u64);
+        proc_features.__bindgen_anon_1.set_adx_support(0u64);
+        proc_features.__bindgen_anon_1.set_aes_support(0u64);
+        proc_features.__bindgen_anon_1.set_altmovcr8_support(0u64);
+        proc_features.__bindgen_anon_1.set_amd3dnow_support(0u64);
+        proc_features.__bindgen_anon_1.set_bhi_dis_support(0u64);
+        proc_features.__bindgen_anon_1.set_bhi_no_support(0u64);
+        proc_features.__bindgen_anon_1.set_bmi1_support(0u64);
+        proc_features.__bindgen_anon_1.set_bmi2_support(0u64);
+        proc_features.__bindgen_anon_1.set_btc_no_support(0u64);
         proc_features.__bindgen_anon_1.set_cet_ibt_support(0u64);
         proc_features.__bindgen_anon_1.set_cet_ss_support(0u64);
-        proc_features.__bindgen_anon_1.set_smep_support(0u64);
+        proc_features.__bindgen_anon_1.set_clflushopt_support(0u64);
+        proc_features.__bindgen_anon_1.set_cmpxchg16b_support(0u64);
+        proc_features
+            .__bindgen_anon_1
+            .set_dep_x87_fpu_save_support(0u64);
+        proc_features
+            .__bindgen_anon_1
+            .set_enhanced_fast_string_support(0u64);
+        proc_features
+            .__bindgen_anon_1
+            .set_extended_amd3dnow_support(0u64);
+        proc_features.__bindgen_anon_1.set_f16c_support(0u64);
+        proc_features
+            .__bindgen_anon_1
+            .set_fast_short_rep_mov_support(0u64);
+        proc_features.__bindgen_anon_1.set_fb_clear_support(0u64);
+        proc_features.__bindgen_anon_1.set_fma4_support(0u64);
+        proc_features.__bindgen_anon_1.set_gds_no_support(0u64);
+        proc_features
+            .__bindgen_anon_1
+            .set_hle_support_deprecated(0u64);
+        proc_features.__bindgen_anon_1.set_hle_support(0u64);
+        proc_features.__bindgen_anon_1.set_ibpb_support(0u64);
+        proc_features.__bindgen_anon_1.set_ibrs_all_support(0u64);
+        proc_features.__bindgen_anon_1.set_ibrs_support(0u64);
+        proc_features
+            .__bindgen_anon_1
+            .set_intel_prefetch_support(0u64);
+        proc_features.__bindgen_anon_1.set_invpcid_support(0u64);
+        proc_features
+            .__bindgen_anon_1
+            .set_l1dcache_flush_support(0u64);
+        proc_features.__bindgen_anon_1.set_lahf_sahf_support(0u64);
+        proc_features.__bindgen_anon_1.set_lzcnt_support(0u64);
+        proc_features.__bindgen_anon_1.set_mb_clear_support(0u64);
+        proc_features.__bindgen_anon_1.set_mbec_support(0u64);
+        proc_features.__bindgen_anon_1.set_mbs_no_support(0u64);
+        proc_features.__bindgen_anon_1.set_mdd_support(0u64);
+        proc_features
+            .__bindgen_anon_1
+            .set_mis_align_sse_support(0u64);
+        proc_features
+            .__bindgen_anon_1
+            .set_mitigation_ctrl_support(0u64);
+        proc_features.__bindgen_anon_1.set_mmx_ext_support(0u64);
+        proc_features.__bindgen_anon_1.set_movbe_support(0u64);
+        proc_features.__bindgen_anon_1.set_npiep1_support(0u64);
+        proc_features.__bindgen_anon_1.set_page_1gb_support(0u64);
+        proc_features.__bindgen_anon_1.set_pclmulqdq_support(0u64);
+        proc_features.__bindgen_anon_1.set_pcid_support(0u64);
+        proc_features.__bindgen_anon_1.set_pop_cnt_support(0u64);
+        proc_features.__bindgen_anon_1.set_psfd_support(0u64);
+        proc_features.__bindgen_anon_1.set_rd_pid_support(0u64);
+        proc_features.__bindgen_anon_1.set_rd_rand_support(0u64);
+        proc_features.__bindgen_anon_1.set_rd_rand_support(0u64);
+        proc_features.__bindgen_anon_1.set_rd_seed_support(0u64);
+        proc_features.__bindgen_anon_1.set_rd_wr_fs_gs_support(0u64);
+        proc_features.__bindgen_anon_1.set_rdcl_no_support(0u64);
+        proc_features.__bindgen_anon_1.set_rdpru_support(0u64);
         proc_features.__bindgen_anon_1.set_rdtscp_support(0u64);
+        proc_features.__bindgen_anon_1.set_rfds_clear_support(0u64);
+        proc_features.__bindgen_anon_1.set_rfds_no_support(0u64);
+        proc_features.__bindgen_anon_1.set_rsb_a_no_support(0u64);
+        proc_features
+            .__bindgen_anon_1
+            .set_rtm_support_deprecated(0u64);
+        proc_features.__bindgen_anon_1.set_rtm_support(0u64);
+        proc_features.__bindgen_anon_1.set_skip_l1df_support(0u64);
+        proc_features.__bindgen_anon_1.set_smap_support(0u64);
+        proc_features.__bindgen_anon_1.set_smep_support(0u64);
+        proc_features.__bindgen_anon_1.set_ssb_no_support(0u64);
+        proc_features.__bindgen_anon_1.set_sse3_support(0u64);
+        proc_features.__bindgen_anon_1.set_sse4_1_support(0u64);
+        proc_features.__bindgen_anon_1.set_sse4_2_support(0u64);
+        proc_features.__bindgen_anon_1.set_sse4a_support(0u64);
+        proc_features.__bindgen_anon_1.set_ssse3_support(0u64);
+        proc_features.__bindgen_anon_1.set_stibp_support(0u64);
+        proc_features.__bindgen_anon_1.set_taa_no_support(0u64);
         proc_features
             .__bindgen_anon_1
             .set_tsc_invariant_support(0u64);
+        proc_features.__bindgen_anon_1.set_tsx_ctrl_support(0u64);
+        proc_features.__bindgen_anon_1.set_umip_support(0u64);
+        proc_features
+            .__bindgen_anon_1
+            .set_unrestricted_guest_support(0u64);
+        proc_features
+            .__bindgen_anon_1
+            .set_virt_spec_ctrl_support(0u64);
+        proc_features
+            .__bindgen_anon_1
+            .set_vmx_exception_inject_support(0u64);
+        proc_features.__bindgen_anon_1.set_xop_support(0u64);
     }
 
     #[cfg(target_arch = "aarch64")]
