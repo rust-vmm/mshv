@@ -1,6 +1,6 @@
 [package]
 name = "mshv-ioctls"
-version = "0.6.4"
+version = "0.6.5"
 authors = ["Microsoft Authors"]
 edition = "2021"
 license = "Apache-2.0 OR BSD-3-Clause"
@@ -11,7 +11,7 @@ description = "Safe wrappers over MSHV ioctl"
 
 [dependencies]
 libc = ">=0.2.39"
-mshv-bindings = { version = "=0.6.4", path = "../mshv-bindings", features = [
+mshv-bindings = { version = "=0.6.5", path = "../mshv-bindings", features = [
   "fam-wrappers",
 ] }
 thiserror = "2.0"

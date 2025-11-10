@@ -9,6 +9,12 @@
 
 ### Fixed
 
+## [v0.6.5]
+
+### Changed
+* [[283]](https://github.com/rust-vmm/mshv/pull/283) mshv-ioctls: rename variables for proc & xsave features
+* [[287]](https://github.com/rust-vmm/mshv/pull/287) mshv-ioctls: turn on default CPU features
+
 ## [v0.6.4]
 
 ### Changed
