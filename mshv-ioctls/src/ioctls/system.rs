@@ -412,19 +412,17 @@ impl Mshv {
 
     /// Retrieve the host partition property given a property code.
     pub fn get_host_partition_property(&self, property_code: u32) -> Result<u64> {
-        let mut property = mshv_partition_property {
-            property_code: property_code as u64,
+        let input = hv_input_get_partition_property {
+            property_code,
+            ..Default::default() // NOTE: Kernel will populate partition_id field
+        };
+
+        let mut output = hv_output_get_partition_property {
             ..Default::default()
         };
-        // SAFETY: IOCTL call with the correct types.
-        let ret = unsafe {
-            ioctl_with_mut_ref(&self.hv, MSHV_GET_HOST_PARTITION_PROPERTY(), &mut property)
-        };
-        if ret == 0 {
-            Ok(property.property_value)
-        } else {
-            Err(errno::Error::last().into())
-        }
+
+        let mut args = make_args!(HVCALL_GET_PARTITION_PROPERTY, input, output);
+        self.hvcall(&mut args).map(|_| output.property_value)
     }
 
     /// Helper function to creates a VM fd using the MSHV fd with provided configuration.
