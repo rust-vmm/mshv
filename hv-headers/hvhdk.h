@@ -1378,6 +1378,7 @@ union hv_partition_processor_xsave_features {
 };
 
 #define HV_PARTITION_PROCESSOR_FEATURES_BANKS 2
+#define HV_PARTITION_PROCESSOR_FEATURES_RESERVEDBANK1_BITFIELD_COUNT 4
 
 
 union hv_partition_processor_features {
@@ -1496,8 +1497,22 @@ union hv_partition_processor_features {
 		__u64 sve_sha3 : 1;
 		__u64 sve_sm4 : 1;
 		__u64 e0_pd : 1;
+		__u64 gpa3:1;
+		__u64 apa3_base:1;          // ID_AA64ISAR2_EL1.APA3 == 0b0001, Only one APA3 bit may be set at once
+		__u64 apa3_ep:1;            // ID_AA64ISAR2_EL1.APA3 == 0b0010, Only one APA3 bit may be set at once
+		__u64 apa3_ep2:1;           // ID_AA64ISAR2_EL1.APA3 == 0b0011, Only one APA3 bit may be set at once
+		__u64 apa3_ep2_fp:1;        // ID_AA64ISAR2_EL1.APA3 == 0b0100, Only one APA3 bit may be set at once
+		__u64 apa3_ep2_fpc:1;       // ID_AA64ISAR2_EL1.APA3 == 0b0101, Only one APA3 bit may be set at once
+		__u64 lrcpc3:1;            	// ID_AA64ISAR1_EL1.LRCPC >= 0b0011
+		__u64 sme:1;               	// ID_AA64PFR1_EL1.SME >= 0b0001
+		__u64 sme_f32_f32:1;        // ID_AA64PFR1_EL1.F32F32 >= 0b0001
+		__u64 sme_b16_f32:1;        // ID_AA64PFR1_EL1.B16F32 >= 0b0001
+		__u64 sme_f16_f32:1;        // ID_AA64PFR1_EL1.F16F32 >= 0b0001
+		__u64 sme_i8_i32:1;         // ID_AA64PFR1_EL1.I8I32 >= 0b0001
+		__u64 sme_f64_f64:1;        // ID_AA64PFR1_EL1.F64F64 >= 0b0001
+		__u64 sme_i16_i64:1;        // ID_AA64PFR1_EL1.I16I64 >= 0b0001
 		/* Remaining reserved bits */
-		__u64 reserved_bank1 : 18;
+		__u64 reserved_bank1 : HV_PARTITION_PROCESSOR_FEATURES_RESERVEDBANK1_BITFIELD_COUNT;
 
 	} __packed;
 #elif defined(__x86_64__)
@@ -1630,8 +1645,8 @@ union hv_partition_processor_features {
 		__u64 tsa_l1_no_supported : 1;
 		__u64 tsa_sq_no_supported : 1;
 		__u64 lass_support : 1;
-		/* Remaining reserved bits */
-		__u64 reserved_bank1 : 2;
+		__u64 idle_hlt_intercept_support : 1;
+		__u64 msr_list_support : 1;
 	} __packed;
 #endif
 };
