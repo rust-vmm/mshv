@@ -349,6 +349,7 @@ pub const HV_GPA_ATTRIBUTE_INTERCEPT_MAX_RANGES: u32 = 29;
 pub const HV_PSP_CPUID_LEAF_COUNT_MAX: u32 = 64;
 pub const HV_READ_WRITE_GPA_MAX_SIZE: u32 = 16;
 pub const HV_PARTITION_PROCESSOR_FEATURES_BANKS: u32 = 2;
+pub const HV_PARTITION_PROCESSOR_FEATURES_RESERVEDBANK1_BITFIELD_COUNT: u32 = 4;
 pub const MSHV_IOCTL: u32 = 184;
 pub const MSHV_VP_MAX_REGISTERS: u32 = 128;
 pub const MSHV_NUM_CPU_FEATURES_BANKS: u32 = 2;
@@ -20507,34 +20508,67 @@ impl hv_partition_processor_features__bindgen_ty_1 {
         }
     }
     #[inline]
-    pub fn reserved_bank1(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(126usize, 2u8) as u64) }
+    pub fn idle_hlt_intercept_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(126usize, 1u8) as u64) }
     }
     #[inline]
-    pub fn set_reserved_bank1(&mut self, val: __u64) {
+    pub fn set_idle_hlt_intercept_support(&mut self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(126usize, 2u8, val as u64)
+            self._bitfield_1.set(126usize, 1u8, val as u64)
         }
     }
     #[inline]
-    pub unsafe fn reserved_bank1_raw(this: *const Self) -> __u64 {
+    pub unsafe fn idle_hlt_intercept_support_raw(this: *const Self) -> __u64 {
         unsafe {
             ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 126usize,
-                2u8,
+                1u8,
             ) as u64)
         }
     }
     #[inline]
-    pub unsafe fn set_reserved_bank1_raw(this: *mut Self, val: __u64) {
+    pub unsafe fn set_idle_hlt_intercept_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
             <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 126usize,
-                2u8,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn msr_list_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(127usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_msr_list_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(127usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn msr_list_support_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                127usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_msr_list_support_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                127usize,
+                1u8,
                 val as u64,
             )
         }
@@ -20667,7 +20701,8 @@ impl hv_partition_processor_features__bindgen_ty_1 {
         tsa_l1_no_supported: __u64,
         tsa_sq_no_supported: __u64,
         lass_support: __u64,
-        reserved_bank1: __u64,
+        idle_hlt_intercept_support: __u64,
+        msr_list_support: __u64,
     ) -> __BindgenBitfieldUnit<[u8; 16usize]> {
         let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 16usize]> = Default::default();
         __bindgen_bitfield_unit.set(0usize, 1u8, {
@@ -21204,9 +21239,14 @@ impl hv_partition_processor_features__bindgen_ty_1 {
             let lass_support: u64 = unsafe { ::std::mem::transmute(lass_support) };
             lass_support as u64
         });
-        __bindgen_bitfield_unit.set(126usize, 2u8, {
-            let reserved_bank1: u64 = unsafe { ::std::mem::transmute(reserved_bank1) };
-            reserved_bank1 as u64
+        __bindgen_bitfield_unit.set(126usize, 1u8, {
+            let idle_hlt_intercept_support: u64 =
+                unsafe { ::std::mem::transmute(idle_hlt_intercept_support) };
+            idle_hlt_intercept_support as u64
+        });
+        __bindgen_bitfield_unit.set(127usize, 1u8, {
+            let msr_list_support: u64 = unsafe { ::std::mem::transmute(msr_list_support) };
+            msr_list_support as u64
         });
         __bindgen_bitfield_unit
     }
