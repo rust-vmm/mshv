@@ -9,6 +9,14 @@
 
 ### Fixed
 
+## [v0.6.6]
+
+### Changed
+* [[290]](https://github.com/rust-vmm/mshv/pull/290) mshv-ioctls: use passthrough hvcall to get host partition props
+* [[292]](https://github.com/rust-vmm/mshv/pull/292) Add more CPU features supported by the Microsoft Hypervisor
+* [[296]](https://github.com/rust-vmm/mshv/pull/296) mshv-ioctls: enable more CPU features for arm64
+* [[299]](https://github.com/rust-vmm/mshv/pull/299) mshv: Modify intermediate control registers to support nested hypervisor
+
 ## [v0.6.5]
 
 ### Changed
@@ -90,7 +98,7 @@
 ## [v0.3.4]
 
 ### Added
-* [[191]](https://github.com/rust-vmm/mshv/pull/191) Use VP register page to get/set Special and extended registers  
+* [[191]](https://github.com/rust-vmm/mshv/pull/191) Use VP register page to get/set Special and extended registers
 
 ## [v0.3.3]
 
