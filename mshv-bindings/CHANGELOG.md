@@ -9,6 +9,13 @@
 
 ### Fixed
 
+## [v0.6.6]
+
+### Changed
+* [[292]](https://github.com/rust-vmm/mshv/pull/292) Add more CPU features supported by the Microsoft Hypervisor
+* [[298]](https://github.com/rust-vmm/mshv/pull/298) mshv-bindings: fix mshv_create_partition_v2 bindings for arm64
+* [[299]](https://github.com/rust-vmm/mshv/pull/299) mshv: Modify intermediate control registers to support nested hypervisor
+
 ## [v0.6.5]
 
 ###
