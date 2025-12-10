@@ -9,6 +9,11 @@
 
 ### Fixed
 
+## [v0.6.6]
+
+### Changed
+* [[292]](https://github.com/rust-vmm/mshv/pull/292) Add more CPU features supported by the Microsoft Hypervisor
+
 ## [v0.6.5]
 
 ###
