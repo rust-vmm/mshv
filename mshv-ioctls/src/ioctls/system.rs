@@ -109,12 +109,30 @@ pub fn make_default_partition_create_arg(vm_type: VmType) -> mshv_create_partiti
         // This must always be enabled for ARM64 guests.
         disabled_proc_features.__bindgen_anon_1.set_gic_v3v4(0u64);
 
+        disabled_proc_features.__bindgen_anon_1.set_apa_base(0);
+        disabled_proc_features.__bindgen_anon_1.set_pan(0);
+        disabled_proc_features.__bindgen_anon_1.set_sha1(0);
+        disabled_proc_features.__bindgen_anon_1.set_sha256(0);
+        disabled_proc_features.__bindgen_anon_1.set_sha512(0);
+        disabled_proc_features.__bindgen_anon_1.set_sha3(0);
+        disabled_proc_features.__bindgen_anon_1.set_sm3(0);
+        disabled_proc_features.__bindgen_anon_1.set_sm4(0);
+
         disabled_proc_features.__bindgen_anon_1.set_fp(0);
         disabled_proc_features.__bindgen_anon_1.set_fp_hp(0);
         disabled_proc_features.__bindgen_anon_1.set_adv_simd(0);
         disabled_proc_features.__bindgen_anon_1.set_adv_simd_hp(0);
 
         disabled_proc_features.__bindgen_anon_1.set_pmu_v3(0);
+        disabled_proc_features.__bindgen_anon_1.set_crc32(0);
+        disabled_proc_features.__bindgen_anon_1.set_lse2(0);
+        disabled_proc_features.__bindgen_anon_1.set_sve(0);
+        disabled_proc_features.__bindgen_anon_1.set_sve_v2(0);
+        disabled_proc_features.__bindgen_anon_1.set_sve_v2p1(0);
+        disabled_proc_features.__bindgen_anon_1.set_sve_aes(0);
+        disabled_proc_features.__bindgen_anon_1.set_sve_bit_perm(0);
+        disabled_proc_features.__bindgen_anon_1.set_sve_sha3(0);
+        disabled_proc_features.__bindgen_anon_1.set_sve_sm4(0);
     }
 
     // SAFETY: access union fields
