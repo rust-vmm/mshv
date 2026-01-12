@@ -109,9 +109,9 @@ static VP_PAGE_SP_REGS: &[::std::os::raw::c_uint; 11] = &[
     hv_register_name_HV_X64_REGISTER_FS,
     hv_register_name_HV_X64_REGISTER_GS,
     hv_register_name_HV_X64_REGISTER_SS,
-    hv_register_name_HV_X64_REGISTER_CR0,
-    hv_register_name_HV_X64_REGISTER_CR3,
-    hv_register_name_HV_X64_REGISTER_CR4,
+    hv_register_name_HV_X64_REGISTER_INTERMEDIATE_CR0,
+    hv_register_name_HV_X64_REGISTER_INTERMEDIATE_CR3,
+    hv_register_name_HV_X64_REGISTER_INTERMEDIATE_CR4,
     hv_register_name_HV_X64_REGISTER_CR8,
     hv_register_name_HV_X64_REGISTER_EFER,
 ];
@@ -642,9 +642,9 @@ impl VcpuFd {
             3: hv_register_name_HV_X64_REGISTER_FS,
             4: hv_register_name_HV_X64_REGISTER_GS,
             5: hv_register_name_HV_X64_REGISTER_SS,
-            6: hv_register_name_HV_X64_REGISTER_CR0,
-            7: hv_register_name_HV_X64_REGISTER_CR3,
-            8: hv_register_name_HV_X64_REGISTER_CR4,
+            6: hv_register_name_HV_X64_REGISTER_INTERMEDIATE_CR0,
+            7: hv_register_name_HV_X64_REGISTER_INTERMEDIATE_CR3,
+            8: hv_register_name_HV_X64_REGISTER_INTERMEDIATE_CR4,
             9: hv_register_name_HV_X64_REGISTER_CR8,
             10: hv_register_name_HV_X64_REGISTER_EFER,
             11: hv_register_name_HV_X64_REGISTER_TR,
@@ -737,7 +737,7 @@ impl VcpuFd {
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_register_name_HV_X64_REGISTER_CR0,
+                name: hv_register_name_HV_X64_REGISTER_INTERMEDIATE_CR0,
                 value: hv_register_value { reg64: sregs.cr0 },
                 ..Default::default()
             },
@@ -747,12 +747,12 @@ impl VcpuFd {
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_register_name_HV_X64_REGISTER_CR3,
+                name: hv_register_name_HV_X64_REGISTER_INTERMEDIATE_CR3,
                 value: hv_register_value { reg64: sregs.cr3 },
                 ..Default::default()
             },
             hv_register_assoc {
-                name: hv_register_name_HV_X64_REGISTER_CR4,
+                name: hv_register_name_HV_X64_REGISTER_INTERMEDIATE_CR4,
                 value: hv_register_value { reg64: sregs.cr4 },
                 ..Default::default()
             },
@@ -800,10 +800,10 @@ impl VcpuFd {
             hv_register_name_HV_X64_REGISTER_LDTR,
             hv_register_name_HV_X64_REGISTER_GDTR,
             hv_register_name_HV_X64_REGISTER_IDTR,
-            hv_register_name_HV_X64_REGISTER_CR0,
+            hv_register_name_HV_X64_REGISTER_INTERMEDIATE_CR0,
             hv_register_name_HV_X64_REGISTER_CR2,
-            hv_register_name_HV_X64_REGISTER_CR3,
-            hv_register_name_HV_X64_REGISTER_CR4,
+            hv_register_name_HV_X64_REGISTER_INTERMEDIATE_CR3,
+            hv_register_name_HV_X64_REGISTER_INTERMEDIATE_CR4,
             hv_register_name_HV_X64_REGISTER_CR8,
             hv_register_name_HV_X64_REGISTER_EFER,
             hv_register_name_HV_X64_REGISTER_APIC_BASE,
