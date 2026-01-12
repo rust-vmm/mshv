@@ -19012,11 +19012,12 @@ pub struct mshv_create_partition_v2 {
     pub pt_rsvd: [__u8; 6usize],
     pub pt_cpu_fbanks: [__u64; 2usize],
     pub pt_rsvd1: [__u64; 2usize],
+    pub pt_rsvd2: __u64,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
     ["Size of mshv_create_partition_v2"]
-        [::std::mem::size_of::<mshv_create_partition_v2>() - 56usize];
+        [::std::mem::size_of::<mshv_create_partition_v2>() - 64usize];
     ["Alignment of mshv_create_partition_v2"]
         [::std::mem::align_of::<mshv_create_partition_v2>() - 1usize];
     ["Offset of field: mshv_create_partition_v2::pt_flags"]
@@ -19031,6 +19032,8 @@ const _: () = {
         [::std::mem::offset_of!(mshv_create_partition_v2, pt_cpu_fbanks) - 24usize];
     ["Offset of field: mshv_create_partition_v2::pt_rsvd1"]
         [::std::mem::offset_of!(mshv_create_partition_v2, pt_rsvd1) - 40usize];
+    ["Offset of field: mshv_create_partition_v2::pt_rsvd2"]
+        [::std::mem::offset_of!(mshv_create_partition_v2, pt_rsvd2) - 56usize];
 };
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
