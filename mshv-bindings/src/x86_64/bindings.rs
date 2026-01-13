@@ -4151,6 +4151,7 @@ pub const hv_register_name_HV_X64_REGISTER_CR4: hv_register_name = 262147;
 pub const hv_register_name_HV_X64_REGISTER_CR8: hv_register_name = 262148;
 pub const hv_register_name_HV_X64_REGISTER_XFEM: hv_register_name = 262149;
 pub const hv_register_name_HV_X64_REGISTER_INTERMEDIATE_CR0: hv_register_name = 266240;
+pub const hv_register_name_HV_X64_REGISTER_INTERMEDIATE_CR3: hv_register_name = 266242;
 pub const hv_register_name_HV_X64_REGISTER_INTERMEDIATE_CR4: hv_register_name = 266243;
 pub const hv_register_name_HV_X64_REGISTER_INTERMEDIATE_CR8: hv_register_name = 266244;
 pub const hv_register_name_HV_X64_REGISTER_DR0: hv_register_name = 327680;
