@@ -865,6 +865,7 @@ mod tests {
     use super::*;
     use crate::ioctls::system::Mshv;
     use crate::ioctls::MshvError;
+    #[cfg(target_arch = "x86_64")]
     use std::mem;
 
     #[test]

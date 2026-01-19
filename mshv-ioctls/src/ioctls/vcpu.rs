@@ -12,7 +12,9 @@ use std::os::unix::io::{AsRawFd, RawFd};
 #[cfg(all(test, target_arch = "x86_64"))]
 use std::slice;
 use vmm_sys_util::errno;
-use vmm_sys_util::ioctl::{ioctl_with_mut_ref, ioctl_with_ref};
+use vmm_sys_util::ioctl::ioctl_with_mut_ref;
+#[cfg(target_arch = "x86_64")]
+use vmm_sys_util::ioctl::ioctl_with_ref;
 
 // Macro for setting up multiple 64 bit registers together
 // Arguments:
