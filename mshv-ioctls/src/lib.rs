@@ -202,8 +202,10 @@
 #[macro_use]
 mod ioctls;
 pub use ioctls::device::DeviceFd;
+#[deprecated(note = "Use Mshv::make_default_partition_create_arg instead")]
+pub use ioctls::system::make_default_partition_create_arg;
+pub use ioctls::system::make_default_synthetic_features_mask;
 pub use ioctls::system::Mshv;
-pub use ioctls::system::{make_default_partition_create_arg, make_default_synthetic_features_mask};
 pub use ioctls::vcpu::VcpuFd;
 pub use ioctls::vm::InterruptRequest;
 pub use ioctls::vm::IoEventAddress;
