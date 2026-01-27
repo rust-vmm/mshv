@@ -75,10 +75,10 @@ def generate_unified_mshv_headers(kernel_hdr_path, hv_hdrs_path):
     logging.debug("Done generating unified header file")
 
 
-def run_bindgen(kernel_hdr_path, output_file, bindgen_args):
+def run_bindgen(kernel_hdr_path, output_file, bindgen_args, clang_target):
     cmd = f"""
     bindgen {bindgen_args} \
-    {kernel_hdr_path}/combined_mshv.h -- -I {kernel_hdr_path}/include > {output_file}
+    {kernel_hdr_path}/combined_mshv.h -- --target={clang_target} -I {kernel_hdr_path}/include > {output_file}
     """
     logging.debug("Running bindgen: %s", cmd)
 
@@ -102,6 +102,13 @@ def update_bindings_comment(bindings_file):
 
     with open(bindings_file, "w") as f:
         f.write("".join(lines))
+
+
+def get_clang_target(arch):
+    if arch == "x86":
+        return "x86_64-linux-gnu"
+
+    return "aarch64-linux-gnu"
 
 
 def get_arch_location(arch):
@@ -129,9 +136,10 @@ def main(args):
 
     bindgen_args += args.bindgen_args
     arch_location = get_arch_location(args.arch)
+    clang_target = get_clang_target(args.arch)
     output_file = f"{args.output}/{arch_location}/bindings.rs"
 
-    run_bindgen(kernel_hdr_path, output_file, bindgen_args)
+    run_bindgen(kernel_hdr_path, output_file, bindgen_args, clang_target)
     update_bindings_comment(output_file)
 
     return 0
