@@ -1,6 +1,10 @@
 name: Cloud Hypervisor Build
 on: [pull_request, create]
 
+env:
+  CLOUD_HYPERVISOR_REF: v50.0
+  VFIO_BINDINGS_REF: vfio-bindings-v0.6.0
+
 jobs:
   build:
     if: github.event_name == 'pull_request'
@@ -29,14 +33,14 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: cloud-hypervisor/cloud-hypervisor
-          ref: ${{vars.CLH_TAG}}
+          ref: ${{ env.CLOUD_HYPERVISOR_REF }}
           path: cloud-hypervisor
 
       - name: Cloning vfio Repo
         uses: actions/checkout@v6
         with:
           repository: rust-vmm/vfio
-          ref: ${{vars.VFIO_TAG}}
+          ref: ${{ env.VFIO_BINDINGS_REF }}
           path: vfio
 
       - name: Copying script to vfio directory
