@@ -9,6 +9,11 @@
 
 ### Fixed
 
+## [v0.6.7]
+
+### Changed
+* [[301]](https://github.com/rust-vmm/mshv/pull/301) Generate bindings to pick up SMT_ENABLED_GUEST flag
+
 ## [v0.6.6]
 
 ### Changed

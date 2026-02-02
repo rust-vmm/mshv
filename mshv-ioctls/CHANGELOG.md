@@ -9,6 +9,12 @@
 
 ### Fixed
 
+## [v0.6.7]
+
+###
+
+* [[300]](https://github.com/rust-vmm/mshv/pull/300) Enable all host supported processor features for guests
+
 ## [v0.6.6]
 
 ### Changed
