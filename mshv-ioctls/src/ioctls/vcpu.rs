@@ -79,16 +79,15 @@ fn update_interrupt_bitmap(ret_regs: &mut SpecialRegisters, pending_reg: u64) {
     (pending_reg >> 1).trailing_zeros() >= 3
     {
         // interrupt type external
-        let interrupt_nr = pending_reg >> 16;
+        let interrupt_nr = (pending_reg >> 16) & 0xFFFF;
         if interrupt_nr > 255 {
             panic!("Invalid interrupt vector number > 255");
         }
         // we have a bit array of 4 u64s, so we can split it to get the array index and the
         // bit index
-        let bit_offset = pending_reg & 0x3F; // 6 bits = 0-63
-        let index = pending_reg >> 6;
-        // shift from the left
-        ret_regs.interrupt_bitmap[index as usize] = 1 << (63 - bit_offset);
+        let bit_offset = interrupt_nr & 0x3F; // 6 bits = 0-63
+        let index = interrupt_nr >> 6;
+        ret_regs.interrupt_bitmap[index as usize] |= 1 << bit_offset;
     }
 }
 
