@@ -2,7 +2,7 @@ name: Cloud Hypervisor Build
 on: [pull_request, create]
 
 env:
-  CLOUD_HYPERVISOR_REF: v50.0
+  CLOUD_HYPERVISOR_REF: v51.1
   VFIO_BINDINGS_REF: vfio-bindings-v0.6.0
 
 jobs:
