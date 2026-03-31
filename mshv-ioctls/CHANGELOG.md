@@ -9,6 +9,11 @@
 
 ### Fixed
 
+## [v0.6.8]
+
+### Fixed
+* [[311]](https://github.com/rust-vmm/mshv/pull/311) mshv-ioctls: Fix update_interrupt_bitmap for x86_64
+
 ## [v0.6.7]
 
 ###

@@ -9,6 +9,11 @@
 
 ### Fixed
 
+## [v0.6.8]
+
+###
+* No changes
+
 ## [v0.6.7]
 
 ### Changed
