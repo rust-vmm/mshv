@@ -510,6 +510,29 @@ impl Mshv {
         msrs.extend_from_slice(MSRS_OTHER);
         Ok(msrs)
     }
+
+    #[cfg(target_arch = "x86_64")]
+    /// X86 specific call to get the CPUID leaves supported by the hypervisor
+    /// for guest partitions. This is a system-level ioctl on /dev/mshv.
+    pub fn get_supported_cpuid(&self, num_entries: usize) -> Result<CpuId> {
+        let mut cpuid = CpuId::new(num_entries).map_err(|_| errno::Error::new(libc::ENOMEM))?;
+        // SAFETY: Setting the nent field to tell the kernel how many entries
+        // we have space for. The FamStructWrapper guarantees the allocation
+        // is large enough.
+        unsafe {
+            cpuid.as_mut_fam_struct().nent = num_entries as u32;
+        }
+
+        // SAFETY: IOCTL call with correct types. The kernel writes back
+        // the actual nent and fills entries[].
+        let ret = unsafe {
+            ioctl_with_mut_ref(&self.hv, MSHV_GET_SUPPORTED_CPUID(), cpuid.as_mut_fam_struct())
+        };
+        if ret < 0 {
+            return Err(errno::Error::last().into());
+        }
+        Ok(cpuid)
+    }
 }
 
 #[allow(dead_code)]
