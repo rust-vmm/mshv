@@ -19,6 +19,7 @@ ioctl_iowr_nr!(
     0x01,
     mshv_partition_property
 );
+ioctl_iowr_nr!(MSHV_GET_SUPPORTED_CPUID, MSHV_IOCTL, 0x02, hv_cpuid);
 
 // partition fd
 ioctl_io_nr!(MSHV_INITIALIZE_PARTITION, MSHV_IOCTL, 0x00);

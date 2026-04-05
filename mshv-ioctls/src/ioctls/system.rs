@@ -12,7 +12,7 @@ use std::fs::File;
 use std::os::raw::c_char;
 use std::os::unix::io::{FromRawFd, RawFd};
 use vmm_sys_util::errno;
-use vmm_sys_util::ioctl::{ioctl_with_mut_ref, ioctl_with_ref};
+use vmm_sys_util::ioctl::{ioctl_with_mut_ptr, ioctl_with_mut_ref, ioctl_with_ref};
 
 /// Helper function to populate synthetic features for the partition to create
 pub fn make_default_synthetic_features_mask() -> u64 {
@@ -360,6 +360,44 @@ impl Mshv {
     }
 
     #[cfg(target_arch = "x86_64")]
+    /// X86 specific call to get the system supported CPUID values.
+    ///
+    /// See the documentation for `MSHV_GET_SUPPORTED_CPUID`.
+    ///
+    /// # Arguments
+    ///
+    /// * `num_entries` - Maximum number of CPUID entries. This function can
+    ///   return fewer than this when the hardware does not support that many
+    ///   CPUID entries.
+    ///
+    /// # Errors
+    ///
+    /// Returns `errno::Error(libc::ENOMEM)` when `num_entries` is greater than
+    /// `HV_MAX_CPUID_ENTRIES`.
+    pub fn get_supported_cpuid(&self, num_entries: usize) -> Result<CpuId> {
+        if num_entries > HV_MAX_CPUID_ENTRIES {
+            return Err(errno::Error::new(libc::ENOMEM).into());
+        }
+
+        let mut cpuid = CpuId::new(num_entries).map_err(|_| errno::Error::new(libc::ENOMEM))?;
+        // SAFETY: The kernel is trusted not to write beyond the bounds of the
+        // memory allocated for the struct. The limit is read from nent, which
+        // is set to the allocated size (num_entries) above.
+        let ret = unsafe {
+            ioctl_with_mut_ptr(
+                &self.hv,
+                MSHV_GET_SUPPORTED_CPUID(),
+                cpuid.as_mut_fam_struct_ptr(),
+            )
+        };
+        if ret < 0 {
+            return Err(errno::Error::last().into());
+        }
+
+        Ok(cpuid)
+    }
+
+    #[cfg(target_arch = "x86_64")]
     /// X86 specific call to get list of supported MSRs
     pub fn get_msr_index_list(&self) -> Result<Vec<u32>> {
         let mut msrs: Vec<u32> = Vec::new();
@@ -408,5 +446,42 @@ mod tests {
         let hv = Mshv::new().unwrap();
         let vmm_caps = hv.get_vmm_caps();
         assert!(vmm_caps.is_ok());
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    fn test_get_supported_cpuid() {
+        let hv = Mshv::new().unwrap();
+        let mut cpuid = hv.get_supported_cpuid(HV_MAX_CPUID_ENTRIES).unwrap();
+        let cpuid_entries = cpuid.as_mut_slice();
+        assert!(!cpuid_entries.is_empty());
+        assert!(cpuid_entries.len() <= HV_MAX_CPUID_ENTRIES);
+
+        // Verify basic leaf 0 is present with a valid max function
+        let leaf0 = cpuid_entries
+            .iter()
+            .find(|e| e.function == 0 && e.index == 0);
+        assert!(leaf0.is_some(), "CPUID leaf 0 should be present");
+        assert!(
+            leaf0.unwrap().eax > 0,
+            "CPUID leaf 0 eax (max leaf) should be > 0"
+        );
+
+        // Verify extended leaf 0x80000000 is present
+        let ext_leaf0 = cpuid_entries
+            .iter()
+            .find(|e| e.function == 0x80000000 && e.index == 0);
+        assert!(
+            ext_leaf0.is_some(),
+            "CPUID leaf 0x80000000 should be present"
+        );
+        assert!(
+            ext_leaf0.unwrap().eax >= 0x80000000,
+            "CPUID leaf 0x80000000 eax should be >= 0x80000000"
+        );
+
+        // Test case for more than MAX entries
+        let cpuid_err = hv.get_supported_cpuid(HV_MAX_CPUID_ENTRIES + 1);
+        assert!(cpuid_err.is_err());
     }
 }
