@@ -1531,6 +1531,18 @@ impl VcpuFd {
     pub fn register_intercept_result_cpuid(&self, cpuid: &CpuId) -> Result<()> {
         let mut ret = Ok(());
 
+        // Pre-scan: identify functions that have any subleaf entries (index != 0).
+        // The hypervisor requires that for a given leaf, either ALL registrations
+        // are subleaf-specific, or there is exactly one subleaf-generic entry.
+        // Mixing SubleafSpecific flags for the same leaf causes INVALID_PARAMETER
+        // (ImRegisterCpuidResult Check #3).
+        let mut functions_with_subleaves = std::collections::HashSet::new();
+        for entry in cpuid.as_slice().iter() {
+            if entry.index != 0 {
+                functions_with_subleaves.insert(entry.function);
+            }
+        }
+
         for entry in cpuid.as_slice().iter() {
             let mut override_arg = None;
             let mut subleaf_specific = None;
@@ -1552,9 +1564,22 @@ impl VcpuFd {
                 }
                 _ => {}
             }
+
+            // If this function has any subleaf entries, all entries for the
+            // function must be registered as subleaf-specific to satisfy the
+            // hypervisor invariant that SubleafSpecific must be consistent
+            // across all registrations for a given leaf.
+            if functions_with_subleaves.contains(&entry.function) {
+                subleaf_specific = Some(1);
+            }
+
             let eret =
                 self.register_intercept_result_cpuid_entry(entry, override_arg, subleaf_specific);
             if eret.is_err() && ret.is_ok() {
+                println!(
+                    "Warning: Failed to register CPUID entry for function {:#010x}, index {:#010x}: {}",
+                    entry.function, entry.index, eret.as_ref().err().unwrap()
+                );
                 ret = eret;
             }
         }
