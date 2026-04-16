@@ -1011,3 +1011,26 @@ mod tests {
         }
     }
 }
+
+/// A single CPUID entry as returned by the MSHV_GET_SUPPORTED_CPUID ioctl.
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq)]
+pub struct mshv_cpuid_entry {
+    pub function: u32,
+    pub index: u32,
+    pub flags: u32,
+    pub eax: u32,
+    pub ebx: u32,
+    pub ecx: u32,
+    pub edx: u32,
+    pub padding: u32,
+}
+
+/// Header for the MSHV_GET_SUPPORTED_CPUID ioctl.
+/// Followed by a variable-length array of `mshv_cpuid_entry`.
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct mshv_supported_cpuid {
+    pub nent: u32,
+    pub padding: u32,
+}
