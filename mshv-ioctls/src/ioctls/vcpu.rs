@@ -1410,9 +1410,37 @@ impl VcpuFd {
         };
         self.set_vp_state_ioctl(&vp_state)
     }
-    /// Translate guest virtual address to guest physical address
+    /// Translate guest virtual address to guest physical address.
+    ///
+    /// Tries the dedicated `MSHV_VP_TRANSLATE_GVA` ioctl first (which handles
+    /// transient GPA access failures by faulting pages back in). Falls back
+    /// to the generic hypercall passthrough if the kernel does not support
+    /// the new ioctl (`ENOTTY`).
     pub fn translate_gva(&self, gva: u64, flags: u64) -> Result<(u64, hv_translate_gva_result)> {
-        self.hvcall_translate_gva(gva, flags)
+        match self.ioctl_translate_gva(gva, flags) {
+            Err(MshvError::Errno(e)) if e.errno() == libc::ENOTTY => {
+                self.hvcall_translate_gva(gva, flags)
+            }
+            other => other,
+        }
+    }
+    /// Dedicated ioctl for GVA translation with transparent fault-in
+    /// handling for movable memory regions.
+    fn ioctl_translate_gva(&self, gva: u64, flags: u64) -> Result<(u64, hv_translate_gva_result)> {
+        let mut result = hv_translate_gva_result::default();
+        let mut gpa: u64 = 0;
+        let mut args = mshv_translate_gva {
+            gva,
+            flags,
+            result: &mut result,
+            gpa: &mut gpa,
+        };
+        // SAFETY: IOCTL with correct types, result and gpa pointers are valid
+        let ret = unsafe { ioctl_with_mut_ref(self, MSHV_VP_TRANSLATE_GVA(), &mut args) };
+        if ret != 0 {
+            return Err(errno::Error::last().into());
+        }
+        Ok((gpa, result))
     }
     /// Generic hvcall version of translate guest virtual address
     fn hvcall_translate_gva(&self, gva: u64, flags: u64) -> Result<(u64, hv_translate_gva_result)> {
