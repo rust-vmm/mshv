@@ -9,6 +9,11 @@
 
 ### Fixed
 
+## [v0.6.9]
+
+### Changed
+* [[316]](https://github.com/rust-vmm/mshv/pull/316) mshv-ioctls: Use dedicated ioctl for GVA to GPA translation
+
 ## [v0.6.8]
 
 ### Fixed
