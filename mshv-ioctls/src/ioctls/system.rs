@@ -369,6 +369,14 @@ impl Mshv {
         msrs.extend_from_slice(MSRS_OTHER);
         Ok(msrs)
     }
+
+    /// Helper function to get the default synthetic features mask based on host properties
+    pub fn make_default_synthetic_features_mask(&self) -> u64 {
+        self.get_host_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_SYNTHETIC_PROC_FEATURES,
+        )
+        .unwrap_or_default()
+    }
 }
 
 #[allow(dead_code)]
