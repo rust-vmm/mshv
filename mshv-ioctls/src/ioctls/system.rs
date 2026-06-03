@@ -191,73 +191,6 @@ impl Mshv {
         }
     }
 
-    /// Helper function to prepare partition creation argument based on host properties
-    pub fn make_default_partition_create_arg(&self, vm_type: VmType) -> mshv_create_partition_v2 {
-        let pt_flags: u64 = set_bits!(
-            u64,
-            MSHV_PT_BIT_LAPIC,
-            MSHV_PT_BIT_X2APIC,
-            MSHV_PT_BIT_GPA_SUPER_PAGES,
-            MSHV_PT_BIT_CPU_AND_XSAVE_FEATURES
-        );
-        let mut pt_isolation: u64 = MSHV_PT_ISOLATION_NONE as u64;
-
-        if vm_type == VmType::Snp {
-            pt_isolation = MSHV_PT_ISOLATION_SNP as u64;
-        }
-
-        let mut create_args = mshv_create_partition_v2 {
-            pt_flags,
-            pt_isolation,
-            pt_num_cpu_fbanks: MSHV_NUM_CPU_FEATURES_BANKS as u16,
-            ..Default::default()
-        };
-
-        #[cfg(target_arch = "x86_64")]
-        // SAFETY: access union fields
-        unsafe {
-            let mut disabled_xsave_features = hv_partition_processor_xsave_features::default();
-            disabled_xsave_features.as_uint64 = 0xFFFFFFFFFFFFFFFF;
-
-            // Enable default XSave features that are known to be supported
-            disabled_xsave_features
-                .__bindgen_anon_1
-                .set_avx_support(0u64);
-            disabled_xsave_features
-                .__bindgen_anon_1
-                .set_xsave_comp_support(0u64);
-            disabled_xsave_features
-                .__bindgen_anon_1
-                .set_xsave_supervisor_support(0u64);
-            disabled_xsave_features
-                .__bindgen_anon_1
-                .set_xsave_support(0u64);
-            disabled_xsave_features
-                .__bindgen_anon_1
-                .set_xsaveopt_support(0u64);
-            create_args.pt_disabled_xsave = disabled_xsave_features.as_uint64;
-        }
-
-        let host_proc_features0 = self
-            .get_host_partition_property(
-                hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES0,
-            )
-            .unwrap();
-        let host_proc_features1 = self
-            .get_host_partition_property(
-                hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES1,
-            )
-            .unwrap();
-
-        // pt_cpu_fbanks expects _disabled_ processor features (bit = 1 means disabled)
-        // whereas host_proc_features are _enabled_ features (bit = 1 means enabled).
-        // So we invert the bits here.
-        create_args.pt_cpu_fbanks[0] = !host_proc_features0;
-        create_args.pt_cpu_fbanks[1] = !host_proc_features1;
-
-        create_args
-    }
-
     /// Creates a VM fd using the MSHV fd and prepared mshv partition.
     pub fn create_vm_with_args(&self, args: &mshv_create_partition_v2) -> Result<VmFd> {
         // SAFETY: IOCTL call with the correct types.
@@ -376,6 +309,53 @@ impl Mshv {
             hv_partition_property_code_HV_PARTITION_PROPERTY_SYNTHETIC_PROC_FEATURES,
         )
         .unwrap_or_default()
+    }
+
+    /// Helper function to make partition creation argument based on host properties and vm type
+    pub fn make_default_partition_create_arg(&self, vm_type: VmType) -> mshv_create_partition_v2 {
+        let pt_flags: u64 = set_bits!(
+            u64,
+            MSHV_PT_BIT_LAPIC,
+            MSHV_PT_BIT_X2APIC,
+            MSHV_PT_BIT_GPA_SUPER_PAGES,
+            MSHV_PT_BIT_CPU_AND_XSAVE_FEATURES
+        );
+        let mut pt_isolation: u64 = MSHV_PT_ISOLATION_NONE as u64;
+
+        if vm_type == VmType::Snp {
+            pt_isolation = MSHV_PT_ISOLATION_SNP as u64;
+        }
+
+        let mut create_args = mshv_create_partition_v2 {
+            pt_flags,
+            pt_isolation,
+            pt_num_cpu_fbanks: MSHV_NUM_CPU_FEATURES_BANKS as u16,
+            ..Default::default()
+        };
+        let host_proc_feture0 = self
+            .get_host_partition_property(
+                hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES0,
+            )
+            .unwrap_or_default();
+        let host_proc_feture1 = self
+            .get_host_partition_property(
+                hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES1,
+            )
+            .unwrap_or_default();
+        #[cfg(target_arch = "x86_64")]
+        {
+            let host_xsave_feature = self
+                .get_host_partition_property(
+                    hv_partition_property_code_HV_PARTITION_PROPERTY_XSAVE_STATES,
+                )
+                .unwrap_or_default();
+            create_args.pt_disabled_xsave = !host_xsave_feature;
+        }
+        // pt_cpu_fbanks expects _disabled_ processor features (bit = 1 means disabled)
+        // whereas host_proc_features are _enabled_ features (bit = 1 means enabled). So we invert the bits here.
+        create_args.pt_cpu_fbanks[0] = !host_proc_feture0;
+        create_args.pt_cpu_fbanks[1] = !host_proc_feture1;
+        create_args
     }
 }
 
