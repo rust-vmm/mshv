@@ -14,137 +14,6 @@ use std::os::unix::io::{FromRawFd, RawFd};
 use vmm_sys_util::errno;
 use vmm_sys_util::ioctl::{ioctl_with_mut_ref, ioctl_with_ref};
 
-/// Helper function to populate synthetic features for the partition to create
-pub fn make_default_synthetic_features_mask() -> u64 {
-    let mut features: hv_partition_synthetic_processor_features = Default::default();
-    // SAFETY: access union fields
-    unsafe {
-        let feature_bits = &mut features.__bindgen_anon_1;
-        feature_bits.set_hypervisor_present(1);
-        feature_bits.set_hv1(1);
-        feature_bits.set_access_partition_reference_counter(1);
-        feature_bits.set_access_synic_regs(1);
-        feature_bits.set_access_synthetic_timer_regs(1);
-        feature_bits.set_access_partition_reference_tsc(1);
-        feature_bits.set_access_frequency_regs(1);
-        feature_bits.set_access_intr_ctrl_regs(1);
-        feature_bits.set_access_vp_index(1);
-        feature_bits.set_access_hypercall_regs(1);
-        #[cfg(not(target_arch = "aarch64"))]
-        feature_bits.set_access_guest_idle_reg(1);
-        #[cfg(not(target_arch = "aarch64"))]
-        feature_bits.set_tb_flush_hypercalls(1);
-        feature_bits.set_synthetic_cluster_ipi(1);
-        feature_bits.set_direct_synthetic_timers(1);
-        feature_bits.set_access_vp_regs(1);
-    }
-
-    // SAFETY: access union fields
-    unsafe { features.as_uint64[0] }
-}
-
-/// Helper function to make partition creation argument
-pub fn make_default_partition_create_arg(vm_type: VmType) -> mshv_create_partition_v2 {
-    let pt_flags: u64 = set_bits!(
-        u64,
-        MSHV_PT_BIT_LAPIC,
-        MSHV_PT_BIT_X2APIC,
-        MSHV_PT_BIT_GPA_SUPER_PAGES,
-        MSHV_PT_BIT_CPU_AND_XSAVE_FEATURES
-    );
-    let mut pt_isolation: u64 = MSHV_PT_ISOLATION_NONE as u64;
-
-    if vm_type == VmType::Snp {
-        pt_isolation = MSHV_PT_ISOLATION_SNP as u64;
-    }
-
-    let mut create_args = mshv_create_partition_v2 {
-        pt_flags,
-        pt_isolation,
-        pt_num_cpu_fbanks: MSHV_NUM_CPU_FEATURES_BANKS as u16,
-        ..Default::default()
-    };
-
-    let mut disabled_proc_features = hv_partition_processor_features::default();
-    let mut disabled_xsave_features = hv_partition_processor_xsave_features::default();
-
-    disabled_xsave_features.as_uint64 = 0xFFFFFFFFFFFFFFFF;
-
-    #[cfg(target_arch = "x86_64")]
-    // SAFETY: access union fields
-    unsafe {
-        // Enable default XSave features that are known to be supported
-        disabled_xsave_features
-            .__bindgen_anon_1
-            .set_avx_support(0u64);
-        disabled_xsave_features
-            .__bindgen_anon_1
-            .set_xsave_comp_support(0u64);
-        disabled_xsave_features
-            .__bindgen_anon_1
-            .set_xsave_supervisor_support(0u64);
-        disabled_xsave_features
-            .__bindgen_anon_1
-            .set_xsave_support(0u64);
-        disabled_xsave_features
-            .__bindgen_anon_1
-            .set_xsaveopt_support(0u64);
-        create_args.pt_disabled_xsave = disabled_xsave_features.as_uint64;
-        // Enable all processor features by default for x86_64
-        for i in 0..MSHV_NUM_CPU_FEATURES_BANKS {
-            disabled_proc_features.as_uint64[i as usize] = 0u64;
-        }
-        disabled_proc_features
-            .__bindgen_anon_1
-            .set_reserved_bank0(1u64);
-    }
-
-    #[cfg(target_arch = "aarch64")]
-    // SAFETY: access union fields
-    unsafe {
-        // Disable all processor features by default for ARM64
-        for i in 0..MSHV_NUM_CPU_FEATURES_BANKS {
-            disabled_proc_features.as_uint64[i as usize] = 0xFFFFFFFFFFFFFFFF;
-        }
-        // This must always be enabled for ARM64 guests.
-        disabled_proc_features.__bindgen_anon_1.set_gic_v3v4(0u64);
-
-        disabled_proc_features.__bindgen_anon_1.set_apa_base(0);
-        disabled_proc_features.__bindgen_anon_1.set_pan(0);
-        disabled_proc_features.__bindgen_anon_1.set_sha1(0);
-        disabled_proc_features.__bindgen_anon_1.set_sha256(0);
-        disabled_proc_features.__bindgen_anon_1.set_sha512(0);
-        disabled_proc_features.__bindgen_anon_1.set_sha3(0);
-        disabled_proc_features.__bindgen_anon_1.set_sm3(0);
-        disabled_proc_features.__bindgen_anon_1.set_sm4(0);
-
-        disabled_proc_features.__bindgen_anon_1.set_fp(0);
-        disabled_proc_features.__bindgen_anon_1.set_fp_hp(0);
-        disabled_proc_features.__bindgen_anon_1.set_adv_simd(0);
-        disabled_proc_features.__bindgen_anon_1.set_adv_simd_hp(0);
-
-        disabled_proc_features.__bindgen_anon_1.set_pmu_v3(0);
-        disabled_proc_features.__bindgen_anon_1.set_crc32(0);
-        disabled_proc_features.__bindgen_anon_1.set_lse2(0);
-        disabled_proc_features.__bindgen_anon_1.set_sve(0);
-        disabled_proc_features.__bindgen_anon_1.set_sve_v2(0);
-        disabled_proc_features.__bindgen_anon_1.set_sve_v2p1(0);
-        disabled_proc_features.__bindgen_anon_1.set_sve_aes(0);
-        disabled_proc_features.__bindgen_anon_1.set_sve_bit_perm(0);
-        disabled_proc_features.__bindgen_anon_1.set_sve_sha3(0);
-        disabled_proc_features.__bindgen_anon_1.set_sve_sm4(0);
-    }
-
-    // SAFETY: access union fields
-    unsafe {
-        for i in 0..MSHV_NUM_CPU_FEATURES_BANKS {
-            create_args.pt_cpu_fbanks[i as usize] = disabled_proc_features.as_uint64[i as usize];
-        }
-    }
-
-    create_args
-}
-
 /// Wrapper over MSHV system ioctls.
 #[derive(Debug)]
 pub struct Mshv {
@@ -228,7 +97,7 @@ impl Mshv {
         // This is an 'early' property that must be set between creation and initialization
         vm.set_partition_property(
             hv_partition_property_code_HV_PARTITION_PROPERTY_SYNTHETIC_PROC_FEATURES,
-            make_default_synthetic_features_mask(),
+            self.make_default_synthetic_features_mask(),
         )?;
 
         Ok(vm)
