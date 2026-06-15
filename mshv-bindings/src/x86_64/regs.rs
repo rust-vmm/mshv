@@ -475,8 +475,11 @@ pub struct Buffer {
 impl Buffer {
     pub fn new(size: usize, align: usize) -> Result<Buffer, errno::Error> {
         let layout = std::alloc::Layout::from_size_align(size, align).unwrap();
-        // SAFETY: layout is valid
-        let buf = unsafe { std::alloc::alloc(layout) };
+        // SAFETY: layout is valid. Using alloc_zeroed to ensure the buffer is
+        // fully initialised — callers like get_xsave() pass this buffer to a
+        // kernel ioctl that may only partially fill it (writing buf_sz bytes),
+        // leaving the remainder as whatever alloc returned.
+        let buf = unsafe { std::alloc::alloc_zeroed(layout) };
         if buf.is_null() {
             return Err(errno::Error::new(libc::ENOMEM));
         }
