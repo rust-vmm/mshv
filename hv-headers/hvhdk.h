@@ -129,6 +129,7 @@ struct hv_vp_register_page {
 } __packed;
 
 #define HV_PARTITION_SYNTHETIC_PROCESSOR_FEATURES_BANKS 1
+#define HV_PARTITION_SYNTHETIC_PROCESSOR_FEATURES_RESERVED_BITFIELD_COUNT 10
 
 union hv_partition_synthetic_processor_features {
 	__u64 as_uint64[HV_PARTITION_SYNTHETIC_PROCESSOR_FEATURES_BANKS];
@@ -217,8 +218,13 @@ union hv_partition_synthetic_processor_features {
 		__u64 reserved_z15:1;
 #endif
 
-		__u64 reserved_z16:1; /* Reserved for access_vsm. */
-		__u64 reserved_z17:1; /* Reserved for access_vp_registers. */
+		/* Partition has access to VSM. Corresponds to the access_vsm
+		 * privilege. This feature only affects exo partitions and requires
+		 * HV_PARTITION_CREATION_FLAG_VTL1_OVERRIDE.
+		 */
+		__u64 access_vsm:1;
+
+		__u64 reserved_z17:1; /* Available. */
 
 		/* Use fast hypercall output. Corresponds to privilege. */
 		__u64 fast_hypercall_output:1;
@@ -337,7 +343,57 @@ union hv_partition_synthetic_processor_features {
 		/* Hypercalls for host MMIO operations are available. */
 		__u64 mmio_hypercalls:1;
 
-		__u64 reserved:20;
+#if defined(__aarch64__)
+		/* SPIs are advertised to VTL2. */
+		__u64 management_vtl_spi_support:1;
+#else
+		__u64 reserved_z44:1;
+#endif
+
+		/* HvCallMapPartitionEventLogBuffer is supported. */
+		__u64 map_partition_event_log_buffer:1;
+
+#if defined(__x86_64__)
+		/* Hypervisor supports for lower VTLs to make guest requests. */
+		__u64 lower_vtl_guest_request_support:1;
+#else
+		__u64 reserved_z46:1;
+#endif
+
+#if defined(__x86_64__)
+		/* Hypervisor supports mechanism to redirect proxied interrupts to paravisor. */
+		__u64 proxy_interrupt_redirect_support:1;
+#else
+		__u64 reserved_z47:1;
+#endif
+
+		/* HvCallInstallIntercept is supported. */
+		__u64 install_intercept:1;
+
+#if defined(__aarch64__)
+		/* Guest can read HvArm64RegisterSintReservedInterruptId. */
+		__u64 access_reserved_sint_interrupt_id:1;
+#else
+		__u64 reserved_z49:1;
+#endif
+
+		/* HvCallPin/UnpinGpaPageRanges and HvQueryGpaRangeAlwaysPinnedSubranges are supported. */
+		__u64 pin_gpa_page_range_support:1;
+
+		/* HvQueryGpaRangeHeatHintBeneficialSubranges is supported. */
+		__u64 heat_hint_beneficial_support:1;
+
+		/* Ring-buffer message ports are supported. */
+		__u64 ring_buffer_message_port_support:1;
+#if defined(__x86_64__)
+        // HvCallFlushGuestPhysicalAddressSpace and HvCallFlushGuestPhysicalAddressList
+        // are supported for EXO partitions.
+        __u64 flush_guest_physical_address_space:1; // Bit 53
+#else
+        __u64 reserved_z53:1; // Bit 53
+#endif
+
+        __u64 Reserved : HV_PARTITION_SYNTHETIC_PROCESSOR_FEATURES_RESERVED_BITFIELD_COUNT; // Bits 54-63
 	} __packed;
 };
 
