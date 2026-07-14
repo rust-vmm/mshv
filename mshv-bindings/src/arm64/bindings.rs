@@ -269,6 +269,7 @@ pub const HV_X64_REGISTER_CLASS_FLAGS: u32 = 4;
 pub const HV_VP_REGISTER_PAGE_VERSION_1: u32 = 1;
 pub const HV_VP_REGISTER_PAGE_MAX_VECTOR_COUNT: u32 = 7;
 pub const HV_PARTITION_SYNTHETIC_PROCESSOR_FEATURES_BANKS: u32 = 1;
+pub const HV_PARTITION_SYNTHETIC_PROCESSOR_FEATURES_RESERVED_BITFIELD_COUNT: u32 = 10;
 pub const HV_TRANSLATE_GVA_VALIDATE_READ: u32 = 1;
 pub const HV_TRANSLATE_GVA_VALIDATE_WRITE: u32 = 2;
 pub const HV_TRANSLATE_GVA_VALIDATE_EXECUTE: u32 = 4;
@@ -7952,18 +7953,18 @@ impl hv_partition_synthetic_processor_features__bindgen_ty_1 {
         }
     }
     #[inline]
-    pub fn reserved_z16(&self) -> __u64 {
+    pub fn access_vsm(&self) -> __u64 {
         unsafe { ::std::mem::transmute(self._bitfield_1.get(16usize, 1u8) as u64) }
     }
     #[inline]
-    pub fn set_reserved_z16(&mut self, val: __u64) {
+    pub fn set_access_vsm(&mut self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
             self._bitfield_1.set(16usize, 1u8, val as u64)
         }
     }
     #[inline]
-    pub unsafe fn reserved_z16_raw(this: *const Self) -> __u64 {
+    pub unsafe fn access_vsm_raw(this: *const Self) -> __u64 {
         unsafe {
             ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
@@ -7973,7 +7974,7 @@ impl hv_partition_synthetic_processor_features__bindgen_ty_1 {
         }
     }
     #[inline]
-    pub unsafe fn set_reserved_z16_raw(this: *mut Self, val: __u64) {
+    pub unsafe fn set_access_vsm_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
             <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
@@ -8876,34 +8877,364 @@ impl hv_partition_synthetic_processor_features__bindgen_ty_1 {
         }
     }
     #[inline]
-    pub fn reserved(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(44usize, 20u8) as u64) }
+    pub fn management_vtl_spi_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(44usize, 1u8) as u64) }
     }
     #[inline]
-    pub fn set_reserved(&mut self, val: __u64) {
+    pub fn set_management_vtl_spi_support(&mut self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(44usize, 20u8, val as u64)
+            self._bitfield_1.set(44usize, 1u8, val as u64)
         }
     }
     #[inline]
-    pub unsafe fn reserved_raw(this: *const Self) -> __u64 {
+    pub unsafe fn management_vtl_spi_support_raw(this: *const Self) -> __u64 {
         unsafe {
             ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 44usize,
-                20u8,
+                1u8,
             ) as u64)
         }
     }
     #[inline]
-    pub unsafe fn set_reserved_raw(this: *mut Self, val: __u64) {
+    pub unsafe fn set_management_vtl_spi_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
             <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 44usize,
-                20u8,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn map_partition_event_log_buffer(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(45usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_map_partition_event_log_buffer(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(45usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn map_partition_event_log_buffer_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                45usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_map_partition_event_log_buffer_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                45usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn reserved_z46(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(46usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved_z46(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(46usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn reserved_z46_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                46usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_reserved_z46_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                46usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn reserved_z47(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(47usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved_z47(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(47usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn reserved_z47_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                47usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_reserved_z47_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                47usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn install_intercept(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(48usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_install_intercept(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(48usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn install_intercept_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                48usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_install_intercept_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                48usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn access_reserved_sint_interrupt_id(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(49usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_access_reserved_sint_interrupt_id(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(49usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn access_reserved_sint_interrupt_id_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                49usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_access_reserved_sint_interrupt_id_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                49usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn pin_gpa_page_range_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(50usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_pin_gpa_page_range_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(50usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn pin_gpa_page_range_support_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                50usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_pin_gpa_page_range_support_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                50usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn heat_hint_beneficial_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(51usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_heat_hint_beneficial_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(51usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn heat_hint_beneficial_support_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                51usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_heat_hint_beneficial_support_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                51usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn ring_buffer_message_port_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(52usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_ring_buffer_message_port_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(52usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn ring_buffer_message_port_support_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                52usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_ring_buffer_message_port_support_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                52usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn reserved_z53(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(53usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved_z53(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(53usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn reserved_z53_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                53usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_reserved_z53_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                53usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn Reserved(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(54usize, 10u8) as u64) }
+    }
+    #[inline]
+    pub fn set_Reserved(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(54usize, 10u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn Reserved_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                54usize,
+                10u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_Reserved_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                54usize,
+                10u8,
                 val as u64,
             )
         }
@@ -8926,7 +9257,7 @@ impl hv_partition_synthetic_processor_features__bindgen_ty_1 {
         reserved_z13: __u64,
         reserved_z14: __u64,
         reserved_z15: __u64,
-        reserved_z16: __u64,
+        access_vsm: __u64,
         reserved_z17: __u64,
         fast_hypercall_output: __u64,
         reserved_z19: __u64,
@@ -8954,7 +9285,17 @@ impl hv_partition_synthetic_processor_features__bindgen_ty_1 {
         reserved_z41: __u64,
         intercept_system_reset: __u64,
         mmio_hypercalls: __u64,
-        reserved: __u64,
+        management_vtl_spi_support: __u64,
+        map_partition_event_log_buffer: __u64,
+        reserved_z46: __u64,
+        reserved_z47: __u64,
+        install_intercept: __u64,
+        access_reserved_sint_interrupt_id: __u64,
+        pin_gpa_page_range_support: __u64,
+        heat_hint_beneficial_support: __u64,
+        ring_buffer_message_port_support: __u64,
+        reserved_z53: __u64,
+        Reserved: __u64,
     ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
         let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
         __bindgen_bitfield_unit.set(0usize, 1u8, {
@@ -9029,8 +9370,8 @@ impl hv_partition_synthetic_processor_features__bindgen_ty_1 {
             reserved_z15 as u64
         });
         __bindgen_bitfield_unit.set(16usize, 1u8, {
-            let reserved_z16: u64 = unsafe { ::std::mem::transmute(reserved_z16) };
-            reserved_z16 as u64
+            let access_vsm: u64 = unsafe { ::std::mem::transmute(access_vsm) };
+            access_vsm as u64
         });
         __bindgen_bitfield_unit.set(17usize, 1u8, {
             let reserved_z17: u64 = unsafe { ::std::mem::transmute(reserved_z17) };
@@ -9150,9 +9491,55 @@ impl hv_partition_synthetic_processor_features__bindgen_ty_1 {
             let mmio_hypercalls: u64 = unsafe { ::std::mem::transmute(mmio_hypercalls) };
             mmio_hypercalls as u64
         });
-        __bindgen_bitfield_unit.set(44usize, 20u8, {
-            let reserved: u64 = unsafe { ::std::mem::transmute(reserved) };
-            reserved as u64
+        __bindgen_bitfield_unit.set(44usize, 1u8, {
+            let management_vtl_spi_support: u64 =
+                unsafe { ::std::mem::transmute(management_vtl_spi_support) };
+            management_vtl_spi_support as u64
+        });
+        __bindgen_bitfield_unit.set(45usize, 1u8, {
+            let map_partition_event_log_buffer: u64 =
+                unsafe { ::std::mem::transmute(map_partition_event_log_buffer) };
+            map_partition_event_log_buffer as u64
+        });
+        __bindgen_bitfield_unit.set(46usize, 1u8, {
+            let reserved_z46: u64 = unsafe { ::std::mem::transmute(reserved_z46) };
+            reserved_z46 as u64
+        });
+        __bindgen_bitfield_unit.set(47usize, 1u8, {
+            let reserved_z47: u64 = unsafe { ::std::mem::transmute(reserved_z47) };
+            reserved_z47 as u64
+        });
+        __bindgen_bitfield_unit.set(48usize, 1u8, {
+            let install_intercept: u64 = unsafe { ::std::mem::transmute(install_intercept) };
+            install_intercept as u64
+        });
+        __bindgen_bitfield_unit.set(49usize, 1u8, {
+            let access_reserved_sint_interrupt_id: u64 =
+                unsafe { ::std::mem::transmute(access_reserved_sint_interrupt_id) };
+            access_reserved_sint_interrupt_id as u64
+        });
+        __bindgen_bitfield_unit.set(50usize, 1u8, {
+            let pin_gpa_page_range_support: u64 =
+                unsafe { ::std::mem::transmute(pin_gpa_page_range_support) };
+            pin_gpa_page_range_support as u64
+        });
+        __bindgen_bitfield_unit.set(51usize, 1u8, {
+            let heat_hint_beneficial_support: u64 =
+                unsafe { ::std::mem::transmute(heat_hint_beneficial_support) };
+            heat_hint_beneficial_support as u64
+        });
+        __bindgen_bitfield_unit.set(52usize, 1u8, {
+            let ring_buffer_message_port_support: u64 =
+                unsafe { ::std::mem::transmute(ring_buffer_message_port_support) };
+            ring_buffer_message_port_support as u64
+        });
+        __bindgen_bitfield_unit.set(53usize, 1u8, {
+            let reserved_z53: u64 = unsafe { ::std::mem::transmute(reserved_z53) };
+            reserved_z53 as u64
+        });
+        __bindgen_bitfield_unit.set(54usize, 10u8, {
+            let Reserved: u64 = unsafe { ::std::mem::transmute(Reserved) };
+            Reserved as u64
         });
         __bindgen_bitfield_unit
     }
