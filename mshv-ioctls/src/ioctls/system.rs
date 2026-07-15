@@ -66,37 +66,40 @@ pub fn make_default_partition_create_arg(vm_type: VmType) -> mshv_create_partiti
     };
 
     let mut disabled_proc_features = hv_partition_processor_features::default();
-    let mut disabled_xsave_features = hv_partition_processor_xsave_features::default();
-
-    disabled_xsave_features.as_uint64 = 0xFFFFFFFFFFFFFFFF;
-
     #[cfg(target_arch = "x86_64")]
-    // SAFETY: access union fields
-    unsafe {
-        // Enable default XSave features that are known to be supported
-        disabled_xsave_features
-            .__bindgen_anon_1
-            .set_avx_support(0u64);
-        disabled_xsave_features
-            .__bindgen_anon_1
-            .set_xsave_comp_support(0u64);
-        disabled_xsave_features
-            .__bindgen_anon_1
-            .set_xsave_supervisor_support(0u64);
-        disabled_xsave_features
-            .__bindgen_anon_1
-            .set_xsave_support(0u64);
-        disabled_xsave_features
-            .__bindgen_anon_1
-            .set_xsaveopt_support(0u64);
-        create_args.pt_disabled_xsave = disabled_xsave_features.as_uint64;
-        // Enable all processor features by default for x86_64
-        for i in 0..MSHV_NUM_CPU_FEATURES_BANKS {
-            disabled_proc_features.as_uint64[i as usize] = 0u64;
+    {
+        let mut disabled_xsave_features = hv_partition_processor_xsave_features::default();
+
+        disabled_xsave_features.as_uint64 = 0xFFFFFFFFFFFFFFFF;
+
+        #[cfg(target_arch = "x86_64")]
+        // SAFETY: access union fields
+        unsafe {
+            // Enable default XSave features that are known to be supported
+            disabled_xsave_features
+                .__bindgen_anon_1
+                .set_avx_support(0u64);
+            disabled_xsave_features
+                .__bindgen_anon_1
+                .set_xsave_comp_support(0u64);
+            disabled_xsave_features
+                .__bindgen_anon_1
+                .set_xsave_supervisor_support(0u64);
+            disabled_xsave_features
+                .__bindgen_anon_1
+                .set_xsave_support(0u64);
+            disabled_xsave_features
+                .__bindgen_anon_1
+                .set_xsaveopt_support(0u64);
+            create_args.pt_disabled_xsave = disabled_xsave_features.as_uint64;
+            // Enable all processor features by default for x86_64
+            for i in 0..MSHV_NUM_CPU_FEATURES_BANKS {
+                disabled_proc_features.as_uint64[i as usize] = 0u64;
+            }
+            disabled_proc_features
+                .__bindgen_anon_1
+                .set_reserved_bank0(1u64);
         }
-        disabled_proc_features
-            .__bindgen_anon_1
-            .set_reserved_bank0(1u64);
     }
 
     #[cfg(target_arch = "aarch64")]
