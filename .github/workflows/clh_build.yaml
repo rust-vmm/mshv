@@ -65,7 +65,7 @@ jobs:
 
       - name: Build Cloud-Hypervisor(sev_snp)
         working-directory: ./cloud-hypervisor
-        run: cargo build --release --all --no-default-features --features sev_snp
+        run: cargo build --release --all --features sev_snp
 
       - name: Clippy(kvm,mshv)
         working-directory: ./cloud-hypervisor
@@ -73,4 +73,4 @@ jobs:
 
       - name: Clippy(sev_snp)
         working-directory: ./cloud-hypervisor
-        run: cargo clippy --locked --all --all-targets --no-default-features --tests --examples --features "sev_snp" -- -D warnings -D clippy::undocumented_unsafe_blocks
+        run: cargo clippy --locked --all --all-targets --tests --examples --features "sev_snp" -- -D warnings -D clippy::undocumented_unsafe_blocks
