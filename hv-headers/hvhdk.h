@@ -1332,6 +1332,9 @@ struct hv_input_issue_psp_guest_request {
 	__u64 response_page;
 } __packed;
 
+#if defined(__x86_64__)
+#define HV_PARTITION_PROCESSOR_XSAVE_FEATURES_RESERVED_BITFIELD_COUNT 24
+
 union hv_partition_processor_xsave_features {
 	struct {
 		__u64 xsave_support : 1;
@@ -1372,10 +1375,13 @@ union hv_partition_processor_xsave_features {
 		__u64 avx10_1_256_support : 1;
 		__u64 avx10_1_512_support : 1;
 		__u64 amx_fp16_support : 1;
-		__u64 reserved1 : 26;
+		__u64 apx_support : 1;
+		__u64 apx_nci_ndd_nf_support : 1;
+		__u64 reserved : HV_PARTITION_PROCESSOR_XSAVE_FEATURES_RESERVED_BITFIELD_COUNT;
 	} __packed;
 	__u64 as_uint64;
 };
+#endif
 
 #define HV_PARTITION_PROCESSOR_FEATURES_BANKS 2
 #define HV_PARTITION_PROCESSOR_FEATURES_RESERVEDBANK1_BITFIELD_COUNT 4
