@@ -1476,9 +1476,9 @@ union hv_partition_processor_features {
 		__u64 ccidx : 1;
 		__u64 fgt_for_intercepts : 1;
 		__u64 l1ip_vpipt : 1;
-		__u64 l1ip_vipt : 1;
-		__u64 debug_v8 : 1;
-		__u64 debug_v8p2 : 1;
+		__u64 ecv : 1;
+		__u64 ecv_poff : 1;
+		__u64 nested_virt_support : 1;
 		__u64 debug_v8p4 : 1;
 		__u64 pmu_v3_arm_v87 : 1;
 		__u64 double_lock : 1;
@@ -1644,9 +1644,9 @@ union hv_partition_processor_features {
 		__u64 vrew_clear_supported : 1;
 		__u64 tsa_l1_no_supported : 1;
 		__u64 tsa_sq_no_supported : 1;
-		__u64 lass_support : 1;
-		__u64 idle_hlt_intercept_support : 1;
-		__u64 msr_list_support : 1;
+		__u64 reserved0 : 1;
+		__u64 reserved1 : 1;
+		__u64 tsa_fill_no_supported : 1;
 	} __packed;
 #endif
 };
