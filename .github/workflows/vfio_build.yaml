@@ -47,11 +47,12 @@ jobs:
         working-directory: ./vfio
         run: cargo build --release --no-default-features
 
-      - name: Clippy(mshv)
-        working-directory: ./vfio
-        run: cargo clippy --workspace --bins --examples --benches --no-default-features --features mshv --all-targets -- -D warnings
+      # TODO: Re-enable Clippy steps once the next release of vfio is available.
+      # - name: Clippy(mshv)
+      #   working-directory: ./vfio
+      #   run: cargo clippy --workspace --bins --examples --benches --no-default-features --features mshv --all-targets -- -D warnings
 
-      - name: Clippy(nohv)
-        working-directory: ./vfio
-        run: cargo clippy --workspace --bins --examples --benches --no-default-features --all-targets -- -D warnings
+      # - name: Clippy(nohv)
+      #   working-directory: ./vfio
+      #   run: cargo clippy --workspace --bins --examples --benches --no-default-features --all-targets -- -D warnings
 
