@@ -6433,6 +6433,8 @@ pub const hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_VIRTUALIZAT
     hv_partition_property_code = 524288;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_VMM_CAPABILITIES:
     hv_partition_property_code = 589831;
+pub const hv_partition_property_code_HV_PARTITION_PROPERTY_ASSIGNABLE_SYNTHETIC_PROC_FEATURES:
+    hv_partition_property_code = 589833;
 pub type hv_partition_property_code = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Copy, Clone)]
