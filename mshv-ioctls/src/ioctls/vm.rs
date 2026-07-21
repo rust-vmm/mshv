@@ -677,6 +677,43 @@ impl VmFd {
         Ok(output.property_value)
     }
 
+    /// Get an "extended" partition property whose payload is larger than `u64`.
+    ///
+    /// Property codes in the `0x00090xxx` range (e.g.
+    /// `HV_PARTITION_PROPERTY_VMM_CAPABILITIES`,
+    /// `HV_PARTITION_PROPERTY_ASSIGNABLE_SYNTHETIC_PROC_FEATURES`) must be
+    /// fetched via `HVCALL_GET_PARTITION_PROPERTY_EX` rather than the regular
+    /// `HVCALL_GET_PARTITION_PROPERTY`. The returned union carries at most one
+    /// hypervisor page of payload; callers interpret the appropriate variant.
+    ///
+    /// `arg` is the property-specific argument (typically 0 for
+    /// partition-scoped properties).
+    pub fn get_partition_property_ex(
+        &self,
+        code: u32,
+        arg: u64,
+    ) -> Result<hv_partition_property_ex> {
+        self.hvcall_get_partition_property_ex(code, arg)
+    }
+
+    /// Generic hvcall version of get_partition_property_ex
+    fn hvcall_get_partition_property_ex(
+        &self,
+        code: u32,
+        arg: u64,
+    ) -> Result<hv_partition_property_ex> {
+        let input = hv_input_get_partition_property_ex {
+            property_code: code,
+            __bindgen_anon_1: hv_input_get_partition_property_ex__bindgen_ty_1 { arg },
+            ..Default::default() // NOTE: Kernel will populate partition_id field
+        };
+        let mut output = hv_output_get_partition_property_ex::default();
+        let mut args = make_args!(HVCALL_GET_PARTITION_PROPERTY_EX, input, output);
+        self.hvcall(&mut args)?;
+
+        Ok(output.property_value)
+    }
+
     /// Sets a partion property
     pub fn set_partition_property(&self, code: u32, value: u64) -> Result<()> {
         self.hvcall_set_partition_property(code, value)
