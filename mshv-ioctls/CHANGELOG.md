@@ -8,6 +8,7 @@
 ### Deprecated
 
 ### Fixed
+* mshv-ioctls: Fix device fd ioctl numbers for kernel 6.18 (remove MSHV_GET_DEVICE_ATTR, renumber MSHV_HAS_DEVICE_ATTR from 0x02 to 0x01)
 
 ## [v0.6.9]
 
