@@ -86,24 +86,10 @@ impl Mshv {
         // SAFETY: access union fields
         unsafe {
             let mut disabled_xsave_features = hv_partition_processor_xsave_features::default();
-            disabled_xsave_features.as_uint64 = 0xFFFFFFFFFFFFFFFF;
+            disabled_xsave_features.as_uint64 = 0;
 
-            // Enable default XSave features that are known to be supported
-            disabled_xsave_features
-                .__bindgen_anon_1
-                .set_avx_support(0u64);
-            disabled_xsave_features
-                .__bindgen_anon_1
-                .set_xsave_comp_support(0u64);
-            disabled_xsave_features
-                .__bindgen_anon_1
-                .set_xsave_supervisor_support(0u64);
-            disabled_xsave_features
-                .__bindgen_anon_1
-                .set_xsave_support(0u64);
-            disabled_xsave_features
-                .__bindgen_anon_1
-                .set_xsaveopt_support(0u64);
+            // Enable everything except the reserved bits
+            disabled_xsave_features.__bindgen_anon_1.set_reserved(0xFFFFFFFFFFFFFFFF);
             create_args.pt_disabled_xsave = disabled_xsave_features.as_uint64;
         }
 
