@@ -1165,6 +1165,53 @@ impl VcpuFd {
         }
         Ok(msg)
     }
+    /// Install a signal mask that stays in effect only for the duration of
+    /// [`VcpuFd::run`] on this vCPU. Signals not present in the mask can
+    /// interrupt the `MSHV_RUN_VP` ioctl and return `EINTR` to userspace,
+    /// mirroring `KVM_SET_SIGNAL_MASK`. Pass `None` to clear a previously
+    /// installed mask.
+    pub fn set_signal_mask(&self, sigset: Option<&libc::sigset_t>) -> Result<()> {
+        // Header of the kernel's `struct mshv_signal_mask`.
+        #[repr(C)]
+        struct SignalMaskHeader {
+            len: u32,
+        }
+        // The kernel checks `mshv_signal_mask.len == sizeof(kernel sigset_t)`,
+        // which is 8 bytes on Linux. libc::sigset_t is oversized for ABI
+        // reasons, so we copy only the first 8 bytes.
+        const KERNEL_SIGSET_LEN: usize = 8;
+
+        let ret = match sigset {
+            None => {
+                // SAFETY: NULL clears the mask on the kernel side.
+                unsafe { libc::ioctl(self.as_raw_fd(), MSHV_SET_SIGNAL_MASK() as _, 0usize) }
+            }
+            Some(mask) => {
+                let hdr_sz = std::mem::size_of::<SignalMaskHeader>();
+                let mut buf = vec![0u8; hdr_sz + KERNEL_SIGSET_LEN];
+                // SAFETY: buf has room for the header and the sigset payload.
+                unsafe {
+                    std::ptr::write(
+                        buf.as_mut_ptr() as *mut SignalMaskHeader,
+                        SignalMaskHeader {
+                            len: KERNEL_SIGSET_LEN as u32,
+                        },
+                    );
+                    std::ptr::copy_nonoverlapping(
+                        mask as *const libc::sigset_t as *const u8,
+                        buf.as_mut_ptr().add(hdr_sz),
+                        KERNEL_SIGSET_LEN,
+                    );
+                }
+                // SAFETY: buf points to a valid `mshv_signal_mask`.
+                unsafe { libc::ioctl(self.as_raw_fd(), MSHV_SET_SIGNAL_MASK() as _, buf.as_ptr()) }
+            }
+        };
+        if ret != 0 {
+            return Err(errno::Error::last().into());
+        }
+        Ok(())
+    }
     /// Returns currently pending exceptions, interrupts, and NMIs as well as related
     /// states of the vcpu.
     #[cfg(not(target_arch = "aarch64"))]
