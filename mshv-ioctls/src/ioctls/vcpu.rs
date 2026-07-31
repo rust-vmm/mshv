@@ -1928,6 +1928,18 @@ mod tests {
 
     #[cfg(target_arch = "x86_64")]
     #[test]
+    fn test_set_sregs_interrupt_bitmap() {
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        let mut sregs = vcpu.get_sregs().unwrap();
+        sregs.interrupt_bitmap[0] = 1;
+        vcpu.set_sregs(&sregs).unwrap();
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    #[test]
     fn test_set_get_standard_registers() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
