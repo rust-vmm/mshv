@@ -8,6 +8,7 @@
 ### Deprecated
 
 ### Fixed
+* [[334]](https://github.com/rust-vmm/mshv/pull/334) mshv-ioctls: Drop interrupt_bitmap check in set_sregs
 
 ## [v0.6.9]
 
