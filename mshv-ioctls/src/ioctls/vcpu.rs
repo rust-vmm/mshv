@@ -613,6 +613,8 @@ impl VcpuFd {
             ret_regs.idt = TableRegister::from(reg_assocs[3].value.table);
             ret_regs.cr2 = reg_assocs[4].value.reg64;
             ret_regs.apic_base = reg_assocs[5].value.reg64;
+            // A VMM can use the bitmap to reassert a pending external interrupt
+            // for a live migrating guest.
             update_interrupt_bitmap(
                 &mut ret_regs,
                 reg_assocs[6].value.pending_interruption.as_uint64,
@@ -675,6 +677,8 @@ impl VcpuFd {
             ret_regs.cr8 = reg_assocs[9].value.reg64;
             ret_regs.efer = reg_assocs[10].value.reg64;
             ret_regs.apic_base = reg_assocs[16].value.reg64;
+            // A VMM can use the bitmap to reassert a pending external interrupt
+            // for a live migrating guest.
             update_interrupt_bitmap(
                 &mut ret_regs,
                 reg_assocs[17].value.pending_interruption.as_uint64,
@@ -776,13 +780,6 @@ impl VcpuFd {
             },
         ];
 
-        // TODO support asserting an interrupt using interrupt_bitmap
-        // we can't do this without the vm fd which isn't available here
-        for bits in &sregs.interrupt_bitmap {
-            if *bits != 0 {
-                return Err(libc::EINVAL.into());
-            }
-        }
         self.set_reg(&reg_assocs)?;
         Ok(())
     }
@@ -850,14 +847,6 @@ impl VcpuFd {
                 reg64: sregs.apic_base,
             },
         ];
-
-        // TODO support asserting an interrupt using interrupt_bitmap
-        // we can't do this without the vm fd which isn't available here
-        for bits in &sregs.interrupt_bitmap {
-            if *bits != 0 {
-                return Err(libc::EINVAL.into());
-            }
-        }
 
         let reg_assocs: Vec<hv_register_assoc> = reg_names
             .iter()
