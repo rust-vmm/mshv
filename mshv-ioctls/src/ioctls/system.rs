@@ -104,6 +104,12 @@ impl Mshv {
             disabled_xsave_features
                 .__bindgen_anon_1
                 .set_xsaveopt_support(0u64);
+            disabled_xsave_features
+                .__bindgen_anon_1
+                .set_avx2_support(0u64);
+            disabled_xsave_features
+                .__bindgen_anon_1
+                .set_fma_support(0u64);
             create_args.pt_disabled_xsave = disabled_xsave_features.as_uint64;
         }
 
