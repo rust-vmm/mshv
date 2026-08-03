@@ -107,6 +107,7 @@ impl Mshv {
             create_args.pt_disabled_xsave = disabled_xsave_features.as_uint64;
         }
 
+        let mut disabled_cpu_features: hv_partition_processor_features = Default::default();
         let host_proc_features0 = self
             .get_host_partition_property(
                 hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES0,
@@ -117,12 +118,26 @@ impl Mshv {
                 hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES1,
             )
             .unwrap();
-
-        // pt_cpu_fbanks expects _disabled_ processor features (bit = 1 means disabled)
-        // whereas host_proc_features are _enabled_ features (bit = 1 means enabled).
-        // So we invert the bits here.
-        create_args.pt_cpu_fbanks[0] = !host_proc_features0;
-        create_args.pt_cpu_fbanks[1] = !host_proc_features1;
+        unsafe {
+            // pt_cpu_fbanks expects _disabled_ processor features (bit = 1 means disabled)
+            // whereas host_proc_features are _enabled_ features (bit = 1 means enabled).
+            // So we invert the bits here.
+            disabled_cpu_features.as_uint64[0] = !host_proc_features0;
+            disabled_cpu_features.as_uint64[1] = !host_proc_features1;
+            // We can get the features from host property but we should not blindly enable
+            // the reserved bits(that may accidentaly be enabled with newer hypervisor version or hardware)
+            // and may impact live migration.
+            #[cfg(target_arch = "x86_64")]
+            disabled_cpu_features
+                .__bindgen_anon_1
+                .set_reserved_bank0(0xFFFFFFFFFFFFFFFF);
+            #[cfg(target_arch = "aarch64")]
+            disabled_cpu_features
+                .__bindgen_anon_1
+                .set_reserved_bank1(0xFFFFFFFFFFFFFFFF);
+            create_args.pt_cpu_fbanks[0] = disabled_cpu_features.as_uint64[0];
+            create_args.pt_cpu_fbanks[1] = disabled_cpu_features.as_uint64[1];
+        };
 
         create_args
     }
