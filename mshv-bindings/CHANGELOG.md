@@ -9,6 +9,16 @@
 
 ### Fixed
 
+## [v0.7.0]
+
+### Added
+* [[329]](https://github.com/rust-vmm/mshv/pull/329) mshv-bindings: add assignable partition property
+* [[329]](https://github.com/rust-vmm/mshv/pull/329) mshv-bindings: refresh synthetic feature bitmaps and add arm64 bindings
+* [[331]](https://github.com/rust-vmm/mshv/pull/331) mshv-bindings: regenerate bindings for refreshed partition processor feature unions
+
+### Changed
+* [[326]](https://github.com/rust-vmm/mshv/pull/326) mshv-bindings: use alloc_zeroed for Buffer::new()
+
 ## [v0.6.9]
 
 ###

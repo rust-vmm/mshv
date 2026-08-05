@@ -8,6 +8,20 @@
 ### Deprecated
 
 ### Fixed
+
+## [v0.7.0]
+
+### Added
+* [[329]](https://github.com/rust-vmm/mshv/pull/329) mshv-ioctls: add get_partition_property_ex wrapper
+
+### Changed
+* [[329]](https://github.com/rust-vmm/mshv/pull/329) mshv-ioctls: enable flush_guest_physical_address_space in default synthetic features
+* [[329]](https://github.com/rust-vmm/mshv/pull/329) mshv-ioctls: drop deprecated make_default_partition_create_arg
+* [[331]](https://github.com/rust-vmm/mshv/pull/331) mshv-ioctls: gate xsave feature setup to x86_64
+* [[335]](https://github.com/rust-vmm/mshv/pull/335) mshv-ioctls: don't set reserved cpu feature bits
+* [[335]](https://github.com/rust-vmm/mshv/pull/335) mshv-ioctls: enable avx2 and fma support
+
+### Fixed
 * [[334]](https://github.com/rust-vmm/mshv/pull/334) mshv-ioctls: Drop interrupt_bitmap check in set_sregs
 
 ## [v0.6.9]
