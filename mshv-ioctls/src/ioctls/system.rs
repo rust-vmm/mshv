@@ -199,27 +199,50 @@ impl Mshv {
             feature_bits.set_synthetic_cluster_ipi(1);
             feature_bits.set_direct_synthetic_timers(1);
             feature_bits.set_access_vp_regs(1);
-            #[cfg(not(target_arch = "aarch64"))]
-            feature_bits.set_flush_guest_physical_address_space(1);
         }
-        // Intersect our default mask with the hypervisor-advertised set of
-        // assignable synthetic features. The property is in the extended range
-        // (0x00090xxx) and must be fetched via HVCALL_GET_PARTITION_PROPERTY_EX.
-        // The payload follows the banked property shape used by
-        // `hv_partition_property_vmm_capabilities`: u16 bank_count, three u16
-        // reserved words, then `bank_count` u64 masks. We use bank 0.
-        let assignable_ex = self
-            .get_host_partition_property_ex(
-                hv_partition_property_code_HV_PARTITION_PROPERTY_ASSIGNABLE_SYNTHETIC_PROC_FEATURES,
-            )
-            .unwrap();
-        // SAFETY: `hv_partition_property_ex` is a union whose `buffer` variant
-        // covers the full 4072-byte payload; reading the first bank u64 at
-        // offset 8 is within bounds.
-        let assignable_features: u64 =
-            unsafe { std::ptr::read_unaligned(assignable_ex.buffer.as_ptr().add(8) as *const u64) };
+
+        let vmm_caps = self.get_vmm_caps().unwrap();
+
         // SAFETY: access union fields
-        unsafe { features.as_uint64[0] & assignable_features }
+        let assignable_supported = unsafe {
+            vmm_caps
+                .__bindgen_anon_1
+                .__bindgen_anon_1
+                .assignable_synthetic_proc_features()
+                == 1
+        };
+
+        if assignable_supported {
+            #[cfg(not(target_arch = "aarch64"))]
+            // SAFETY: access union fields
+            unsafe {
+                features
+                    .__bindgen_anon_1
+                    .set_flush_guest_physical_address_space(1);
+            }
+            // Intersect our default mask with the hypervisor-advertised set of
+            // assignable synthetic features. The property is in the extended range
+            // (0x00090xxx) and must be fetched via HVCALL_GET_PARTITION_PROPERTY_EX.
+            // The payload follows the banked property shape used by
+            // `hv_partition_property_vmm_capabilities`: u16 bank_count, three u16
+            // reserved words, then `bank_count` u64 masks. We use bank 0.
+            let assignable_ex = self
+                .get_host_partition_property_ex(
+                    hv_partition_property_code_HV_PARTITION_PROPERTY_ASSIGNABLE_SYNTHETIC_PROC_FEATURES,
+                )
+                .unwrap();
+            // SAFETY: `hv_partition_property_ex` is a union whose `buffer` variant
+            // covers the full 4072-byte payload; reading the first bank u64 at
+            // offset 8 is within bounds.
+            let assignable_features: u64 = unsafe {
+                std::ptr::read_unaligned(assignable_ex.buffer.as_ptr().add(8) as *const u64)
+            };
+            // SAFETY: access union fields
+            unsafe { features.as_uint64[0] & assignable_features }
+        } else {
+            // SAFETY: access union fields
+            unsafe { features.as_uint64[0] }
+        }
     }
 
     /// Helper function to creates a VM fd using the MSHV fd with provided configuration.
