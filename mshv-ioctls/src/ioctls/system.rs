@@ -282,10 +282,10 @@ impl Mshv {
                 Ok(vmm_caps)
             }
             Err(MshvError::Hypercall {
-                status: Some(HvError::AccessDenied),
+                status: Some(HvError::AccessDenied | HvError::UnknownProperty),
                 ..
             }) => {
-                // If the hypercall fails with AccessDenied, it means the
+                // If the hypercall fails with AccessDenied or UnknownProperty, it means the
                 // VMM capabilities query is not supported on this MSHV version.
                 // As per the hypervisor team, we should treat this case as if
                 // none of the capabilities are set. So, return a zeroed out struct.
