@@ -9,6 +9,11 @@
 
 ### Fixed
 
+## [v0.7.1]
+
+### Fixed
+* [[337]](https://github.com/rust-vmm/mshv/pull/337) mshv-ioctls: check capability before using extended property
+
 ## [v0.7.0]
 
 ### Added
