@@ -146,5 +146,4 @@ ioctl_iow_nr!(MSHV_WRITE_GPA, MSHV_IOCTL, 0xF6, mshv_read_write_gpa);
 
 // device fd
 ioctl_iow_nr!(MSHV_SET_DEVICE_ATTR, MSHV_IOCTL, 0x00, mshv_device_attr);
-ioctl_iow_nr!(MSHV_GET_DEVICE_ATTR, MSHV_IOCTL, 0x01, mshv_device_attr);
-ioctl_iow_nr!(MSHV_HAS_DEVICE_ATTR, MSHV_IOCTL, 0x02, mshv_device_attr);
+ioctl_iow_nr!(MSHV_HAS_DEVICE_ATTR, MSHV_IOCTL, 0x01, mshv_device_attr);
