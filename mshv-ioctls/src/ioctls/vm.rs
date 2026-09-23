@@ -979,6 +979,58 @@ mod tests {
     }
 
     #[test]
+    fn test_get_gpap_range_access_bitmap() {
+        const RANGE_COUNT: u64 = 5;
+        const MEMORY_SIZE: usize = RANGE_COUNT as usize * HV_PAGE_SIZE;
+        const RANGE_ACCESS_TRACKING_CONFIG: u64 = (1 << 0) | (1 << 3);
+
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
+        let addr = unsafe {
+            libc::mmap(
+                std::ptr::null_mut(),
+                MEMORY_SIZE,
+                libc::PROT_READ | libc::PROT_WRITE,
+                libc::MAP_ANONYMOUS | libc::MAP_SHARED | libc::MAP_NORESERVE,
+                -1,
+                0,
+            )
+        };
+        assert_ne!(addr, libc::MAP_FAILED);
+
+        let mem = mshv_user_mem_region {
+            flags: set_bits!(u8, MSHV_SET_MEM_BIT_WRITABLE, MSHV_SET_MEM_BIT_EXECUTABLE),
+            guest_pfn: 0,
+            size: MEMORY_SIZE as u64,
+            userspace_addr: addr as u64,
+            ..Default::default()
+        };
+        vm.map_user_memory(mem).unwrap();
+        vm.set_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_GPA_PAGE_ACCESS_TRACKING,
+            RANGE_ACCESS_TRACKING_CONFIG,
+        )
+        .unwrap();
+
+        vm.get_gpap_range_access_bitmap(
+            0,
+            RANGE_COUNT,
+            MSHV_GPAP_ACCESS_RANGE_4K as u8,
+            (MSHV_GPAP_ACCESS_SET_ACCESSED | MSHV_GPAP_ACCESS_SET_DIRTY) as u8,
+        )
+        .unwrap();
+        let bitmap = vm
+            .get_gpap_range_access_bitmap(0, RANGE_COUNT, MSHV_GPAP_ACCESS_RANGE_4K as u8, 0)
+            .unwrap();
+        assert_eq!(bitmap, vec![0xff, 0x03]);
+
+        vm.disable_dirty_page_tracking().unwrap();
+        vm.unmap_user_memory(mem).unwrap();
+        unsafe { libc::munmap(addr, MEMORY_SIZE) };
+    }
+
+    #[test]
     fn test_user_memory() {
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
