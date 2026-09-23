@@ -94,6 +94,44 @@ enum hv_partition_property_code {
     HV_PARTITION_PROPERTY_ASSIGNABLE_SYNTHETIC_PROC_FEATURES	= 0x00090009,
 };
 
+union hv_gpa_page_access_state_flags {
+    struct {
+        __u64 clear_accessed : 1;
+        __u64 set_accessed : 1;
+        __u64 clear_dirty : 1;
+        __u64 set_dirty : 1;
+        __u64 reserved : 60;
+    } __packed;
+    __u64 as_uint64;
+};
+
+union hv_partition_page_access_tracking_config {
+    struct {
+        __u64 enabled : 1;
+        __u64 granularity : 2;
+        __u64 range_enabled : 1;
+        __u64 reserved : 60;
+    } __packed;
+    __u64 as_uint64;
+} __packed;
+
+enum hv_gpa_access_tracking_range_size {
+    HV_GPA_ACCESS_TRACKING_RANGE_4K,
+    HV_GPA_ACCESS_TRACKING_RANGE_2M,
+    HV_GPA_ACCESS_TRACKING_RANGE_1G,
+    HV_GPA_ACCESS_TRACKING_RANGE_512G,
+    HV_GPA_ACCESS_TRACKING_RANGE_256T,
+    HV_GPA_ACCESS_TRACKING_RANGE_MAX,
+};
+
+struct hv_input_get_gpa_ranges_access_state {
+    __u64 partition_id;
+    union hv_gpa_page_access_state_flags flags;
+    __u64 base_gpa_page;
+    __u32 range_size; /* enum hv_gpa_access_tracking_range_size */
+    __u32 reserved;
+} __packed;
+
 #define HV_PARTITION_VMM_CAPABILITIES_BANK_COUNT	1
 #define HV_PARTITION_VMM_CAPABILITIES_RESERVED_BITFIELD_COUNT	59
 

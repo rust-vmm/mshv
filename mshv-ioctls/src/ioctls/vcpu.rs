@@ -1421,7 +1421,8 @@ impl VcpuFd {
         let mut args = mshv_translate_gva {
             gva,
             flags,
-            result: &mut result,
+            result: &mut result as *mut hv_translate_gva_result
+                as *mut hv_translate_gva_result_code,
             gpa: &mut gpa,
         };
         // SAFETY: IOCTL with correct types, result and gpa pointers are valid

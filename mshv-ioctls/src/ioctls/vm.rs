@@ -137,7 +137,9 @@ impl VmFd {
         self.hvcall_install_intercept(
             install_intercept_args.access_type_mask,
             install_intercept_args.intercept_type,
-            install_intercept_args.intercept_parameter,
+            hv_intercept_parameters {
+                as_uint64: install_intercept_args.intercept_parameter,
+            },
         )
     }
 
@@ -982,7 +984,6 @@ mod tests {
     fn test_get_gpap_range_access_bitmap() {
         const RANGE_COUNT: u64 = 5;
         const MEMORY_SIZE: usize = RANGE_COUNT as usize * HV_PAGE_SIZE;
-        const RANGE_ACCESS_TRACKING_CONFIG: u64 = (1 << 0) | (1 << 3);
 
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -1007,9 +1008,16 @@ mod tests {
             ..Default::default()
         };
         vm.map_user_memory(mem).unwrap();
+        let mut tracking_config_bits =
+            hv_partition_page_access_tracking_config__bindgen_ty_1::default();
+        tracking_config_bits.set_enabled(1);
+        tracking_config_bits.set_range_enabled(1);
+        let tracking_config = hv_partition_page_access_tracking_config {
+            __bindgen_anon_1: tracking_config_bits,
+        };
         vm.set_partition_property(
             hv_partition_property_code_HV_PARTITION_PROPERTY_GPA_PAGE_ACCESS_TRACKING,
-            RANGE_ACCESS_TRACKING_CONFIG,
+            unsafe { tracking_config.as_uint64 },
         )
         .unwrap();
 
@@ -1099,7 +1107,7 @@ mod tests {
         let intercept_args = mshv_install_intercept {
             access_type_mask: HV_INTERCEPT_ACCESS_MASK_EXECUTE,
             intercept_type: hv_intercept_type_HV_INTERCEPT_TYPE_X64_CPUID,
-            intercept_parameter: hv_intercept_parameters { cpuid_index: 0x100 },
+            intercept_parameter: 0x100,
         };
         assert!(vm.install_intercept(intercept_args).is_ok());
         assert!(vm

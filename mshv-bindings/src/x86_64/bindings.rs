@@ -175,6 +175,7 @@ impl<T> ::std::fmt::Debug for __IncompleteArrayField<T> {
     }
 }
 pub const __BITS_PER_LONG: u32 = 64;
+pub const __BITS_PER_LONG_LONG: u32 = 64;
 pub const __FD_SETSIZE: u32 = 1024;
 pub const HVGDK_MINI_H_VERSION: u32 = 25294;
 pub const HV_STATUS_SUCCESS: u32 = 0;
@@ -289,6 +290,7 @@ pub const HVCALL_COMPLETE_ISOLATED_IMPORT: u32 = 241;
 pub const HVCALL_ISSUE_SNP_PSP_GUEST_REQUEST: u32 = 242;
 pub const HVCALL_GET_VP_CPUID_VALUES: u32 = 244;
 pub const HVCALL_GET_PARTITION_PROPERTY_EX: u32 = 257;
+pub const HVCALL_GET_GPA_RANGES_ACCESS_STATE: u32 = 258;
 pub const HV_INTERRUPT_VECTOR_NONE: u32 = 4294967295;
 pub const HV_SYNIC_STIMER_COUNT: u32 = 4;
 pub const HV_MESSAGE_SIZE: u32 = 256;
@@ -353,7 +355,6 @@ pub const HV_PARTITION_PROCESSOR_XSAVE_FEATURES_RESERVED_BITFIELD_COUNT: u32 = 2
 pub const HV_PARTITION_PROCESSOR_FEATURES_BANKS: u32 = 2;
 pub const HV_PARTITION_PROCESSOR_FEATURES_RESERVEDBANK1_BITFIELD_COUNT: u32 = 4;
 pub const MSHV_IOCTL: u32 = 184;
-pub const MSHV_VP_MAX_REGISTERS: u32 = 128;
 pub const MSHV_NUM_CPU_FEATURES_BANKS: u32 = 2;
 pub const MSHV_HV_PAGE_SIZE: u32 = 4096;
 pub const MSHV_GPAP_ACCESS_CLEAR_ACCESSED: u32 = 1;
@@ -362,12 +363,13 @@ pub const MSHV_GPAP_ACCESS_CLEAR_DIRTY: u32 = 4;
 pub const MSHV_GPAP_ACCESS_SET_DIRTY: u32 = 8;
 pub const MSHV_GPAP_ACCESS_FLAGS_MASK: u32 = 15;
 pub const MSHV_RUN_VP_BUF_SZ: u32 = 256;
+pub const MSHV_VP_MAX_REGISTERS: u32 = 128;
+pub const MSHV_DIAG_IOCTL: u32 = 185;
+pub const MSHV_TRACE_IOCTL: u32 = 186;
 pub const MSHV_CREATE_DEVICE_TEST: u32 = 1;
 pub const MSHV_DEV_VFIO_FILE: u32 = 1;
 pub const MSHV_DEV_VFIO_FILE_ADD: u32 = 1;
 pub const MSHV_DEV_VFIO_FILE_DEL: u32 = 2;
-pub const MSHV_DIAG_IOCTL: u32 = 185;
-pub const MSHV_TRACE_IOCTL: u32 = 186;
 pub type bool_ = bool;
 pub type __s8 = ::std::os::raw::c_schar;
 pub type __u8 = ::std::os::raw::c_uchar;
@@ -6627,6 +6629,486 @@ pub const hv_partition_property_code_HV_PARTITION_PROPERTY_VMM_CAPABILITIES:
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_ASSIGNABLE_SYNTHETIC_PROC_FEATURES:
     hv_partition_property_code = 589833;
 pub type hv_partition_property_code = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union hv_gpa_page_access_state_flags {
+    pub __bindgen_anon_1: hv_gpa_page_access_state_flags__bindgen_ty_1,
+    pub as_uint64: __u64,
+}
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_gpa_page_access_state_flags__bindgen_ty_1 {
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of hv_gpa_page_access_state_flags__bindgen_ty_1"]
+        [::std::mem::size_of::<hv_gpa_page_access_state_flags__bindgen_ty_1>() - 8usize];
+    ["Alignment of hv_gpa_page_access_state_flags__bindgen_ty_1"]
+        [::std::mem::align_of::<hv_gpa_page_access_state_flags__bindgen_ty_1>() - 1usize];
+};
+impl hv_gpa_page_access_state_flags__bindgen_ty_1 {
+    #[inline]
+    pub fn clear_accessed(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_clear_accessed(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn clear_accessed_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                0usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_clear_accessed_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                0usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn set_accessed(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_set_accessed(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_accessed_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                1usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_set_accessed_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                1usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn clear_dirty(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(2usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_clear_dirty(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(2usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn clear_dirty_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                2usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_clear_dirty_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                2usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn set_dirty(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(3usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_set_dirty(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(3usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_dirty_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                3usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_set_dirty_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                3usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn reserved(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(4usize, 60u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(4usize, 60u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn reserved_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                4usize,
+                60u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_reserved_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                4usize,
+                60u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        clear_accessed: __u64,
+        set_accessed: __u64,
+        clear_dirty: __u64,
+        set_dirty: __u64,
+        reserved: __u64,
+    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let clear_accessed: u64 = unsafe { ::std::mem::transmute(clear_accessed) };
+            clear_accessed as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 1u8, {
+            let set_accessed: u64 = unsafe { ::std::mem::transmute(set_accessed) };
+            set_accessed as u64
+        });
+        __bindgen_bitfield_unit.set(2usize, 1u8, {
+            let clear_dirty: u64 = unsafe { ::std::mem::transmute(clear_dirty) };
+            clear_dirty as u64
+        });
+        __bindgen_bitfield_unit.set(3usize, 1u8, {
+            let set_dirty: u64 = unsafe { ::std::mem::transmute(set_dirty) };
+            set_dirty as u64
+        });
+        __bindgen_bitfield_unit.set(4usize, 60u8, {
+            let reserved: u64 = unsafe { ::std::mem::transmute(reserved) };
+            reserved as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of hv_gpa_page_access_state_flags"]
+        [::std::mem::size_of::<hv_gpa_page_access_state_flags>() - 8usize];
+    ["Alignment of hv_gpa_page_access_state_flags"]
+        [::std::mem::align_of::<hv_gpa_page_access_state_flags>() - 8usize];
+    ["Offset of field: hv_gpa_page_access_state_flags::as_uint64"]
+        [::std::mem::offset_of!(hv_gpa_page_access_state_flags, as_uint64) - 0usize];
+};
+impl Default for hv_gpa_page_access_state_flags {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C, packed)]
+#[derive(Copy, Clone)]
+pub union hv_partition_page_access_tracking_config {
+    pub __bindgen_anon_1: hv_partition_page_access_tracking_config__bindgen_ty_1,
+    pub as_uint64: __u64,
+}
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_partition_page_access_tracking_config__bindgen_ty_1 {
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 8usize]>,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of hv_partition_page_access_tracking_config__bindgen_ty_1"]
+        [::std::mem::size_of::<hv_partition_page_access_tracking_config__bindgen_ty_1>() - 8usize];
+    ["Alignment of hv_partition_page_access_tracking_config__bindgen_ty_1"]
+        [::std::mem::align_of::<hv_partition_page_access_tracking_config__bindgen_ty_1>() - 1usize];
+};
+impl hv_partition_page_access_tracking_config__bindgen_ty_1 {
+    #[inline]
+    pub fn enabled(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_enabled(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn enabled_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                0usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_enabled_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                0usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn granularity(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 2u8) as u64) }
+    }
+    #[inline]
+    pub fn set_granularity(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 2u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn granularity_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                1usize,
+                2u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_granularity_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                1usize,
+                2u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn range_enabled(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(3usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_range_enabled(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(3usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn range_enabled_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                3usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_range_enabled_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                3usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn reserved(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(4usize, 60u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(4usize, 60u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn reserved_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                4usize,
+                60u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_reserved_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                4usize,
+                60u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        enabled: __u64,
+        granularity: __u64,
+        range_enabled: __u64,
+        reserved: __u64,
+    ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let enabled: u64 = unsafe { ::std::mem::transmute(enabled) };
+            enabled as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 2u8, {
+            let granularity: u64 = unsafe { ::std::mem::transmute(granularity) };
+            granularity as u64
+        });
+        __bindgen_bitfield_unit.set(3usize, 1u8, {
+            let range_enabled: u64 = unsafe { ::std::mem::transmute(range_enabled) };
+            range_enabled as u64
+        });
+        __bindgen_bitfield_unit.set(4usize, 60u8, {
+            let reserved: u64 = unsafe { ::std::mem::transmute(reserved) };
+            reserved as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of hv_partition_page_access_tracking_config"]
+        [::std::mem::size_of::<hv_partition_page_access_tracking_config>() - 8usize];
+    ["Alignment of hv_partition_page_access_tracking_config"]
+        [::std::mem::align_of::<hv_partition_page_access_tracking_config>() - 1usize];
+    ["Offset of field: hv_partition_page_access_tracking_config::as_uint64"]
+        [::std::mem::offset_of!(hv_partition_page_access_tracking_config, as_uint64) - 0usize];
+};
+impl Default for hv_partition_page_access_tracking_config {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub const hv_gpa_access_tracking_range_size_HV_GPA_ACCESS_TRACKING_RANGE_4K:
+    hv_gpa_access_tracking_range_size = 0;
+pub const hv_gpa_access_tracking_range_size_HV_GPA_ACCESS_TRACKING_RANGE_2M:
+    hv_gpa_access_tracking_range_size = 1;
+pub const hv_gpa_access_tracking_range_size_HV_GPA_ACCESS_TRACKING_RANGE_1G:
+    hv_gpa_access_tracking_range_size = 2;
+pub const hv_gpa_access_tracking_range_size_HV_GPA_ACCESS_TRACKING_RANGE_512G:
+    hv_gpa_access_tracking_range_size = 3;
+pub const hv_gpa_access_tracking_range_size_HV_GPA_ACCESS_TRACKING_RANGE_256T:
+    hv_gpa_access_tracking_range_size = 4;
+pub const hv_gpa_access_tracking_range_size_HV_GPA_ACCESS_TRACKING_RANGE_MAX:
+    hv_gpa_access_tracking_range_size = 5;
+pub type hv_gpa_access_tracking_range_size = ::std::os::raw::c_uint;
+#[repr(C, packed)]
+#[derive(Copy, Clone)]
+pub struct hv_input_get_gpa_ranges_access_state {
+    pub partition_id: __u64,
+    pub flags: hv_gpa_page_access_state_flags,
+    pub base_gpa_page: __u64,
+    pub range_size: __u32,
+    pub reserved: __u32,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of hv_input_get_gpa_ranges_access_state"]
+        [::std::mem::size_of::<hv_input_get_gpa_ranges_access_state>() - 32usize];
+    ["Alignment of hv_input_get_gpa_ranges_access_state"]
+        [::std::mem::align_of::<hv_input_get_gpa_ranges_access_state>() - 1usize];
+    ["Offset of field: hv_input_get_gpa_ranges_access_state::partition_id"]
+        [::std::mem::offset_of!(hv_input_get_gpa_ranges_access_state, partition_id) - 0usize];
+    ["Offset of field: hv_input_get_gpa_ranges_access_state::flags"]
+        [::std::mem::offset_of!(hv_input_get_gpa_ranges_access_state, flags) - 8usize];
+    ["Offset of field: hv_input_get_gpa_ranges_access_state::base_gpa_page"]
+        [::std::mem::offset_of!(hv_input_get_gpa_ranges_access_state, base_gpa_page) - 16usize];
+    ["Offset of field: hv_input_get_gpa_ranges_access_state::range_size"]
+        [::std::mem::offset_of!(hv_input_get_gpa_ranges_access_state, range_size) - 24usize];
+    ["Offset of field: hv_input_get_gpa_ranges_access_state::reserved"]
+        [::std::mem::offset_of!(hv_input_get_gpa_ranges_access_state, reserved) - 28usize];
+};
+impl Default for hv_input_get_gpa_ranges_access_state {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union hv_pfn_range {
@@ -21743,368 +22225,18 @@ impl Default for hv_partition_processor_features {
         }
     }
 }
-#[repr(C)]
-#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_vp_registers {
-    pub count: ::std::os::raw::c_int,
-    pub regs: *mut hv_register_assoc,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_vp_registers"][::std::mem::size_of::<mshv_vp_registers>() - 16usize];
-    ["Alignment of mshv_vp_registers"][::std::mem::align_of::<mshv_vp_registers>() - 8usize];
-    ["Offset of field: mshv_vp_registers::count"]
-        [::std::mem::offset_of!(mshv_vp_registers, count) - 0usize];
-    ["Offset of field: mshv_vp_registers::regs"]
-        [::std::mem::offset_of!(mshv_vp_registers, regs) - 8usize];
-};
-impl Default for mshv_vp_registers {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct mshv_install_intercept {
-    pub access_type_mask: __u32,
-    pub intercept_type: hv_intercept_type,
-    pub intercept_parameter: hv_intercept_parameters,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_install_intercept"][::std::mem::size_of::<mshv_install_intercept>() - 16usize];
-    ["Alignment of mshv_install_intercept"]
-        [::std::mem::align_of::<mshv_install_intercept>() - 8usize];
-    ["Offset of field: mshv_install_intercept::access_type_mask"]
-        [::std::mem::offset_of!(mshv_install_intercept, access_type_mask) - 0usize];
-    ["Offset of field: mshv_install_intercept::intercept_type"]
-        [::std::mem::offset_of!(mshv_install_intercept, intercept_type) - 4usize];
-    ["Offset of field: mshv_install_intercept::intercept_parameter"]
-        [::std::mem::offset_of!(mshv_install_intercept, intercept_parameter) - 8usize];
-};
-impl Default for mshv_install_intercept {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct mshv_assert_interrupt {
-    pub control: hv_interrupt_control,
-    pub dest_addr: __u64,
-    pub vector: __u32,
-    pub rsvd: __u32,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_assert_interrupt"][::std::mem::size_of::<mshv_assert_interrupt>() - 24usize];
-    ["Alignment of mshv_assert_interrupt"]
-        [::std::mem::align_of::<mshv_assert_interrupt>() - 8usize];
-    ["Offset of field: mshv_assert_interrupt::control"]
-        [::std::mem::offset_of!(mshv_assert_interrupt, control) - 0usize];
-    ["Offset of field: mshv_assert_interrupt::dest_addr"]
-        [::std::mem::offset_of!(mshv_assert_interrupt, dest_addr) - 8usize];
-    ["Offset of field: mshv_assert_interrupt::vector"]
-        [::std::mem::offset_of!(mshv_assert_interrupt, vector) - 16usize];
-    ["Offset of field: mshv_assert_interrupt::rsvd"]
-        [::std::mem::offset_of!(mshv_assert_interrupt, rsvd) - 20usize];
-};
-impl Default for mshv_assert_interrupt {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_translate_gva {
-    pub gva: __u64,
-    pub flags: __u64,
-    pub result: *mut hv_translate_gva_result,
-    pub gpa: *mut __u64,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_translate_gva"][::std::mem::size_of::<mshv_translate_gva>() - 32usize];
-    ["Alignment of mshv_translate_gva"][::std::mem::align_of::<mshv_translate_gva>() - 8usize];
-    ["Offset of field: mshv_translate_gva::gva"]
-        [::std::mem::offset_of!(mshv_translate_gva, gva) - 0usize];
-    ["Offset of field: mshv_translate_gva::flags"]
-        [::std::mem::offset_of!(mshv_translate_gva, flags) - 8usize];
-    ["Offset of field: mshv_translate_gva::result"]
-        [::std::mem::offset_of!(mshv_translate_gva, result) - 16usize];
-    ["Offset of field: mshv_translate_gva::gpa"]
-        [::std::mem::offset_of!(mshv_translate_gva, gpa) - 24usize];
-};
-impl Default for mshv_translate_gva {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct mshv_register_intercept_result {
-    pub intercept_type: __u32,
-    pub parameters: hv_register_intercept_result_parameters,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_register_intercept_result"]
-        [::std::mem::size_of::<mshv_register_intercept_result>() - 48usize];
-    ["Alignment of mshv_register_intercept_result"]
-        [::std::mem::align_of::<mshv_register_intercept_result>() - 4usize];
-    ["Offset of field: mshv_register_intercept_result::intercept_type"]
-        [::std::mem::offset_of!(mshv_register_intercept_result, intercept_type) - 0usize];
-    ["Offset of field: mshv_register_intercept_result::parameters"]
-        [::std::mem::offset_of!(mshv_register_intercept_result, parameters) - 4usize];
-};
-impl Default for mshv_register_intercept_result {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_signal_event_direct {
-    pub vp: __u32,
-    pub vtl: __u8,
-    pub sint: __u8,
-    pub flag: __u16,
-    pub newly_signaled: __u8,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_signal_event_direct"]
-        [::std::mem::size_of::<mshv_signal_event_direct>() - 12usize];
-    ["Alignment of mshv_signal_event_direct"]
-        [::std::mem::align_of::<mshv_signal_event_direct>() - 4usize];
-    ["Offset of field: mshv_signal_event_direct::vp"]
-        [::std::mem::offset_of!(mshv_signal_event_direct, vp) - 0usize];
-    ["Offset of field: mshv_signal_event_direct::vtl"]
-        [::std::mem::offset_of!(mshv_signal_event_direct, vtl) - 4usize];
-    ["Offset of field: mshv_signal_event_direct::sint"]
-        [::std::mem::offset_of!(mshv_signal_event_direct, sint) - 5usize];
-    ["Offset of field: mshv_signal_event_direct::flag"]
-        [::std::mem::offset_of!(mshv_signal_event_direct, flag) - 6usize];
-    ["Offset of field: mshv_signal_event_direct::newly_signaled"]
-        [::std::mem::offset_of!(mshv_signal_event_direct, newly_signaled) - 8usize];
-};
-#[repr(C)]
-#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_post_message_direct {
-    pub vp: __u32,
-    pub vtl: __u8,
-    pub sint: __u8,
-    pub length: __u16,
-    pub message: *const __u8,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_post_message_direct"]
-        [::std::mem::size_of::<mshv_post_message_direct>() - 16usize];
-    ["Alignment of mshv_post_message_direct"]
-        [::std::mem::align_of::<mshv_post_message_direct>() - 8usize];
-    ["Offset of field: mshv_post_message_direct::vp"]
-        [::std::mem::offset_of!(mshv_post_message_direct, vp) - 0usize];
-    ["Offset of field: mshv_post_message_direct::vtl"]
-        [::std::mem::offset_of!(mshv_post_message_direct, vtl) - 4usize];
-    ["Offset of field: mshv_post_message_direct::sint"]
-        [::std::mem::offset_of!(mshv_post_message_direct, sint) - 5usize];
-    ["Offset of field: mshv_post_message_direct::length"]
-        [::std::mem::offset_of!(mshv_post_message_direct, length) - 6usize];
-    ["Offset of field: mshv_post_message_direct::message"]
-        [::std::mem::offset_of!(mshv_post_message_direct, message) - 8usize];
-};
-impl Default for mshv_post_message_direct {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_register_deliverabilty_notifications {
-    pub vp: __u32,
-    pub pad: __u32,
-    pub flag: __u64,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_register_deliverabilty_notifications"]
-        [::std::mem::size_of::<mshv_register_deliverabilty_notifications>() - 16usize];
-    ["Alignment of mshv_register_deliverabilty_notifications"]
-        [::std::mem::align_of::<mshv_register_deliverabilty_notifications>() - 8usize];
-    ["Offset of field: mshv_register_deliverabilty_notifications::vp"]
-        [::std::mem::offset_of!(mshv_register_deliverabilty_notifications, vp) - 0usize];
-    ["Offset of field: mshv_register_deliverabilty_notifications::pad"]
-        [::std::mem::offset_of!(mshv_register_deliverabilty_notifications, pad) - 4usize];
-    ["Offset of field: mshv_register_deliverabilty_notifications::flag"]
-        [::std::mem::offset_of!(mshv_register_deliverabilty_notifications, flag) - 8usize];
-};
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_get_vp_cpuid_values {
-    pub function: __u32,
-    pub index: __u32,
-    pub xfem: __u64,
-    pub xss: __u64,
-    pub eax: __u32,
-    pub ebx: __u32,
-    pub ecx: __u32,
-    pub edx: __u32,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_get_vp_cpuid_values"]
-        [::std::mem::size_of::<mshv_get_vp_cpuid_values>() - 40usize];
-    ["Alignment of mshv_get_vp_cpuid_values"]
-        [::std::mem::align_of::<mshv_get_vp_cpuid_values>() - 8usize];
-    ["Offset of field: mshv_get_vp_cpuid_values::function"]
-        [::std::mem::offset_of!(mshv_get_vp_cpuid_values, function) - 0usize];
-    ["Offset of field: mshv_get_vp_cpuid_values::index"]
-        [::std::mem::offset_of!(mshv_get_vp_cpuid_values, index) - 4usize];
-    ["Offset of field: mshv_get_vp_cpuid_values::xfem"]
-        [::std::mem::offset_of!(mshv_get_vp_cpuid_values, xfem) - 8usize];
-    ["Offset of field: mshv_get_vp_cpuid_values::xss"]
-        [::std::mem::offset_of!(mshv_get_vp_cpuid_values, xss) - 16usize];
-    ["Offset of field: mshv_get_vp_cpuid_values::eax"]
-        [::std::mem::offset_of!(mshv_get_vp_cpuid_values, eax) - 24usize];
-    ["Offset of field: mshv_get_vp_cpuid_values::ebx"]
-        [::std::mem::offset_of!(mshv_get_vp_cpuid_values, ebx) - 28usize];
-    ["Offset of field: mshv_get_vp_cpuid_values::ecx"]
-        [::std::mem::offset_of!(mshv_get_vp_cpuid_values, ecx) - 32usize];
-    ["Offset of field: mshv_get_vp_cpuid_values::edx"]
-        [::std::mem::offset_of!(mshv_get_vp_cpuid_values, edx) - 36usize];
-};
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_read_write_gpa {
-    pub base_gpa: __u64,
-    pub byte_count: __u32,
-    pub flags: __u32,
-    pub data: [__u8; 16usize],
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_read_write_gpa"][::std::mem::size_of::<mshv_read_write_gpa>() - 32usize];
-    ["Alignment of mshv_read_write_gpa"][::std::mem::align_of::<mshv_read_write_gpa>() - 8usize];
-    ["Offset of field: mshv_read_write_gpa::base_gpa"]
-        [::std::mem::offset_of!(mshv_read_write_gpa, base_gpa) - 0usize];
-    ["Offset of field: mshv_read_write_gpa::byte_count"]
-        [::std::mem::offset_of!(mshv_read_write_gpa, byte_count) - 8usize];
-    ["Offset of field: mshv_read_write_gpa::flags"]
-        [::std::mem::offset_of!(mshv_read_write_gpa, flags) - 12usize];
-    ["Offset of field: mshv_read_write_gpa::data"]
-        [::std::mem::offset_of!(mshv_read_write_gpa, data) - 16usize];
-};
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_sev_snp_ap_create {
-    pub vp_id: __u64,
-    pub vmsa_gpa: __u64,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_sev_snp_ap_create"][::std::mem::size_of::<mshv_sev_snp_ap_create>() - 16usize];
-    ["Alignment of mshv_sev_snp_ap_create"]
-        [::std::mem::align_of::<mshv_sev_snp_ap_create>() - 8usize];
-    ["Offset of field: mshv_sev_snp_ap_create::vp_id"]
-        [::std::mem::offset_of!(mshv_sev_snp_ap_create, vp_id) - 0usize];
-    ["Offset of field: mshv_sev_snp_ap_create::vmsa_gpa"]
-        [::std::mem::offset_of!(mshv_sev_snp_ap_create, vmsa_gpa) - 8usize];
-};
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_issue_psp_guest_request {
-    pub req_gpa: __u64,
-    pub rsp_gpa: __u64,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_issue_psp_guest_request"]
-        [::std::mem::size_of::<mshv_issue_psp_guest_request>() - 16usize];
-    ["Alignment of mshv_issue_psp_guest_request"]
-        [::std::mem::align_of::<mshv_issue_psp_guest_request>() - 8usize];
-    ["Offset of field: mshv_issue_psp_guest_request::req_gpa"]
-        [::std::mem::offset_of!(mshv_issue_psp_guest_request, req_gpa) - 0usize];
-    ["Offset of field: mshv_issue_psp_guest_request::rsp_gpa"]
-        [::std::mem::offset_of!(mshv_issue_psp_guest_request, rsp_gpa) - 8usize];
-};
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct mshv_complete_isolated_import {
-    pub import_data: hv_partition_complete_isolated_import_data,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_complete_isolated_import"]
-        [::std::mem::size_of::<mshv_complete_isolated_import>() - 3334usize];
-    ["Alignment of mshv_complete_isolated_import"]
-        [::std::mem::align_of::<mshv_complete_isolated_import>() - 1usize];
-    ["Offset of field: mshv_complete_isolated_import::import_data"]
-        [::std::mem::offset_of!(mshv_complete_isolated_import, import_data) - 0usize];
-};
-impl Default for mshv_complete_isolated_import {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-pub const MSHV_VTL_CAP_BIT_REGISTER_PAGE: _bindgen_ty_1 = 0;
-pub const MSHV_VTL_CAP_BIT_RETURN_ACTION: _bindgen_ty_1 = 1;
-pub const MSHV_VTL_CAP_BIT_DR6_SHARED: _bindgen_ty_1 = 2;
-pub const MSHV_VTL_CAP_BIT_COUNT: _bindgen_ty_1 = 3;
+pub const MSHV_PT_BIT_LAPIC: _bindgen_ty_1 = 0;
+pub const MSHV_PT_BIT_X2APIC: _bindgen_ty_1 = 1;
+pub const MSHV_PT_BIT_GPA_SUPER_PAGES: _bindgen_ty_1 = 2;
+pub const MSHV_PT_BIT_CPU_AND_XSAVE_FEATURES: _bindgen_ty_1 = 3;
+pub const MSHV_PT_BIT_NESTED_VIRTUALIZATION: _bindgen_ty_1 = 4;
+pub const MSHV_PT_BIT_SMT_ENABLED_GUEST: _bindgen_ty_1 = 5;
+pub const MSHV_PT_BIT_COUNT: _bindgen_ty_1 = 6;
 pub type _bindgen_ty_1 = ::std::os::raw::c_uint;
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_vtl_capabilities {
-    pub bits: __u64,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_vtl_capabilities"][::std::mem::size_of::<mshv_vtl_capabilities>() - 8usize];
-    ["Alignment of mshv_vtl_capabilities"]
-        [::std::mem::align_of::<mshv_vtl_capabilities>() - 8usize];
-    ["Offset of field: mshv_vtl_capabilities::bits"]
-        [::std::mem::offset_of!(mshv_vtl_capabilities, bits) - 0usize];
-};
-pub const MSHV_PT_BIT_LAPIC: _bindgen_ty_2 = 0;
-pub const MSHV_PT_BIT_X2APIC: _bindgen_ty_2 = 1;
-pub const MSHV_PT_BIT_GPA_SUPER_PAGES: _bindgen_ty_2 = 2;
-pub const MSHV_PT_BIT_CPU_AND_XSAVE_FEATURES: _bindgen_ty_2 = 3;
-pub const MSHV_PT_BIT_NESTED_VIRTUALIZATION: _bindgen_ty_2 = 4;
-pub const MSHV_PT_BIT_SMT_ENABLED_GUEST: _bindgen_ty_2 = 5;
-pub const MSHV_PT_BIT_COUNT: _bindgen_ty_2 = 6;
+pub const MSHV_PT_ISOLATION_NONE: _bindgen_ty_2 = 0;
+pub const MSHV_PT_ISOLATION_SNP: _bindgen_ty_2 = 1;
+pub const MSHV_PT_ISOLATION_COUNT: _bindgen_ty_2 = 2;
 pub type _bindgen_ty_2 = ::std::os::raw::c_uint;
-pub const MSHV_PT_ISOLATION_NONE: _bindgen_ty_3 = 0;
-pub const MSHV_PT_ISOLATION_SNP: _bindgen_ty_3 = 1;
-pub const MSHV_PT_ISOLATION_COUNT: _bindgen_ty_3 = 2;
-pub type _bindgen_ty_3 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_create_partition {
@@ -22155,22 +22287,6 @@ const _: () = {
 };
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_partition_property {
-    pub property_code: __u64,
-    pub property_value: __u64,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_partition_property"][::std::mem::size_of::<mshv_partition_property>() - 16usize];
-    ["Alignment of mshv_partition_property"]
-        [::std::mem::align_of::<mshv_partition_property>() - 8usize];
-    ["Offset of field: mshv_partition_property::property_code"]
-        [::std::mem::offset_of!(mshv_partition_property, property_code) - 0usize];
-    ["Offset of field: mshv_partition_property::property_value"]
-        [::std::mem::offset_of!(mshv_partition_property, property_value) - 8usize];
-};
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_create_vp {
     pub vp_index: __u32,
 }
@@ -22181,11 +22297,11 @@ const _: () = {
     ["Offset of field: mshv_create_vp::vp_index"]
         [::std::mem::offset_of!(mshv_create_vp, vp_index) - 0usize];
 };
-pub const MSHV_SET_MEM_BIT_WRITABLE: _bindgen_ty_4 = 0;
-pub const MSHV_SET_MEM_BIT_EXECUTABLE: _bindgen_ty_4 = 1;
-pub const MSHV_SET_MEM_BIT_UNMAP: _bindgen_ty_4 = 2;
-pub const MSHV_SET_MEM_BIT_COUNT: _bindgen_ty_4 = 3;
-pub type _bindgen_ty_4 = ::std::os::raw::c_uint;
+pub const MSHV_SET_MEM_BIT_WRITABLE: _bindgen_ty_3 = 0;
+pub const MSHV_SET_MEM_BIT_EXECUTABLE: _bindgen_ty_3 = 1;
+pub const MSHV_SET_MEM_BIT_UNMAP: _bindgen_ty_3 = 2;
+pub const MSHV_SET_MEM_BIT_COUNT: _bindgen_ty_3 = 3;
+pub type _bindgen_ty_3 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_user_mem_region {
@@ -22210,10 +22326,10 @@ const _: () = {
     ["Offset of field: mshv_user_mem_region::rsvd"]
         [::std::mem::offset_of!(mshv_user_mem_region, rsvd) - 25usize];
 };
-pub const MSHV_IRQFD_BIT_DEASSIGN: _bindgen_ty_5 = 0;
-pub const MSHV_IRQFD_BIT_RESAMPLE: _bindgen_ty_5 = 1;
-pub const MSHV_IRQFD_BIT_COUNT: _bindgen_ty_5 = 2;
-pub type _bindgen_ty_5 = ::std::os::raw::c_uint;
+pub const MSHV_IRQFD_BIT_DEASSIGN: _bindgen_ty_4 = 0;
+pub const MSHV_IRQFD_BIT_RESAMPLE: _bindgen_ty_4 = 1;
+pub const MSHV_IRQFD_BIT_COUNT: _bindgen_ty_4 = 2;
+pub type _bindgen_ty_4 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_user_irqfd {
@@ -22234,11 +22350,11 @@ const _: () = {
     ["Offset of field: mshv_user_irqfd::flags"]
         [::std::mem::offset_of!(mshv_user_irqfd, flags) - 12usize];
 };
-pub const MSHV_IOEVENTFD_BIT_DATAMATCH: _bindgen_ty_6 = 0;
-pub const MSHV_IOEVENTFD_BIT_PIO: _bindgen_ty_6 = 1;
-pub const MSHV_IOEVENTFD_BIT_DEASSIGN: _bindgen_ty_6 = 2;
-pub const MSHV_IOEVENTFD_BIT_COUNT: _bindgen_ty_6 = 3;
-pub type _bindgen_ty_6 = ::std::os::raw::c_uint;
+pub const MSHV_IOEVENTFD_BIT_DATAMATCH: _bindgen_ty_5 = 0;
+pub const MSHV_IOEVENTFD_BIT_PIO: _bindgen_ty_5 = 1;
+pub const MSHV_IOEVENTFD_BIT_DEASSIGN: _bindgen_ty_5 = 2;
+pub const MSHV_IOEVENTFD_BIT_COUNT: _bindgen_ty_5 = 3;
+pub type _bindgen_ty_5 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_user_ioeventfd {
@@ -22305,15 +22421,15 @@ const _: () = {
     ["Offset of field: mshv_user_irq_table::entries"]
         [::std::mem::offset_of!(mshv_user_irq_table, entries) - 8usize];
 };
-pub const MSHV_GPAP_ACCESS_TYPE_ACCESSED: _bindgen_ty_7 = 0;
-pub const MSHV_GPAP_ACCESS_TYPE_DIRTY: _bindgen_ty_7 = 1;
-pub const MSHV_GPAP_ACCESS_TYPE_COUNT: _bindgen_ty_7 = 2;
+pub const MSHV_GPAP_ACCESS_TYPE_ACCESSED: _bindgen_ty_6 = 0;
+pub const MSHV_GPAP_ACCESS_TYPE_DIRTY: _bindgen_ty_6 = 1;
+pub const MSHV_GPAP_ACCESS_TYPE_COUNT: _bindgen_ty_6 = 2;
+pub type _bindgen_ty_6 = ::std::os::raw::c_uint;
+pub const MSHV_GPAP_ACCESS_OP_NOOP: _bindgen_ty_7 = 0;
+pub const MSHV_GPAP_ACCESS_OP_CLEAR: _bindgen_ty_7 = 1;
+pub const MSHV_GPAP_ACCESS_OP_SET: _bindgen_ty_7 = 2;
+pub const MSHV_GPAP_ACCESS_OP_COUNT: _bindgen_ty_7 = 3;
 pub type _bindgen_ty_7 = ::std::os::raw::c_uint;
-pub const MSHV_GPAP_ACCESS_OP_NOOP: _bindgen_ty_8 = 0;
-pub const MSHV_GPAP_ACCESS_OP_CLEAR: _bindgen_ty_8 = 1;
-pub const MSHV_GPAP_ACCESS_OP_SET: _bindgen_ty_8 = 2;
-pub const MSHV_GPAP_ACCESS_OP_COUNT: _bindgen_ty_8 = 3;
-pub type _bindgen_ty_8 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_gpap_access_bitmap {
@@ -22342,12 +22458,13 @@ const _: () = {
     ["Offset of field: mshv_gpap_access_bitmap::bitmap_ptr"]
         [::std::mem::offset_of!(mshv_gpap_access_bitmap, bitmap_ptr) - 24usize];
 };
-pub const MSHV_GPAP_ACCESS_RANGE_4K: u32 = 0;
-pub const MSHV_GPAP_ACCESS_RANGE_2M: u32 = 1;
-pub const MSHV_GPAP_ACCESS_RANGE_1G: u32 = 2;
-pub const MSHV_GPAP_ACCESS_RANGE_512G: u32 = 3;
-pub const MSHV_GPAP_ACCESS_RANGE_256T: u32 = 4;
-pub const MSHV_GPAP_ACCESS_RANGE_COUNT: u32 = 5;
+pub const MSHV_GPAP_ACCESS_RANGE_4K: _bindgen_ty_8 = 0;
+pub const MSHV_GPAP_ACCESS_RANGE_2M: _bindgen_ty_8 = 1;
+pub const MSHV_GPAP_ACCESS_RANGE_1G: _bindgen_ty_8 = 2;
+pub const MSHV_GPAP_ACCESS_RANGE_512G: _bindgen_ty_8 = 3;
+pub const MSHV_GPAP_ACCESS_RANGE_256T: _bindgen_ty_8 = 4;
+pub const MSHV_GPAP_ACCESS_RANGE_COUNT: _bindgen_ty_8 = 5;
+pub type _bindgen_ty_8 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_gpap_range_access_bitmap {
@@ -22439,6 +22556,62 @@ const _: () = {
 };
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_issue_psp_guest_request {
+    pub req_gpa: __u64,
+    pub rsp_gpa: __u64,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_issue_psp_guest_request"]
+        [::std::mem::size_of::<mshv_issue_psp_guest_request>() - 16usize];
+    ["Alignment of mshv_issue_psp_guest_request"]
+        [::std::mem::align_of::<mshv_issue_psp_guest_request>() - 8usize];
+    ["Offset of field: mshv_issue_psp_guest_request::req_gpa"]
+        [::std::mem::offset_of!(mshv_issue_psp_guest_request, req_gpa) - 0usize];
+    ["Offset of field: mshv_issue_psp_guest_request::rsp_gpa"]
+        [::std::mem::offset_of!(mshv_issue_psp_guest_request, rsp_gpa) - 8usize];
+};
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_sev_snp_ap_create {
+    pub vp_id: __u64,
+    pub vmsa_gpa: __u64,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_sev_snp_ap_create"][::std::mem::size_of::<mshv_sev_snp_ap_create>() - 16usize];
+    ["Alignment of mshv_sev_snp_ap_create"]
+        [::std::mem::align_of::<mshv_sev_snp_ap_create>() - 8usize];
+    ["Offset of field: mshv_sev_snp_ap_create::vp_id"]
+        [::std::mem::offset_of!(mshv_sev_snp_ap_create, vp_id) - 0usize];
+    ["Offset of field: mshv_sev_snp_ap_create::vmsa_gpa"]
+        [::std::mem::offset_of!(mshv_sev_snp_ap_create, vmsa_gpa) - 8usize];
+};
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct mshv_complete_isolated_import {
+    pub import_data: hv_partition_complete_isolated_import_data,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_complete_isolated_import"]
+        [::std::mem::size_of::<mshv_complete_isolated_import>() - 3334usize];
+    ["Alignment of mshv_complete_isolated_import"]
+        [::std::mem::align_of::<mshv_complete_isolated_import>() - 1usize];
+    ["Offset of field: mshv_complete_isolated_import::import_data"]
+        [::std::mem::offset_of!(mshv_complete_isolated_import, import_data) - 0usize];
+};
+impl Default for mshv_complete_isolated_import {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_root_hvcall {
     pub code: __u16,
     pub reps: __u16,
@@ -22469,6 +22642,144 @@ const _: () = {
         [::std::mem::offset_of!(mshv_root_hvcall, in_ptr) - 16usize];
     ["Offset of field: mshv_root_hvcall::out_ptr"]
         [::std::mem::offset_of!(mshv_root_hvcall, out_ptr) - 24usize];
+};
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_install_intercept {
+    pub access_type_mask: __u32,
+    pub intercept_type: __u32,
+    pub intercept_parameter: __u64,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_install_intercept"][::std::mem::size_of::<mshv_install_intercept>() - 16usize];
+    ["Alignment of mshv_install_intercept"]
+        [::std::mem::align_of::<mshv_install_intercept>() - 8usize];
+    ["Offset of field: mshv_install_intercept::access_type_mask"]
+        [::std::mem::offset_of!(mshv_install_intercept, access_type_mask) - 0usize];
+    ["Offset of field: mshv_install_intercept::intercept_type"]
+        [::std::mem::offset_of!(mshv_install_intercept, intercept_type) - 4usize];
+    ["Offset of field: mshv_install_intercept::intercept_parameter"]
+        [::std::mem::offset_of!(mshv_install_intercept, intercept_parameter) - 8usize];
+};
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_assert_interrupt {
+    pub control: __u64,
+    pub dest_addr: __u64,
+    pub vector: __u32,
+    pub rsvd: __u32,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_assert_interrupt"][::std::mem::size_of::<mshv_assert_interrupt>() - 24usize];
+    ["Alignment of mshv_assert_interrupt"]
+        [::std::mem::align_of::<mshv_assert_interrupt>() - 8usize];
+    ["Offset of field: mshv_assert_interrupt::control"]
+        [::std::mem::offset_of!(mshv_assert_interrupt, control) - 0usize];
+    ["Offset of field: mshv_assert_interrupt::dest_addr"]
+        [::std::mem::offset_of!(mshv_assert_interrupt, dest_addr) - 8usize];
+    ["Offset of field: mshv_assert_interrupt::vector"]
+        [::std::mem::offset_of!(mshv_assert_interrupt, vector) - 16usize];
+    ["Offset of field: mshv_assert_interrupt::rsvd"]
+        [::std::mem::offset_of!(mshv_assert_interrupt, rsvd) - 20usize];
+};
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_partition_property {
+    pub property_code: __u64,
+    pub property_value: __u64,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_partition_property"][::std::mem::size_of::<mshv_partition_property>() - 16usize];
+    ["Alignment of mshv_partition_property"]
+        [::std::mem::align_of::<mshv_partition_property>() - 8usize];
+    ["Offset of field: mshv_partition_property::property_code"]
+        [::std::mem::offset_of!(mshv_partition_property, property_code) - 0usize];
+    ["Offset of field: mshv_partition_property::property_value"]
+        [::std::mem::offset_of!(mshv_partition_property, property_value) - 8usize];
+};
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_signal_event_direct {
+    pub vp: __u32,
+    pub vtl: __u8,
+    pub sint: __u8,
+    pub flag: __u16,
+    pub newly_signaled: __u8,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_signal_event_direct"]
+        [::std::mem::size_of::<mshv_signal_event_direct>() - 12usize];
+    ["Alignment of mshv_signal_event_direct"]
+        [::std::mem::align_of::<mshv_signal_event_direct>() - 4usize];
+    ["Offset of field: mshv_signal_event_direct::vp"]
+        [::std::mem::offset_of!(mshv_signal_event_direct, vp) - 0usize];
+    ["Offset of field: mshv_signal_event_direct::vtl"]
+        [::std::mem::offset_of!(mshv_signal_event_direct, vtl) - 4usize];
+    ["Offset of field: mshv_signal_event_direct::sint"]
+        [::std::mem::offset_of!(mshv_signal_event_direct, sint) - 5usize];
+    ["Offset of field: mshv_signal_event_direct::flag"]
+        [::std::mem::offset_of!(mshv_signal_event_direct, flag) - 6usize];
+    ["Offset of field: mshv_signal_event_direct::newly_signaled"]
+        [::std::mem::offset_of!(mshv_signal_event_direct, newly_signaled) - 8usize];
+};
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_post_message_direct {
+    pub vp: __u32,
+    pub vtl: __u8,
+    pub sint: __u8,
+    pub length: __u16,
+    pub message: *const __u8,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_post_message_direct"]
+        [::std::mem::size_of::<mshv_post_message_direct>() - 16usize];
+    ["Alignment of mshv_post_message_direct"]
+        [::std::mem::align_of::<mshv_post_message_direct>() - 8usize];
+    ["Offset of field: mshv_post_message_direct::vp"]
+        [::std::mem::offset_of!(mshv_post_message_direct, vp) - 0usize];
+    ["Offset of field: mshv_post_message_direct::vtl"]
+        [::std::mem::offset_of!(mshv_post_message_direct, vtl) - 4usize];
+    ["Offset of field: mshv_post_message_direct::sint"]
+        [::std::mem::offset_of!(mshv_post_message_direct, sint) - 5usize];
+    ["Offset of field: mshv_post_message_direct::length"]
+        [::std::mem::offset_of!(mshv_post_message_direct, length) - 6usize];
+    ["Offset of field: mshv_post_message_direct::message"]
+        [::std::mem::offset_of!(mshv_post_message_direct, message) - 8usize];
+};
+impl Default for mshv_post_message_direct {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_register_deliverabilty_notifications {
+    pub vp: __u32,
+    pub pad: __u32,
+    pub flag: __u64,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_register_deliverabilty_notifications"]
+        [::std::mem::size_of::<mshv_register_deliverabilty_notifications>() - 16usize];
+    ["Alignment of mshv_register_deliverabilty_notifications"]
+        [::std::mem::align_of::<mshv_register_deliverabilty_notifications>() - 8usize];
+    ["Offset of field: mshv_register_deliverabilty_notifications::vp"]
+        [::std::mem::offset_of!(mshv_register_deliverabilty_notifications, vp) - 0usize];
+    ["Offset of field: mshv_register_deliverabilty_notifications::pad"]
+        [::std::mem::offset_of!(mshv_register_deliverabilty_notifications, pad) - 4usize];
+    ["Offset of field: mshv_register_deliverabilty_notifications::flag"]
+        [::std::mem::offset_of!(mshv_register_deliverabilty_notifications, flag) - 8usize];
 };
 pub const MSHV_VP_MMAP_OFFSET_REGISTERS: _bindgen_ty_11 = 0;
 pub const MSHV_VP_MMAP_OFFSET_INTERCEPT_MESSAGE: _bindgen_ty_11 = 1;
@@ -22525,6 +22836,175 @@ const _: () = {
     ["Offset of field: mshv_get_set_vp_state::buf_ptr"]
         [::std::mem::offset_of!(mshv_get_set_vp_state, buf_ptr) - 8usize];
 };
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_translate_gva {
+    pub gva: __u64,
+    pub flags: __u64,
+    pub result: *mut hv_translate_gva_result_code,
+    pub gpa: *mut __u64,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_translate_gva"][::std::mem::size_of::<mshv_translate_gva>() - 32usize];
+    ["Alignment of mshv_translate_gva"][::std::mem::align_of::<mshv_translate_gva>() - 8usize];
+    ["Offset of field: mshv_translate_gva::gva"]
+        [::std::mem::offset_of!(mshv_translate_gva, gva) - 0usize];
+    ["Offset of field: mshv_translate_gva::flags"]
+        [::std::mem::offset_of!(mshv_translate_gva, flags) - 8usize];
+    ["Offset of field: mshv_translate_gva::result"]
+        [::std::mem::offset_of!(mshv_translate_gva, result) - 16usize];
+    ["Offset of field: mshv_translate_gva::gpa"]
+        [::std::mem::offset_of!(mshv_translate_gva, gpa) - 24usize];
+};
+impl Default for mshv_translate_gva {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_vp_registers {
+    pub count: __u32,
+    pub padding: __u32,
+    pub regs: *mut hv_register_assoc,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_vp_registers"][::std::mem::size_of::<mshv_vp_registers>() - 16usize];
+    ["Alignment of mshv_vp_registers"][::std::mem::align_of::<mshv_vp_registers>() - 8usize];
+    ["Offset of field: mshv_vp_registers::count"]
+        [::std::mem::offset_of!(mshv_vp_registers, count) - 0usize];
+    ["Offset of field: mshv_vp_registers::padding"]
+        [::std::mem::offset_of!(mshv_vp_registers, padding) - 4usize];
+    ["Offset of field: mshv_vp_registers::regs"]
+        [::std::mem::offset_of!(mshv_vp_registers, regs) - 8usize];
+};
+impl Default for mshv_vp_registers {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_register_intercept_result {
+    pub intercept_type: __u32,
+    pub padding: __u32,
+    pub parameters: [__u8; 48usize],
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_register_intercept_result"]
+        [::std::mem::size_of::<mshv_register_intercept_result>() - 56usize];
+    ["Alignment of mshv_register_intercept_result"]
+        [::std::mem::align_of::<mshv_register_intercept_result>() - 4usize];
+    ["Offset of field: mshv_register_intercept_result::intercept_type"]
+        [::std::mem::offset_of!(mshv_register_intercept_result, intercept_type) - 0usize];
+    ["Offset of field: mshv_register_intercept_result::padding"]
+        [::std::mem::offset_of!(mshv_register_intercept_result, padding) - 4usize];
+    ["Offset of field: mshv_register_intercept_result::parameters"]
+        [::std::mem::offset_of!(mshv_register_intercept_result, parameters) - 8usize];
+};
+impl Default for mshv_register_intercept_result {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_get_vp_cpuid_values {
+    pub function: __u32,
+    pub index: __u32,
+    pub xfem: __u64,
+    pub xss: __u64,
+    pub eax: __u32,
+    pub ebx: __u32,
+    pub ecx: __u32,
+    pub edx: __u32,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_get_vp_cpuid_values"]
+        [::std::mem::size_of::<mshv_get_vp_cpuid_values>() - 40usize];
+    ["Alignment of mshv_get_vp_cpuid_values"]
+        [::std::mem::align_of::<mshv_get_vp_cpuid_values>() - 8usize];
+    ["Offset of field: mshv_get_vp_cpuid_values::function"]
+        [::std::mem::offset_of!(mshv_get_vp_cpuid_values, function) - 0usize];
+    ["Offset of field: mshv_get_vp_cpuid_values::index"]
+        [::std::mem::offset_of!(mshv_get_vp_cpuid_values, index) - 4usize];
+    ["Offset of field: mshv_get_vp_cpuid_values::xfem"]
+        [::std::mem::offset_of!(mshv_get_vp_cpuid_values, xfem) - 8usize];
+    ["Offset of field: mshv_get_vp_cpuid_values::xss"]
+        [::std::mem::offset_of!(mshv_get_vp_cpuid_values, xss) - 16usize];
+    ["Offset of field: mshv_get_vp_cpuid_values::eax"]
+        [::std::mem::offset_of!(mshv_get_vp_cpuid_values, eax) - 24usize];
+    ["Offset of field: mshv_get_vp_cpuid_values::ebx"]
+        [::std::mem::offset_of!(mshv_get_vp_cpuid_values, ebx) - 28usize];
+    ["Offset of field: mshv_get_vp_cpuid_values::ecx"]
+        [::std::mem::offset_of!(mshv_get_vp_cpuid_values, ecx) - 32usize];
+    ["Offset of field: mshv_get_vp_cpuid_values::edx"]
+        [::std::mem::offset_of!(mshv_get_vp_cpuid_values, edx) - 36usize];
+};
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_read_write_gpa {
+    pub base_gpa: __u64,
+    pub byte_count: __u32,
+    pub flags: __u32,
+    pub data: [__u8; 16usize],
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_read_write_gpa"][::std::mem::size_of::<mshv_read_write_gpa>() - 32usize];
+    ["Alignment of mshv_read_write_gpa"][::std::mem::align_of::<mshv_read_write_gpa>() - 8usize];
+    ["Offset of field: mshv_read_write_gpa::base_gpa"]
+        [::std::mem::offset_of!(mshv_read_write_gpa, base_gpa) - 0usize];
+    ["Offset of field: mshv_read_write_gpa::byte_count"]
+        [::std::mem::offset_of!(mshv_read_write_gpa, byte_count) - 8usize];
+    ["Offset of field: mshv_read_write_gpa::flags"]
+        [::std::mem::offset_of!(mshv_read_write_gpa, flags) - 12usize];
+    ["Offset of field: mshv_read_write_gpa::data"]
+        [::std::mem::offset_of!(mshv_read_write_gpa, data) - 16usize];
+};
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_trace_config {
+    pub mode: __u32,
+    pub max_buffers_count: __u32,
+    pub pages_per_buffer: __u32,
+    pub buffers_threshold: __u32,
+    pub time_basis: __u32,
+    pub system_time: __u64,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_trace_config"][::std::mem::size_of::<mshv_trace_config>() - 32usize];
+    ["Alignment of mshv_trace_config"][::std::mem::align_of::<mshv_trace_config>() - 8usize];
+    ["Offset of field: mshv_trace_config::mode"]
+        [::std::mem::offset_of!(mshv_trace_config, mode) - 0usize];
+    ["Offset of field: mshv_trace_config::max_buffers_count"]
+        [::std::mem::offset_of!(mshv_trace_config, max_buffers_count) - 4usize];
+    ["Offset of field: mshv_trace_config::pages_per_buffer"]
+        [::std::mem::offset_of!(mshv_trace_config, pages_per_buffer) - 8usize];
+    ["Offset of field: mshv_trace_config::buffers_threshold"]
+        [::std::mem::offset_of!(mshv_trace_config, buffers_threshold) - 12usize];
+    ["Offset of field: mshv_trace_config::time_basis"]
+        [::std::mem::offset_of!(mshv_trace_config, time_basis) - 16usize];
+    ["Offset of field: mshv_trace_config::system_time"]
+        [::std::mem::offset_of!(mshv_trace_config, system_time) - 24usize];
+};
 pub const MSHV_DEV_TYPE_VFIO: _bindgen_ty_13 = 0;
 pub const MSHV_DEV_TYPE_MAX: _bindgen_ty_13 = 1;
 pub type _bindgen_ty_13 = ::std::os::raw::c_uint;
@@ -22566,31 +23046,4 @@ const _: () = {
         [::std::mem::offset_of!(mshv_device_attr, attr) - 8usize];
     ["Offset of field: mshv_device_attr::addr"]
         [::std::mem::offset_of!(mshv_device_attr, addr) - 16usize];
-};
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_trace_config {
-    pub mode: __u32,
-    pub max_buffers_count: __u32,
-    pub pages_per_buffer: __u32,
-    pub buffers_threshold: __u32,
-    pub time_basis: __u32,
-    pub system_time: __u64,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_trace_config"][::std::mem::size_of::<mshv_trace_config>() - 32usize];
-    ["Alignment of mshv_trace_config"][::std::mem::align_of::<mshv_trace_config>() - 8usize];
-    ["Offset of field: mshv_trace_config::mode"]
-        [::std::mem::offset_of!(mshv_trace_config, mode) - 0usize];
-    ["Offset of field: mshv_trace_config::max_buffers_count"]
-        [::std::mem::offset_of!(mshv_trace_config, max_buffers_count) - 4usize];
-    ["Offset of field: mshv_trace_config::pages_per_buffer"]
-        [::std::mem::offset_of!(mshv_trace_config, pages_per_buffer) - 8usize];
-    ["Offset of field: mshv_trace_config::buffers_threshold"]
-        [::std::mem::offset_of!(mshv_trace_config, buffers_threshold) - 12usize];
-    ["Offset of field: mshv_trace_config::time_basis"]
-        [::std::mem::offset_of!(mshv_trace_config, time_basis) - 16usize];
-    ["Offset of field: mshv_trace_config::system_time"]
-        [::std::mem::offset_of!(mshv_trace_config, system_time) - 24usize];
 };
