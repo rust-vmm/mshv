@@ -287,6 +287,11 @@ pub const MSHV_IOCTL: u32 = 184;
 pub const MSHV_VP_MAX_REGISTERS: u32 = 128;
 pub const MSHV_NUM_CPU_FEATURES_BANKS: u32 = 2;
 pub const MSHV_HV_PAGE_SIZE: u32 = 4096;
+pub const MSHV_GPAP_ACCESS_CLEAR_ACCESSED: u32 = 1;
+pub const MSHV_GPAP_ACCESS_SET_ACCESSED: u32 = 2;
+pub const MSHV_GPAP_ACCESS_CLEAR_DIRTY: u32 = 4;
+pub const MSHV_GPAP_ACCESS_SET_DIRTY: u32 = 8;
+pub const MSHV_GPAP_ACCESS_FLAGS_MASK: u32 = 15;
 pub const MSHV_RUN_VP_BUF_SZ: u32 = 256;
 pub const MSHV_CREATE_DEVICE_TEST: u32 = 1;
 pub const MSHV_DEV_VFIO_FILE: u32 = 1;
@@ -18078,6 +18083,41 @@ const _: () = {
         [::std::mem::offset_of!(mshv_gpap_access_bitmap, gpap_base) - 16usize];
     ["Offset of field: mshv_gpap_access_bitmap::bitmap_ptr"]
         [::std::mem::offset_of!(mshv_gpap_access_bitmap, bitmap_ptr) - 24usize];
+};
+pub const MSHV_GPAP_ACCESS_RANGE_4K: u32 = 0;
+pub const MSHV_GPAP_ACCESS_RANGE_2M: u32 = 1;
+pub const MSHV_GPAP_ACCESS_RANGE_1G: u32 = 2;
+pub const MSHV_GPAP_ACCESS_RANGE_512G: u32 = 3;
+pub const MSHV_GPAP_ACCESS_RANGE_256T: u32 = 4;
+pub const MSHV_GPAP_ACCESS_RANGE_COUNT: u32 = 5;
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_gpap_range_access_bitmap {
+    pub flags: __u8,
+    pub range_size: __u8,
+    pub rsvd: [__u8; 6usize],
+    pub range_count: __u64,
+    pub gpap_base: __u64,
+    pub bitmap_ptr: __u64,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_gpap_range_access_bitmap"]
+        [::std::mem::size_of::<mshv_gpap_range_access_bitmap>() - 32usize];
+    ["Alignment of mshv_gpap_range_access_bitmap"]
+        [::std::mem::align_of::<mshv_gpap_range_access_bitmap>() - 8usize];
+    ["Offset of field: mshv_gpap_range_access_bitmap::flags"]
+        [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, flags) - 0usize];
+    ["Offset of field: mshv_gpap_range_access_bitmap::range_size"]
+        [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, range_size) - 1usize];
+    ["Offset of field: mshv_gpap_range_access_bitmap::rsvd"]
+        [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, rsvd) - 2usize];
+    ["Offset of field: mshv_gpap_range_access_bitmap::range_count"]
+        [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, range_count) - 8usize];
+    ["Offset of field: mshv_gpap_range_access_bitmap::gpap_base"]
+        [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, gpap_base) - 16usize];
+    ["Offset of field: mshv_gpap_range_access_bitmap::bitmap_ptr"]
+        [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, bitmap_ptr) - 24usize];
 };
 pub const MSHV_GPA_HOST_ACCESS_BIT_ACQUIRE: _bindgen_ty_9 = 0;
 pub const MSHV_GPA_HOST_ACCESS_BIT_READABLE: _bindgen_ty_9 = 1;

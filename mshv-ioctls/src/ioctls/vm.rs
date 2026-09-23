@@ -21,6 +21,27 @@ use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref};
 /// Batch size for processing page access states
 const PAGE_ACCESS_STATES_BATCH_SIZE: u64 = 0x10000;
 
+fn gpap_range_access_bitmap_size(range_count: u64) -> Result<usize> {
+    usize::try_from(range_count.div_ceil(4)).map_err(|_| libc::EINVAL.into())
+}
+
+fn make_gpap_range_access_bitmap_args(
+    base_pfn: u64,
+    range_count: u64,
+    range_size: u8,
+    flags: u8,
+    bitmap_ptr: u64,
+) -> mshv_gpap_range_access_bitmap {
+    mshv_gpap_range_access_bitmap {
+        flags,
+        range_size,
+        range_count,
+        gpap_base: base_pfn,
+        bitmap_ptr,
+        ..Default::default()
+    }
+}
+
 /// An address either in programmable I/O space or in memory mapped I/O space.
 ///
 /// The `IoEventAddress` is used for specifying the type when registering an event
@@ -791,6 +812,37 @@ impl VmFd {
         }
     }
 
+    /// Get accessed and dirty states for a range of guest page ranges.
+    ///
+    /// Each range contributes two bits to the returned bitmap: accessed,
+    /// followed by dirty. `range_size` is one of `MSHV_GPAP_ACCESS_RANGE_*`,
+    /// and `flags` is a combination of `MSHV_GPAP_ACCESS_{CLEAR,SET}_*`.
+    pub fn get_gpap_range_access_bitmap(
+        &self,
+        base_pfn: u64,
+        range_count: u64,
+        range_size: u8,
+        flags: u8,
+    ) -> Result<Vec<u8>> {
+        let mut bitmap = vec![0u8; gpap_range_access_bitmap_size(range_count)?];
+        let mut args = make_gpap_range_access_bitmap_args(
+            base_pfn,
+            range_count,
+            range_size,
+            flags,
+            bitmap.as_mut_ptr() as u64,
+        );
+
+        // SAFETY: IOCTL with correct types
+        let ret =
+            unsafe { ioctl_with_mut_ref(self, MSHV_GET_GPAP_RANGE_ACCESS_BITMAP(), &mut args) };
+        if ret == 0 {
+            Ok(bitmap)
+        } else {
+            Err(errno::Error::last().into())
+        }
+    }
+
     /// Gets the bitmap of pages dirtied since the last call of this function
     /// Args:
     ///     base_pfn: Guest page number
@@ -904,6 +956,27 @@ mod tests {
     use crate::ioctls::MshvError;
     #[cfg(target_arch = "x86_64")]
     use std::mem;
+
+    #[test]
+    fn test_gpap_range_access_bitmap_args() {
+        assert_eq!(gpap_range_access_bitmap_size(1).unwrap(), 1);
+        assert_eq!(gpap_range_access_bitmap_size(4).unwrap(), 1);
+        assert_eq!(gpap_range_access_bitmap_size(5).unwrap(), 2);
+
+        let args = make_gpap_range_access_bitmap_args(
+            0x1234,
+            5,
+            MSHV_GPAP_ACCESS_RANGE_2M as u8,
+            MSHV_GPAP_ACCESS_CLEAR_ACCESSED as u8 | MSHV_GPAP_ACCESS_CLEAR_DIRTY as u8,
+            0x5678,
+        );
+        assert_eq!(args.flags, 5);
+        assert_eq!(args.range_size, MSHV_GPAP_ACCESS_RANGE_2M as u8);
+        assert_eq!(args.rsvd, [0; 6]);
+        assert_eq!(args.range_count, 5);
+        assert_eq!(args.gpap_base, 0x1234);
+        assert_eq!(args.bitmap_ptr, 0x5678);
+    }
 
     #[test]
     fn test_user_memory() {
