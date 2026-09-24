@@ -958,6 +958,7 @@ mod tests {
     use crate::ioctls::MshvError;
     #[cfg(target_arch = "x86_64")]
     use std::mem;
+    use std::time::Instant;
 
     #[test]
     fn test_gpap_range_access_bitmap_args() {
@@ -1032,6 +1033,93 @@ mod tests {
             .get_gpap_range_access_bitmap(0, RANGE_COUNT, MSHV_GPAP_ACCESS_RANGE_4K as u8, 0)
             .unwrap();
         assert_eq!(bitmap, vec![0xff, 0x03]);
+
+        vm.disable_dirty_page_tracking().unwrap();
+        vm.unmap_user_memory(mem).unwrap();
+        unsafe { libc::munmap(addr, MEMORY_SIZE) };
+    }
+
+    #[test]
+    fn test_get_gpap_range_access_bitmap_16g_overhead() {
+        const MEMORY_SIZE: usize = 16 * 1024 * 1024 * 1024;
+        const RANGE_COUNT: u64 = MEMORY_SIZE as u64 / HV_PAGE_SIZE as u64;
+        const VMM_BATCH_SIZE: u64 = PAGE_ACCESS_STATES_BATCH_SIZE;
+        const KERNEL_HVCALL_BATCH_SIZE: u64 = 4095;
+
+        let hv = Mshv::new().unwrap();
+        let vm = hv.create_vm().unwrap();
+        vm.initialize().unwrap();
+        let addr = unsafe {
+            libc::mmap(
+                std::ptr::null_mut(),
+                MEMORY_SIZE,
+                libc::PROT_READ | libc::PROT_WRITE,
+                libc::MAP_ANONYMOUS | libc::MAP_SHARED | libc::MAP_NORESERVE,
+                -1,
+                0,
+            )
+        };
+        assert_ne!(addr, libc::MAP_FAILED);
+
+        let mem = mshv_user_mem_region {
+            flags: set_bits!(u8, MSHV_SET_MEM_BIT_WRITABLE, MSHV_SET_MEM_BIT_EXECUTABLE),
+            guest_pfn: 0,
+            size: MEMORY_SIZE as u64,
+            userspace_addr: addr as u64,
+            ..Default::default()
+        };
+        vm.map_user_memory(mem).unwrap();
+
+        let mut tracking_config_bits =
+            hv_partition_page_access_tracking_config__bindgen_ty_1::default();
+        tracking_config_bits.set_enabled(1);
+        tracking_config_bits.set_range_enabled(1);
+        let tracking_config = hv_partition_page_access_tracking_config {
+            __bindgen_anon_1: tracking_config_bits,
+        };
+        vm.set_partition_property(
+            hv_partition_property_code_HV_PARTITION_PROPERTY_GPA_PAGE_ACCESS_TRACKING,
+            unsafe { tracking_config.as_uint64 },
+        )
+        .unwrap();
+
+        let start = Instant::now();
+        let bitmap = vm
+            .get_gpap_range_access_bitmap(0, RANGE_COUNT, MSHV_GPAP_ACCESS_RANGE_4K as u8, 0)
+            .unwrap();
+        let single_ioctl_elapsed = start.elapsed();
+        assert_eq!(bitmap.len(), RANGE_COUNT.div_ceil(4) as usize);
+
+        let start = Instant::now();
+        let mut completed = 0;
+        let mut ioctl_count = 0;
+        let mut batched_hvcall_count = 0;
+        while completed < RANGE_COUNT {
+            let batch_size = cmp::min(VMM_BATCH_SIZE, RANGE_COUNT - completed);
+            vm.get_gpap_range_access_bitmap(
+                completed,
+                batch_size,
+                MSHV_GPAP_ACCESS_RANGE_4K as u8,
+                0,
+            )
+            .unwrap();
+            completed += batch_size;
+            ioctl_count += 1;
+            batched_hvcall_count += batch_size.div_ceil(KERNEL_HVCALL_BATCH_SIZE);
+        }
+        let batched_ioctl_elapsed = start.elapsed();
+        let single_hvcall_count = RANGE_COUNT.div_ceil(KERNEL_HVCALL_BATCH_SIZE);
+
+        println!("16 GiB, {RANGE_COUNT} 4 KiB ranges");
+        println!("single: 1 ioctl, {single_hvcall_count} hypercalls, {single_ioctl_elapsed:?}");
+        println!(
+            "batched: {ioctl_count} ioctls, {batched_hvcall_count} hypercalls, {batched_ioctl_elapsed:?}"
+        );
+        println!(
+            "batched overhead: {:.3} ms ({:.3}x)",
+            (batched_ioctl_elapsed.as_secs_f64() - single_ioctl_elapsed.as_secs_f64()) * 1000.0,
+            batched_ioctl_elapsed.as_secs_f64() / single_ioctl_elapsed.as_secs_f64()
+        );
 
         vm.disable_dirty_page_tracking().unwrap();
         vm.unmap_user_memory(mem).unwrap();
