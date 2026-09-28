@@ -293,6 +293,7 @@ pub const MSHV_GPAP_ACCESS_SET_ACCESSED: u32 = 2;
 pub const MSHV_GPAP_ACCESS_CLEAR_DIRTY: u32 = 4;
 pub const MSHV_GPAP_ACCESS_SET_DIRTY: u32 = 8;
 pub const MSHV_GPAP_ACCESS_FLAGS_MASK: u32 = 15;
+pub const MSHV_GET_GPA_ACCESS_STATES_BATCH_SIZE: u32 = 4095;
 pub const MSHV_RUN_VP_BUF_SZ: u32 = 256;
 pub const MSHV_VP_MAX_REGISTERS: u32 = 128;
 pub const MSHV_DIAG_IOCTL: u32 = 185;
@@ -18241,12 +18242,13 @@ pub struct mshv_gpap_range_access_bitmap {
     pub rsvd: [__u8; 6usize],
     pub range_count: __u64,
     pub gpap_base: __u64,
-    pub bitmap_ptr: __u64,
+    pub output_buffer: __u64,
+    pub processed: __u64,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
     ["Size of mshv_gpap_range_access_bitmap"]
-        [::std::mem::size_of::<mshv_gpap_range_access_bitmap>() - 32usize];
+        [::std::mem::size_of::<mshv_gpap_range_access_bitmap>() - 40usize];
     ["Alignment of mshv_gpap_range_access_bitmap"]
         [::std::mem::align_of::<mshv_gpap_range_access_bitmap>() - 8usize];
     ["Offset of field: mshv_gpap_range_access_bitmap::flags"]
@@ -18259,8 +18261,10 @@ const _: () = {
         [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, range_count) - 8usize];
     ["Offset of field: mshv_gpap_range_access_bitmap::gpap_base"]
         [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, gpap_base) - 16usize];
-    ["Offset of field: mshv_gpap_range_access_bitmap::bitmap_ptr"]
-        [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, bitmap_ptr) - 24usize];
+    ["Offset of field: mshv_gpap_range_access_bitmap::output_buffer"]
+        [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, output_buffer) - 24usize];
+    ["Offset of field: mshv_gpap_range_access_bitmap::processed"]
+        [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, processed) - 32usize];
 };
 pub const MSHV_GPA_HOST_ACCESS_BIT_ACQUIRE: _bindgen_ty_9 = 0;
 pub const MSHV_GPA_HOST_ACCESS_BIT_READABLE: _bindgen_ty_9 = 1;

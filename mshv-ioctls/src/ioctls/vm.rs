@@ -14,15 +14,17 @@ use std::convert::TryFrom;
 use std::fs::File;
 
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
+use thiserror::Error;
 use vmm_sys_util::errno;
 use vmm_sys_util::eventfd::EventFd;
 use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref};
 
 /// Batch size for processing page access states
 const PAGE_ACCESS_STATES_BATCH_SIZE: u64 = 0x10000;
+const GPA_RANGE_ACCESS_BATCH_SIZE: u64 = MSHV_GET_GPA_ACCESS_STATES_BATCH_SIZE as u64;
 
 fn gpap_range_access_bitmap_size(range_count: u64) -> Result<usize> {
-    usize::try_from(range_count.div_ceil(4)).map_err(|_| libc::EINVAL.into())
+    usize::try_from(range_count).map_err(|_| libc::EINVAL.into())
 }
 
 fn make_gpap_range_access_bitmap_args(
@@ -30,17 +32,33 @@ fn make_gpap_range_access_bitmap_args(
     range_count: u64,
     range_size: u8,
     flags: u8,
-    bitmap_ptr: u64,
+    output_buffer: u64,
 ) -> mshv_gpap_range_access_bitmap {
     mshv_gpap_range_access_bitmap {
         flags,
         range_size,
         range_count,
         gpap_base: base_pfn,
-        bitmap_ptr,
+        output_buffer,
         ..Default::default()
     }
 }
+
+/// Error returned while querying GPA range access states.
+#[derive(Debug, Error)]
+#[error("{source}; {processed} ranges processed")]
+pub struct GpapRangeAccessError {
+    /// Error returned by the failed ioctl.
+    #[source]
+    pub source: MshvError,
+    /// Access states returned before the error.
+    pub bitmap: Vec<u8>,
+    /// Number of valid ranges in `bitmap`.
+    pub processed: u64,
+}
+
+/// Result returned by GPA range access-state queries.
+pub type GpapRangeAccessResult<T> = std::result::Result<T, GpapRangeAccessError>;
 
 /// An address either in programmable I/O space or in memory mapped I/O space.
 ///
@@ -816,33 +834,99 @@ impl VmFd {
 
     /// Get accessed and dirty states for a range of guest page ranges.
     ///
-    /// Each range contributes two bits to the returned bitmap: accessed,
-    /// followed by dirty. `range_size` is one of `MSHV_GPAP_ACCESS_RANGE_*`,
-    /// and `flags` is a combination of `MSHV_GPAP_ACCESS_{CLEAR,SET}_*`.
+    /// Each range contributes one state byte whose low bits are accessed and
+    /// dirty. `range_size` is one of `MSHV_GPAP_ACCESS_RANGE_*`, and `flags`
+    /// is a combination of `MSHV_GPAP_ACCESS_{CLEAR,SET}_*`.
+    /// On error, [`GpapRangeAccessError`] contains all states processed before
+    /// the failure, including a partial final batch.
     pub fn get_gpap_range_access_bitmap(
         &self,
         base_pfn: u64,
         range_count: u64,
         range_size: u8,
         flags: u8,
-    ) -> Result<Vec<u8>> {
-        let mut bitmap = vec![0u8; gpap_range_access_bitmap_size(range_count)?];
-        let mut args = make_gpap_range_access_bitmap_args(
-            base_pfn,
-            range_count,
-            range_size,
-            flags,
-            bitmap.as_mut_ptr() as u64,
-        );
-
-        // SAFETY: IOCTL with correct types
-        let ret =
-            unsafe { ioctl_with_mut_ref(self, MSHV_GET_GPAP_RANGE_ACCESS_BITMAP(), &mut args) };
-        if ret == 0 {
-            Ok(bitmap)
-        } else {
-            Err(errno::Error::last().into())
+    ) -> GpapRangeAccessResult<Vec<u8>> {
+        if range_count == 0 {
+            return Err(GpapRangeAccessError {
+                source: libc::EINVAL.into(),
+                bitmap: Vec::new(),
+                processed: 0,
+            });
         }
+
+        let bitmap_size =
+            gpap_range_access_bitmap_size(range_count).map_err(|source| GpapRangeAccessError {
+                source,
+                bitmap: Vec::new(),
+                processed: 0,
+            })?;
+        let mut bitmap = vec![0u8; bitmap_size];
+        let range_shift =
+            9u32.checked_mul(range_size.into())
+                .ok_or_else(|| GpapRangeAccessError {
+                    source: libc::EINVAL.into(),
+                    bitmap: Vec::new(),
+                    processed: 0,
+                })?;
+        let range_pages = 1u64
+            .checked_shl(range_shift)
+            .ok_or_else(|| GpapRangeAccessError {
+                source: libc::EINVAL.into(),
+                bitmap: Vec::new(),
+                processed: 0,
+            })?;
+        let mut processed = 0u64;
+
+        while processed < range_count {
+            let batch_count = cmp::min(GPA_RANGE_ACCESS_BATCH_SIZE, range_count - processed);
+            let bitmap_offset = processed as usize;
+            let batch_ptr = bitmap[bitmap_offset..].as_mut_ptr() as u64;
+            let batch_base = base_pfn
+                .checked_add(processed.checked_mul(range_pages).ok_or_else(|| {
+                    GpapRangeAccessError {
+                        source: libc::EINVAL.into(),
+                        bitmap: bitmap[..bitmap_offset].to_vec(),
+                        processed,
+                    }
+                })?)
+                .ok_or_else(|| GpapRangeAccessError {
+                    source: libc::EINVAL.into(),
+                    bitmap: bitmap[..bitmap_offset].to_vec(),
+                    processed,
+                })?;
+            let mut args = make_gpap_range_access_bitmap_args(
+                batch_base,
+                batch_count,
+                range_size,
+                flags,
+                batch_ptr,
+            );
+
+            // SAFETY: IOCTL with correct types and sufficient output storage.
+            let ret =
+                unsafe { ioctl_with_mut_ref(self, MSHV_GET_GPAP_RANGE_ACCESS_BITMAP(), &mut args) };
+            let batch_processed = cmp::min(args.processed, batch_count);
+            processed += batch_processed;
+
+            if ret != 0 {
+                bitmap.truncate(gpap_range_access_bitmap_size(processed).unwrap_or_default());
+                return Err(GpapRangeAccessError {
+                    source: errno::Error::last().into(),
+                    bitmap,
+                    processed,
+                });
+            }
+            if batch_processed != batch_count {
+                bitmap.truncate(gpap_range_access_bitmap_size(processed).unwrap_or_default());
+                return Err(GpapRangeAccessError {
+                    source: libc::EIO.into(),
+                    bitmap,
+                    processed,
+                });
+            }
+        }
+
+        Ok(bitmap)
     }
 
     /// Gets the bitmap of pages dirtied since the last call of this function
@@ -958,13 +1042,12 @@ mod tests {
     use crate::ioctls::MshvError;
     #[cfg(target_arch = "x86_64")]
     use std::mem;
-    use std::time::Instant;
 
     #[test]
     fn test_gpap_range_access_bitmap_args() {
         assert_eq!(gpap_range_access_bitmap_size(1).unwrap(), 1);
-        assert_eq!(gpap_range_access_bitmap_size(4).unwrap(), 1);
-        assert_eq!(gpap_range_access_bitmap_size(5).unwrap(), 2);
+        assert_eq!(gpap_range_access_bitmap_size(4).unwrap(), 4);
+        assert_eq!(gpap_range_access_bitmap_size(5).unwrap(), 5);
 
         let args = make_gpap_range_access_bitmap_args(
             0x1234,
@@ -978,7 +1061,13 @@ mod tests {
         assert_eq!(args.rsvd, [0; 6]);
         assert_eq!(args.range_count, 5);
         assert_eq!(args.gpap_base, 0x1234);
-        assert_eq!(args.bitmap_ptr, 0x5678);
+        assert_eq!(args.output_buffer, 0x5678);
+        assert_eq!(args.processed, 0);
+        assert_eq!(GPA_RANGE_ACCESS_BATCH_SIZE, 4095);
+        assert_eq!(
+            gpap_range_access_bitmap_size(GPA_RANGE_ACCESS_BATCH_SIZE).unwrap(),
+            4095
+        );
     }
 
     #[test]
@@ -1032,7 +1121,7 @@ mod tests {
         let bitmap = vm
             .get_gpap_range_access_bitmap(0, RANGE_COUNT, MSHV_GPAP_ACCESS_RANGE_4K as u8, 0)
             .unwrap();
-        assert_eq!(bitmap, vec![0xff, 0x03]);
+        assert_eq!(bitmap, vec![3; RANGE_COUNT as usize]);
 
         vm.disable_dirty_page_tracking().unwrap();
         vm.unmap_user_memory(mem).unwrap();
@@ -1040,11 +1129,9 @@ mod tests {
     }
 
     #[test]
-    fn test_get_gpap_range_access_bitmap_16g_overhead() {
+    fn test_get_gpap_range_access_bitmap_16g() {
         const MEMORY_SIZE: usize = 16 * 1024 * 1024 * 1024;
         const RANGE_COUNT: u64 = MEMORY_SIZE as u64 / HV_PAGE_SIZE as u64;
-        const VMM_BATCH_SIZE: u64 = PAGE_ACCESS_STATES_BATCH_SIZE;
-        const KERNEL_HVCALL_BATCH_SIZE: u64 = 4095;
 
         let hv = Mshv::new().unwrap();
         let vm = hv.create_vm().unwrap();
@@ -1083,45 +1170,10 @@ mod tests {
         )
         .unwrap();
 
-        let start = Instant::now();
         let bitmap = vm
             .get_gpap_range_access_bitmap(0, RANGE_COUNT, MSHV_GPAP_ACCESS_RANGE_4K as u8, 0)
             .unwrap();
-        let single_ioctl_elapsed = start.elapsed();
-        assert_eq!(bitmap.len(), RANGE_COUNT.div_ceil(4) as usize);
-
-        let start = Instant::now();
-        let mut completed = 0;
-        let mut ioctl_count = 0;
-        let mut batched_hvcall_count = 0;
-        while completed < RANGE_COUNT {
-            let batch_size = cmp::min(VMM_BATCH_SIZE, RANGE_COUNT - completed);
-            vm.get_gpap_range_access_bitmap(
-                completed,
-                batch_size,
-                MSHV_GPAP_ACCESS_RANGE_4K as u8,
-                0,
-            )
-            .unwrap();
-            completed += batch_size;
-            ioctl_count += 1;
-            batched_hvcall_count += batch_size.div_ceil(KERNEL_HVCALL_BATCH_SIZE);
-        }
-        let batched_ioctl_elapsed = start.elapsed();
-        let single_hvcall_count = RANGE_COUNT.div_ceil(KERNEL_HVCALL_BATCH_SIZE);
-
-        println!("16 GiB, {RANGE_COUNT} 4 KiB ranges");
-        println!("single: 1 ioctl, {single_hvcall_count} hypercalls, {single_ioctl_elapsed:?}");
-        println!(
-            "batched: {ioctl_count} ioctls, {batched_hvcall_count} hypercalls, {batched_ioctl_elapsed:?}"
-        );
-        println!(
-            "overall summary: +{} ioctls, +{} hypercalls, {:+.3} ms ({:.3}x total)",
-            ioctl_count - 1,
-            batched_hvcall_count - single_hvcall_count,
-            (batched_ioctl_elapsed.as_secs_f64() - single_ioctl_elapsed.as_secs_f64()) * 1000.0,
-            batched_ioctl_elapsed.as_secs_f64() / single_ioctl_elapsed.as_secs_f64()
-        );
+        assert_eq!(bitmap.len(), RANGE_COUNT as usize);
 
         vm.disable_dirty_page_tracking().unwrap();
         vm.unmap_user_memory(mem).unwrap();
