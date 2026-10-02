@@ -175,6 +175,7 @@ impl<T> ::std::fmt::Debug for __IncompleteArrayField<T> {
     }
 }
 pub const __BITS_PER_LONG: u32 = 64;
+pub const __BITS_PER_LONG_LONG: u32 = 64;
 pub const __FD_SETSIZE: u32 = 1024;
 pub const HVGDK_MINI_H_VERSION: u32 = 25294;
 pub const HV_STATUS_SUCCESS: u32 = 0;
@@ -289,6 +290,7 @@ pub const HVCALL_COMPLETE_ISOLATED_IMPORT: u32 = 241;
 pub const HVCALL_ISSUE_SNP_PSP_GUEST_REQUEST: u32 = 242;
 pub const HVCALL_GET_VP_CPUID_VALUES: u32 = 244;
 pub const HVCALL_GET_PARTITION_PROPERTY_EX: u32 = 257;
+pub const HVCALL_SET_PARTITION_PROPERTY_EX: u32 = 266;
 pub const HV_INTERRUPT_VECTOR_NONE: u32 = 4294967295;
 pub const HV_SYNIC_STIMER_COUNT: u32 = 4;
 pub const HV_MESSAGE_SIZE: u32 = 256;
@@ -349,20 +351,22 @@ pub const HV_X64_PENDING_EXCEPTION: u32 = 3;
 pub const HV_GPA_ATTRIBUTE_INTERCEPT_MAX_RANGES: u32 = 29;
 pub const HV_PSP_CPUID_LEAF_COUNT_MAX: u32 = 64;
 pub const HV_READ_WRITE_GPA_MAX_SIZE: u32 = 16;
-pub const HV_PARTITION_PROCESSOR_XSAVE_FEATURES_RESERVED_BITFIELD_COUNT: u32 = 24;
-pub const HV_PARTITION_PROCESSOR_FEATURES_BANKS: u32 = 2;
+pub const HV_PARTITION_PROCESSOR_XSAVE_FEATURES_RESERVED_BITFIELD_COUNT: u32 = 23;
+pub const HV_PARTITION_PROCESSOR_FEATURES_BANKS: u32 = 3;
+pub const HV_PARTITION_PROCESSOR_CREATION_FEATURES_BANKS: u32 = 2;
 pub const HV_PARTITION_PROCESSOR_FEATURES_RESERVEDBANK1_BITFIELD_COUNT: u32 = 4;
+pub const HV_PARTITION_PROCESSOR_FEATURES_RESERVEDBANK2_BITFIELD_COUNT: u32 = 51;
 pub const MSHV_IOCTL: u32 = 184;
-pub const MSHV_VP_MAX_REGISTERS: u32 = 128;
-pub const MSHV_NUM_CPU_FEATURES_BANKS: u32 = 2;
+pub const MSHV_NUM_CPU_FEATURES_BANKS: u32 = 3;
 pub const MSHV_HV_PAGE_SIZE: u32 = 4096;
 pub const MSHV_RUN_VP_BUF_SZ: u32 = 256;
+pub const MSHV_VP_MAX_REGISTERS: u32 = 128;
+pub const MSHV_DIAG_IOCTL: u32 = 185;
+pub const MSHV_TRACE_IOCTL: u32 = 186;
 pub const MSHV_CREATE_DEVICE_TEST: u32 = 1;
 pub const MSHV_DEV_VFIO_FILE: u32 = 1;
 pub const MSHV_DEV_VFIO_FILE_ADD: u32 = 1;
 pub const MSHV_DEV_VFIO_FILE_DEL: u32 = 2;
-pub const MSHV_DIAG_IOCTL: u32 = 185;
-pub const MSHV_TRACE_IOCTL: u32 = 186;
 pub type bool_ = bool;
 pub type __s8 = ::std::os::raw::c_schar;
 pub type __u8 = ::std::os::raw::c_uchar;
@@ -6621,6 +6625,8 @@ pub const hv_partition_property_code_HV_PARTITION_PROPERTY_VMM_CAPABILITIES:
     hv_partition_property_code = 589831;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_ASSIGNABLE_SYNTHETIC_PROC_FEATURES:
     hv_partition_property_code = 589833;
+pub const hv_partition_property_code_HV_PARTITION_PROPERTY_DISABLED_PROCESSOR_FEATURES_EX:
+    hv_partition_property_code = 589838;
 pub type hv_partition_property_code = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -10453,6 +10459,40 @@ const _: () = {
         [::std::mem::offset_of!(hv_input_get_partition_property_ex, padding) - 12usize];
 };
 impl Default for hv_input_get_partition_property_ex {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C, packed)]
+pub struct hv_input_set_partition_property_ex {
+    pub partition_id: __u64,
+    pub property_code: __u32,
+    pub padding: __u32,
+    pub arg: __u64,
+    pub property_value: __IncompleteArrayField<__u8>,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of hv_input_set_partition_property_ex"]
+        [::std::mem::size_of::<hv_input_set_partition_property_ex>() - 24usize];
+    ["Alignment of hv_input_set_partition_property_ex"]
+        [::std::mem::align_of::<hv_input_set_partition_property_ex>() - 1usize];
+    ["Offset of field: hv_input_set_partition_property_ex::partition_id"]
+        [::std::mem::offset_of!(hv_input_set_partition_property_ex, partition_id) - 0usize];
+    ["Offset of field: hv_input_set_partition_property_ex::property_code"]
+        [::std::mem::offset_of!(hv_input_set_partition_property_ex, property_code) - 8usize];
+    ["Offset of field: hv_input_set_partition_property_ex::padding"]
+        [::std::mem::offset_of!(hv_input_set_partition_property_ex, padding) - 12usize];
+    ["Offset of field: hv_input_set_partition_property_ex::arg"]
+        [::std::mem::offset_of!(hv_input_set_partition_property_ex, arg) - 16usize];
+    ["Offset of field: hv_input_set_partition_property_ex::property_value"]
+        [::std::mem::offset_of!(hv_input_set_partition_property_ex, property_value) - 24usize];
+};
+impl Default for hv_input_set_partition_property_ex {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
         unsafe {
@@ -16527,14 +16567,47 @@ impl hv_partition_processor_xsave_features__bindgen_ty_1 {
         }
     }
     #[inline]
+    pub fn avx10_2_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(40usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx10_2_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(40usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn avx10_2_support_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                40usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_avx10_2_support_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                40usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
     pub fn reserved(&self) -> __u64 {
-        unsafe { ::std::mem::transmute(self._bitfield_1.get(40usize, 24u8) as u64) }
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(41usize, 23u8) as u64) }
     }
     #[inline]
     pub fn set_reserved(&mut self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            self._bitfield_1.set(40usize, 24u8, val as u64)
+            self._bitfield_1.set(41usize, 23u8, val as u64)
         }
     }
     #[inline]
@@ -16542,8 +16615,8 @@ impl hv_partition_processor_xsave_features__bindgen_ty_1 {
         unsafe {
             ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 8usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
-                40usize,
-                24u8,
+                41usize,
+                23u8,
             ) as u64)
         }
     }
@@ -16553,8 +16626,8 @@ impl hv_partition_processor_xsave_features__bindgen_ty_1 {
             let val: u64 = ::std::mem::transmute(val);
             <__BindgenBitfieldUnit<[u8; 8usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
-                40usize,
-                24u8,
+                41usize,
+                23u8,
                 val as u64,
             )
         }
@@ -16601,6 +16674,7 @@ impl hv_partition_processor_xsave_features__bindgen_ty_1 {
         amx_fp16_support: __u64,
         apx_support: __u64,
         apx_nci_ndd_nf_support: __u64,
+        avx10_2_support: __u64,
         reserved: __u64,
     ) -> __BindgenBitfieldUnit<[u8; 8usize]> {
         let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 8usize]> = Default::default();
@@ -16773,7 +16847,11 @@ impl hv_partition_processor_xsave_features__bindgen_ty_1 {
                 unsafe { ::std::mem::transmute(apx_nci_ndd_nf_support) };
             apx_nci_ndd_nf_support as u64
         });
-        __bindgen_bitfield_unit.set(40usize, 24u8, {
+        __bindgen_bitfield_unit.set(40usize, 1u8, {
+            let avx10_2_support: u64 = unsafe { ::std::mem::transmute(avx10_2_support) };
+            avx10_2_support as u64
+        });
+        __bindgen_bitfield_unit.set(41usize, 23u8, {
             let reserved: u64 = unsafe { ::std::mem::transmute(reserved) };
             reserved as u64
         });
@@ -16801,19 +16879,19 @@ impl Default for hv_partition_processor_xsave_features {
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union hv_partition_processor_features {
-    pub as_uint64: [__u64; 2usize],
+    pub as_uint64: [__u64; 3usize],
     pub __bindgen_anon_1: hv_partition_processor_features__bindgen_ty_1,
 }
 #[repr(C, packed)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct hv_partition_processor_features__bindgen_ty_1 {
     pub _bitfield_align_1: [u8; 0],
-    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 16usize]>,
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 24usize]>,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
     ["Size of hv_partition_processor_features__bindgen_ty_1"]
-        [::std::mem::size_of::<hv_partition_processor_features__bindgen_ty_1>() - 16usize];
+        [::std::mem::size_of::<hv_partition_processor_features__bindgen_ty_1>() - 24usize];
     ["Alignment of hv_partition_processor_features__bindgen_ty_1"]
         [::std::mem::align_of::<hv_partition_processor_features__bindgen_ty_1>() - 1usize];
 };
@@ -16832,7 +16910,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn sse3_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 0usize,
                 1u8,
@@ -16843,7 +16921,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_sse3_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 0usize,
                 1u8,
@@ -16865,7 +16943,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn lahf_sahf_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 1usize,
                 1u8,
@@ -16876,7 +16954,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_lahf_sahf_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 1usize,
                 1u8,
@@ -16898,7 +16976,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn ssse3_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 2usize,
                 1u8,
@@ -16909,7 +16987,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_ssse3_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 2usize,
                 1u8,
@@ -16931,7 +17009,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn sse4_1_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 3usize,
                 1u8,
@@ -16942,7 +17020,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_sse4_1_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 3usize,
                 1u8,
@@ -16964,7 +17042,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn sse4_2_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 4usize,
                 1u8,
@@ -16975,7 +17053,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_sse4_2_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 4usize,
                 1u8,
@@ -16997,7 +17075,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn sse4a_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 5usize,
                 1u8,
@@ -17008,7 +17086,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_sse4a_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 5usize,
                 1u8,
@@ -17030,7 +17108,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn xop_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 6usize,
                 1u8,
@@ -17041,7 +17119,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_xop_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 6usize,
                 1u8,
@@ -17063,7 +17141,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn pop_cnt_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 7usize,
                 1u8,
@@ -17074,7 +17152,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_pop_cnt_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 7usize,
                 1u8,
@@ -17096,7 +17174,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn cmpxchg16b_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 8usize,
                 1u8,
@@ -17107,7 +17185,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_cmpxchg16b_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 8usize,
                 1u8,
@@ -17129,7 +17207,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn altmovcr8_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 9usize,
                 1u8,
@@ -17140,7 +17218,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_altmovcr8_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 9usize,
                 1u8,
@@ -17162,7 +17240,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn lzcnt_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 10usize,
                 1u8,
@@ -17173,7 +17251,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_lzcnt_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 10usize,
                 1u8,
@@ -17195,7 +17273,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn mis_align_sse_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 11usize,
                 1u8,
@@ -17206,7 +17284,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_mis_align_sse_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 11usize,
                 1u8,
@@ -17228,7 +17306,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn mmx_ext_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 12usize,
                 1u8,
@@ -17239,7 +17317,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_mmx_ext_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 12usize,
                 1u8,
@@ -17261,7 +17339,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn amd3dnow_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 13usize,
                 1u8,
@@ -17272,7 +17350,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_amd3dnow_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 13usize,
                 1u8,
@@ -17294,7 +17372,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn extended_amd3dnow_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 14usize,
                 1u8,
@@ -17305,7 +17383,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_extended_amd3dnow_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 14usize,
                 1u8,
@@ -17327,7 +17405,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn page_1gb_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 15usize,
                 1u8,
@@ -17338,7 +17416,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_page_1gb_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 15usize,
                 1u8,
@@ -17360,7 +17438,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn aes_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 16usize,
                 1u8,
@@ -17371,7 +17449,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_aes_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 16usize,
                 1u8,
@@ -17393,7 +17471,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn pclmulqdq_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 17usize,
                 1u8,
@@ -17404,7 +17482,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_pclmulqdq_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 17usize,
                 1u8,
@@ -17426,7 +17504,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn pcid_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 18usize,
                 1u8,
@@ -17437,7 +17515,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_pcid_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 18usize,
                 1u8,
@@ -17459,7 +17537,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn fma4_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 19usize,
                 1u8,
@@ -17470,7 +17548,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_fma4_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 19usize,
                 1u8,
@@ -17492,7 +17570,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn f16c_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 20usize,
                 1u8,
@@ -17503,7 +17581,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_f16c_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 20usize,
                 1u8,
@@ -17525,7 +17603,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn rd_rand_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 21usize,
                 1u8,
@@ -17536,7 +17614,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_rd_rand_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 21usize,
                 1u8,
@@ -17558,7 +17636,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn rd_wr_fs_gs_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 22usize,
                 1u8,
@@ -17569,7 +17647,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_rd_wr_fs_gs_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 22usize,
                 1u8,
@@ -17591,7 +17669,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn smep_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 23usize,
                 1u8,
@@ -17602,7 +17680,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_smep_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 23usize,
                 1u8,
@@ -17624,7 +17702,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn enhanced_fast_string_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 24usize,
                 1u8,
@@ -17635,7 +17713,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_enhanced_fast_string_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 24usize,
                 1u8,
@@ -17657,7 +17735,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn bmi1_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 25usize,
                 1u8,
@@ -17668,7 +17746,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_bmi1_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 25usize,
                 1u8,
@@ -17690,7 +17768,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn bmi2_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 26usize,
                 1u8,
@@ -17701,7 +17779,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_bmi2_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 26usize,
                 1u8,
@@ -17723,7 +17801,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn hle_support_deprecated_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 27usize,
                 1u8,
@@ -17734,7 +17812,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_hle_support_deprecated_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 27usize,
                 1u8,
@@ -17756,7 +17834,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn rtm_support_deprecated_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 28usize,
                 1u8,
@@ -17767,7 +17845,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_rtm_support_deprecated_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 28usize,
                 1u8,
@@ -17789,7 +17867,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn movbe_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 29usize,
                 1u8,
@@ -17800,7 +17878,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_movbe_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 29usize,
                 1u8,
@@ -17822,7 +17900,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn npiep1_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 30usize,
                 1u8,
@@ -17833,7 +17911,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_npiep1_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 30usize,
                 1u8,
@@ -17855,7 +17933,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn dep_x87_fpu_save_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 31usize,
                 1u8,
@@ -17866,7 +17944,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_dep_x87_fpu_save_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 31usize,
                 1u8,
@@ -17888,7 +17966,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn rd_seed_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 32usize,
                 1u8,
@@ -17899,7 +17977,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_rd_seed_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 32usize,
                 1u8,
@@ -17921,7 +17999,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn adx_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 33usize,
                 1u8,
@@ -17932,7 +18010,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_adx_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 33usize,
                 1u8,
@@ -17954,7 +18032,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn intel_prefetch_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 34usize,
                 1u8,
@@ -17965,7 +18043,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_intel_prefetch_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 34usize,
                 1u8,
@@ -17987,7 +18065,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn smap_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 35usize,
                 1u8,
@@ -17998,7 +18076,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_smap_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 35usize,
                 1u8,
@@ -18020,7 +18098,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn hle_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 36usize,
                 1u8,
@@ -18031,7 +18109,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_hle_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 36usize,
                 1u8,
@@ -18053,7 +18131,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn rtm_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 37usize,
                 1u8,
@@ -18064,7 +18142,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_rtm_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 37usize,
                 1u8,
@@ -18086,7 +18164,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn rdtscp_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 38usize,
                 1u8,
@@ -18097,7 +18175,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_rdtscp_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 38usize,
                 1u8,
@@ -18119,7 +18197,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn clflushopt_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 39usize,
                 1u8,
@@ -18130,7 +18208,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_clflushopt_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 39usize,
                 1u8,
@@ -18152,7 +18230,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn clwb_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 40usize,
                 1u8,
@@ -18163,7 +18241,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_clwb_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 40usize,
                 1u8,
@@ -18185,7 +18263,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn sha_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 41usize,
                 1u8,
@@ -18196,7 +18274,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_sha_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 41usize,
                 1u8,
@@ -18218,7 +18296,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn x87_pointers_saved_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 42usize,
                 1u8,
@@ -18229,7 +18307,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_x87_pointers_saved_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 42usize,
                 1u8,
@@ -18251,7 +18329,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn invpcid_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 43usize,
                 1u8,
@@ -18262,7 +18340,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_invpcid_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 43usize,
                 1u8,
@@ -18284,7 +18362,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn ibrs_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 44usize,
                 1u8,
@@ -18295,7 +18373,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_ibrs_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 44usize,
                 1u8,
@@ -18317,7 +18395,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn stibp_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 45usize,
                 1u8,
@@ -18328,7 +18406,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_stibp_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 45usize,
                 1u8,
@@ -18350,7 +18428,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn ibpb_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 46usize,
                 1u8,
@@ -18361,7 +18439,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_ibpb_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 46usize,
                 1u8,
@@ -18383,7 +18461,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn unrestricted_guest_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 47usize,
                 1u8,
@@ -18394,7 +18472,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_unrestricted_guest_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 47usize,
                 1u8,
@@ -18416,7 +18494,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn mdd_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 48usize,
                 1u8,
@@ -18427,7 +18505,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_mdd_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 48usize,
                 1u8,
@@ -18449,7 +18527,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn fast_short_rep_mov_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 49usize,
                 1u8,
@@ -18460,7 +18538,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_fast_short_rep_mov_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 49usize,
                 1u8,
@@ -18482,7 +18560,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn l1dcache_flush_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 50usize,
                 1u8,
@@ -18493,7 +18571,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_l1dcache_flush_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 50usize,
                 1u8,
@@ -18515,7 +18593,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn rdcl_no_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 51usize,
                 1u8,
@@ -18526,7 +18604,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_rdcl_no_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 51usize,
                 1u8,
@@ -18548,7 +18626,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn ibrs_all_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 52usize,
                 1u8,
@@ -18559,7 +18637,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_ibrs_all_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 52usize,
                 1u8,
@@ -18581,7 +18659,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn skip_l1df_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 53usize,
                 1u8,
@@ -18592,7 +18670,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_skip_l1df_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 53usize,
                 1u8,
@@ -18614,7 +18692,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn ssb_no_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 54usize,
                 1u8,
@@ -18625,7 +18703,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_ssb_no_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 54usize,
                 1u8,
@@ -18647,7 +18725,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn rsb_a_no_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 55usize,
                 1u8,
@@ -18658,7 +18736,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_rsb_a_no_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 55usize,
                 1u8,
@@ -18680,7 +18758,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn virt_spec_ctrl_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 56usize,
                 1u8,
@@ -18691,7 +18769,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_virt_spec_ctrl_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 56usize,
                 1u8,
@@ -18713,7 +18791,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn rd_pid_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 57usize,
                 1u8,
@@ -18724,7 +18802,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_rd_pid_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 57usize,
                 1u8,
@@ -18746,7 +18824,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn umip_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 58usize,
                 1u8,
@@ -18757,7 +18835,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_umip_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 58usize,
                 1u8,
@@ -18779,7 +18857,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn mbs_no_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 59usize,
                 1u8,
@@ -18790,7 +18868,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_mbs_no_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 59usize,
                 1u8,
@@ -18812,7 +18890,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn mb_clear_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 60usize,
                 1u8,
@@ -18823,7 +18901,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_mb_clear_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 60usize,
                 1u8,
@@ -18845,7 +18923,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn taa_no_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 61usize,
                 1u8,
@@ -18856,7 +18934,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_taa_no_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 61usize,
                 1u8,
@@ -18878,7 +18956,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn tsx_ctrl_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 62usize,
                 1u8,
@@ -18889,7 +18967,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_tsx_ctrl_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 62usize,
                 1u8,
@@ -18911,7 +18989,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn reserved_bank0_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 63usize,
                 1u8,
@@ -18922,7 +19000,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_reserved_bank0_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 63usize,
                 1u8,
@@ -18944,7 +19022,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn a_count_m_count_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 64usize,
                 1u8,
@@ -18955,7 +19033,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_a_count_m_count_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 64usize,
                 1u8,
@@ -18977,7 +19055,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn tsc_invariant_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 65usize,
                 1u8,
@@ -18988,7 +19066,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_tsc_invariant_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 65usize,
                 1u8,
@@ -19010,7 +19088,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn cl_zero_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 66usize,
                 1u8,
@@ -19021,7 +19099,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_cl_zero_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 66usize,
                 1u8,
@@ -19043,7 +19121,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn rdpru_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 67usize,
                 1u8,
@@ -19054,7 +19132,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_rdpru_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 67usize,
                 1u8,
@@ -19076,7 +19154,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn la57_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 68usize,
                 1u8,
@@ -19087,7 +19165,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_la57_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 68usize,
                 1u8,
@@ -19109,7 +19187,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn mbec_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 69usize,
                 1u8,
@@ -19120,7 +19198,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_mbec_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 69usize,
                 1u8,
@@ -19142,7 +19220,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn nested_virt_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 70usize,
                 1u8,
@@ -19153,7 +19231,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_nested_virt_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 70usize,
                 1u8,
@@ -19175,7 +19253,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn psfd_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 71usize,
                 1u8,
@@ -19186,7 +19264,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_psfd_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 71usize,
                 1u8,
@@ -19208,7 +19286,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn cet_ss_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 72usize,
                 1u8,
@@ -19219,7 +19297,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_cet_ss_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 72usize,
                 1u8,
@@ -19241,7 +19319,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn cet_ibt_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 73usize,
                 1u8,
@@ -19252,7 +19330,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_cet_ibt_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 73usize,
                 1u8,
@@ -19274,7 +19352,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn vmx_exception_inject_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 74usize,
                 1u8,
@@ -19285,7 +19363,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_vmx_exception_inject_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 74usize,
                 1u8,
@@ -19307,7 +19385,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn enqcmd_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 75usize,
                 1u8,
@@ -19318,7 +19396,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_enqcmd_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 75usize,
                 1u8,
@@ -19340,7 +19418,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn umwait_tpause_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 76usize,
                 1u8,
@@ -19351,7 +19429,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_umwait_tpause_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 76usize,
                 1u8,
@@ -19373,7 +19451,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn movdiri_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 77usize,
                 1u8,
@@ -19384,7 +19462,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_movdiri_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 77usize,
                 1u8,
@@ -19406,7 +19484,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn movdir64b_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 78usize,
                 1u8,
@@ -19417,7 +19495,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_movdir64b_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 78usize,
                 1u8,
@@ -19439,7 +19517,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn cldemote_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 79usize,
                 1u8,
@@ -19450,7 +19528,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_cldemote_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 79usize,
                 1u8,
@@ -19472,7 +19550,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn serialize_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 80usize,
                 1u8,
@@ -19483,7 +19561,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_serialize_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 80usize,
                 1u8,
@@ -19505,7 +19583,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn tsc_deadline_tmr_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 81usize,
                 1u8,
@@ -19516,7 +19594,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_tsc_deadline_tmr_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 81usize,
                 1u8,
@@ -19538,7 +19616,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn tsc_adjust_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 82usize,
                 1u8,
@@ -19549,7 +19627,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_tsc_adjust_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 82usize,
                 1u8,
@@ -19571,7 +19649,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn fzl_rep_movsb_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 83usize,
                 1u8,
@@ -19582,7 +19660,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_fzl_rep_movsb_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 83usize,
                 1u8,
@@ -19604,7 +19682,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn fs_rep_stosb_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 84usize,
                 1u8,
@@ -19615,7 +19693,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_fs_rep_stosb_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 84usize,
                 1u8,
@@ -19637,7 +19715,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn fs_rep_cmpsb_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 85usize,
                 1u8,
@@ -19648,7 +19726,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_fs_rep_cmpsb_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 85usize,
                 1u8,
@@ -19670,7 +19748,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn tsx_ld_trk_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 86usize,
                 1u8,
@@ -19681,7 +19759,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_tsx_ld_trk_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 86usize,
                 1u8,
@@ -19703,7 +19781,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn vmx_ins_outs_exit_info_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 87usize,
                 1u8,
@@ -19714,7 +19792,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_vmx_ins_outs_exit_info_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 87usize,
                 1u8,
@@ -19736,7 +19814,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn hlat_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 88usize,
                 1u8,
@@ -19747,7 +19825,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_hlat_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 88usize,
                 1u8,
@@ -19769,7 +19847,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn sbdr_ssdp_no_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 89usize,
                 1u8,
@@ -19780,7 +19858,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_sbdr_ssdp_no_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 89usize,
                 1u8,
@@ -19802,7 +19880,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn fbsdp_no_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 90usize,
                 1u8,
@@ -19813,7 +19891,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_fbsdp_no_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 90usize,
                 1u8,
@@ -19835,7 +19913,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn psdp_no_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 91usize,
                 1u8,
@@ -19846,7 +19924,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_psdp_no_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 91usize,
                 1u8,
@@ -19868,7 +19946,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn fb_clear_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 92usize,
                 1u8,
@@ -19879,7 +19957,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_fb_clear_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 92usize,
                 1u8,
@@ -19901,7 +19979,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn btc_no_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 93usize,
                 1u8,
@@ -19912,7 +19990,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_btc_no_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 93usize,
                 1u8,
@@ -19934,7 +20012,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn ibpb_rsb_flush_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 94usize,
                 1u8,
@@ -19945,7 +20023,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_ibpb_rsb_flush_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 94usize,
                 1u8,
@@ -19967,7 +20045,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn stibp_always_on_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 95usize,
                 1u8,
@@ -19978,7 +20056,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_stibp_always_on_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 95usize,
                 1u8,
@@ -20000,7 +20078,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn perf_global_ctrl_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 96usize,
                 1u8,
@@ -20011,7 +20089,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_perf_global_ctrl_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 96usize,
                 1u8,
@@ -20033,7 +20111,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn npt_execute_only_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 97usize,
                 1u8,
@@ -20044,7 +20122,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_npt_execute_only_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 97usize,
                 1u8,
@@ -20066,7 +20144,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn npt_ad_flags_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 98usize,
                 1u8,
@@ -20077,7 +20155,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_npt_ad_flags_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 98usize,
                 1u8,
@@ -20099,7 +20177,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn npt1_gb_page_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 99usize,
                 1u8,
@@ -20110,7 +20188,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_npt1_gb_page_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 99usize,
                 1u8,
@@ -20132,7 +20210,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn amd_processor_topology_node_id_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 100usize,
                 1u8,
@@ -20143,7 +20221,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_amd_processor_topology_node_id_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 100usize,
                 1u8,
@@ -20165,7 +20243,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn local_machine_check_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 101usize,
                 1u8,
@@ -20176,7 +20254,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_local_machine_check_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 101usize,
                 1u8,
@@ -20198,7 +20276,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn extended_topology_leaf_fp256_amd_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 102usize,
                 1u8,
@@ -20209,7 +20287,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_extended_topology_leaf_fp256_amd_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 102usize,
                 1u8,
@@ -20231,7 +20309,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn gds_no_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 103usize,
                 1u8,
@@ -20242,7 +20320,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_gds_no_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 103usize,
                 1u8,
@@ -20264,7 +20342,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn cmpccxadd_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 104usize,
                 1u8,
@@ -20275,7 +20353,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_cmpccxadd_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 104usize,
                 1u8,
@@ -20297,7 +20375,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn tsc_aux_virtualization_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 105usize,
                 1u8,
@@ -20308,7 +20386,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_tsc_aux_virtualization_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 105usize,
                 1u8,
@@ -20330,7 +20408,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn rmp_query_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 106usize,
                 1u8,
@@ -20341,7 +20419,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_rmp_query_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 106usize,
                 1u8,
@@ -20363,7 +20441,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn bhi_no_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 107usize,
                 1u8,
@@ -20374,7 +20452,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_bhi_no_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 107usize,
                 1u8,
@@ -20396,7 +20474,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn bhi_dis_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 108usize,
                 1u8,
@@ -20407,7 +20485,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_bhi_dis_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 108usize,
                 1u8,
@@ -20429,7 +20507,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn prefetch_i_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 109usize,
                 1u8,
@@ -20440,7 +20518,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_prefetch_i_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 109usize,
                 1u8,
@@ -20462,7 +20540,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn sha512_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 110usize,
                 1u8,
@@ -20473,7 +20551,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_sha512_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 110usize,
                 1u8,
@@ -20495,7 +20573,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn mitigation_ctrl_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 111usize,
                 1u8,
@@ -20506,7 +20584,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_mitigation_ctrl_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 111usize,
                 1u8,
@@ -20528,7 +20606,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn rfds_no_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 112usize,
                 1u8,
@@ -20539,7 +20617,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_rfds_no_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 112usize,
                 1u8,
@@ -20561,7 +20639,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn rfds_clear_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 113usize,
                 1u8,
@@ -20572,7 +20650,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_rfds_clear_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 113usize,
                 1u8,
@@ -20594,7 +20672,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn sm3_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 114usize,
                 1u8,
@@ -20605,7 +20683,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_sm3_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 114usize,
                 1u8,
@@ -20627,7 +20705,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn sm4_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 115usize,
                 1u8,
@@ -20638,7 +20716,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_sm4_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 115usize,
                 1u8,
@@ -20660,7 +20738,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn secure_avic_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 116usize,
                 1u8,
@@ -20671,7 +20749,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_secure_avic_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 116usize,
                 1u8,
@@ -20693,7 +20771,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn guest_intercept_ctrl_support_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 117usize,
                 1u8,
@@ -20704,7 +20782,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_guest_intercept_ctrl_support_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 117usize,
                 1u8,
@@ -20726,7 +20804,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn sbpb_supported_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 118usize,
                 1u8,
@@ -20737,7 +20815,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_sbpb_supported_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 118usize,
                 1u8,
@@ -20759,7 +20837,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn ibpb_br_type_supported_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 119usize,
                 1u8,
@@ -20770,7 +20848,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_ibpb_br_type_supported_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 119usize,
                 1u8,
@@ -20792,7 +20870,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn srso_no_supported_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 120usize,
                 1u8,
@@ -20803,7 +20881,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_srso_no_supported_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 120usize,
                 1u8,
@@ -20825,7 +20903,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn srso_user_kernel_no_supported_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 121usize,
                 1u8,
@@ -20836,7 +20914,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_srso_user_kernel_no_supported_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 121usize,
                 1u8,
@@ -20858,7 +20936,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn vrew_clear_supported_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 122usize,
                 1u8,
@@ -20869,7 +20947,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_vrew_clear_supported_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 122usize,
                 1u8,
@@ -20891,7 +20969,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn tsa_l1_no_supported_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 123usize,
                 1u8,
@@ -20902,7 +20980,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_tsa_l1_no_supported_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 123usize,
                 1u8,
@@ -20924,7 +21002,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn tsa_sq_no_supported_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 124usize,
                 1u8,
@@ -20935,7 +21013,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_tsa_sq_no_supported_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 124usize,
                 1u8,
@@ -20957,7 +21035,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn reserved0_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 125usize,
                 1u8,
@@ -20968,7 +21046,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_reserved0_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 125usize,
                 1u8,
@@ -20990,7 +21068,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn reserved1_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 126usize,
                 1u8,
@@ -21001,7 +21079,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_reserved1_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 126usize,
                 1u8,
@@ -21023,7 +21101,7 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     #[inline]
     pub unsafe fn tsa_fill_no_supported_raw(this: *const Self) -> __u64 {
         unsafe {
-            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 16usize]>>::raw_get(
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
                 ::std::ptr::addr_of!((*this)._bitfield_1),
                 127usize,
                 1u8,
@@ -21034,10 +21112,472 @@ impl hv_partition_processor_features__bindgen_ty_1 {
     pub unsafe fn set_tsa_fill_no_supported_raw(this: *mut Self, val: __u64) {
         unsafe {
             let val: u64 = ::std::mem::transmute(val);
-            <__BindgenBitfieldUnit<[u8; 16usize]>>::raw_set(
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
                 ::std::ptr::addr_of_mut!((*this)._bitfield_1),
                 127usize,
                 1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn fred_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(128usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_fred_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(128usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn fred_support_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                128usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_fred_support_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                128usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn lkgs_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(129usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_lkgs_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(129usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn lkgs_support_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                129usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_lkgs_support_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                129usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn msr_list_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(130usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_msr_list_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(130usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn msr_list_support_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                130usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_msr_list_support_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                130usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn mcg_ext_ctl_msr_lm(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(131usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_mcg_ext_ctl_msr_lm(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(131usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn mcg_ext_ctl_msr_lm_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                131usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_mcg_ext_ctl_msr_lm_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                131usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn idle_hlt_intercept_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(132usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_idle_hlt_intercept_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(132usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn idle_hlt_intercept_support_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                132usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_idle_hlt_intercept_support_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                132usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn lass_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(133usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_lass_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(133usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn lass_support_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                133usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_lass_support_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                133usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn virtual_nmi_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(134usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_virtual_nmi_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(134usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn virtual_nmi_support_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                134usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_virtual_nmi_support_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                134usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn movrs_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(135usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_movrs_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(135usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn movrs_support_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                135usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_movrs_support_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                135usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn avx512_bmm_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(136usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_avx512_bmm_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(136usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn avx512_bmm_support_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                136usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_avx512_bmm_support_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                136usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn prefetch_i_amd_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(137usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_prefetch_i_amd_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(137usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn prefetch_i_amd_support_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                137usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_prefetch_i_amd_support_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                137usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn wrmsrns_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(138usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_wrmsrns_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(138usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn wrmsrns_support_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                138usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_wrmsrns_support_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                138usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn arch_perfmon_extended_leaf_support(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(139usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_arch_perfmon_extended_leaf_support(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(139usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn arch_perfmon_extended_leaf_support_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                139usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_arch_perfmon_extended_leaf_support_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                139usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn test_bit(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(140usize, 1u8) as u64) }
+    }
+    #[inline]
+    pub fn set_test_bit(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(140usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn test_bit_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                140usize,
+                1u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_test_bit_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                140usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn reserved_bank2(&self) -> __u64 {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(141usize, 51u8) as u64) }
+    }
+    #[inline]
+    pub fn set_reserved_bank2(&mut self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            self._bitfield_1.set(141usize, 51u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn reserved_bank2_raw(this: *const Self) -> __u64 {
+        unsafe {
+            ::std::mem::transmute(<__BindgenBitfieldUnit<[u8; 24usize]>>::raw_get(
+                ::std::ptr::addr_of!((*this)._bitfield_1),
+                141usize,
+                51u8,
+            ) as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_reserved_bank2_raw(this: *mut Self, val: __u64) {
+        unsafe {
+            let val: u64 = ::std::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 24usize]>>::raw_set(
+                ::std::ptr::addr_of_mut!((*this)._bitfield_1),
+                141usize,
+                51u8,
                 val as u64,
             )
         }
@@ -21172,8 +21712,22 @@ impl hv_partition_processor_features__bindgen_ty_1 {
         reserved0: __u64,
         reserved1: __u64,
         tsa_fill_no_supported: __u64,
-    ) -> __BindgenBitfieldUnit<[u8; 16usize]> {
-        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 16usize]> = Default::default();
+        fred_support: __u64,
+        lkgs_support: __u64,
+        msr_list_support: __u64,
+        mcg_ext_ctl_msr_lm: __u64,
+        idle_hlt_intercept_support: __u64,
+        lass_support: __u64,
+        virtual_nmi_support: __u64,
+        movrs_support: __u64,
+        avx512_bmm_support: __u64,
+        prefetch_i_amd_support: __u64,
+        wrmsrns_support: __u64,
+        arch_perfmon_extended_leaf_support: __u64,
+        test_bit: __u64,
+        reserved_bank2: __u64,
+    ) -> __BindgenBitfieldUnit<[u8; 24usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 24usize]> = Default::default();
         __bindgen_bitfield_unit.set(0usize, 1u8, {
             let sse3_support: u64 = unsafe { ::std::mem::transmute(sse3_support) };
             sse3_support as u64
@@ -21717,13 +22271,72 @@ impl hv_partition_processor_features__bindgen_ty_1 {
                 unsafe { ::std::mem::transmute(tsa_fill_no_supported) };
             tsa_fill_no_supported as u64
         });
+        __bindgen_bitfield_unit.set(128usize, 1u8, {
+            let fred_support: u64 = unsafe { ::std::mem::transmute(fred_support) };
+            fred_support as u64
+        });
+        __bindgen_bitfield_unit.set(129usize, 1u8, {
+            let lkgs_support: u64 = unsafe { ::std::mem::transmute(lkgs_support) };
+            lkgs_support as u64
+        });
+        __bindgen_bitfield_unit.set(130usize, 1u8, {
+            let msr_list_support: u64 = unsafe { ::std::mem::transmute(msr_list_support) };
+            msr_list_support as u64
+        });
+        __bindgen_bitfield_unit.set(131usize, 1u8, {
+            let mcg_ext_ctl_msr_lm: u64 = unsafe { ::std::mem::transmute(mcg_ext_ctl_msr_lm) };
+            mcg_ext_ctl_msr_lm as u64
+        });
+        __bindgen_bitfield_unit.set(132usize, 1u8, {
+            let idle_hlt_intercept_support: u64 =
+                unsafe { ::std::mem::transmute(idle_hlt_intercept_support) };
+            idle_hlt_intercept_support as u64
+        });
+        __bindgen_bitfield_unit.set(133usize, 1u8, {
+            let lass_support: u64 = unsafe { ::std::mem::transmute(lass_support) };
+            lass_support as u64
+        });
+        __bindgen_bitfield_unit.set(134usize, 1u8, {
+            let virtual_nmi_support: u64 = unsafe { ::std::mem::transmute(virtual_nmi_support) };
+            virtual_nmi_support as u64
+        });
+        __bindgen_bitfield_unit.set(135usize, 1u8, {
+            let movrs_support: u64 = unsafe { ::std::mem::transmute(movrs_support) };
+            movrs_support as u64
+        });
+        __bindgen_bitfield_unit.set(136usize, 1u8, {
+            let avx512_bmm_support: u64 = unsafe { ::std::mem::transmute(avx512_bmm_support) };
+            avx512_bmm_support as u64
+        });
+        __bindgen_bitfield_unit.set(137usize, 1u8, {
+            let prefetch_i_amd_support: u64 =
+                unsafe { ::std::mem::transmute(prefetch_i_amd_support) };
+            prefetch_i_amd_support as u64
+        });
+        __bindgen_bitfield_unit.set(138usize, 1u8, {
+            let wrmsrns_support: u64 = unsafe { ::std::mem::transmute(wrmsrns_support) };
+            wrmsrns_support as u64
+        });
+        __bindgen_bitfield_unit.set(139usize, 1u8, {
+            let arch_perfmon_extended_leaf_support: u64 =
+                unsafe { ::std::mem::transmute(arch_perfmon_extended_leaf_support) };
+            arch_perfmon_extended_leaf_support as u64
+        });
+        __bindgen_bitfield_unit.set(140usize, 1u8, {
+            let test_bit: u64 = unsafe { ::std::mem::transmute(test_bit) };
+            test_bit as u64
+        });
+        __bindgen_bitfield_unit.set(141usize, 51u8, {
+            let reserved_bank2: u64 = unsafe { ::std::mem::transmute(reserved_bank2) };
+            reserved_bank2 as u64
+        });
         __bindgen_bitfield_unit
     }
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
     ["Size of hv_partition_processor_features"]
-        [::std::mem::size_of::<hv_partition_processor_features>() - 16usize];
+        [::std::mem::size_of::<hv_partition_processor_features>() - 24usize];
     ["Alignment of hv_partition_processor_features"]
         [::std::mem::align_of::<hv_partition_processor_features>() - 8usize];
     ["Offset of field: hv_partition_processor_features::as_uint64"]
@@ -21738,22 +22351,373 @@ impl Default for hv_partition_processor_features {
         }
     }
 }
-#[repr(C)]
-#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_vp_registers {
-    pub count: ::std::os::raw::c_int,
-    pub regs: *mut hv_register_assoc,
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct hv_partition_property_processor_features_ex {
+    pub bank_count: __u8,
+    pub reserved0: __u8,
+    pub reserved1: [__u16; 3usize],
+    pub processor_feature_mask: [__u64; 3usize],
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of mshv_vp_registers"][::std::mem::size_of::<mshv_vp_registers>() - 16usize];
-    ["Alignment of mshv_vp_registers"][::std::mem::align_of::<mshv_vp_registers>() - 8usize];
-    ["Offset of field: mshv_vp_registers::count"]
-        [::std::mem::offset_of!(mshv_vp_registers, count) - 0usize];
-    ["Offset of field: mshv_vp_registers::regs"]
-        [::std::mem::offset_of!(mshv_vp_registers, regs) - 8usize];
+    ["Size of hv_partition_property_processor_features_ex"]
+        [::std::mem::size_of::<hv_partition_property_processor_features_ex>() - 32usize];
+    ["Alignment of hv_partition_property_processor_features_ex"]
+        [::std::mem::align_of::<hv_partition_property_processor_features_ex>() - 1usize];
+    ["Offset of field: hv_partition_property_processor_features_ex::bank_count"]
+        [::std::mem::offset_of!(hv_partition_property_processor_features_ex, bank_count) - 0usize];
+    ["Offset of field: hv_partition_property_processor_features_ex::reserved0"]
+        [::std::mem::offset_of!(hv_partition_property_processor_features_ex, reserved0) - 1usize];
+    ["Offset of field: hv_partition_property_processor_features_ex::reserved1"]
+        [::std::mem::offset_of!(hv_partition_property_processor_features_ex, reserved1) - 2usize];
+    ["Offset of field: hv_partition_property_processor_features_ex::processor_feature_mask"][::std::mem::offset_of!(
+        hv_partition_property_processor_features_ex,
+        processor_feature_mask
+    )
+        - 8usize];
 };
-impl Default for mshv_vp_registers {
+pub const MSHV_PT_BIT_LAPIC: _bindgen_ty_1 = 0;
+pub const MSHV_PT_BIT_X2APIC: _bindgen_ty_1 = 1;
+pub const MSHV_PT_BIT_GPA_SUPER_PAGES: _bindgen_ty_1 = 2;
+pub const MSHV_PT_BIT_CPU_AND_XSAVE_FEATURES: _bindgen_ty_1 = 3;
+pub const MSHV_PT_BIT_NESTED_VIRTUALIZATION: _bindgen_ty_1 = 4;
+pub const MSHV_PT_BIT_SMT_ENABLED_GUEST: _bindgen_ty_1 = 5;
+pub const MSHV_PT_BIT_COUNT: _bindgen_ty_1 = 6;
+pub type _bindgen_ty_1 = ::std::os::raw::c_uint;
+pub const MSHV_PT_ISOLATION_NONE: _bindgen_ty_2 = 0;
+pub const MSHV_PT_ISOLATION_SNP: _bindgen_ty_2 = 1;
+pub const MSHV_PT_ISOLATION_COUNT: _bindgen_ty_2 = 2;
+pub type _bindgen_ty_2 = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_create_partition {
+    pub pt_flags: __u64,
+    pub pt_isolation: __u64,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_create_partition"][::std::mem::size_of::<mshv_create_partition>() - 16usize];
+    ["Alignment of mshv_create_partition"]
+        [::std::mem::align_of::<mshv_create_partition>() - 8usize];
+    ["Offset of field: mshv_create_partition::pt_flags"]
+        [::std::mem::offset_of!(mshv_create_partition, pt_flags) - 0usize];
+    ["Offset of field: mshv_create_partition::pt_isolation"]
+        [::std::mem::offset_of!(mshv_create_partition, pt_isolation) - 8usize];
+};
+#[repr(C, packed)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_create_partition_v2 {
+    pub pt_flags: __u64,
+    pub pt_isolation: __u64,
+    pub pt_num_cpu_fbanks: __u16,
+    pub pt_rsvd: [__u8; 6usize],
+    pub pt_cpu_fbanks: [__u64; 3usize],
+    pub pt_rsvd1: [__u64; 1usize],
+    pub pt_disabled_xsave: __u64,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_create_partition_v2"]
+        [::std::mem::size_of::<mshv_create_partition_v2>() - 64usize];
+    ["Alignment of mshv_create_partition_v2"]
+        [::std::mem::align_of::<mshv_create_partition_v2>() - 1usize];
+    ["Offset of field: mshv_create_partition_v2::pt_flags"]
+        [::std::mem::offset_of!(mshv_create_partition_v2, pt_flags) - 0usize];
+    ["Offset of field: mshv_create_partition_v2::pt_isolation"]
+        [::std::mem::offset_of!(mshv_create_partition_v2, pt_isolation) - 8usize];
+    ["Offset of field: mshv_create_partition_v2::pt_num_cpu_fbanks"]
+        [::std::mem::offset_of!(mshv_create_partition_v2, pt_num_cpu_fbanks) - 16usize];
+    ["Offset of field: mshv_create_partition_v2::pt_rsvd"]
+        [::std::mem::offset_of!(mshv_create_partition_v2, pt_rsvd) - 18usize];
+    ["Offset of field: mshv_create_partition_v2::pt_cpu_fbanks"]
+        [::std::mem::offset_of!(mshv_create_partition_v2, pt_cpu_fbanks) - 24usize];
+    ["Offset of field: mshv_create_partition_v2::pt_rsvd1"]
+        [::std::mem::offset_of!(mshv_create_partition_v2, pt_rsvd1) - 48usize];
+    ["Offset of field: mshv_create_partition_v2::pt_disabled_xsave"]
+        [::std::mem::offset_of!(mshv_create_partition_v2, pt_disabled_xsave) - 56usize];
+};
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_create_vp {
+    pub vp_index: __u32,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_create_vp"][::std::mem::size_of::<mshv_create_vp>() - 4usize];
+    ["Alignment of mshv_create_vp"][::std::mem::align_of::<mshv_create_vp>() - 4usize];
+    ["Offset of field: mshv_create_vp::vp_index"]
+        [::std::mem::offset_of!(mshv_create_vp, vp_index) - 0usize];
+};
+pub const MSHV_SET_MEM_BIT_WRITABLE: _bindgen_ty_3 = 0;
+pub const MSHV_SET_MEM_BIT_EXECUTABLE: _bindgen_ty_3 = 1;
+pub const MSHV_SET_MEM_BIT_UNMAP: _bindgen_ty_3 = 2;
+pub const MSHV_SET_MEM_BIT_COUNT: _bindgen_ty_3 = 3;
+pub type _bindgen_ty_3 = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_user_mem_region {
+    pub size: __u64,
+    pub guest_pfn: __u64,
+    pub userspace_addr: __u64,
+    pub flags: __u8,
+    pub rsvd: [__u8; 7usize],
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_user_mem_region"][::std::mem::size_of::<mshv_user_mem_region>() - 32usize];
+    ["Alignment of mshv_user_mem_region"][::std::mem::align_of::<mshv_user_mem_region>() - 8usize];
+    ["Offset of field: mshv_user_mem_region::size"]
+        [::std::mem::offset_of!(mshv_user_mem_region, size) - 0usize];
+    ["Offset of field: mshv_user_mem_region::guest_pfn"]
+        [::std::mem::offset_of!(mshv_user_mem_region, guest_pfn) - 8usize];
+    ["Offset of field: mshv_user_mem_region::userspace_addr"]
+        [::std::mem::offset_of!(mshv_user_mem_region, userspace_addr) - 16usize];
+    ["Offset of field: mshv_user_mem_region::flags"]
+        [::std::mem::offset_of!(mshv_user_mem_region, flags) - 24usize];
+    ["Offset of field: mshv_user_mem_region::rsvd"]
+        [::std::mem::offset_of!(mshv_user_mem_region, rsvd) - 25usize];
+};
+pub const MSHV_IRQFD_BIT_DEASSIGN: _bindgen_ty_4 = 0;
+pub const MSHV_IRQFD_BIT_RESAMPLE: _bindgen_ty_4 = 1;
+pub const MSHV_IRQFD_BIT_COUNT: _bindgen_ty_4 = 2;
+pub type _bindgen_ty_4 = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_user_irqfd {
+    pub fd: __s32,
+    pub resamplefd: __s32,
+    pub gsi: __u32,
+    pub flags: __u32,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_user_irqfd"][::std::mem::size_of::<mshv_user_irqfd>() - 16usize];
+    ["Alignment of mshv_user_irqfd"][::std::mem::align_of::<mshv_user_irqfd>() - 4usize];
+    ["Offset of field: mshv_user_irqfd::fd"][::std::mem::offset_of!(mshv_user_irqfd, fd) - 0usize];
+    ["Offset of field: mshv_user_irqfd::resamplefd"]
+        [::std::mem::offset_of!(mshv_user_irqfd, resamplefd) - 4usize];
+    ["Offset of field: mshv_user_irqfd::gsi"]
+        [::std::mem::offset_of!(mshv_user_irqfd, gsi) - 8usize];
+    ["Offset of field: mshv_user_irqfd::flags"]
+        [::std::mem::offset_of!(mshv_user_irqfd, flags) - 12usize];
+};
+pub const MSHV_IOEVENTFD_BIT_DATAMATCH: _bindgen_ty_5 = 0;
+pub const MSHV_IOEVENTFD_BIT_PIO: _bindgen_ty_5 = 1;
+pub const MSHV_IOEVENTFD_BIT_DEASSIGN: _bindgen_ty_5 = 2;
+pub const MSHV_IOEVENTFD_BIT_COUNT: _bindgen_ty_5 = 3;
+pub type _bindgen_ty_5 = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_user_ioeventfd {
+    pub datamatch: __u64,
+    pub addr: __u64,
+    pub len: __u32,
+    pub fd: __s32,
+    pub flags: __u32,
+    pub rsvd: [__u8; 4usize],
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_user_ioeventfd"][::std::mem::size_of::<mshv_user_ioeventfd>() - 32usize];
+    ["Alignment of mshv_user_ioeventfd"][::std::mem::align_of::<mshv_user_ioeventfd>() - 8usize];
+    ["Offset of field: mshv_user_ioeventfd::datamatch"]
+        [::std::mem::offset_of!(mshv_user_ioeventfd, datamatch) - 0usize];
+    ["Offset of field: mshv_user_ioeventfd::addr"]
+        [::std::mem::offset_of!(mshv_user_ioeventfd, addr) - 8usize];
+    ["Offset of field: mshv_user_ioeventfd::len"]
+        [::std::mem::offset_of!(mshv_user_ioeventfd, len) - 16usize];
+    ["Offset of field: mshv_user_ioeventfd::fd"]
+        [::std::mem::offset_of!(mshv_user_ioeventfd, fd) - 20usize];
+    ["Offset of field: mshv_user_ioeventfd::flags"]
+        [::std::mem::offset_of!(mshv_user_ioeventfd, flags) - 24usize];
+    ["Offset of field: mshv_user_ioeventfd::rsvd"]
+        [::std::mem::offset_of!(mshv_user_ioeventfd, rsvd) - 28usize];
+};
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_user_irq_entry {
+    pub gsi: __u32,
+    pub address_lo: __u32,
+    pub address_hi: __u32,
+    pub data: __u32,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_user_irq_entry"][::std::mem::size_of::<mshv_user_irq_entry>() - 16usize];
+    ["Alignment of mshv_user_irq_entry"][::std::mem::align_of::<mshv_user_irq_entry>() - 4usize];
+    ["Offset of field: mshv_user_irq_entry::gsi"]
+        [::std::mem::offset_of!(mshv_user_irq_entry, gsi) - 0usize];
+    ["Offset of field: mshv_user_irq_entry::address_lo"]
+        [::std::mem::offset_of!(mshv_user_irq_entry, address_lo) - 4usize];
+    ["Offset of field: mshv_user_irq_entry::address_hi"]
+        [::std::mem::offset_of!(mshv_user_irq_entry, address_hi) - 8usize];
+    ["Offset of field: mshv_user_irq_entry::data"]
+        [::std::mem::offset_of!(mshv_user_irq_entry, data) - 12usize];
+};
+#[repr(C)]
+#[derive(Debug, Default)]
+pub struct mshv_user_irq_table {
+    pub nr: __u32,
+    pub rsvd: __u32,
+    pub entries: __IncompleteArrayField<mshv_user_irq_entry>,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_user_irq_table"][::std::mem::size_of::<mshv_user_irq_table>() - 8usize];
+    ["Alignment of mshv_user_irq_table"][::std::mem::align_of::<mshv_user_irq_table>() - 4usize];
+    ["Offset of field: mshv_user_irq_table::nr"]
+        [::std::mem::offset_of!(mshv_user_irq_table, nr) - 0usize];
+    ["Offset of field: mshv_user_irq_table::rsvd"]
+        [::std::mem::offset_of!(mshv_user_irq_table, rsvd) - 4usize];
+    ["Offset of field: mshv_user_irq_table::entries"]
+        [::std::mem::offset_of!(mshv_user_irq_table, entries) - 8usize];
+};
+pub const MSHV_GPAP_ACCESS_TYPE_ACCESSED: _bindgen_ty_6 = 0;
+pub const MSHV_GPAP_ACCESS_TYPE_DIRTY: _bindgen_ty_6 = 1;
+pub const MSHV_GPAP_ACCESS_TYPE_COUNT: _bindgen_ty_6 = 2;
+pub type _bindgen_ty_6 = ::std::os::raw::c_uint;
+pub const MSHV_GPAP_ACCESS_OP_NOOP: _bindgen_ty_7 = 0;
+pub const MSHV_GPAP_ACCESS_OP_CLEAR: _bindgen_ty_7 = 1;
+pub const MSHV_GPAP_ACCESS_OP_SET: _bindgen_ty_7 = 2;
+pub const MSHV_GPAP_ACCESS_OP_COUNT: _bindgen_ty_7 = 3;
+pub type _bindgen_ty_7 = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_gpap_access_bitmap {
+    pub access_type: __u8,
+    pub access_op: __u8,
+    pub rsvd: [__u8; 6usize],
+    pub page_count: __u64,
+    pub gpap_base: __u64,
+    pub bitmap_ptr: __u64,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_gpap_access_bitmap"][::std::mem::size_of::<mshv_gpap_access_bitmap>() - 32usize];
+    ["Alignment of mshv_gpap_access_bitmap"]
+        [::std::mem::align_of::<mshv_gpap_access_bitmap>() - 8usize];
+    ["Offset of field: mshv_gpap_access_bitmap::access_type"]
+        [::std::mem::offset_of!(mshv_gpap_access_bitmap, access_type) - 0usize];
+    ["Offset of field: mshv_gpap_access_bitmap::access_op"]
+        [::std::mem::offset_of!(mshv_gpap_access_bitmap, access_op) - 1usize];
+    ["Offset of field: mshv_gpap_access_bitmap::rsvd"]
+        [::std::mem::offset_of!(mshv_gpap_access_bitmap, rsvd) - 2usize];
+    ["Offset of field: mshv_gpap_access_bitmap::page_count"]
+        [::std::mem::offset_of!(mshv_gpap_access_bitmap, page_count) - 8usize];
+    ["Offset of field: mshv_gpap_access_bitmap::gpap_base"]
+        [::std::mem::offset_of!(mshv_gpap_access_bitmap, gpap_base) - 16usize];
+    ["Offset of field: mshv_gpap_access_bitmap::bitmap_ptr"]
+        [::std::mem::offset_of!(mshv_gpap_access_bitmap, bitmap_ptr) - 24usize];
+};
+pub const MSHV_GPA_HOST_ACCESS_BIT_ACQUIRE: _bindgen_ty_8 = 0;
+pub const MSHV_GPA_HOST_ACCESS_BIT_READABLE: _bindgen_ty_8 = 1;
+pub const MSHV_GPA_HOST_ACCESS_BIT_WRITABLE: _bindgen_ty_8 = 2;
+pub const MSHV_GPA_HOST_ACCESS_BIT_LARGE_PAGE: _bindgen_ty_8 = 3;
+pub const MSHV_GPA_HOST_ACCESS_BIT_COUNT: _bindgen_ty_8 = 4;
+pub type _bindgen_ty_8 = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Default)]
+pub struct mshv_modify_gpa_host_access {
+    pub flags: __u8,
+    pub rsvd: [__u8; 7usize],
+    pub page_count: __u64,
+    pub guest_pfns: __IncompleteArrayField<__u64>,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_modify_gpa_host_access"]
+        [::std::mem::size_of::<mshv_modify_gpa_host_access>() - 16usize];
+    ["Alignment of mshv_modify_gpa_host_access"]
+        [::std::mem::align_of::<mshv_modify_gpa_host_access>() - 8usize];
+    ["Offset of field: mshv_modify_gpa_host_access::flags"]
+        [::std::mem::offset_of!(mshv_modify_gpa_host_access, flags) - 0usize];
+    ["Offset of field: mshv_modify_gpa_host_access::rsvd"]
+        [::std::mem::offset_of!(mshv_modify_gpa_host_access, rsvd) - 1usize];
+    ["Offset of field: mshv_modify_gpa_host_access::page_count"]
+        [::std::mem::offset_of!(mshv_modify_gpa_host_access, page_count) - 8usize];
+    ["Offset of field: mshv_modify_gpa_host_access::guest_pfns"]
+        [::std::mem::offset_of!(mshv_modify_gpa_host_access, guest_pfns) - 16usize];
+};
+pub const MSHV_ISOLATED_PAGE_NORMAL: _bindgen_ty_9 = 0;
+pub const MSHV_ISOLATED_PAGE_VMSA: _bindgen_ty_9 = 1;
+pub const MSHV_ISOLATED_PAGE_ZERO: _bindgen_ty_9 = 2;
+pub const MSHV_ISOLATED_PAGE_UNMEASURED: _bindgen_ty_9 = 3;
+pub const MSHV_ISOLATED_PAGE_SECRETS: _bindgen_ty_9 = 4;
+pub const MSHV_ISOLATED_PAGE_CPUID: _bindgen_ty_9 = 5;
+pub const MSHV_ISOLATED_PAGE_COUNT: _bindgen_ty_9 = 6;
+pub type _bindgen_ty_9 = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Default)]
+pub struct mshv_import_isolated_pages {
+    pub page_type: __u8,
+    pub rsvd: [__u8; 7usize],
+    pub page_count: __u64,
+    pub guest_pfns: __IncompleteArrayField<__u64>,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_import_isolated_pages"]
+        [::std::mem::size_of::<mshv_import_isolated_pages>() - 16usize];
+    ["Alignment of mshv_import_isolated_pages"]
+        [::std::mem::align_of::<mshv_import_isolated_pages>() - 8usize];
+    ["Offset of field: mshv_import_isolated_pages::page_type"]
+        [::std::mem::offset_of!(mshv_import_isolated_pages, page_type) - 0usize];
+    ["Offset of field: mshv_import_isolated_pages::rsvd"]
+        [::std::mem::offset_of!(mshv_import_isolated_pages, rsvd) - 1usize];
+    ["Offset of field: mshv_import_isolated_pages::page_count"]
+        [::std::mem::offset_of!(mshv_import_isolated_pages, page_count) - 8usize];
+    ["Offset of field: mshv_import_isolated_pages::guest_pfns"]
+        [::std::mem::offset_of!(mshv_import_isolated_pages, guest_pfns) - 16usize];
+};
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_issue_psp_guest_request {
+    pub req_gpa: __u64,
+    pub rsp_gpa: __u64,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_issue_psp_guest_request"]
+        [::std::mem::size_of::<mshv_issue_psp_guest_request>() - 16usize];
+    ["Alignment of mshv_issue_psp_guest_request"]
+        [::std::mem::align_of::<mshv_issue_psp_guest_request>() - 8usize];
+    ["Offset of field: mshv_issue_psp_guest_request::req_gpa"]
+        [::std::mem::offset_of!(mshv_issue_psp_guest_request, req_gpa) - 0usize];
+    ["Offset of field: mshv_issue_psp_guest_request::rsp_gpa"]
+        [::std::mem::offset_of!(mshv_issue_psp_guest_request, rsp_gpa) - 8usize];
+};
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_sev_snp_ap_create {
+    pub vp_id: __u64,
+    pub vmsa_gpa: __u64,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_sev_snp_ap_create"][::std::mem::size_of::<mshv_sev_snp_ap_create>() - 16usize];
+    ["Alignment of mshv_sev_snp_ap_create"]
+        [::std::mem::align_of::<mshv_sev_snp_ap_create>() - 8usize];
+    ["Offset of field: mshv_sev_snp_ap_create::vp_id"]
+        [::std::mem::offset_of!(mshv_sev_snp_ap_create, vp_id) - 0usize];
+    ["Offset of field: mshv_sev_snp_ap_create::vmsa_gpa"]
+        [::std::mem::offset_of!(mshv_sev_snp_ap_create, vmsa_gpa) - 8usize];
+};
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct mshv_complete_isolated_import {
+    pub import_data: hv_partition_complete_isolated_import_data,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_complete_isolated_import"]
+        [::std::mem::size_of::<mshv_complete_isolated_import>() - 3334usize];
+    ["Alignment of mshv_complete_isolated_import"]
+        [::std::mem::align_of::<mshv_complete_isolated_import>() - 1usize];
+    ["Offset of field: mshv_complete_isolated_import::import_data"]
+        [::std::mem::offset_of!(mshv_complete_isolated_import, import_data) - 0usize];
+};
+impl Default for mshv_complete_isolated_import {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
         unsafe {
@@ -21763,11 +22727,44 @@ impl Default for mshv_vp_registers {
     }
 }
 #[repr(C)]
-#[derive(Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_root_hvcall {
+    pub code: __u16,
+    pub reps: __u16,
+    pub in_sz: __u16,
+    pub out_sz: __u16,
+    pub status: __u16,
+    pub rsvd: [__u8; 6usize],
+    pub in_ptr: __u64,
+    pub out_ptr: __u64,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_root_hvcall"][::std::mem::size_of::<mshv_root_hvcall>() - 32usize];
+    ["Alignment of mshv_root_hvcall"][::std::mem::align_of::<mshv_root_hvcall>() - 8usize];
+    ["Offset of field: mshv_root_hvcall::code"]
+        [::std::mem::offset_of!(mshv_root_hvcall, code) - 0usize];
+    ["Offset of field: mshv_root_hvcall::reps"]
+        [::std::mem::offset_of!(mshv_root_hvcall, reps) - 2usize];
+    ["Offset of field: mshv_root_hvcall::in_sz"]
+        [::std::mem::offset_of!(mshv_root_hvcall, in_sz) - 4usize];
+    ["Offset of field: mshv_root_hvcall::out_sz"]
+        [::std::mem::offset_of!(mshv_root_hvcall, out_sz) - 6usize];
+    ["Offset of field: mshv_root_hvcall::status"]
+        [::std::mem::offset_of!(mshv_root_hvcall, status) - 8usize];
+    ["Offset of field: mshv_root_hvcall::rsvd"]
+        [::std::mem::offset_of!(mshv_root_hvcall, rsvd) - 10usize];
+    ["Offset of field: mshv_root_hvcall::in_ptr"]
+        [::std::mem::offset_of!(mshv_root_hvcall, in_ptr) - 16usize];
+    ["Offset of field: mshv_root_hvcall::out_ptr"]
+        [::std::mem::offset_of!(mshv_root_hvcall, out_ptr) - 24usize];
+};
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_install_intercept {
     pub access_type_mask: __u32,
-    pub intercept_type: hv_intercept_type,
-    pub intercept_parameter: hv_intercept_parameters,
+    pub intercept_type: __u32,
+    pub intercept_parameter: __u64,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -21781,19 +22778,10 @@ const _: () = {
     ["Offset of field: mshv_install_intercept::intercept_parameter"]
         [::std::mem::offset_of!(mshv_install_intercept, intercept_parameter) - 8usize];
 };
-impl Default for mshv_install_intercept {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
-#[derive(Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_assert_interrupt {
-    pub control: hv_interrupt_control,
+    pub control: __u64,
     pub dest_addr: __u64,
     pub vector: __u32,
     pub rsvd: __u32,
@@ -21812,71 +22800,22 @@ const _: () = {
     ["Offset of field: mshv_assert_interrupt::rsvd"]
         [::std::mem::offset_of!(mshv_assert_interrupt, rsvd) - 20usize];
 };
-impl Default for mshv_assert_interrupt {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
-#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_translate_gva {
-    pub gva: __u64,
-    pub flags: __u64,
-    pub result: *mut hv_translate_gva_result,
-    pub gpa: *mut __u64,
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_partition_property {
+    pub property_code: __u64,
+    pub property_value: __u64,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of mshv_translate_gva"][::std::mem::size_of::<mshv_translate_gva>() - 32usize];
-    ["Alignment of mshv_translate_gva"][::std::mem::align_of::<mshv_translate_gva>() - 8usize];
-    ["Offset of field: mshv_translate_gva::gva"]
-        [::std::mem::offset_of!(mshv_translate_gva, gva) - 0usize];
-    ["Offset of field: mshv_translate_gva::flags"]
-        [::std::mem::offset_of!(mshv_translate_gva, flags) - 8usize];
-    ["Offset of field: mshv_translate_gva::result"]
-        [::std::mem::offset_of!(mshv_translate_gva, result) - 16usize];
-    ["Offset of field: mshv_translate_gva::gpa"]
-        [::std::mem::offset_of!(mshv_translate_gva, gpa) - 24usize];
+    ["Size of mshv_partition_property"][::std::mem::size_of::<mshv_partition_property>() - 16usize];
+    ["Alignment of mshv_partition_property"]
+        [::std::mem::align_of::<mshv_partition_property>() - 8usize];
+    ["Offset of field: mshv_partition_property::property_code"]
+        [::std::mem::offset_of!(mshv_partition_property, property_code) - 0usize];
+    ["Offset of field: mshv_partition_property::property_value"]
+        [::std::mem::offset_of!(mshv_partition_property, property_value) - 8usize];
 };
-impl Default for mshv_translate_gva {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct mshv_register_intercept_result {
-    pub intercept_type: __u32,
-    pub parameters: hv_register_intercept_result_parameters,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_register_intercept_result"]
-        [::std::mem::size_of::<mshv_register_intercept_result>() - 48usize];
-    ["Alignment of mshv_register_intercept_result"]
-        [::std::mem::align_of::<mshv_register_intercept_result>() - 4usize];
-    ["Offset of field: mshv_register_intercept_result::intercept_type"]
-        [::std::mem::offset_of!(mshv_register_intercept_result, intercept_type) - 0usize];
-    ["Offset of field: mshv_register_intercept_result::parameters"]
-        [::std::mem::offset_of!(mshv_register_intercept_result, parameters) - 4usize];
-};
-impl Default for mshv_register_intercept_result {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_signal_event_direct {
@@ -21958,6 +22897,147 @@ const _: () = {
     ["Offset of field: mshv_register_deliverabilty_notifications::flag"]
         [::std::mem::offset_of!(mshv_register_deliverabilty_notifications, flag) - 8usize];
 };
+pub const MSHV_VP_MMAP_OFFSET_REGISTERS: _bindgen_ty_10 = 0;
+pub const MSHV_VP_MMAP_OFFSET_INTERCEPT_MESSAGE: _bindgen_ty_10 = 1;
+pub const MSHV_VP_MMAP_OFFSET_GHCB: _bindgen_ty_10 = 2;
+pub const MSHV_VP_MMAP_OFFSET_COUNT: _bindgen_ty_10 = 3;
+pub type _bindgen_ty_10 = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_run_vp {
+    pub msg_buf: [__u8; 256usize],
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_run_vp"][::std::mem::size_of::<mshv_run_vp>() - 256usize];
+    ["Alignment of mshv_run_vp"][::std::mem::align_of::<mshv_run_vp>() - 1usize];
+    ["Offset of field: mshv_run_vp::msg_buf"]
+        [::std::mem::offset_of!(mshv_run_vp, msg_buf) - 0usize];
+};
+impl Default for mshv_run_vp {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub const MSHV_VP_STATE_LAPIC: _bindgen_ty_11 = 0;
+pub const MSHV_VP_STATE_XSAVE: _bindgen_ty_11 = 1;
+pub const MSHV_VP_STATE_SIMP: _bindgen_ty_11 = 2;
+pub const MSHV_VP_STATE_SIEFP: _bindgen_ty_11 = 3;
+pub const MSHV_VP_STATE_SYNTHETIC_TIMERS: _bindgen_ty_11 = 4;
+pub const MSHV_VP_STATE_COUNT: _bindgen_ty_11 = 5;
+pub type _bindgen_ty_11 = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_get_set_vp_state {
+    pub type_: __u8,
+    pub rsvd: [__u8; 3usize],
+    pub buf_sz: __u32,
+    pub buf_ptr: __u64,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_get_set_vp_state"][::std::mem::size_of::<mshv_get_set_vp_state>() - 16usize];
+    ["Alignment of mshv_get_set_vp_state"]
+        [::std::mem::align_of::<mshv_get_set_vp_state>() - 8usize];
+    ["Offset of field: mshv_get_set_vp_state::type_"]
+        [::std::mem::offset_of!(mshv_get_set_vp_state, type_) - 0usize];
+    ["Offset of field: mshv_get_set_vp_state::rsvd"]
+        [::std::mem::offset_of!(mshv_get_set_vp_state, rsvd) - 1usize];
+    ["Offset of field: mshv_get_set_vp_state::buf_sz"]
+        [::std::mem::offset_of!(mshv_get_set_vp_state, buf_sz) - 4usize];
+    ["Offset of field: mshv_get_set_vp_state::buf_ptr"]
+        [::std::mem::offset_of!(mshv_get_set_vp_state, buf_ptr) - 8usize];
+};
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_translate_gva {
+    pub gva: __u64,
+    pub flags: __u64,
+    pub result: *mut hv_translate_gva_result_code,
+    pub gpa: *mut __u64,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_translate_gva"][::std::mem::size_of::<mshv_translate_gva>() - 32usize];
+    ["Alignment of mshv_translate_gva"][::std::mem::align_of::<mshv_translate_gva>() - 8usize];
+    ["Offset of field: mshv_translate_gva::gva"]
+        [::std::mem::offset_of!(mshv_translate_gva, gva) - 0usize];
+    ["Offset of field: mshv_translate_gva::flags"]
+        [::std::mem::offset_of!(mshv_translate_gva, flags) - 8usize];
+    ["Offset of field: mshv_translate_gva::result"]
+        [::std::mem::offset_of!(mshv_translate_gva, result) - 16usize];
+    ["Offset of field: mshv_translate_gva::gpa"]
+        [::std::mem::offset_of!(mshv_translate_gva, gpa) - 24usize];
+};
+impl Default for mshv_translate_gva {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_vp_registers {
+    pub count: __u32,
+    pub padding: __u32,
+    pub regs: *mut hv_register_assoc,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_vp_registers"][::std::mem::size_of::<mshv_vp_registers>() - 16usize];
+    ["Alignment of mshv_vp_registers"][::std::mem::align_of::<mshv_vp_registers>() - 8usize];
+    ["Offset of field: mshv_vp_registers::count"]
+        [::std::mem::offset_of!(mshv_vp_registers, count) - 0usize];
+    ["Offset of field: mshv_vp_registers::padding"]
+        [::std::mem::offset_of!(mshv_vp_registers, padding) - 4usize];
+    ["Offset of field: mshv_vp_registers::regs"]
+        [::std::mem::offset_of!(mshv_vp_registers, regs) - 8usize];
+};
+impl Default for mshv_vp_registers {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
+pub struct mshv_register_intercept_result {
+    pub intercept_type: __u32,
+    pub padding: __u32,
+    pub parameters: [__u8; 48usize],
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of mshv_register_intercept_result"]
+        [::std::mem::size_of::<mshv_register_intercept_result>() - 56usize];
+    ["Alignment of mshv_register_intercept_result"]
+        [::std::mem::align_of::<mshv_register_intercept_result>() - 4usize];
+    ["Offset of field: mshv_register_intercept_result::intercept_type"]
+        [::std::mem::offset_of!(mshv_register_intercept_result, intercept_type) - 0usize];
+    ["Offset of field: mshv_register_intercept_result::padding"]
+        [::std::mem::offset_of!(mshv_register_intercept_result, padding) - 4usize];
+    ["Offset of field: mshv_register_intercept_result::parameters"]
+        [::std::mem::offset_of!(mshv_register_intercept_result, parameters) - 8usize];
+};
+impl Default for mshv_register_intercept_result {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_get_vp_cpuid_values {
@@ -22016,478 +23096,34 @@ const _: () = {
 };
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_sev_snp_ap_create {
-    pub vp_id: __u64,
-    pub vmsa_gpa: __u64,
+pub struct mshv_trace_config {
+    pub mode: __u32,
+    pub max_buffers_count: __u32,
+    pub pages_per_buffer: __u32,
+    pub buffers_threshold: __u32,
+    pub time_basis: __u32,
+    pub system_time: __u64,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of mshv_sev_snp_ap_create"][::std::mem::size_of::<mshv_sev_snp_ap_create>() - 16usize];
-    ["Alignment of mshv_sev_snp_ap_create"]
-        [::std::mem::align_of::<mshv_sev_snp_ap_create>() - 8usize];
-    ["Offset of field: mshv_sev_snp_ap_create::vp_id"]
-        [::std::mem::offset_of!(mshv_sev_snp_ap_create, vp_id) - 0usize];
-    ["Offset of field: mshv_sev_snp_ap_create::vmsa_gpa"]
-        [::std::mem::offset_of!(mshv_sev_snp_ap_create, vmsa_gpa) - 8usize];
+    ["Size of mshv_trace_config"][::std::mem::size_of::<mshv_trace_config>() - 32usize];
+    ["Alignment of mshv_trace_config"][::std::mem::align_of::<mshv_trace_config>() - 8usize];
+    ["Offset of field: mshv_trace_config::mode"]
+        [::std::mem::offset_of!(mshv_trace_config, mode) - 0usize];
+    ["Offset of field: mshv_trace_config::max_buffers_count"]
+        [::std::mem::offset_of!(mshv_trace_config, max_buffers_count) - 4usize];
+    ["Offset of field: mshv_trace_config::pages_per_buffer"]
+        [::std::mem::offset_of!(mshv_trace_config, pages_per_buffer) - 8usize];
+    ["Offset of field: mshv_trace_config::buffers_threshold"]
+        [::std::mem::offset_of!(mshv_trace_config, buffers_threshold) - 12usize];
+    ["Offset of field: mshv_trace_config::time_basis"]
+        [::std::mem::offset_of!(mshv_trace_config, time_basis) - 16usize];
+    ["Offset of field: mshv_trace_config::system_time"]
+        [::std::mem::offset_of!(mshv_trace_config, system_time) - 24usize];
 };
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_issue_psp_guest_request {
-    pub req_gpa: __u64,
-    pub rsp_gpa: __u64,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_issue_psp_guest_request"]
-        [::std::mem::size_of::<mshv_issue_psp_guest_request>() - 16usize];
-    ["Alignment of mshv_issue_psp_guest_request"]
-        [::std::mem::align_of::<mshv_issue_psp_guest_request>() - 8usize];
-    ["Offset of field: mshv_issue_psp_guest_request::req_gpa"]
-        [::std::mem::offset_of!(mshv_issue_psp_guest_request, req_gpa) - 0usize];
-    ["Offset of field: mshv_issue_psp_guest_request::rsp_gpa"]
-        [::std::mem::offset_of!(mshv_issue_psp_guest_request, rsp_gpa) - 8usize];
-};
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct mshv_complete_isolated_import {
-    pub import_data: hv_partition_complete_isolated_import_data,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_complete_isolated_import"]
-        [::std::mem::size_of::<mshv_complete_isolated_import>() - 3334usize];
-    ["Alignment of mshv_complete_isolated_import"]
-        [::std::mem::align_of::<mshv_complete_isolated_import>() - 1usize];
-    ["Offset of field: mshv_complete_isolated_import::import_data"]
-        [::std::mem::offset_of!(mshv_complete_isolated_import, import_data) - 0usize];
-};
-impl Default for mshv_complete_isolated_import {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-pub const MSHV_VTL_CAP_BIT_REGISTER_PAGE: _bindgen_ty_1 = 0;
-pub const MSHV_VTL_CAP_BIT_RETURN_ACTION: _bindgen_ty_1 = 1;
-pub const MSHV_VTL_CAP_BIT_DR6_SHARED: _bindgen_ty_1 = 2;
-pub const MSHV_VTL_CAP_BIT_COUNT: _bindgen_ty_1 = 3;
-pub type _bindgen_ty_1 = ::std::os::raw::c_uint;
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_vtl_capabilities {
-    pub bits: __u64,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_vtl_capabilities"][::std::mem::size_of::<mshv_vtl_capabilities>() - 8usize];
-    ["Alignment of mshv_vtl_capabilities"]
-        [::std::mem::align_of::<mshv_vtl_capabilities>() - 8usize];
-    ["Offset of field: mshv_vtl_capabilities::bits"]
-        [::std::mem::offset_of!(mshv_vtl_capabilities, bits) - 0usize];
-};
-pub const MSHV_PT_BIT_LAPIC: _bindgen_ty_2 = 0;
-pub const MSHV_PT_BIT_X2APIC: _bindgen_ty_2 = 1;
-pub const MSHV_PT_BIT_GPA_SUPER_PAGES: _bindgen_ty_2 = 2;
-pub const MSHV_PT_BIT_CPU_AND_XSAVE_FEATURES: _bindgen_ty_2 = 3;
-pub const MSHV_PT_BIT_NESTED_VIRTUALIZATION: _bindgen_ty_2 = 4;
-pub const MSHV_PT_BIT_SMT_ENABLED_GUEST: _bindgen_ty_2 = 5;
-pub const MSHV_PT_BIT_COUNT: _bindgen_ty_2 = 6;
-pub type _bindgen_ty_2 = ::std::os::raw::c_uint;
-pub const MSHV_PT_ISOLATION_NONE: _bindgen_ty_3 = 0;
-pub const MSHV_PT_ISOLATION_SNP: _bindgen_ty_3 = 1;
-pub const MSHV_PT_ISOLATION_COUNT: _bindgen_ty_3 = 2;
-pub type _bindgen_ty_3 = ::std::os::raw::c_uint;
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_create_partition {
-    pub pt_flags: __u64,
-    pub pt_isolation: __u64,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_create_partition"][::std::mem::size_of::<mshv_create_partition>() - 16usize];
-    ["Alignment of mshv_create_partition"]
-        [::std::mem::align_of::<mshv_create_partition>() - 8usize];
-    ["Offset of field: mshv_create_partition::pt_flags"]
-        [::std::mem::offset_of!(mshv_create_partition, pt_flags) - 0usize];
-    ["Offset of field: mshv_create_partition::pt_isolation"]
-        [::std::mem::offset_of!(mshv_create_partition, pt_isolation) - 8usize];
-};
-#[repr(C, packed)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_create_partition_v2 {
-    pub pt_flags: __u64,
-    pub pt_isolation: __u64,
-    pub pt_num_cpu_fbanks: __u16,
-    pub pt_rsvd: [__u8; 6usize],
-    pub pt_cpu_fbanks: [__u64; 2usize],
-    pub pt_rsvd1: [__u64; 2usize],
-    pub pt_disabled_xsave: __u64,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_create_partition_v2"]
-        [::std::mem::size_of::<mshv_create_partition_v2>() - 64usize];
-    ["Alignment of mshv_create_partition_v2"]
-        [::std::mem::align_of::<mshv_create_partition_v2>() - 1usize];
-    ["Offset of field: mshv_create_partition_v2::pt_flags"]
-        [::std::mem::offset_of!(mshv_create_partition_v2, pt_flags) - 0usize];
-    ["Offset of field: mshv_create_partition_v2::pt_isolation"]
-        [::std::mem::offset_of!(mshv_create_partition_v2, pt_isolation) - 8usize];
-    ["Offset of field: mshv_create_partition_v2::pt_num_cpu_fbanks"]
-        [::std::mem::offset_of!(mshv_create_partition_v2, pt_num_cpu_fbanks) - 16usize];
-    ["Offset of field: mshv_create_partition_v2::pt_rsvd"]
-        [::std::mem::offset_of!(mshv_create_partition_v2, pt_rsvd) - 18usize];
-    ["Offset of field: mshv_create_partition_v2::pt_cpu_fbanks"]
-        [::std::mem::offset_of!(mshv_create_partition_v2, pt_cpu_fbanks) - 24usize];
-    ["Offset of field: mshv_create_partition_v2::pt_rsvd1"]
-        [::std::mem::offset_of!(mshv_create_partition_v2, pt_rsvd1) - 40usize];
-    ["Offset of field: mshv_create_partition_v2::pt_disabled_xsave"]
-        [::std::mem::offset_of!(mshv_create_partition_v2, pt_disabled_xsave) - 56usize];
-};
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_partition_property {
-    pub property_code: __u64,
-    pub property_value: __u64,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_partition_property"][::std::mem::size_of::<mshv_partition_property>() - 16usize];
-    ["Alignment of mshv_partition_property"]
-        [::std::mem::align_of::<mshv_partition_property>() - 8usize];
-    ["Offset of field: mshv_partition_property::property_code"]
-        [::std::mem::offset_of!(mshv_partition_property, property_code) - 0usize];
-    ["Offset of field: mshv_partition_property::property_value"]
-        [::std::mem::offset_of!(mshv_partition_property, property_value) - 8usize];
-};
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_create_vp {
-    pub vp_index: __u32,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_create_vp"][::std::mem::size_of::<mshv_create_vp>() - 4usize];
-    ["Alignment of mshv_create_vp"][::std::mem::align_of::<mshv_create_vp>() - 4usize];
-    ["Offset of field: mshv_create_vp::vp_index"]
-        [::std::mem::offset_of!(mshv_create_vp, vp_index) - 0usize];
-};
-pub const MSHV_SET_MEM_BIT_WRITABLE: _bindgen_ty_4 = 0;
-pub const MSHV_SET_MEM_BIT_EXECUTABLE: _bindgen_ty_4 = 1;
-pub const MSHV_SET_MEM_BIT_UNMAP: _bindgen_ty_4 = 2;
-pub const MSHV_SET_MEM_BIT_COUNT: _bindgen_ty_4 = 3;
-pub type _bindgen_ty_4 = ::std::os::raw::c_uint;
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_user_mem_region {
-    pub size: __u64,
-    pub guest_pfn: __u64,
-    pub userspace_addr: __u64,
-    pub flags: __u8,
-    pub rsvd: [__u8; 7usize],
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_user_mem_region"][::std::mem::size_of::<mshv_user_mem_region>() - 32usize];
-    ["Alignment of mshv_user_mem_region"][::std::mem::align_of::<mshv_user_mem_region>() - 8usize];
-    ["Offset of field: mshv_user_mem_region::size"]
-        [::std::mem::offset_of!(mshv_user_mem_region, size) - 0usize];
-    ["Offset of field: mshv_user_mem_region::guest_pfn"]
-        [::std::mem::offset_of!(mshv_user_mem_region, guest_pfn) - 8usize];
-    ["Offset of field: mshv_user_mem_region::userspace_addr"]
-        [::std::mem::offset_of!(mshv_user_mem_region, userspace_addr) - 16usize];
-    ["Offset of field: mshv_user_mem_region::flags"]
-        [::std::mem::offset_of!(mshv_user_mem_region, flags) - 24usize];
-    ["Offset of field: mshv_user_mem_region::rsvd"]
-        [::std::mem::offset_of!(mshv_user_mem_region, rsvd) - 25usize];
-};
-pub const MSHV_IRQFD_BIT_DEASSIGN: _bindgen_ty_5 = 0;
-pub const MSHV_IRQFD_BIT_RESAMPLE: _bindgen_ty_5 = 1;
-pub const MSHV_IRQFD_BIT_COUNT: _bindgen_ty_5 = 2;
-pub type _bindgen_ty_5 = ::std::os::raw::c_uint;
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_user_irqfd {
-    pub fd: __s32,
-    pub resamplefd: __s32,
-    pub gsi: __u32,
-    pub flags: __u32,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_user_irqfd"][::std::mem::size_of::<mshv_user_irqfd>() - 16usize];
-    ["Alignment of mshv_user_irqfd"][::std::mem::align_of::<mshv_user_irqfd>() - 4usize];
-    ["Offset of field: mshv_user_irqfd::fd"][::std::mem::offset_of!(mshv_user_irqfd, fd) - 0usize];
-    ["Offset of field: mshv_user_irqfd::resamplefd"]
-        [::std::mem::offset_of!(mshv_user_irqfd, resamplefd) - 4usize];
-    ["Offset of field: mshv_user_irqfd::gsi"]
-        [::std::mem::offset_of!(mshv_user_irqfd, gsi) - 8usize];
-    ["Offset of field: mshv_user_irqfd::flags"]
-        [::std::mem::offset_of!(mshv_user_irqfd, flags) - 12usize];
-};
-pub const MSHV_IOEVENTFD_BIT_DATAMATCH: _bindgen_ty_6 = 0;
-pub const MSHV_IOEVENTFD_BIT_PIO: _bindgen_ty_6 = 1;
-pub const MSHV_IOEVENTFD_BIT_DEASSIGN: _bindgen_ty_6 = 2;
-pub const MSHV_IOEVENTFD_BIT_COUNT: _bindgen_ty_6 = 3;
-pub type _bindgen_ty_6 = ::std::os::raw::c_uint;
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_user_ioeventfd {
-    pub datamatch: __u64,
-    pub addr: __u64,
-    pub len: __u32,
-    pub fd: __s32,
-    pub flags: __u32,
-    pub rsvd: [__u8; 4usize],
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_user_ioeventfd"][::std::mem::size_of::<mshv_user_ioeventfd>() - 32usize];
-    ["Alignment of mshv_user_ioeventfd"][::std::mem::align_of::<mshv_user_ioeventfd>() - 8usize];
-    ["Offset of field: mshv_user_ioeventfd::datamatch"]
-        [::std::mem::offset_of!(mshv_user_ioeventfd, datamatch) - 0usize];
-    ["Offset of field: mshv_user_ioeventfd::addr"]
-        [::std::mem::offset_of!(mshv_user_ioeventfd, addr) - 8usize];
-    ["Offset of field: mshv_user_ioeventfd::len"]
-        [::std::mem::offset_of!(mshv_user_ioeventfd, len) - 16usize];
-    ["Offset of field: mshv_user_ioeventfd::fd"]
-        [::std::mem::offset_of!(mshv_user_ioeventfd, fd) - 20usize];
-    ["Offset of field: mshv_user_ioeventfd::flags"]
-        [::std::mem::offset_of!(mshv_user_ioeventfd, flags) - 24usize];
-    ["Offset of field: mshv_user_ioeventfd::rsvd"]
-        [::std::mem::offset_of!(mshv_user_ioeventfd, rsvd) - 28usize];
-};
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_user_irq_entry {
-    pub gsi: __u32,
-    pub address_lo: __u32,
-    pub address_hi: __u32,
-    pub data: __u32,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_user_irq_entry"][::std::mem::size_of::<mshv_user_irq_entry>() - 16usize];
-    ["Alignment of mshv_user_irq_entry"][::std::mem::align_of::<mshv_user_irq_entry>() - 4usize];
-    ["Offset of field: mshv_user_irq_entry::gsi"]
-        [::std::mem::offset_of!(mshv_user_irq_entry, gsi) - 0usize];
-    ["Offset of field: mshv_user_irq_entry::address_lo"]
-        [::std::mem::offset_of!(mshv_user_irq_entry, address_lo) - 4usize];
-    ["Offset of field: mshv_user_irq_entry::address_hi"]
-        [::std::mem::offset_of!(mshv_user_irq_entry, address_hi) - 8usize];
-    ["Offset of field: mshv_user_irq_entry::data"]
-        [::std::mem::offset_of!(mshv_user_irq_entry, data) - 12usize];
-};
-#[repr(C)]
-#[derive(Debug, Default)]
-pub struct mshv_user_irq_table {
-    pub nr: __u32,
-    pub rsvd: __u32,
-    pub entries: __IncompleteArrayField<mshv_user_irq_entry>,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_user_irq_table"][::std::mem::size_of::<mshv_user_irq_table>() - 8usize];
-    ["Alignment of mshv_user_irq_table"][::std::mem::align_of::<mshv_user_irq_table>() - 4usize];
-    ["Offset of field: mshv_user_irq_table::nr"]
-        [::std::mem::offset_of!(mshv_user_irq_table, nr) - 0usize];
-    ["Offset of field: mshv_user_irq_table::rsvd"]
-        [::std::mem::offset_of!(mshv_user_irq_table, rsvd) - 4usize];
-    ["Offset of field: mshv_user_irq_table::entries"]
-        [::std::mem::offset_of!(mshv_user_irq_table, entries) - 8usize];
-};
-pub const MSHV_GPAP_ACCESS_TYPE_ACCESSED: _bindgen_ty_7 = 0;
-pub const MSHV_GPAP_ACCESS_TYPE_DIRTY: _bindgen_ty_7 = 1;
-pub const MSHV_GPAP_ACCESS_TYPE_COUNT: _bindgen_ty_7 = 2;
-pub type _bindgen_ty_7 = ::std::os::raw::c_uint;
-pub const MSHV_GPAP_ACCESS_OP_NOOP: _bindgen_ty_8 = 0;
-pub const MSHV_GPAP_ACCESS_OP_CLEAR: _bindgen_ty_8 = 1;
-pub const MSHV_GPAP_ACCESS_OP_SET: _bindgen_ty_8 = 2;
-pub const MSHV_GPAP_ACCESS_OP_COUNT: _bindgen_ty_8 = 3;
-pub type _bindgen_ty_8 = ::std::os::raw::c_uint;
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_gpap_access_bitmap {
-    pub access_type: __u8,
-    pub access_op: __u8,
-    pub rsvd: [__u8; 6usize],
-    pub page_count: __u64,
-    pub gpap_base: __u64,
-    pub bitmap_ptr: __u64,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_gpap_access_bitmap"][::std::mem::size_of::<mshv_gpap_access_bitmap>() - 32usize];
-    ["Alignment of mshv_gpap_access_bitmap"]
-        [::std::mem::align_of::<mshv_gpap_access_bitmap>() - 8usize];
-    ["Offset of field: mshv_gpap_access_bitmap::access_type"]
-        [::std::mem::offset_of!(mshv_gpap_access_bitmap, access_type) - 0usize];
-    ["Offset of field: mshv_gpap_access_bitmap::access_op"]
-        [::std::mem::offset_of!(mshv_gpap_access_bitmap, access_op) - 1usize];
-    ["Offset of field: mshv_gpap_access_bitmap::rsvd"]
-        [::std::mem::offset_of!(mshv_gpap_access_bitmap, rsvd) - 2usize];
-    ["Offset of field: mshv_gpap_access_bitmap::page_count"]
-        [::std::mem::offset_of!(mshv_gpap_access_bitmap, page_count) - 8usize];
-    ["Offset of field: mshv_gpap_access_bitmap::gpap_base"]
-        [::std::mem::offset_of!(mshv_gpap_access_bitmap, gpap_base) - 16usize];
-    ["Offset of field: mshv_gpap_access_bitmap::bitmap_ptr"]
-        [::std::mem::offset_of!(mshv_gpap_access_bitmap, bitmap_ptr) - 24usize];
-};
-pub const MSHV_GPA_HOST_ACCESS_BIT_ACQUIRE: _bindgen_ty_9 = 0;
-pub const MSHV_GPA_HOST_ACCESS_BIT_READABLE: _bindgen_ty_9 = 1;
-pub const MSHV_GPA_HOST_ACCESS_BIT_WRITABLE: _bindgen_ty_9 = 2;
-pub const MSHV_GPA_HOST_ACCESS_BIT_LARGE_PAGE: _bindgen_ty_9 = 3;
-pub const MSHV_GPA_HOST_ACCESS_BIT_COUNT: _bindgen_ty_9 = 4;
-pub type _bindgen_ty_9 = ::std::os::raw::c_uint;
-#[repr(C)]
-#[derive(Debug, Default)]
-pub struct mshv_modify_gpa_host_access {
-    pub flags: __u8,
-    pub rsvd: [__u8; 7usize],
-    pub page_count: __u64,
-    pub guest_pfns: __IncompleteArrayField<__u64>,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_modify_gpa_host_access"]
-        [::std::mem::size_of::<mshv_modify_gpa_host_access>() - 16usize];
-    ["Alignment of mshv_modify_gpa_host_access"]
-        [::std::mem::align_of::<mshv_modify_gpa_host_access>() - 8usize];
-    ["Offset of field: mshv_modify_gpa_host_access::flags"]
-        [::std::mem::offset_of!(mshv_modify_gpa_host_access, flags) - 0usize];
-    ["Offset of field: mshv_modify_gpa_host_access::rsvd"]
-        [::std::mem::offset_of!(mshv_modify_gpa_host_access, rsvd) - 1usize];
-    ["Offset of field: mshv_modify_gpa_host_access::page_count"]
-        [::std::mem::offset_of!(mshv_modify_gpa_host_access, page_count) - 8usize];
-    ["Offset of field: mshv_modify_gpa_host_access::guest_pfns"]
-        [::std::mem::offset_of!(mshv_modify_gpa_host_access, guest_pfns) - 16usize];
-};
-pub const MSHV_ISOLATED_PAGE_NORMAL: _bindgen_ty_10 = 0;
-pub const MSHV_ISOLATED_PAGE_VMSA: _bindgen_ty_10 = 1;
-pub const MSHV_ISOLATED_PAGE_ZERO: _bindgen_ty_10 = 2;
-pub const MSHV_ISOLATED_PAGE_UNMEASURED: _bindgen_ty_10 = 3;
-pub const MSHV_ISOLATED_PAGE_SECRETS: _bindgen_ty_10 = 4;
-pub const MSHV_ISOLATED_PAGE_CPUID: _bindgen_ty_10 = 5;
-pub const MSHV_ISOLATED_PAGE_COUNT: _bindgen_ty_10 = 6;
-pub type _bindgen_ty_10 = ::std::os::raw::c_uint;
-#[repr(C)]
-#[derive(Debug, Default)]
-pub struct mshv_import_isolated_pages {
-    pub page_type: __u8,
-    pub rsvd: [__u8; 7usize],
-    pub page_count: __u64,
-    pub guest_pfns: __IncompleteArrayField<__u64>,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_import_isolated_pages"]
-        [::std::mem::size_of::<mshv_import_isolated_pages>() - 16usize];
-    ["Alignment of mshv_import_isolated_pages"]
-        [::std::mem::align_of::<mshv_import_isolated_pages>() - 8usize];
-    ["Offset of field: mshv_import_isolated_pages::page_type"]
-        [::std::mem::offset_of!(mshv_import_isolated_pages, page_type) - 0usize];
-    ["Offset of field: mshv_import_isolated_pages::rsvd"]
-        [::std::mem::offset_of!(mshv_import_isolated_pages, rsvd) - 1usize];
-    ["Offset of field: mshv_import_isolated_pages::page_count"]
-        [::std::mem::offset_of!(mshv_import_isolated_pages, page_count) - 8usize];
-    ["Offset of field: mshv_import_isolated_pages::guest_pfns"]
-        [::std::mem::offset_of!(mshv_import_isolated_pages, guest_pfns) - 16usize];
-};
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_root_hvcall {
-    pub code: __u16,
-    pub reps: __u16,
-    pub in_sz: __u16,
-    pub out_sz: __u16,
-    pub status: __u16,
-    pub rsvd: [__u8; 6usize],
-    pub in_ptr: __u64,
-    pub out_ptr: __u64,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_root_hvcall"][::std::mem::size_of::<mshv_root_hvcall>() - 32usize];
-    ["Alignment of mshv_root_hvcall"][::std::mem::align_of::<mshv_root_hvcall>() - 8usize];
-    ["Offset of field: mshv_root_hvcall::code"]
-        [::std::mem::offset_of!(mshv_root_hvcall, code) - 0usize];
-    ["Offset of field: mshv_root_hvcall::reps"]
-        [::std::mem::offset_of!(mshv_root_hvcall, reps) - 2usize];
-    ["Offset of field: mshv_root_hvcall::in_sz"]
-        [::std::mem::offset_of!(mshv_root_hvcall, in_sz) - 4usize];
-    ["Offset of field: mshv_root_hvcall::out_sz"]
-        [::std::mem::offset_of!(mshv_root_hvcall, out_sz) - 6usize];
-    ["Offset of field: mshv_root_hvcall::status"]
-        [::std::mem::offset_of!(mshv_root_hvcall, status) - 8usize];
-    ["Offset of field: mshv_root_hvcall::rsvd"]
-        [::std::mem::offset_of!(mshv_root_hvcall, rsvd) - 10usize];
-    ["Offset of field: mshv_root_hvcall::in_ptr"]
-        [::std::mem::offset_of!(mshv_root_hvcall, in_ptr) - 16usize];
-    ["Offset of field: mshv_root_hvcall::out_ptr"]
-        [::std::mem::offset_of!(mshv_root_hvcall, out_ptr) - 24usize];
-};
-pub const MSHV_VP_MMAP_OFFSET_REGISTERS: _bindgen_ty_11 = 0;
-pub const MSHV_VP_MMAP_OFFSET_INTERCEPT_MESSAGE: _bindgen_ty_11 = 1;
-pub const MSHV_VP_MMAP_OFFSET_GHCB: _bindgen_ty_11 = 2;
-pub const MSHV_VP_MMAP_OFFSET_COUNT: _bindgen_ty_11 = 3;
-pub type _bindgen_ty_11 = ::std::os::raw::c_uint;
-#[repr(C)]
-#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_run_vp {
-    pub msg_buf: [__u8; 256usize],
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_run_vp"][::std::mem::size_of::<mshv_run_vp>() - 256usize];
-    ["Alignment of mshv_run_vp"][::std::mem::align_of::<mshv_run_vp>() - 1usize];
-    ["Offset of field: mshv_run_vp::msg_buf"]
-        [::std::mem::offset_of!(mshv_run_vp, msg_buf) - 0usize];
-};
-impl Default for mshv_run_vp {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-pub const MSHV_VP_STATE_LAPIC: _bindgen_ty_12 = 0;
-pub const MSHV_VP_STATE_XSAVE: _bindgen_ty_12 = 1;
-pub const MSHV_VP_STATE_SIMP: _bindgen_ty_12 = 2;
-pub const MSHV_VP_STATE_SIEFP: _bindgen_ty_12 = 3;
-pub const MSHV_VP_STATE_SYNTHETIC_TIMERS: _bindgen_ty_12 = 4;
-pub const MSHV_VP_STATE_COUNT: _bindgen_ty_12 = 5;
+pub const MSHV_DEV_TYPE_VFIO: _bindgen_ty_12 = 0;
+pub const MSHV_DEV_TYPE_MAX: _bindgen_ty_12 = 1;
 pub type _bindgen_ty_12 = ::std::os::raw::c_uint;
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_get_set_vp_state {
-    pub type_: __u8,
-    pub rsvd: [__u8; 3usize],
-    pub buf_sz: __u32,
-    pub buf_ptr: __u64,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_get_set_vp_state"][::std::mem::size_of::<mshv_get_set_vp_state>() - 16usize];
-    ["Alignment of mshv_get_set_vp_state"]
-        [::std::mem::align_of::<mshv_get_set_vp_state>() - 8usize];
-    ["Offset of field: mshv_get_set_vp_state::type_"]
-        [::std::mem::offset_of!(mshv_get_set_vp_state, type_) - 0usize];
-    ["Offset of field: mshv_get_set_vp_state::rsvd"]
-        [::std::mem::offset_of!(mshv_get_set_vp_state, rsvd) - 1usize];
-    ["Offset of field: mshv_get_set_vp_state::buf_sz"]
-        [::std::mem::offset_of!(mshv_get_set_vp_state, buf_sz) - 4usize];
-    ["Offset of field: mshv_get_set_vp_state::buf_ptr"]
-        [::std::mem::offset_of!(mshv_get_set_vp_state, buf_ptr) - 8usize];
-};
-pub const MSHV_DEV_TYPE_VFIO: _bindgen_ty_13 = 0;
-pub const MSHV_DEV_TYPE_MAX: _bindgen_ty_13 = 1;
-pub type _bindgen_ty_13 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub struct mshv_create_device {
@@ -22526,31 +23162,4 @@ const _: () = {
         [::std::mem::offset_of!(mshv_device_attr, attr) - 8usize];
     ["Offset of field: mshv_device_attr::addr"]
         [::std::mem::offset_of!(mshv_device_attr, addr) - 16usize];
-};
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_trace_config {
-    pub mode: __u32,
-    pub max_buffers_count: __u32,
-    pub pages_per_buffer: __u32,
-    pub buffers_threshold: __u32,
-    pub time_basis: __u32,
-    pub system_time: __u64,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of mshv_trace_config"][::std::mem::size_of::<mshv_trace_config>() - 32usize];
-    ["Alignment of mshv_trace_config"][::std::mem::align_of::<mshv_trace_config>() - 8usize];
-    ["Offset of field: mshv_trace_config::mode"]
-        [::std::mem::offset_of!(mshv_trace_config, mode) - 0usize];
-    ["Offset of field: mshv_trace_config::max_buffers_count"]
-        [::std::mem::offset_of!(mshv_trace_config, max_buffers_count) - 4usize];
-    ["Offset of field: mshv_trace_config::pages_per_buffer"]
-        [::std::mem::offset_of!(mshv_trace_config, pages_per_buffer) - 8usize];
-    ["Offset of field: mshv_trace_config::buffers_threshold"]
-        [::std::mem::offset_of!(mshv_trace_config, buffers_threshold) - 12usize];
-    ["Offset of field: mshv_trace_config::time_basis"]
-        [::std::mem::offset_of!(mshv_trace_config, time_basis) - 16usize];
-    ["Offset of field: mshv_trace_config::system_time"]
-        [::std::mem::offset_of!(mshv_trace_config, system_time) - 24usize];
 };

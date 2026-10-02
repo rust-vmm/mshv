@@ -116,7 +116,9 @@ impl VmFd {
         self.hvcall_install_intercept(
             install_intercept_args.access_type_mask,
             install_intercept_args.intercept_type,
-            install_intercept_args.intercept_parameter,
+            hv_intercept_parameters {
+                as_uint64: install_intercept_args.intercept_parameter,
+            },
         )
     }
 
@@ -974,7 +976,7 @@ mod tests {
         let intercept_args = mshv_install_intercept {
             access_type_mask: HV_INTERCEPT_ACCESS_MASK_EXECUTE,
             intercept_type: hv_intercept_type_HV_INTERCEPT_TYPE_X64_CPUID,
-            intercept_parameter: hv_intercept_parameters { cpuid_index: 0x100 },
+            intercept_parameter: 0x100,
         };
         assert!(vm.install_intercept(intercept_args).is_ok());
         assert!(vm

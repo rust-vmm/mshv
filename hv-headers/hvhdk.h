@@ -550,6 +550,14 @@ struct hv_input_get_partition_property_ex {
 	};
 } __packed;
 
+struct hv_input_set_partition_property_ex {
+	__u64 partition_id;
+	__u32 property_code; /* enum hv_partition_property_code */
+	__u32 padding;
+	__u64 arg;
+	__u8 property_value[];
+} __packed;
+
 #define HV_PARTITION_PROPERTY_EX_MAX_VAR_SIZE \
 	(HV_HYP_PAGE_SIZE - sizeof(struct hv_input_get_partition_property_ex))
 
@@ -1389,7 +1397,7 @@ struct hv_input_issue_psp_guest_request {
 } __packed;
 
 #if defined(__x86_64__)
-#define HV_PARTITION_PROCESSOR_XSAVE_FEATURES_RESERVED_BITFIELD_COUNT 24
+#define HV_PARTITION_PROCESSOR_XSAVE_FEATURES_RESERVED_BITFIELD_COUNT 23
 
 union hv_partition_processor_xsave_features {
 	struct {
@@ -1433,14 +1441,22 @@ union hv_partition_processor_xsave_features {
 		__u64 amx_fp16_support : 1;
 		__u64 apx_support : 1;
 		__u64 apx_nci_ndd_nf_support : 1;
+		__u64 avx10_2_support : 1;
 		__u64 reserved : HV_PARTITION_PROCESSOR_XSAVE_FEATURES_RESERVED_BITFIELD_COUNT;
 	} __packed;
 	__u64 as_uint64;
 };
 #endif
 
-#define HV_PARTITION_PROCESSOR_FEATURES_BANKS 2
+#define HV_PARTITION_PROCESSOR_FEATURES_BANKS 3
+#define HV_PARTITION_PROCESSOR_CREATION_FEATURES_BANKS 2
 #define HV_PARTITION_PROCESSOR_FEATURES_RESERVEDBANK1_BITFIELD_COUNT 4
+
+#if defined(__aarch64__)
+#define HV_PARTITION_PROCESSOR_FEATURES_RESERVEDBANK2_BITFIELD_COUNT 56
+#else
+#define HV_PARTITION_PROCESSOR_FEATURES_RESERVEDBANK2_BITFIELD_COUNT 51
+#endif
 
 
 union hv_partition_processor_features {
@@ -1573,9 +1589,21 @@ union hv_partition_processor_features {
 		__u64 sme_i8_i32:1;         // ID_AA64PFR1_EL1.I8I32 >= 0b0001
 		__u64 sme_f64_f64:1;        // ID_AA64PFR1_EL1.F64F64 >= 0b0001
 		__u64 sme_i16_i64:1;        // ID_AA64PFR1_EL1.I16I64 >= 0b0001
-		/* Remaining reserved bits */
-		__u64 reserved_bank1 : HV_PARTITION_PROCESSOR_FEATURES_RESERVEDBANK1_BITFIELD_COUNT;
+		__u64 reserved0 : 1;
+		__u64 reserved1 : 1;
+		__u64 reserved2 : 1;
+		__u64 reserved3 : 1;
 
+		/* Third bank starts here. */
+		__u64 pmu_event_types : 1;
+		__u64 test_bit : 1;
+		__u64 fgt : 1;
+		__u64 faminmax : 1;
+		__u64 cssc : 1;
+		__u64 bbm_level1 : 1;
+		__u64 bbm_level2 : 1;
+		__u64 sve_b16_b16 : 1;
+		__u64 reserved_bank2 : HV_PARTITION_PROCESSOR_FEATURES_RESERVEDBANK2_BITFIELD_COUNT;
 	} __packed;
 #elif defined(__x86_64__)
 	struct {
@@ -1709,7 +1737,31 @@ union hv_partition_processor_features {
 		__u64 reserved0 : 1;
 		__u64 reserved1 : 1;
 		__u64 tsa_fill_no_supported : 1;
+
+		/* Third bank starts here. */
+		__u64 fred_support : 1;
+		__u64 lkgs_support : 1;
+		__u64 msr_list_support : 1;
+		__u64 mcg_ext_ctl_msr_lm : 1;
+		__u64 idle_hlt_intercept_support : 1;
+		__u64 lass_support : 1;
+		__u64 virtual_nmi_support : 1;
+		__u64 movrs_support : 1;
+		__u64 avx512_bmm_support : 1;
+		__u64 prefetch_i_amd_support : 1;
+		__u64 wrmsrns_support : 1;
+		__u64 arch_perfmon_extended_leaf_support : 1;
+		__u64 test_bit : 1;
+		__u64 reserved_bank2 : HV_PARTITION_PROCESSOR_FEATURES_RESERVEDBANK2_BITFIELD_COUNT;
 	} __packed;
 #endif
 };
+
+struct hv_partition_property_processor_features_ex {
+	__u8 bank_count;
+	__u8 reserved0;
+	__u16 reserved1[3];
+	__u64 processor_feature_mask[HV_PARTITION_PROCESSOR_FEATURES_BANKS];
+} __packed;
+
 #endif /* _HVHDK_H */
