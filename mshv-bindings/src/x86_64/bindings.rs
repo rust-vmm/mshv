@@ -6617,6 +6617,8 @@ pub const hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES0:
     hv_partition_property_code = 393226;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES1:
     hv_partition_property_code = 393227;
+pub const hv_partition_property_code_HV_PARTITION_PROPERTY_FEATURE_BANK_COUNT:
+    hv_partition_property_code = 393237;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_GUEST_OS_ID: hv_partition_property_code =
     458752;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_VIRTUALIZATION_FEATURES:
@@ -6627,6 +6629,8 @@ pub const hv_partition_property_code_HV_PARTITION_PROPERTY_ASSIGNABLE_SYNTHETIC_
     hv_partition_property_code = 589833;
 pub const hv_partition_property_code_HV_PARTITION_PROPERTY_DISABLED_PROCESSOR_FEATURES_EX:
     hv_partition_property_code = 589838;
+pub const hv_partition_property_code_HV_PARTITION_PROPERTY_ROOT_PROCESSOR_FEATURES_EX:
+    hv_partition_property_code = 589839;
 pub type hv_partition_property_code = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Copy, Clone)]

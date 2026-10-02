@@ -75,10 +75,20 @@ impl Mshv {
             pt_isolation = MSHV_PT_ISOLATION_SNP as u64;
         }
 
+        let feature_bank_count = self
+            .get_host_partition_property(
+                hv_partition_property_code_HV_PARTITION_PROPERTY_FEATURE_BANK_COUNT,
+            )
+            .unwrap() as u8;
+        assert!(
+            feature_bank_count > 0
+                && usize::from(feature_bank_count) <= MSHV_NUM_CPU_FEATURES_BANKS as usize
+        );
+
         let mut create_args = mshv_create_partition_v2 {
             pt_flags,
             pt_isolation,
-            pt_num_cpu_fbanks: MSHV_NUM_CPU_FEATURES_BANKS as u16,
+            pt_num_cpu_fbanks: feature_bank_count.into(),
             ..Default::default()
         };
 
@@ -113,23 +123,50 @@ impl Mshv {
             create_args.pt_disabled_xsave = disabled_xsave_features.as_uint64;
         }
 
+        let mut host_processor_features = [0u64; MSHV_NUM_CPU_FEATURES_BANKS as usize];
+        if feature_bank_count > HV_PARTITION_PROCESSOR_CREATION_FEATURES_BANKS as u8 {
+            let root_features = self
+                .get_host_partition_property_ex(
+                    hv_partition_property_code_HV_PARTITION_PROPERTY_ROOT_PROCESSOR_FEATURES_EX,
+                )
+                .unwrap();
+            // SAFETY: The extended property starts with an 8-byte header followed
+            // by the advertised number of u64 processor feature banks.
+            unsafe {
+                assert_eq!(root_features.buffer[0], feature_bank_count);
+                for (bank, features) in host_processor_features
+                    .iter_mut()
+                    .enumerate()
+                    .take(feature_bank_count.into())
+                {
+                    *features = std::ptr::read_unaligned(
+                        root_features.buffer.as_ptr().add(8 + bank * 8) as *const u64,
+                    );
+                }
+            }
+        } else {
+            host_processor_features[0] = self
+                .get_host_partition_property(
+                    hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES0,
+                )
+                .unwrap();
+            if feature_bank_count > 1 {
+                host_processor_features[1] = self
+                    .get_host_partition_property(
+                        hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES1,
+                    )
+                    .unwrap();
+            }
+        }
+
         let mut disabled_cpu_features: hv_partition_processor_features = Default::default();
-        let host_proc_features0 = self
-            .get_host_partition_property(
-                hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES0,
-            )
-            .unwrap();
-        let host_proc_features1 = self
-            .get_host_partition_property(
-                hv_partition_property_code_HV_PARTITION_PROPERTY_PROCESSOR_FEATURES1,
-            )
-            .unwrap();
         unsafe {
             // pt_cpu_fbanks expects _disabled_ processor features (bit = 1 means disabled)
-            // whereas host_proc_features are _enabled_ features (bit = 1 means enabled).
+            // whereas host processor features are _enabled_ features (bit = 1 means enabled).
             // So we invert the bits here.
-            disabled_cpu_features.as_uint64[0] = !host_proc_features0;
-            disabled_cpu_features.as_uint64[1] = !host_proc_features1;
+            for bank in 0..usize::from(feature_bank_count) {
+                disabled_cpu_features.as_uint64[bank] = !host_processor_features[bank];
+            }
             // We can get the features from host property but we should not blindly enable
             // the reserved bits(that may accidentaly be enabled with newer hypervisor version or hardware)
             // and may impact live migration.
@@ -138,11 +175,26 @@ impl Mshv {
                 .__bindgen_anon_1
                 .set_reserved_bank0(0xFFFFFFFFFFFFFFFF);
             #[cfg(target_arch = "aarch64")]
+            {
+                disabled_cpu_features
+                    .__bindgen_anon_1
+                    .set_reserved0(0xFFFFFFFFFFFFFFFF);
+                disabled_cpu_features
+                    .__bindgen_anon_1
+                    .set_reserved1(0xFFFFFFFFFFFFFFFF);
+                disabled_cpu_features
+                    .__bindgen_anon_1
+                    .set_reserved2(0xFFFFFFFFFFFFFFFF);
+                disabled_cpu_features
+                    .__bindgen_anon_1
+                    .set_reserved3(0xFFFFFFFFFFFFFFFF);
+            }
             disabled_cpu_features
                 .__bindgen_anon_1
-                .set_reserved_bank1(0xFFFFFFFFFFFFFFFF);
-            create_args.pt_cpu_fbanks[0] = disabled_cpu_features.as_uint64[0];
-            create_args.pt_cpu_fbanks[1] = disabled_cpu_features.as_uint64[1];
+                .set_reserved_bank2(0xFFFFFFFFFFFFFFFF);
+            for bank in 0..usize::from(feature_bank_count) {
+                create_args.pt_cpu_fbanks[bank] = disabled_cpu_features.as_uint64[bank];
+            }
         };
 
         create_args
