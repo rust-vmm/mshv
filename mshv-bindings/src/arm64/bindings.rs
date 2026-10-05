@@ -18244,11 +18244,12 @@ pub struct mshv_gpap_range_access_bitmap {
     pub gpap_base: __u64,
     pub output_buffer: __u64,
     pub processed: __u64,
+    pub hvcall_status: __u64,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
     ["Size of mshv_gpap_range_access_bitmap"]
-        [::std::mem::size_of::<mshv_gpap_range_access_bitmap>() - 40usize];
+        [::std::mem::size_of::<mshv_gpap_range_access_bitmap>() - 48usize];
     ["Alignment of mshv_gpap_range_access_bitmap"]
         [::std::mem::align_of::<mshv_gpap_range_access_bitmap>() - 8usize];
     ["Offset of field: mshv_gpap_range_access_bitmap::flags"]
@@ -18265,6 +18266,8 @@ const _: () = {
         [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, output_buffer) - 24usize];
     ["Offset of field: mshv_gpap_range_access_bitmap::processed"]
         [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, processed) - 32usize];
+    ["Offset of field: mshv_gpap_range_access_bitmap::hvcall_status"]
+        [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, hvcall_status) - 40usize];
 };
 pub const MSHV_GPA_HOST_ACCESS_BIT_ACQUIRE: _bindgen_ty_9 = 0;
 pub const MSHV_GPA_HOST_ACCESS_BIT_READABLE: _bindgen_ty_9 = 1;

@@ -51,6 +51,8 @@ pub struct GpapRangeAccessError {
     /// Error returned by the failed ioctl.
     #[source]
     pub source: MshvError,
+    /// Raw Hyper-V status, or zero if no hypercall was issued.
+    pub hvcall_status: u64,
     /// Access states returned before the error.
     pub bitmap: Vec<u8>,
     /// Number of valid ranges in `bitmap`.
@@ -849,6 +851,7 @@ impl VmFd {
         if range_count == 0 {
             return Err(GpapRangeAccessError {
                 source: libc::EINVAL.into(),
+                hvcall_status: 0,
                 bitmap: Vec::new(),
                 processed: 0,
             });
@@ -857,6 +860,7 @@ impl VmFd {
         let bitmap_size =
             gpap_range_access_bitmap_size(range_count).map_err(|source| GpapRangeAccessError {
                 source,
+                hvcall_status: 0,
                 bitmap: Vec::new(),
                 processed: 0,
             })?;
@@ -865,6 +869,7 @@ impl VmFd {
             9u32.checked_mul(range_size.into())
                 .ok_or_else(|| GpapRangeAccessError {
                     source: libc::EINVAL.into(),
+                    hvcall_status: 0,
                     bitmap: Vec::new(),
                     processed: 0,
                 })?;
@@ -872,6 +877,7 @@ impl VmFd {
             .checked_shl(range_shift)
             .ok_or_else(|| GpapRangeAccessError {
                 source: libc::EINVAL.into(),
+                hvcall_status: 0,
                 bitmap: Vec::new(),
                 processed: 0,
             })?;
@@ -885,12 +891,14 @@ impl VmFd {
                 .checked_add(processed.checked_mul(range_pages).ok_or_else(|| {
                     GpapRangeAccessError {
                         source: libc::EINVAL.into(),
+                        hvcall_status: 0,
                         bitmap: bitmap[..bitmap_offset].to_vec(),
                         processed,
                     }
                 })?)
                 .ok_or_else(|| GpapRangeAccessError {
                     source: libc::EINVAL.into(),
+                    hvcall_status: 0,
                     bitmap: bitmap[..bitmap_offset].to_vec(),
                     processed,
                 })?;
@@ -912,6 +920,7 @@ impl VmFd {
                 bitmap.truncate(gpap_range_access_bitmap_size(processed).unwrap_or_default());
                 return Err(GpapRangeAccessError {
                     source: errno::Error::last().into(),
+                    hvcall_status: args.hvcall_status,
                     bitmap,
                     processed,
                 });
@@ -920,6 +929,7 @@ impl VmFd {
                 bitmap.truncate(gpap_range_access_bitmap_size(processed).unwrap_or_default());
                 return Err(GpapRangeAccessError {
                     source: libc::EIO.into(),
+                    hvcall_status: args.hvcall_status,
                     bitmap,
                     processed,
                 });
