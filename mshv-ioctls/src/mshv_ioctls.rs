@@ -53,10 +53,10 @@ ioctl_iow_nr!(
     mshv_import_isolated_pages
 );
 ioctl_iowr_nr!(
-    MSHV_GET_GPAP_RANGE_ACCESS_BITMAP,
+    MSHV_GET_GPAP_RANGE_ACCESS,
     MSHV_IOCTL,
     0x0B,
-    mshv_gpap_range_access_bitmap
+    mshv_gpap_range_access_states
 );
 
 // deprecated

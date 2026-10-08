@@ -22,19 +22,21 @@ use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref};
 /// Batch size for processing page access states
 const PAGE_ACCESS_STATES_BATCH_SIZE: u64 = 0x10000;
 const GPA_RANGE_ACCESS_BATCH_SIZE: u64 = MSHV_GET_GPA_ACCESS_STATES_BATCH_SIZE as u64;
+const HYPERCALL_REP_COMP_OFFSET: u32 = 32;
+const HYPERCALL_REP_COMP_MASK: u64 = 0xfff;
 
-fn gpap_range_access_bitmap_size(range_count: u64) -> Result<usize> {
+fn gpap_range_access_states_size(range_count: u64) -> Result<usize> {
     usize::try_from(range_count).map_err(|_| libc::EINVAL.into())
 }
 
-fn make_gpap_range_access_bitmap_args(
+fn make_gpap_range_access_states_args(
     base_pfn: u64,
     range_count: u64,
     range_size: u8,
     flags: u8,
     output_buffer: u64,
-) -> mshv_gpap_range_access_bitmap {
-    mshv_gpap_range_access_bitmap {
+) -> mshv_gpap_range_access_states {
+    mshv_gpap_range_access_states {
         flags,
         range_size,
         range_count,
@@ -42,6 +44,10 @@ fn make_gpap_range_access_bitmap_args(
         output_buffer,
         ..Default::default()
     }
+}
+
+fn hypercall_reps_completed(status: u64) -> u64 {
+    (status >> HYPERCALL_REP_COMP_OFFSET) & HYPERCALL_REP_COMP_MASK
 }
 
 /// Error returned while querying GPA range access states.
@@ -54,8 +60,8 @@ pub struct GpapRangeAccessError {
     /// Raw Hyper-V status, or zero if no hypercall was issued.
     pub hvcall_status: u64,
     /// Access states returned before the error.
-    pub bitmap: Vec<u8>,
-    /// Number of valid ranges in `bitmap`.
+    pub states: Vec<u8>,
+    /// Number of valid ranges in `states`.
     pub processed: u64,
 }
 
@@ -841,7 +847,7 @@ impl VmFd {
     /// is a combination of `MSHV_GPAP_ACCESS_{CLEAR,SET}_*`.
     /// On error, [`GpapRangeAccessError`] contains all states processed before
     /// the failure, including a partial final batch.
-    pub fn get_gpap_range_access_bitmap(
+    pub fn get_gpap_range_access_states(
         &self,
         base_pfn: u64,
         range_count: u64,
@@ -852,25 +858,25 @@ impl VmFd {
             return Err(GpapRangeAccessError {
                 source: libc::EINVAL.into(),
                 hvcall_status: 0,
-                bitmap: Vec::new(),
+                states: Vec::new(),
                 processed: 0,
             });
         }
 
-        let bitmap_size =
-            gpap_range_access_bitmap_size(range_count).map_err(|source| GpapRangeAccessError {
+        let states_size =
+            gpap_range_access_states_size(range_count).map_err(|source| GpapRangeAccessError {
                 source,
                 hvcall_status: 0,
-                bitmap: Vec::new(),
+                states: Vec::new(),
                 processed: 0,
             })?;
-        let mut bitmap = vec![0u8; bitmap_size];
+        let mut states = vec![0u8; states_size];
         let range_shift =
             9u32.checked_mul(range_size.into())
                 .ok_or_else(|| GpapRangeAccessError {
                     source: libc::EINVAL.into(),
                     hvcall_status: 0,
-                    bitmap: Vec::new(),
+                    states: Vec::new(),
                     processed: 0,
                 })?;
         let range_pages = 1u64
@@ -878,31 +884,31 @@ impl VmFd {
             .ok_or_else(|| GpapRangeAccessError {
                 source: libc::EINVAL.into(),
                 hvcall_status: 0,
-                bitmap: Vec::new(),
+                states: Vec::new(),
                 processed: 0,
             })?;
         let mut processed = 0u64;
 
         while processed < range_count {
             let batch_count = cmp::min(GPA_RANGE_ACCESS_BATCH_SIZE, range_count - processed);
-            let bitmap_offset = processed as usize;
-            let batch_ptr = bitmap[bitmap_offset..].as_mut_ptr() as u64;
+            let states_offset = processed as usize;
+            let batch_ptr = states[states_offset..].as_mut_ptr() as u64;
             let batch_base = base_pfn
                 .checked_add(processed.checked_mul(range_pages).ok_or_else(|| {
                     GpapRangeAccessError {
                         source: libc::EINVAL.into(),
                         hvcall_status: 0,
-                        bitmap: bitmap[..bitmap_offset].to_vec(),
+                        states: states[..states_offset].to_vec(),
                         processed,
                     }
                 })?)
                 .ok_or_else(|| GpapRangeAccessError {
                     source: libc::EINVAL.into(),
                     hvcall_status: 0,
-                    bitmap: bitmap[..bitmap_offset].to_vec(),
+                    states: states[..states_offset].to_vec(),
                     processed,
                 })?;
-            let mut args = make_gpap_range_access_bitmap_args(
+            let mut args = make_gpap_range_access_states_args(
                 batch_base,
                 batch_count,
                 range_size,
@@ -911,32 +917,32 @@ impl VmFd {
             );
 
             // SAFETY: IOCTL with correct types and sufficient output storage.
-            let ret =
-                unsafe { ioctl_with_mut_ref(self, MSHV_GET_GPAP_RANGE_ACCESS_BITMAP(), &mut args) };
-            let batch_processed = cmp::min(args.processed, batch_count);
+            let ret = unsafe { ioctl_with_mut_ref(self, MSHV_GET_GPAP_RANGE_ACCESS(), &mut args) };
+            let batch_processed =
+                cmp::min(hypercall_reps_completed(args.hvcall_status), batch_count);
             processed += batch_processed;
 
             if ret != 0 {
-                bitmap.truncate(gpap_range_access_bitmap_size(processed).unwrap_or_default());
+                states.truncate(gpap_range_access_states_size(processed).unwrap_or_default());
                 return Err(GpapRangeAccessError {
                     source: errno::Error::last().into(),
                     hvcall_status: args.hvcall_status,
-                    bitmap,
+                    states,
                     processed,
                 });
             }
             if batch_processed != batch_count {
-                bitmap.truncate(gpap_range_access_bitmap_size(processed).unwrap_or_default());
+                states.truncate(gpap_range_access_states_size(processed).unwrap_or_default());
                 return Err(GpapRangeAccessError {
                     source: libc::EIO.into(),
                     hvcall_status: args.hvcall_status,
-                    bitmap,
+                    states,
                     processed,
                 });
             }
         }
 
-        Ok(bitmap)
+        Ok(states)
     }
 
     /// Gets the bitmap of pages dirtied since the last call of this function
@@ -1054,12 +1060,12 @@ mod tests {
     use std::mem;
 
     #[test]
-    fn test_gpap_range_access_bitmap_args() {
-        assert_eq!(gpap_range_access_bitmap_size(1).unwrap(), 1);
-        assert_eq!(gpap_range_access_bitmap_size(4).unwrap(), 4);
-        assert_eq!(gpap_range_access_bitmap_size(5).unwrap(), 5);
+    fn test_gpap_range_access_states_args() {
+        assert_eq!(gpap_range_access_states_size(1).unwrap(), 1);
+        assert_eq!(gpap_range_access_states_size(4).unwrap(), 4);
+        assert_eq!(gpap_range_access_states_size(5).unwrap(), 5);
 
-        let args = make_gpap_range_access_bitmap_args(
+        let args = make_gpap_range_access_states_args(
             0x1234,
             5,
             MSHV_GPAP_ACCESS_RANGE_2M as u8,
@@ -1072,16 +1078,18 @@ mod tests {
         assert_eq!(args.range_count, 5);
         assert_eq!(args.gpap_base, 0x1234);
         assert_eq!(args.output_buffer, 0x5678);
-        assert_eq!(args.processed, 0);
+        assert_eq!(args.hvcall_status, 0);
         assert_eq!(GPA_RANGE_ACCESS_BATCH_SIZE, 4095);
         assert_eq!(
-            gpap_range_access_bitmap_size(GPA_RANGE_ACCESS_BATCH_SIZE).unwrap(),
+            gpap_range_access_states_size(GPA_RANGE_ACCESS_BATCH_SIZE).unwrap(),
             4095
         );
+        assert_eq!(hypercall_reps_completed(0xfff_u64 << 32), 4095);
+        assert_eq!(hypercall_reps_completed((17_u64 << 32) | 5), 17);
     }
 
     #[test]
-    fn test_get_gpap_range_access_bitmap() {
+    fn test_get_gpap_range_access_states() {
         const RANGE_COUNT: u64 = 5;
         const MEMORY_SIZE: usize = RANGE_COUNT as usize * HV_PAGE_SIZE;
 
@@ -1121,17 +1129,17 @@ mod tests {
         )
         .unwrap();
 
-        vm.get_gpap_range_access_bitmap(
+        vm.get_gpap_range_access_states(
             0,
             RANGE_COUNT,
             MSHV_GPAP_ACCESS_RANGE_4K as u8,
             (MSHV_GPAP_ACCESS_SET_ACCESSED | MSHV_GPAP_ACCESS_SET_DIRTY) as u8,
         )
         .unwrap();
-        let bitmap = vm
-            .get_gpap_range_access_bitmap(0, RANGE_COUNT, MSHV_GPAP_ACCESS_RANGE_4K as u8, 0)
+        let states = vm
+            .get_gpap_range_access_states(0, RANGE_COUNT, MSHV_GPAP_ACCESS_RANGE_4K as u8, 0)
             .unwrap();
-        assert_eq!(bitmap, vec![3; RANGE_COUNT as usize]);
+        assert_eq!(states, vec![3; RANGE_COUNT as usize]);
 
         vm.disable_dirty_page_tracking().unwrap();
         vm.unmap_user_memory(mem).unwrap();
@@ -1139,7 +1147,7 @@ mod tests {
     }
 
     #[test]
-    fn test_get_gpap_range_access_bitmap_16g() {
+    fn test_get_gpap_range_access_states_16g() {
         const MEMORY_SIZE: usize = 16 * 1024 * 1024 * 1024;
         const RANGE_COUNT: u64 = MEMORY_SIZE as u64 / HV_PAGE_SIZE as u64;
 
@@ -1180,10 +1188,10 @@ mod tests {
         )
         .unwrap();
 
-        let bitmap = vm
-            .get_gpap_range_access_bitmap(0, RANGE_COUNT, MSHV_GPAP_ACCESS_RANGE_4K as u8, 0)
+        let states = vm
+            .get_gpap_range_access_states(0, RANGE_COUNT, MSHV_GPAP_ACCESS_RANGE_4K as u8, 0)
             .unwrap();
-        assert_eq!(bitmap.len(), RANGE_COUNT as usize);
+        assert_eq!(states.len(), RANGE_COUNT as usize);
 
         vm.disable_dirty_page_tracking().unwrap();
         vm.unmap_user_memory(mem).unwrap();

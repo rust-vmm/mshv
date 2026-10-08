@@ -18236,38 +18236,35 @@ pub const MSHV_GPAP_ACCESS_RANGE_COUNT: _bindgen_ty_8 = 5;
 pub type _bindgen_ty_8 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
-pub struct mshv_gpap_range_access_bitmap {
+pub struct mshv_gpap_range_access_states {
     pub flags: __u8,
     pub range_size: __u8,
     pub rsvd: [__u8; 6usize],
     pub range_count: __u64,
     pub gpap_base: __u64,
     pub output_buffer: __u64,
-    pub processed: __u64,
     pub hvcall_status: __u64,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of mshv_gpap_range_access_bitmap"]
-        [::std::mem::size_of::<mshv_gpap_range_access_bitmap>() - 48usize];
-    ["Alignment of mshv_gpap_range_access_bitmap"]
-        [::std::mem::align_of::<mshv_gpap_range_access_bitmap>() - 8usize];
-    ["Offset of field: mshv_gpap_range_access_bitmap::flags"]
-        [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, flags) - 0usize];
-    ["Offset of field: mshv_gpap_range_access_bitmap::range_size"]
-        [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, range_size) - 1usize];
-    ["Offset of field: mshv_gpap_range_access_bitmap::rsvd"]
-        [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, rsvd) - 2usize];
-    ["Offset of field: mshv_gpap_range_access_bitmap::range_count"]
-        [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, range_count) - 8usize];
-    ["Offset of field: mshv_gpap_range_access_bitmap::gpap_base"]
-        [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, gpap_base) - 16usize];
-    ["Offset of field: mshv_gpap_range_access_bitmap::output_buffer"]
-        [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, output_buffer) - 24usize];
-    ["Offset of field: mshv_gpap_range_access_bitmap::processed"]
-        [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, processed) - 32usize];
-    ["Offset of field: mshv_gpap_range_access_bitmap::hvcall_status"]
-        [::std::mem::offset_of!(mshv_gpap_range_access_bitmap, hvcall_status) - 40usize];
+    ["Size of mshv_gpap_range_access_states"]
+        [::std::mem::size_of::<mshv_gpap_range_access_states>() - 40usize];
+    ["Alignment of mshv_gpap_range_access_states"]
+        [::std::mem::align_of::<mshv_gpap_range_access_states>() - 8usize];
+    ["Offset of field: mshv_gpap_range_access_states::flags"]
+        [::std::mem::offset_of!(mshv_gpap_range_access_states, flags) - 0usize];
+    ["Offset of field: mshv_gpap_range_access_states::range_size"]
+        [::std::mem::offset_of!(mshv_gpap_range_access_states, range_size) - 1usize];
+    ["Offset of field: mshv_gpap_range_access_states::rsvd"]
+        [::std::mem::offset_of!(mshv_gpap_range_access_states, rsvd) - 2usize];
+    ["Offset of field: mshv_gpap_range_access_states::range_count"]
+        [::std::mem::offset_of!(mshv_gpap_range_access_states, range_count) - 8usize];
+    ["Offset of field: mshv_gpap_range_access_states::gpap_base"]
+        [::std::mem::offset_of!(mshv_gpap_range_access_states, gpap_base) - 16usize];
+    ["Offset of field: mshv_gpap_range_access_states::output_buffer"]
+        [::std::mem::offset_of!(mshv_gpap_range_access_states, output_buffer) - 24usize];
+    ["Offset of field: mshv_gpap_range_access_states::hvcall_status"]
+        [::std::mem::offset_of!(mshv_gpap_range_access_states, hvcall_status) - 32usize];
 };
 pub const MSHV_GPA_HOST_ACCESS_BIT_ACQUIRE: _bindgen_ty_9 = 0;
 pub const MSHV_GPA_HOST_ACCESS_BIT_READABLE: _bindgen_ty_9 = 1;
