@@ -1416,12 +1416,12 @@ impl VcpuFd {
     /// Dedicated ioctl for GVA translation with transparent fault-in
     /// handling for movable memory regions.
     fn ioctl_translate_gva(&self, gva: u64, flags: u64) -> Result<(u64, hv_translate_gva_result)> {
-        let mut result = hv_translate_gva_result::default();
+        let mut result_code = hv_translate_gva_result_code_HV_TRANSLATE_GVA_SUCCESS;
         let mut gpa: u64 = 0;
         let mut args = mshv_translate_gva {
             gva,
             flags,
-            result: &mut result,
+            result: &mut result_code,
             gpa: &mut gpa,
         };
         // SAFETY: IOCTL with correct types, result and gpa pointers are valid
@@ -1429,7 +1429,12 @@ impl VcpuFd {
         if ret != 0 {
             return Err(errno::Error::last().into());
         }
-        Ok((gpa, result))
+        Ok((
+            gpa,
+            hv_translate_gva_result {
+                as_uint64: result_code as u64,
+            },
+        ))
     }
     /// Generic hvcall version of translate guest virtual address
     fn hvcall_translate_gva(&self, gva: u64, flags: u64) -> Result<(u64, hv_translate_gva_result)> {
