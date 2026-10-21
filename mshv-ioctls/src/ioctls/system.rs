@@ -414,6 +414,58 @@ mod tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
 
+    fn processor_feature_property(bank_count: u8, banks: &[u64]) -> hv_partition_property_ex {
+        let mut property = hv_partition_property_ex::default();
+
+        // SAFETY: buffer covers the full extended-property payload, and the
+        // test inputs fit within the processor feature bank limit.
+        unsafe {
+            property.buffer[0] = bank_count;
+            for (bank, features) in banks.iter().enumerate() {
+                std::ptr::write_unaligned(
+                    property.buffer.as_mut_ptr().add(8 + bank * 8) as *mut u64,
+                    *features,
+                );
+            }
+        }
+
+        property
+    }
+
+    #[test]
+    fn test_processor_feature_bank_constants() {
+        assert_eq!(HV_PARTITION_PROCESSOR_CREATION_FEATURES_BANKS, 2);
+        assert_eq!(HV_PARTITION_PROCESSOR_FEATURES_BANKS, 3);
+        assert_eq!(MSHV_NUM_CPU_FEATURES_BANKS, 3);
+    }
+
+    #[test]
+    fn test_parse_processor_features() {
+        let banks = [
+            0x0123_4567_89ab_cdef,
+            0xfedc_ba98_7654_3210,
+            0x55aa_55aa_55aa_55aa,
+        ];
+        let property = processor_feature_property(3, &banks);
+
+        assert_eq!(parse_processor_features(&property, 3).unwrap(), banks);
+    }
+
+    #[test]
+    fn test_parse_processor_features_rejects_invalid_bank_count() {
+        let property = processor_feature_property(2, &[1, 2]);
+        assert_eq!(
+            parse_processor_features(&property, 3).unwrap_err().errno(),
+            libc::EINVAL
+        );
+
+        let property = processor_feature_property(4, &[1, 2, 3, 4]);
+        assert_eq!(
+            parse_processor_features(&property, 4).unwrap_err().errno(),
+            libc::EINVAL
+        );
+    }
+
     #[test]
     #[ignore]
     fn test_create_vm() {
